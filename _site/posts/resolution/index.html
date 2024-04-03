@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Angelo Maria Sabatini">
-<meta name="dcterms.date" content="2024-04-03">
+<meta name="dcterms.date" content="2024-04-02">
 
-<title>blog - On the frequency resolution of spectral analysis</title>
+<title>blog - On the frequency resolution of analysis</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -173,9 +173,9 @@ window.Quarto = {
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">On the frequency resolution of spectral analysis</h1>
+      <h1 class="title">On the frequency resolution of analysis</h1>
                                 <div class="quarto-categories">
-                <div class="quarto-category">signal processing</div>
+                <div class="quarto-category">news</div>
               </div>
                   </div>
   </div>
@@ -193,7 +193,7 @@ window.Quarto = {
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">April 3, 2024</p>
+        <p class="date">April 2, 2024</p>
       </div>
     </div>
     
@@ -250,11 +250,11 @@ Reminder
 \cos(2\pi f_0n)=\cos\left(2\pi\frac{1}{2}n\right)=\cos(\pi n)=(-1)^n
 \]</span></p>
 <p>This is indeed the sequence with the highest conceivable rate of change: at every time instant, the output sample flips with respect to the previous one.</p>
-<p>A sinusoidal signal is periodic if its frequency is expressed as a rational number; a complex signal arising from the additive combination of periodical sinusoidal signals is periodic with period equal to the least common integer multiple of their periods.</p>
+<p>A sinusoidal signal is periodic if its frequency is expressed as a rational number; a complex signal arising from the additive combination of periodical sinusoidal signals is periodic if the least common integer multiple of their frequencies exist.</p>
 </div>
 </div>
-<p>The phenomenon of <strong>amplitude ambiguity</strong> consists in ambiguous and false amplitudes occurring in the spectrum of <span class="math inline">\(x(t)\)</span> whenever the total sample period <span class="math inline">\(T_r\)</span> (the record time) is not an integer multiple of <em>all</em> of the signal’s contributory periods. That is, false or ambiguous amplitudes will occur at frequencies that are immediately adjacent to the actual frequency and spill from it somehow in its neighborhood.</p>
-<p>For aperiodic signals, <span class="math inline">\(T_r\)</span> theoretically must be infinite. For complex periodic signals, <span class="math inline">\(T_r\)</span> must be equal to the least common integer multiple of all the periods contained in the signal. When this condition cannot be fulfilled, windowing is the elective method to minimize the effect of amplitude ambiguity (not used herein). Application of the DFT or FFT to an aperiodic signal implicitly assumes that the signal is infinite in length and formed by repeating the signal of length <span class="math inline">\(T_r\)</span> an infinite number of times. This leads to discontinuities in the amplitude that occur at each integer multiple of <span class="math inline">\(T_r\)</span>. These discontinuities are step-like, which introduce false amplitudes that decrease around the main frequencies.</p>
+<p>The phenomenon of <strong>amplitude ambiguity</strong> consists of the occurrence of ambiguous and false amplitudes in the spectrum of <span class="math inline">\(x(t)\)</span> whenever the total sample period <span class="math inline">\(T_r\)</span> (the record time) is not an integer multiple of <em>all</em> of the signal’s contributory periods. That is, false or ambiguous amplitudes will occur at frequencies that are immediately adjacent to the actual frequency and spill from it somehow in its neighborhood.</p>
+<p>For aperiodic signals, <span class="math inline">\(T_r\)</span> theoretically must be infinite. For complex periodic signals, <span class="math inline">\(T_r\)</span> must be equal to the least common integer multiple of all the frequencies contained in the signal. When this condition cannot be fulfilled, windowing is the elective method to minimize the effect of amplitude ambiguity. Application of the DFT or FFT to an aperiodic signal implicitly assumes that the signal is infinite in length and formed by repeating the signal of length <span class="math inline">\(T_r\)</span> an infinite number of times. This leads to discontinuities in the amplitude that occur at each integer multiple of <span class="math inline">\(T_r\)</span>. These discontinuities are step-like, which introduce false amplitudes that decrease around the main frequencies.</p>
 <p>The method of spectral analysis based on using the FFT algorithm is summarized below.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
@@ -290,14 +290,13 @@ Method of spectral analysis
 <span id="overview-13"><a href="#overview-13" aria-hidden="true" tabindex="-1"></a><span class="va">x2</span> <span class="op">=</span> <span class="va">cos</span>(<span class="va">t</span><span class="op">.*</span>(<span class="fl">2</span><span class="op">*</span><span class="va">pi</span><span class="op">*</span><span class="va">f2</span>))<span class="op">;</span> <span class="co">% sinusoid 2</span></span>
 <span id="overview-14"><a href="#overview-14" aria-hidden="true" tabindex="-1"></a><span class="va">x3</span> <span class="op">=</span> <span class="va">cos</span>(<span class="va">t</span><span class="op">.*</span>(<span class="fl">2</span><span class="op">*</span><span class="va">pi</span><span class="op">*</span><span class="va">f3</span>))<span class="op">;</span> <span class="co">% sinusoid 3</span></span>
 <span id="overview-15"><a href="#overview-15" aria-hidden="true" tabindex="-1"></a><span class="va">x4</span> <span class="op">=</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">+</span> <span class="va">x3</span><span class="op">;</span>      <span class="co">% additive combination</span></span>
-<span id="overview-16"><a href="#overview-16" aria-hidden="true" tabindex="-1"></a><span class="va">X</span>  <span class="op">=</span> [<span class="va">x1</span><span class="op">;</span> <span class="va">x2</span><span class="op">;</span> <span class="va">x3</span><span class="op">;</span> <span class="va">x4</span>]<span class="op">;</span></span>
-<span id="overview-17"><a href="#overview-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="overview-18"><a href="#overview-18" aria-hidden="true" tabindex="-1"></a><span class="va">P</span>              <span class="op">=</span> <span class="va">fft</span>(<span class="va">X</span><span class="op">,</span> <span class="va">N</span>)<span class="op">;</span>         <span class="co">% FFT calculation</span></span>
-<span id="overview-19"><a href="#overview-19" aria-hidden="true" tabindex="-1"></a><span class="va">P2</span>             <span class="op">=</span> <span class="va">abs</span>(<span class="va">P</span><span class="op">/</span><span class="va">N</span>)<span class="op">;</span>          <span class="co">% scaling by N     </span></span>
-<span id="overview-20"><a href="#overview-20" aria-hidden="true" tabindex="-1"></a><span class="va">P1</span>             <span class="op">=</span> <span class="va">P2</span>(<span class="op">:,</span> <span class="fl">1</span><span class="op">:</span><span class="va">N</span><span class="op">/</span><span class="fl">2</span><span class="op">+</span><span class="fl">1</span>)<span class="op">;</span>  </span>
-<span id="overview-21"><a href="#overview-21" aria-hidden="true" tabindex="-1"></a><span class="va">P1</span>(<span class="op">:,</span> <span class="fl">2</span><span class="op">:</span><span class="kw">end</span><span class="op">-</span><span class="fl">1</span>) <span class="op">=</span> <span class="fl">2</span><span class="op">*</span><span class="va">P1</span>(<span class="op">:,</span> <span class="fl">2</span><span class="op">:</span><span class="kw">end</span><span class="op">-</span><span class="fl">1</span>)<span class="op">;</span> </span>
-<span id="overview-22"><a href="#overview-22" aria-hidden="true" tabindex="-1"></a><span class="va">Y</span>              <span class="op">=</span> <span class="va">P1</span>(<span class="op">:,</span> <span class="fl">1</span><span class="op">:</span><span class="kw">end</span><span class="op">-</span><span class="fl">1</span>)<span class="op">;</span>    <span class="co">% single-side spectrum</span></span>
-<span id="overview-23"><a href="#overview-23" aria-hidden="true" tabindex="-1"></a><span class="va">f</span>              <span class="op">=</span> (<span class="fl">0</span><span class="op">:</span><span class="va">N</span><span class="op">/</span><span class="fl">2</span><span class="op">-</span><span class="fl">1</span>)<span class="op">.*</span>(<span class="va">fs</span><span class="op">/</span><span class="va">N</span>)<span class="op">;</span> <span class="co">% frequency domain, Hz</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="overview-16"><a href="#overview-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="overview-17"><a href="#overview-17" aria-hidden="true" tabindex="-1"></a><span class="va">P</span>              <span class="op">=</span> <span class="va">fft</span>(<span class="va">X</span><span class="op">,</span> <span class="va">N</span>)<span class="op">;</span>         <span class="co">% FFT calculation</span></span>
+<span id="overview-18"><a href="#overview-18" aria-hidden="true" tabindex="-1"></a><span class="va">P2</span>             <span class="op">=</span> <span class="va">abs</span>(<span class="va">P</span><span class="op">/</span><span class="va">N</span>)<span class="op">;</span>          <span class="co">% scaling by N     </span></span>
+<span id="overview-19"><a href="#overview-19" aria-hidden="true" tabindex="-1"></a><span class="va">P1</span>             <span class="op">=</span> <span class="va">P2</span>(<span class="op">:,</span> <span class="fl">1</span><span class="op">:</span><span class="va">N</span><span class="op">/</span><span class="fl">2</span><span class="op">+</span><span class="fl">1</span>)<span class="op">;</span>  </span>
+<span id="overview-20"><a href="#overview-20" aria-hidden="true" tabindex="-1"></a><span class="va">P1</span>(<span class="op">:,</span> <span class="fl">2</span><span class="op">:</span><span class="kw">end</span><span class="op">-</span><span class="fl">1</span>) <span class="op">=</span> <span class="fl">2</span><span class="op">*</span><span class="va">P1</span>(<span class="op">:,</span> <span class="fl">2</span><span class="op">:</span><span class="kw">end</span><span class="op">-</span><span class="fl">1</span>)<span class="op">;</span> </span>
+<span id="overview-21"><a href="#overview-21" aria-hidden="true" tabindex="-1"></a><span class="va">Y</span>              <span class="op">=</span> <span class="va">P1</span>(<span class="op">:,</span> <span class="fl">1</span><span class="op">:</span><span class="kw">end</span><span class="op">-</span><span class="fl">1</span>)<span class="op">;</span>    <span class="co">% single-side spectrum</span></span>
+<span id="overview-22"><a href="#overview-22" aria-hidden="true" tabindex="-1"></a><span class="va">f</span>              <span class="op">=</span> (<span class="fl">0</span><span class="op">:</span><span class="va">N</span><span class="op">/</span><span class="fl">2</span><span class="op">-</span><span class="fl">1</span>)<span class="op">.*</span>(<span class="va">fs</span><span class="op">/</span><span class="va">N</span>)<span class="op">;</span> <span class="co">% frequency domain, Hz</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>As outlined above, the amplitudes of simple or complex periodic waveforms will be accurately represented in the DFT when <span class="math inline">\(f_s&gt;2f_{\text{max}}\)</span> and <span class="math inline">\(T_r = mT_1\)</span>, where <span class="math inline">\(m=1,2,\cdots\)</span>. <span class="math inline">\(T_1\)</span> is the fundamental period (<span class="math inline">\(T_1=1/f_1\)</span>). This implies that <span class="math inline">\(N=mf_s/f_1\)</span>. If <span class="math inline">\(T\)</span> is not an integer multiple of <span class="math inline">\(T_1\)</span>, leakage will occur in the DFT. This appears as amplitudes at <span class="math inline">\(f_1\)</span> spilling over into other adjacent frequencies.</p>
 <p>As an example, consider a signal expected to have three frequency peaks at 2.875 Hz, 3 Hz, 3.125 Hz (three sinusoidal signals with amplitude one). The sampling frequency is <span class="math inline">\(f_s=16\)</span> Hz and the sample period is <span class="math inline">\(T=8\)</span> s (<span class="math inline">\(N=128\)</span>). The component at 2.875 Hz is observed exactly for 23 periods, the component at 3 Hz for 24 periods, and the component at 3.125 Hz for 25 periods. The resolution calculated according to <a href="#eq-eq1" class="quarto-xref">Equation&nbsp;1</a> is 0.125 Hz. The single-sided spectrum of the signal is shown in <a href="#fig-fig1" class="quarto-xref">Figure&nbsp;1</a>.</p>
 <div id="fig-fig1" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-align="center">
@@ -310,7 +309,7 @@ Figure&nbsp;1: Single-sided spectrum of the periodic signal composed of three co
 </figcaption>
 </figure>
 </div>
-<p>On the other hand, if the signal is expected to have three frequency peaks at 2.9375 Hz, 3 Hz, 3.0625 Hz, we should need a frequency resolution of 0.0625 Hz, hence a time period <span class="math inline">\(T_r=16\)</span> s for avoiding amplitude ambiguity, which corresponds to <span class="math inline">\(N=256\)</span> samples, see <a href="#fig-fig3" class="quarto-xref">Figure&nbsp;3</a>. On the other hand, without any adjustment in the sample period, the phenomenon of amplitude ambiguity prevents us from faithfully detecting the three signal components, see <a href="#fig-fig2" class="quarto-xref">Figure&nbsp;2</a>.</p>
+<p>On the other hand, if the signal is expected to have three frequency peaks at 2.9375 Hz, 3 Hz, 3.0625 Hz, we enjoy a frequency resolution of 0.0625 Hz, hence a time period <span class="math inline">\(T_r=16\)</span> s is needed for avoiding amplitude ambiguity, corresponding to <span class="math inline">\(N=256\)</span> samples, see <a href="#fig-fig3" class="quarto-xref">Figure&nbsp;3</a>. On the other hand, without any adjustment in the sample period, the phenomenon of amplitude ambiguity prevents us from faithfully detecting the three signal components, see <a href="#fig-fig2" class="quarto-xref">Figure&nbsp;2</a>.</p>
 <div id="fig-fig2" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -331,9 +330,7 @@ Figure&nbsp;3: Single-sided spectrum of the periodic signal composed of three co
 </figcaption>
 </figure>
 </div>
-<blockquote class="blockquote">
 <p>To conclude: whereas the sampling frequency sets the time resolution of the spectral analysis, the sample period occupies a central place in setting its frequency resolution. The sample period being the same, just increasing the sampling frequency simply increases the number of samples by the same ratio, leaving their ratio unaltered. The only way to increase the frequency resolution is to increase the sample period.</p>
-</blockquote>
 
 
 
