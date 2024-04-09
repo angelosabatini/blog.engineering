@@ -210,19 +210,19 @@ F_Q(q)=F_0\int_0^{\sqrt{q}}\exp(-r^2/2)\,r^{d-1}dr
 <p><span class="math display">\[
 r=\sqrt{q^\prime},\quad dr=\frac{1}{2\sqrt{q^\prime}}dq^\prime
 \]</span></p>
-<p>and collect all the constant into <span class="math inline">\(F_0^{\prime}\)</span>, we obtain:</p>
+<p>and collect all the constants into <span class="math inline">\(F_0^{\prime}\)</span>, we obtain:</p>
 <p><span class="math display">\[
 F_Q(q)=F_0^\prime\int_0^q\exp(-q^\prime/2)\,(q^{\prime})^{\,d/2-1}dq^\prime
 \]</span></p>
 <p>The PDF of <span class="math inline">\(Q\)</span> is then</p>
 <p><span class="math display">\[
-f_Q(q)=F_0^\prime\exp(-q/2)\,q^{\,d/2-1}
+p_Q(q)=F_0^\prime\exp(-q/2)\,q^{\,d/2-1}
 \]</span></p>
 <p>The constant <span class="math inline">\(F_0^{\prime}\)</span> can be derived from the condition of normalization:</p>
 <p><span class="math display">\[
 F_0^\prime\int_0^{\infty}\exp(-q/2)\,q^{\,d/2-1}dq=1
 \]</span></p>
-<p>The integral can be calculated from the definition of the <strong>gamma function</strong>:</p>
+<p>Recall the definition of the <strong>gamma function</strong>:</p>
 <p><span class="math display">\[
 \Gamma(p)=\int_0^{\infty}\exp(-x)x^{p-1}dx
 \]</span></p>
@@ -258,7 +258,7 @@ d=3\rightarrow&amp;\;F_0^\prime=\frac{1}{\sqrt{2\pi}}
 </div>
 <p>In conclusion:</p>
 <p><span id="eq-eq3"><span class="math display">\[
-\boxed{\,f_Q(q)=\frac{1^{\phantom{'}}}{2^{d/2}\Gamma(d/2)}\exp(-q/2)\,q^{d/2-1},\quad q\geq 0\,_{\phantom{'}}}
+\boxed{\,p_Q(q)=\frac{1^{\phantom{'}}}{2^{d/2}\Gamma(d/2)}\exp(-q/2)\,q^{d/2-1},\quad q\geq 0\,_{\phantom{'}}}
 \tag{3}\]</span></span></p>
 <p>This is the PDF of the <span class="math inline">\(\chi\)</span>-squared random variable with <span class="math inline">\(d\)</span> degrees of freedom. The mean value and the variance of <span class="math inline">\(Q\)</span> are:</p>
 <p><span id="eq-eq4"><span class="math display">\[
@@ -320,7 +320,7 @@ p_Q(q)=\dfrac{p_X(\sqrt{q})}{\vert f^{'}(\sqrt{q})\vert}+\dfrac{p_X(-\sqrt{q})}{
 \]</span></p>
 <p>In conclusion:</p>
 <p><span class="math display">\[
-\boxed{f_Q(q)=\frac{1}{\sqrt{2\pi}}\frac{1}{\sqrt{q}}\exp(-q/2),\quad q\geq 0}
+\boxed{p_Q(q)=\frac{1}{\sqrt{2\pi}}\frac{1}{\sqrt{q}}\exp(-q/2),\quad q\geq 0}
 \]</span></p>
 <p>This is the same as <a href="#eq-eq3" class="quarto-xref">Equation&nbsp;3</a>, with <span class="math inline">\(d=1\)</span> (<span class="math inline">\(F_0^{\prime}=1/\sqrt{2\pi}\)</span>). The mean value and the variance of the random variable <span class="math inline">\(Q\)</span> are, see <a href="#eq-eq4" class="quarto-xref">Equation&nbsp;4</a>:</p>
 <p><span class="math display">\[
@@ -361,7 +361,7 @@ dV=\int_0^{2\pi}r\,d\theta\,dr=2\pi r\,dr\rightarrow D=2\pi
 \]</span></p>
 <p>The <span class="math inline">\(\chi\)</span> squared density with two degrees of freedom is:</p>
 <p><span class="math display">\[
-\boxed{f_Q(q)=\frac{1}{2}\exp(-q/2),\quad q\geq 0}
+\boxed{p_Q(q)=\frac{1}{2}\exp(-q/2),\quad q\geq 0}
 \]</span></p>
 <p>The mean value and the variance of the random variable <span class="math inline">\(Q\)</span> are, see <a href="#eq-eq4" class="quarto-xref">Equation&nbsp;4</a>:</p>
 <p><span class="math display">\[
@@ -404,7 +404,7 @@ dV=\int_0^{2\pi}d\phi\int_0^{\pi}d\theta \sin\theta\,r^2\,dr=4\pi r^2\,dr\righta
 \]</span></p>
 <p>The <span class="math inline">\(\chi\)</span> squared density with three degrees of freedom is:</p>
 <p><span class="math display">\[
-\boxed{f_Q(q)=\sqrt{\dfrac{q}{2\pi}}\exp(-q/2),\quad q\geq 0}
+\boxed{p_Q(q)=\sqrt{\dfrac{q}{2\pi}}\exp(-q/2),\quad q\geq 0}
 \]</span></p>
 <p>The mean value and the variance of the random variable <span class="math inline">\(Q\)</span> are, see <a href="#eq-eq4" class="quarto-xref">Equation&nbsp;4</a>:</p>
 <p><span class="math display">\[
@@ -443,17 +443,17 @@ Table&nbsp;1: PDF of the modulus of random vectors whose components are independ
 <tr class="odd">
 <td><span class="math inline">\(d=1\)</span></td>
 <td>1D-Maxwell</td>
-<td><span class="math inline">\(f_R(r)=\dfrac{2}{\sqrt{2\pi}\sigma}\exp(-r^2/2\sigma^2)\)</span></td>
+<td><span class="math inline">\(p_R(r)=\dfrac{2}{\sqrt{2\pi}\sigma}\exp(-r^2/2\sigma^2)\)</span></td>
 </tr>
 <tr class="even">
 <td><span class="math inline">\(d=2\)</span></td>
 <td>Rayleigh</td>
-<td><span class="math inline">\(f_R(r)=\dfrac{r}{\sigma^2}\exp(-r^2/2\sigma^2)\)</span></td>
+<td><span class="math inline">\(p_R(r)=\dfrac{r}{\sigma^2}\exp(-r^2/2\sigma^2)\)</span></td>
 </tr>
 <tr class="odd">
 <td><span class="math inline">\(d=3\)</span></td>
 <td>3D-Maxwell</td>
-<td><span class="math inline">\(f_R(r)=\dfrac{2}{\sqrt{2\pi}}\dfrac{r^2}{\sigma^3}\exp(-r^2/2\sigma^2)\)</span></td>
+<td><span class="math inline">\(p_R(r)=\dfrac{2}{\sqrt{2\pi}}\dfrac{r^2}{\sigma^3}\exp(-r^2/2\sigma^2)\)</span></td>
 </tr>
 </tbody>
 </table>
@@ -467,7 +467,7 @@ Table&nbsp;1: PDF of the modulus of random vectors whose components are independ
 \sigma^2=\dfrac{k_BT}{m}
 \]</span></p>
 <p>where <span class="math inline">\(m\)</span> is the mass of the molecules. This relationship comes from the thermodynamics equation that links the variance and temperature.</p>
-<p>We can further consider the relationship existing between kinetic energy and velocity:</p>
+<p>We can further consider the relationship existing between kinetic energy and velocity (<strong>equipartition law</strong>):</p>
 <p><span class="math display">\[
 E=\dfrac{1}{2}mv^2,\quad v=\sqrt{\dfrac{2E}{m}},\quad mv\,dv=dE
 \]</span></p>
@@ -475,11 +475,11 @@ E=\dfrac{1}{2}mv^2,\quad v=\sqrt{\dfrac{2E}{m}},\quad mv\,dv=dE
 <p><span class="math display">\[
 p_E(E)=\dfrac{p_V(\sqrt{2E/m})}{m\sqrt{2E/m}}
 \]</span></p>
-<p>We know that the modulus of the velocity follows the Maxwellian distribution. Therefore:</p>
+<p>We also know that the modulus of the velocity follows the Maxwellian distribution. Therefore:</p>
 <p><span class="math display">\[
 \boxed{p_E(E)=\dfrac{2}{\sqrt{\pi}}\dfrac{1}{k_BT}\sqrt{\dfrac{E}{k_BT}}\exp(-E/k_BT)}
 \]</span></p>
-<p>This is the density of the famous <strong>Boltzmann distribution</strong>.</p>
+<p>This is the density of the <strong>Boltzmann distribution</strong>.</p>
 </div>
 <div id="exr-exr2" class="theorem exercise">
 <p><span class="theorem-title"><strong>Exercise 2</strong></span> Randomly generate points uniformly distributed in a circle of radius <span class="math inline">\(R\)</span>, with constant density <span class="math inline">\(\rho\)</span>. The circle is assumed to be centered in the origin of the Cartesian coordinate system.</p>
@@ -540,7 +540,7 @@ Figure&nbsp;4: Cloud of points distributed uniformly in a circle of radius $R$ (
 </figcaption>
 </figure>
 </div>
-<p>It is worth noting that an isotropic point distribution in the circle implies uniformity in <span class="math inline">\(\theta\)</span> but not in <span class="math inline">\(r\)</span>. Uniformity in <span class="math inline">\(r\)</span> would imply to have the same number of points for two circular sectors with different radii and then a higher density for the one closer to the center of the sphere</p>
+<p>It is worth noting that an isotropic point distribution in the circle implies uniformity in <span class="math inline">\(\theta\)</span> but not in <span class="math inline">\(r\)</span>. Uniformity in <span class="math inline">\(r\)</span> would imply to have the same number of points for two circular sectors with different radii and then a higher density for the one closer to the center of the sphere.</p>
 </div>
 <div id="exr-exr3" class="theorem exercise">
 <p><span class="theorem-title"><strong>Exercise 3</strong></span> Randomly generate isotropically distributed on a spherical surface of radius <span class="math inline">\(R\)</span> and uniformly within the spherical volume. The sphere is assumed to be centered in the origin of the Cartesian coordinate system.</p>
