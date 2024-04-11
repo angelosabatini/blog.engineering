@@ -1,10 +1,10 @@
 [
   {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "Angelo Maria Sabatini",
+    "objectID": "blog.html",
+    "href": "blog.html",
+    "title": "Computational methods in engineering",
     "section": "",
-    "text": "I am associate professor at the BioRobotics Institute, Scuola Superiore Sant’Anna, Pisa, Italy. In my posts, I attempt to explain various concepts that I have learned while studying, teaching or researching - and I intend to do that without having any specific order or plan in mind.\nCurrently, the courses I teach are: “Methods and techniques of measurement and data analysis”, M.Sc. Bionics Engineering - a program jointly offered by University of Pisa and Scuola Superiore Sant’Anna; and “Introduction to statistics and data analysis”, a service course aimed at students of the Ph.D. School of BioRobotics - established at the BioRobotics Institute, Scuola Superiore Sant’Anna.\nMy research mainly focuses on the development of algorithms for wearable inertial-sensor-based systems to be used in motion analysis applied to assessment of human performance, robotics and the like. Recently, I started studying the theory of diffusive processes, with the aim to use related mathematical frameworks to model experimental time series of interest in the study of human motion.\nFor a record of my publications, please visit the following website: https://scholar.google.com/citations?user=cz_S3UkAAAAJ&hl=en"
+    "text": "Stochastic integration by parts\n\n\n\n\n\n\n\n\n\n\n\nApril 9, 2024\n\n\n2 min\n\n\n\n\n\n\n\n\n\n\n\n\nOn transforming random variables\n\n\n\n\n\n\n\n\n\n\n\nApril 8, 2024\n\n\n8 min\n\n\n\n\n\n\n\n\n\n\n\n\nFrequency resolution of spectral analysis\n\n\n\n\n\n\n\n\n\n\n\nApril 4, 2024\n\n\n7 min\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "posts/stochastic_integration/index.html",
@@ -30,8 +30,15 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "Computational methods in engineering",
+    "title": "Angelo Maria Sabatini",
     "section": "",
-    "text": "Stochastic integration by parts\n\n\n\n\n\n\n\n\n\n\n\nApril 9, 2024\n\n\n2 min\n\n\n\n\n\n\n\n\n\n\n\n\nOn transforming random variables\n\n\n\n\n\n\n\n\n\n\n\nApril 8, 2024\n\n\n8 min\n\n\n\n\n\n\n\n\n\n\n\n\nFrequency resolution of spectral analysis\n\n\n\n\n\n\n\n\n\n\n\nApril 4, 2024\n\n\n7 min\n\n\n\n\n\n\nNo matching items"
+    "text": "I am associate professor at the BioRobotics Institute, Scuola Superiore Sant’Anna, Pisa, Italy. In my posts, I attempt to explain various concepts that I have learned while studying, teaching or researching - and I intend to do that without having any specific order or plan in mind.\nCurrently, the courses I teach are: “Methods and techniques of measurement and data analysis”, M.Sc. Bionics Engineering - a program jointly offered by University of Pisa and Scuola Superiore Sant’Anna; and “Introduction to statistics and data analysis”, a service course aimed at students of the Ph.D. School of BioRobotics - established at the BioRobotics Institute, Scuola Superiore Sant’Anna.\nMy research mainly focuses on the development of algorithms for wearable inertial-sensor-based systems to be used in motion analysis applied to assessment of human performance, robotics and the like. Recently, I started studying the theory of diffusive processes, with the aim to use related mathematical frameworks to model experimental time series of interest in the study of human motion.\nFor a record of my publications, please visit the following website: https://scholar.google.com/citations?user=cz_S3UkAAAAJ&hl=en"
+  },
+  {
+    "objectID": "lamperti_transform/index.html",
+    "href": "lamperti_transform/index.html",
+    "title": "The Lamperti transform",
+    "section": "",
+    "text": "Consider the stochastic differential equation (SDE):\n\\[\ndX_t=a(t,X_t)\\,dt+b(X_t)\\,dW_t\n\\tag{1}\\]\nwhere the diffusion coefficient \\(b(X_t)\\) depends only on the state variable. The Lamperti transform is defined as follows:\n\\[\nY_t=F(X_t)=\\int_{x^{\\prime}}^{X_t}\\frac{1}{b(u)}\\,du\n\\tag{2}\\]\nwhere \\(x^{\\prime}\\) is any value of the state variable \\(X\\) in its state space. We assume that the function \\(F(\\cdot)\\) defines a one-to-one mapping from the state space of \\(X_t\\) to \\(\\mathbb{R}\\).\nThe SDE solved by the process \\(Y_t\\) can be formulated by applying the Itô formula to the function:\n\\[\nf(t,x)=\\int_{x^{\\prime}}^x\\frac{1}{b(u)}du\n\\]\nWe calculate the derivatives of \\(f(t,x)\\) that are needed in the Itô formula:\n\\[\n\\left\\{\n\\begin{split}\nf_t(t,x)&=\\frac{\\partial}{\\partial t}f(t,x)=0\\\\\nf_x(t,x)&=\\frac{\\partial}{\\partial x}f(t,x)=\\frac{1}{b(x)}\\\\\nf_{xx}(t,x)&=\\frac{\\partial^2}{\\partial x^2}f(t,x)=-\\dfrac{\\dfrac{d}{dx}b(x)}{b^2(x)}=-\\frac{b_x(x)}{b^2(x)}\n\\end{split}\n\\right.\n\\tag{3}\\]\nThe Itô formula tells us that:\n\\[\n\\begin{split}\ndf(t,X_t)&=f_t(t,X_t)dt+f_x(t,X_t)dX_t+\\frac{1}{2}f_{xx}(t,X_t)(dX_t)^2\\\\\n&=\\frac{a(t,X_t)dt+b(X_t)dW_t}{b(X_t)}-\\frac{1}{2}\\frac{b_{x}(X_t)}{b^2(X_t)}(a(t,X_t)dt+b(X_t)dW_t)^2\\\\\n&=\\left[\\frac{a(t,X_t)}{b(X_t)}-\\frac{1}{2}b_x(X_t)\\right]dt+dW_t\n\\end{split}\n\\tag{4}\\]\nRecall that \\(Y_t=F(X_t)=f(t,X_t)\\) and \\(X_t=F^{-1}(Y_t)\\). Equation 4 can be written:\n\\[\ndY_t=a_Y(t,Y_t))dt+dW_t\n\\tag{5}\\]\nwhere:\n\\[\na_Y(t,y)=\\left[\\frac{a(t,F^{-1}(Y_t))}{b(F^{-1}(Y_t))}-\\frac{1}{2}b_x(F^{-1}(Y_t))\\right]\n\\]\n\nThe Lamperti transform changes the generic SDE Equation 1 into another SDE with a unitary diffusion coefficient, Equation 5.\n\n\nExample 1 Consider the SDE:\n\\[\ndX_t=-\\theta_1X_t\\,dt+\\theta_2\\sqrt{1+X_t^2}\\,dW_t\\\\\n\\]\nwhere \\(\\theta_1+\\theta_2^2/2&gt;0\\). It can be shown that, setting \\(\\nu=1+2\\theta_1/\\theta_2^2\\):\n\\[\nX_t\\propto t(\\nu)/\\sqrt{\\nu}\n\\]\nI.e., the stationary distribution of \\(X_t\\) is Student \\(t\\) with \\(\\nu\\) degrees of freedom. Applying the Lamperti transform:\n\\[\nF(x)=\\int_0^x\\frac{1}{\\theta_2\\sqrt{1+u^2}}du=\\frac{\\text{arcsinh}}{\\theta_2}\n\\]\nUsing Equation 4 we have:\n\\[\ndF(X_t)=-\\left[\\frac{\\theta_1}{\\theta_2}+\\frac{\\theta_2}{2}\\right]\\frac{X_t}{\\sqrt{1+X_t^2}}dt+dW_t\n\\]\nIn terms of the \\(Y_t\\) process we have:\n\\[\ndY_t=-\\left[\\frac{\\theta_1}{\\theta_2}+\\frac{\\theta_2}{2}\\right]\\text{tanh}(\\theta_2Y_t)+dW_t\n\\]"
   }
 ]

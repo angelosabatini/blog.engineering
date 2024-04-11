@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Angelo Maria Sabatini">
-<meta name="dcterms.date" content="2024-04-09">
+<meta name="dcterms.date" content="2024-04-11">
 
-<title>Blog - Stochastic integration by parts</title>
+<title>Blog - The Lamperti transform</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -25,22 +25,22 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../../">
-<script src="../../site_libs/quarto-html/quarto.js"></script>
-<script src="../../site_libs/quarto-html/popper.min.js"></script>
-<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -108,17 +108,17 @@ window.Quarto = {
 };
 </script>
 
-<link rel="stylesheet" href="../../styles.css">
+<link rel="stylesheet" href="../styles.css">
 </head>
 
 <body class="nav-fixed fullcontent">
 
 <div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+  <header id="quarto-header" class="headroom fixed-top">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="../../index.html">
+    <a class="navbar-brand" href="../index.html">
     <span class="navbar-title">Blog</span>
     </a>
   </div>
@@ -143,182 +143,110 @@ window.Quarto = {
     </nav>
 </header>
 <!-- content -->
-<header id="title-block-header" class="quarto-title-block default page-columns page-full">
-  <div class="quarto-title-banner page-columns page-full">
-    <div class="quarto-title column-body">
-      <h1 class="title">Stochastic integration by parts</h1>
-                                <div class="quarto-categories">
-                <div class="quarto-category">stochastic calculus</div>
-              </div>
-                  </div>
-  </div>
-    
-  
-  <div class="quarto-title-meta">
-
-      <div>
-      <div class="quarto-title-meta-heading">Author</div>
-      <div class="quarto-title-meta-contents">
-               <p>Angelo Maria Sabatini </p>
-            </div>
-    </div>
-      
-      <div>
-      <div class="quarto-title-meta-heading">Published</div>
-      <div class="quarto-title-meta-contents">
-        <p class="date">April 9, 2024</p>
-      </div>
-    </div>
-    
-      
-    </div>
-    
-  
-  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content quarto-banner-title-block" id="quarto-document-content">
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">The Lamperti transform</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">stochastic calculus</div>
+  </div>
+  </div>
 
 
 
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Angelo Maria Sabatini </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">April 11, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
 
 
-<p>Consider a process <span class="math inline">\(X(t)\)</span> whose increments satisfy the stochastic differential equation <span class="math inline">\(dX(t)=f(t,W(t))\,dW(t)\)</span>. Putting this in the integral form:</p>
+</header>
+
+
+<p>Consider the stochastic differential equation (SDE):</p>
 <p><span id="eq-eq1"><span class="math display">\[
-X(t)=X(0)+\int_0^tf(s,W(s))\,dW(s)
+dX_t=a(t,X_t)\,dt+b(X_t)\,dW_t
 \tag{1}\]</span></span></p>
-<p>where <span class="math inline">\(W(t)\)</span> is a Wiener process, whose initial value <span class="math inline">\(W(0)\)</span> is zero with probability one: its mean value and covariance function are</p>
-<p><span class="math display">\[
-\left\{
-\begin{split}
-\langle W(t)\rangle&amp;=0\\
-\langle W(t_1)W(t_2)&amp;=\min(t_1,t_2)
-\end{split}
-\right.
-\]</span></p>
-<p>If we consider the partition <span class="math inline">\(\Pi_n=\{0=t_0&lt;t_1&lt;\cdots&lt;t_n=t\}\)</span>, then the right-hand side of <a href="#eq-eq1" class="quarto-xref">Equation&nbsp;1</a> can be written (Itô stochastic integral):</p>
-<p><span class="math display">\[
-\int_0^tf(s,W(s))\,dW(s)=\lim_{n\rightarrow\infty}\sum_{i=0}^{n-1}f(t_i,W(t_i))(W(t_{i+1})-W(t_i))
-\]</span></p>
-<p>where the limit is taken when the size of the partition, namely <span class="math inline">\(\vert\Pi_n\vert=\max(t_{i+1}-t_i)\)</span> goes to zero. Henceforth, we assume that the partition is uniform, namely <span class="math inline">\(t_{i+1}-t_i=\Delta t, i=1,2,\cdots,n\)</span>. The convergence of the limit is assumed in the mean-square sense.</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Itô lemma
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>One important result can be obtained by considering the Itô integral:</p>
-<p><span class="math display">\[
-I(T)=\int_0^T(dW(t))^2=\lim_{n\rightarrow\infty}\sum_{i=0}^{n-1}(\Delta W(t_i))^2
-\]</span></p>
-<p><span class="math inline">\(I(T)\)</span> is easily seen to be a Gaussian random variable, with mean value <span class="math inline">\(T\)</span> (because of the property of independent increments in a Wiener process):</p>
-<p><span class="math display">\[
-\langle I(T)\rangle=\lim_{n\rightarrow\infty}\sum_{i=0}^{n-1}\langle(\Delta W(t_i))^2\rangle=\lim_{n\rightarrow\infty}\sum_{i=0}^{n-1}\Delta t=\lim_{n\rightarrow\infty}n(T/n)=T
-\]</span></p>
-<p>and zero variance:</p>
-<p><span class="math display">\[
-\text{Var}(I(T))=\lim_{n\rightarrow\infty}\sum_{i=0}^{n-1}\langle(\Delta W(t_i))^4\rangle=\lim_{n\rightarrow\infty}2n(T/n)^2=0
-\]</span></p>
-<p>Therefore, the integral of all the <span class="math inline">\((dW(t))^2\)</span> is deterministic. Formally we can write this as follows:</p>
+<p>where the diffusion coefficient <span class="math inline">\(b(X_t)\)</span> depends only on the state variable. The <strong>Lamperti transform</strong> is defined as follows:</p>
 <p><span id="eq-eq2"><span class="math display">\[
-\boxed{(dW)^2=dt}
+Y_t=F(X_t)=\int_{x^{\prime}}^{X_t}\frac{1}{b(u)}\,du
 \tag{2}\]</span></span></p>
-</div>
-</div>
-<p>The weird property of the Wiener process to have increments <span class="math inline">\(\Delta W\)</span> that scale down by <span class="math inline">\(\sqrt{\Delta t}\)</span>, forces to get rid of the ordinary chain rule of differential calculus. This has implications also in the way integration by parts can be carried out.</p>
-<p>Consider the process <span class="math inline">\(F(t)=f(t)g(W(t))\)</span>, and assume that <span class="math inline">\(f(\cdot)\)</span> and <span class="math inline">\(g(\cdot)\)</span> are differentiable. Using the product rule:</p>
+<p>where <span class="math inline">\(x^{\prime}\)</span> is any value of the state variable <span class="math inline">\(X\)</span> in its state space. We assume that the function <span class="math inline">\(F(\cdot)\)</span> defines a one-to-one mapping from the state space of <span class="math inline">\(X_t\)</span> to <span class="math inline">\(\mathbb{R}\)</span>.</p>
+<p>The SDE solved by the process <span class="math inline">\(Y_t\)</span> can be formulated by applying the Itô formula to the function:</p>
 <p><span class="math display">\[
-\begin{split}
-dF(t)&amp;=df(t)g(W(t))+f(t)dg(W(t))\\
-&amp;=f^{\prime}(t)g(W(t))dt+f(t)\left[g^{\prime}(W(t))dW(t)+\frac{1}{2}g^{\prime\prime}(W(t))(dW(t))^2\right]\\
-&amp;=\left[f^{\prime}(t)g(W(t))+\frac{1}{2}f(t)g^{\prime\prime}(W(t))\right]dt+f(t)g^{\prime}(W(t))dW(t)
-\end{split}
+f(t,x)=\int_{x^{\prime}}^x\frac{1}{b(u)}du
 \]</span></p>
-<p>Writing the relation in the integral form, we obtain a formula for <strong>stochastic integration by parts</strong>:</p>
+<p>We calculate the derivatives of <span class="math inline">\(f(t,x)\)</span> that are needed in the Itô formula:</p>
 <p><span id="eq-eq3"><span class="math display">\[
-\boxed{\int_0^tf(s)g^{\prime}(W(s))dW(s)=f(t)g(W(t))\bigg\vert^t_0-\int_0^tf^{\prime}(s)g(W(s))ds-\frac{1}{2}\int_0^tf(s)g^{\prime\prime}(W(s))ds}
+\left\{
+\begin{split}
+f_t(t,x)&amp;=\frac{\partial}{\partial t}f(t,x)=0\\
+f_x(t,x)&amp;=\frac{\partial}{\partial x}f(t,x)=\frac{1}{b(x)}\\
+f_{xx}(t,x)&amp;=\frac{\partial^2}{\partial x^2}f(t,x)=-\dfrac{\dfrac{d}{dx}b(x)}{b^2(x)}=-\frac{b_x(x)}{b^2(x)}
+\end{split}
+\right.
 \tag{3}\]</span></span></p>
-<p>Let us consider the case when <span class="math inline">\(f(t)=1\)</span>. <a href="#eq-eq3" class="quarto-xref">Equation&nbsp;3</a> becomes:</p>
+<p>The Itô formula tells us that:</p>
 <p><span id="eq-eq4"><span class="math display">\[
-\int_0^tg^{\prime}(W(s))dW(s)=g(W(t))\bigg\vert^t_0-\frac{1}{2}\int_0^tg^{\prime\prime}(W(s))ds
+\begin{split}
+df(t,X_t)&amp;=f_t(t,X_t)dt+f_x(t,X_t)dX_t+\frac{1}{2}f_{xx}(t,X_t)(dX_t)^2\\
+&amp;=\frac{a(t,X_t)dt+b(X_t)dW_t}{b(X_t)}-\frac{1}{2}\frac{b_{x}(X_t)}{b^2(X_t)}(a(t,X_t)dt+b(X_t)dW_t)^2\\
+&amp;=\left[\frac{a(t,X_t)}{b(X_t)}-\frac{1}{2}b_x(X_t)\right]dt+dW_t
+\end{split}
 \tag{4}\]</span></span></p>
-<div id="exm-exm1" class="theorem example">
-<p><span class="theorem-title"><strong>Example 1</strong></span> Calculate the Itô integral:</p>
-<p><span class="math display">\[
-\int_0^tW(s)dW(s)
-\]</span></p>
-<p>In this case, <span class="math inline">\(f(t)=1\)</span> and <span class="math inline">\(g(W(t))=W^2(t)/2\)</span>. <a href="#eq-eq4" class="quarto-xref">Equation&nbsp;4</a> simplifies to:</p>
-<p><span class="math display">\[
-\int_0^tW(s)dW(s)=\frac{1}{2}W^2(s)\bigg\vert^t_0-\frac{1}{2}\int_0^tds=\frac{W^2(t)-t}{2}
-\]</span></p>
-<p>It is noted that the result differs from the one expected by applying the ordinary rule of calculus:</p>
-<p><span class="math display">\[
-\int_0^tWdW=\frac{1}{2}W^2\bigg\vert^t_0=\frac{W^2(t)}{2}
-\]</span></p>
-</div>
-<p>Another interesting case is when <span class="math inline">\(g(W(t))=W(t)\)</span>. <a href="#eq-eq3" class="quarto-xref">Equation&nbsp;3</a> becomes:</p>
+<p>Recall that <span class="math inline">\(Y_t=F(X_t)=f(t,X_t)\)</span> and <span class="math inline">\(X_t=F^{-1}(Y_t)\)</span>. <a href="#eq-eq4" class="quarto-xref">Equation&nbsp;4</a> can be written:</p>
 <p><span id="eq-eq5"><span class="math display">\[
-\int_0^tf(s)dW(s)=f(t)W(t)\bigg\vert^t_0-\int_0^tf^{\prime}(s)W(s)ds
+dY_t=a_Y(t,Y_t))dt+dW_t
 \tag{5}\]</span></span></p>
-<div id="exm-exm2" class="theorem example">
-<p><span class="theorem-title"><strong>Example 2</strong></span> Calculate the Itô integral <span class="math inline">\(I(t)\)</span> using the definition in terms of Riemann-Stieltjes sums:</p>
+<p>where:</p>
 <p><span class="math display">\[
-I(t)=\int_0^tsdW(s)=\lim_{n\rightarrow\infty}\sum_{i=0}^{n-1}t_i\Delta W(t_i)
+a_Y(t,y)=\left[\frac{a(t,F^{-1}(Y_t))}{b(F^{-1}(Y_t))}-\frac{1}{2}b_x(F^{-1}(Y_t))\right]
 \]</span></p>
-<p>This is a Gaussian random variable, whose mean value and variance are:</p>
-<p><span id="eq-eq6"><span class="math display">\[
-\left\{
-\begin{split}
-\langle I(t)\rangle&amp;=\lim_{n\rightarrow\infty}\sum_{i=0}^{n-1}t_i\langle\Delta W(t_i)\rangle=0\\
-\text{Var}(I(t))&amp;=\lim_{n\rightarrow\infty}\sum_{i=0}^{n-1}\sum_{j=0}^{n-1}t_it_j\langle\Delta W(t_i)\Delta W(t_j)\rangle=\int_0^ts^2ds=\frac{t^3}{3}
-\end{split}
-\right.
-\tag{6}\]</span></span></p>
-</div>
-<div id="exm-exm3" class="theorem example">
-<p><span class="theorem-title"><strong>Example 3</strong></span> Calculate the Itô integral <span class="math inline">\(I(t)\)</span> using the formula for stochastic integration by parts:</p>
+<blockquote class="blockquote">
+<p>The Lamperti transform changes the generic SDE <a href="#eq-eq1" class="quarto-xref">Equation&nbsp;1</a> into another SDE with a unitary diffusion coefficient, <a href="#eq-eq5" class="quarto-xref">Equation&nbsp;5</a>.</p>
+</blockquote>
+<div id="exm-exm1" class="theorem example">
+<p><span class="theorem-title"><strong>Example 1</strong></span> Consider the SDE:</p>
 <p><span class="math display">\[
-I(t)=\int_0^tsdW(s)
+dX_t=-\theta_1X_t\,dt+\theta_2\sqrt{1+X_t^2}\,dW_t\\
 \]</span></p>
-<p>I.e., <span class="math inline">\(f(t)=t\)</span> in <a href="#eq-eq5" class="quarto-xref">Equation&nbsp;5</a>, which simplifies to:</p>
+<p>where <span class="math inline">\(\theta_1+\theta_2^2/2&gt;0\)</span>. It can be shown that, setting <span class="math inline">\(\nu=1+2\theta_1/\theta_2^2\)</span>:</p>
 <p><span class="math display">\[
-I(t)=\int_0^tsdW(s)=sW(s)\bigg\vert^t_0-\int_0^tW(s)ds=tW(t)-\underbrace{\int_0^tW(s)ds}_{\substack{\text{integrated}\\\text{Wiener process}}}
+X_t\propto t(\nu)/\sqrt{\nu}
 \]</span></p>
-<p>Denote the integrated Wiener process with <span class="math inline">\(Z(t)\)</span>:</p>
-<p><span id="eq-eq7"><span class="math display">\[
-I(t)+Z(t)=tW(t)
-\tag{7}\]</span></span></p>
-<p><span class="math inline">\(Z(t)\)</span> is a Gaussian random variable, whose mean value and variance are:</p>
-<p><span id="eq-eq8"><span class="math display">\[
-\left\{
-\begin{split}
-\langle Z(t)\rangle&amp;=\lim_{n\rightarrow\infty}\sum_{i=0}^{n-1}\langle W(t_i)\rangle\Delta t=0\\
-\text{Var}(Z(t))&amp;=\int_0^tdu\int_0^t\langle W(u)W(v)\rangle dv=2\int_0^tdu\int_0^uvdv=\int_0^tu^2du=\frac{t^3}{3}
-\end{split}
-\right.
-\tag{8}\]</span></span></p>
-</div>
-<div id="exm-exm4" class="theorem example">
-<p><span class="theorem-title"><strong>Example 4</strong></span> Calculate the covariance between <span class="math inline">\(I(t)=\int_0^tsdW(s)\)</span> and <span class="math inline">\(Z(t)=\int_0^tW(s)ds\)</span>.</p>
-<p>We know that <span class="math inline">\(I(t)+Z(t)=tW(t)\)</span>, see <a href="#eq-eq7" class="quarto-xref">Equation&nbsp;7</a>:</p>
+<p>I.e., the stationary distribution of <span class="math inline">\(X_t\)</span> is Student <span class="math inline">\(t\)</span> with <span class="math inline">\(\nu\)</span> degrees of freedom. Applying the Lamperti transform:</p>
 <p><span class="math display">\[
-\text{Cov}(I(t)+Z(t),I(t)+Z(t))=\text{Var}(tW(t))=t^3
+F(x)=\int_0^x\frac{1}{\theta_2\sqrt{1+u^2}}du=\frac{\text{arcsinh}}{\theta_2}
 \]</span></p>
-<p>On the other hand:</p>
+<p>Using <a href="#eq-eq4" class="quarto-xref">Equation&nbsp;4</a> we have:</p>
 <p><span class="math display">\[
-\text{Var}(I(t))+\text{Var}(Z(t))+2\text{Cov}(I(t),Z(t))=t^3
+dF(X_t)=-\left[\frac{\theta_1}{\theta_2}+\frac{\theta_2}{2}\right]\frac{X_t}{\sqrt{1+X_t^2}}dt+dW_t
 \]</span></p>
-<p>Using <a href="#eq-eq6" class="quarto-xref">Equation&nbsp;6</a> and <a href="#eq-eq8" class="quarto-xref">Equation&nbsp;8</a> we conclude:</p>
+<p>In terms of the <span class="math inline">\(Y_t\)</span> process we have:</p>
 <p><span class="math display">\[
-\text{Cov}(I(t),Z(t))=\frac{t^3}{6}
+dY_t=-\left[\frac{\theta_1}{\theta_2}+\frac{\theta_2}{2}\right]\text{tanh}(\theta_2Y_t)+dW_t
 \]</span></p>
-<p>The processes <span class="math inline">\(I(t)\)</span> and <span class="math inline">\(Z(t)\)</span> are thus not independent.</p>
 </div>
 
 
