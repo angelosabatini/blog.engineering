@@ -2,6 +2,8 @@
   {
     "listing": "/blog.html",
     "items": [
+      "/posts/milstein_method/index.html",
+      "/posts/lamperti_transform/index.html",
       "/posts/stochastic_integration/index.html",
       "/posts/change_of_variables/index.html",
       "/posts/resolution/index.html"
