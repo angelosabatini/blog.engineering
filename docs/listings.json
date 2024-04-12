@@ -8,5 +8,15 @@
       "/posts/change_of_variables/index.html",
       "/posts/resolution/index.html"
     ]
+  },
+  {
+    "listing": "/archive.html",
+    "items": [
+      "/posts/lamperti_transform/index.html",
+      "/posts/milstein_method/index.html",
+      "/posts/stochastic_integration/index.html",
+      "/posts/change_of_variables/index.html",
+      "/posts/resolution/index.html"
+    ]
   }
 ]
