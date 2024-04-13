@@ -33,6 +33,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
@@ -79,7 +80,7 @@ gtag('config', 'G-G7T7XXSXKG', { 'anonymize_ip': true});
 <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed fullcontent">
+<body class="nav-fixed">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -117,29 +118,30 @@ gtag('config', 'G-G7T7XXSXKG', { 'anonymize_ip': true});
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
     
 <!-- main -->
-<div class="quarto-about-jolla content">
-  <img src="sabat.png" class="about-image
-  round " style="height: 15em; width: 15em;">
- <header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">Angelo Maria Sabatini</h1>
+<main class="content column-page" id="quarto-document-content">
+
+
+
+
+<div class="grid">
+<div class="g-col-6">
+<p><img src="sabat.png" class="img-fluid"></p>
 </div>
-<div class="quarto-title-meta">
-  </div>
-</header><main class="content" id="quarto-document-content">
+<div class="g-col-6">
 <p>I am an associate professor at the BioRobotics Institute, Scuola Superiore Sant’Anna, Pisa, Italy. In my posts, I attempt to explain various concepts that I have learned while studying, teaching and doing research.</p>
 <p>My research is about the development of algorithms for wearable inertial-sensor-based systems to be used for motion analysis applied to the assessment of human performance. Recently, I started studying the theory of diffusive processes in the light of applications to the modeling of time series of human motion.</p>
 <p>For a record of my publications, please visit <a href="https://scholar.google.com/citations?user=cz_S3UkAAAAJ&amp;hl=en">this site</a>. Feel free to reach out to me via <a href="mailto:angelo.sabatini@santannapisa.it">mail</a>.</p>
-
-
-</main>  
 </div>
- <!-- /main -->
+</div>
+
+
+
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -160,6 +162,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
   toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
   const isCodeAnnotation = (el) => {
     for (const clz of el.classList) {
       if (clz.startsWith('code-annotation-')) {                     
