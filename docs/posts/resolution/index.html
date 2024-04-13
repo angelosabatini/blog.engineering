@@ -8,7 +8,7 @@
 
 <meta name="author" content="Angelo Maria Sabatini">
 <meta name="dcterms.date" content="2024-04-13">
-<meta name="description" content="Spectral leakage and length of data record hamper our ability to resolve spectral lines by DFT/FFT analysis. In this post, a brief discussion is presented, with examples using sinusoidal mixtures.">
+<meta name="description" content="Spectral leakage and length of data record hamper our ability to resolve spectral lines by DFT/FFT analysis. In this post, I briefly discuss this problem, with examples using sinusoidal mixtures.">
 
 <title>Angelo Maria Sabatini - Frequency resolution of spectral analysis</title>
 <style>
@@ -228,7 +228,7 @@ window.Quarto = {
 
 <div>
   <div class="description">
-    Spectral leakage and length of data record hamper our ability to resolve spectral lines by DFT/FFT analysis. In this post, a brief discussion is presented, with examples using sinusoidal mixtures.
+    Spectral leakage and length of data record hamper our ability to resolve spectral lines by DFT/FFT analysis. In this post, I briefly discuss this problem, with examples using sinusoidal mixtures.
   </div>
 </div>
 
@@ -271,7 +271,7 @@ f_{\text{min}}=\frac{1}{T_r}=\frac{1}{NT_s}
 <p><span class="math display">\[
 N_f=\frac{f_{\text{max}}-f_{\text{min}}}{\Delta f}
 \]</span></p>
-<p>where <span class="math inline">\(\Delta f\)</span> is the frequency resolution. Since <span class="math inline">\(\Delta f=f_{\text{min}}\)</span>, we also have:</p>
+<p>where <span class="math inline">\(\Delta f\)</span> is the frequency resolution. Since <span class="math inline">\(\Delta f=f_{\text{min}}\)</span>, I also have:</p>
 <p><span class="math display">\[
 N_f=\dfrac{\dfrac{f_s}{2}-\dfrac{f_s}{N}}{\dfrac{f_s}{N}}=\frac{N}{2}-1
 \]</span></p>
@@ -368,7 +368,7 @@ Figure&nbsp;1: Single-side spectrum of the sinusoidal mixture composed of three 
 </figcaption>
 </figure>
 </div>
-<p>Consider now the case that the three components of the sinusoidal mixture have frequencies 2.9375 Hz, 3 Hz, 3.0625 Hz. To resolve them, we would need to double the frequency resolution of the FFT, up to 0.0625 Hz with respect to the scenario of <a href="#fig-fig1" class="quarto-xref">Figure&nbsp;1</a>. Erroneously, I double the sampling frequency, <a href="#fig-fig2" class="quarto-xref">Figure&nbsp;2</a>: this expedient leaves the frequency resolution unaltered, since doubling the sample period without touching the sample period also doubles the number of samples.</p>
+<p>Consider now the case that the three components of the sinusoidal mixture have frequencies 2.9375 Hz, 3 Hz, 3.0625 Hz. To resolve them, I would need to double the frequency resolution of the FFT, up to 0.0625 Hz, with respect to the scenario of <a href="#fig-fig1" class="quarto-xref">Figure&nbsp;1</a>. Erroneously, I double the sampling frequency. However, this expedient leaves the frequency resolution unaltered, since doubling the sample period without touching the sample period also doubles the number of samples. Moreover, the sample period is not properly chosen to avoid spectral leakage, as clearly seen in <a href="#fig-fig2" class="quarto-xref">Figure&nbsp;2</a>.</p>
 <div id="fig-fig2" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
