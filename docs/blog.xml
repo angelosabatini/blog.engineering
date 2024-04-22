@@ -10,7 +10,119 @@
 <atom:link href="https://amsabatini.netlify.app/blog.xml" rel="self" type="application/rss+xml"/>
 <description>This the personal blog of Angelo Maria Sabatini</description>
 <generator>quarto-1.4.550</generator>
-<lastBuildDate>Fri, 12 Apr 2024 22:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sun, 21 Apr 2024 22:00:00 GMT</lastBuildDate>
+<item>
+  <title>Random incidence</title>
+  <dc:creator>Angelo Maria Sabatini</dc:creator>
+  <link>https://amsabatini.netlify.app/posts/random_incidence/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>Consider the situation when the continuous time axis of our observations is partitioned into a sequence of interarrival intervals. With the term <em>arrival</em>, we designate the occurrence of everything we are interested to observe, for instance, a particle emitted from radioactive material and captured by a radiation counter, a message reaching its destination queue, maybe the bus that we are anxiously waiting for at the bus stop. Usually, probabilistic models that attempt to describe these different type of arrivals share the same assumption, namely the interarrival times (i.e., the times between successive arrivals) are independent random variables: for instance, the continuous-time Poisson process (hopefully, not the right model to predict the next bus arrival anyway!) is the case where the interarrival times are modeled as independent identically exponentially distributed random variables.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Exponential distribution
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A continuous random variable <img src="https://latex.codecogs.com/png.latex?X"> is said to be exponential, or exponentially distributed with parameter <img src="https://latex.codecogs.com/png.latex?%5Clambda">, when its cumulative distribution function (CDF) is written</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AF_X(x)=%5Ctext%7BPr%7D(X%5Cleq%20x)=1-e%5E%7B-%5Clambda%20x%7D,%5C;x%5Cgeq0%0A"></p>
+<p>The probability density function (PDF) is then given by:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Ap_X(x)=%5Cfrac%7Bd%7D%7Bdx%7DF_X(x)=%5Clambda%5C,e%5E%7B-%5Clambda%20x%7D,%5C;x%5Cgeq0%0A"></p>
+<p>The mean value, the mean square value and the variance of <img src="https://latex.codecogs.com/png.latex?X"> are:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7D%0AE%5BX%5D&amp;=%5Cint_0%5E%7B%5Cinfty%7Dxp_X(x)%5C,dx=%5Cfrac%7B1%7D%7B%5Clambda%7D%5C%5C%0AE%5BX%5E2%5D&amp;=%5Cint_0%5E%7B%5Cinfty%7Dx%5E2p_X(x)%5C,dx=%5Cfrac%7B2%7D%7B%5Clambda%5E2%7D%5C%5C%0A%5Ctext%7BVar%7D(X)&amp;=E%5BX%5E2%5D-E%5BX%5D%5E2=%5Cfrac%7B1%7D%7B%5Clambda%5E2%7D%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A"></p>
+<p>Integration by parts can be used to calculate the two expectations <img src="https://latex.codecogs.com/png.latex?E%5BX%5D"> and <img src="https://latex.codecogs.com/png.latex?E%5BX%5E2%5D">.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Poisson process
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Consider a sequence of independent exponential random variables <img src="https://latex.codecogs.com/png.latex?T_1,T_2,T_3%5Ccdots,"> with common parameter <img src="https://latex.codecogs.com/png.latex?%5Clambda">, and let these stand for the interarrival times. The arrivals are then recorded at times <img src="https://latex.codecogs.com/png.latex?T_1,T_1+T_2,T_1+T_2+T_3,%5Ccdots"> and so forth, to define a continuous-time Poisson process.</p>
+<p>A Poisson process is endowed with the following important properties:</p>
+<ol type="1">
+<li><p><strong>Independence of non-overlapping sets of times</strong>. This is a direct consequence of the assumed independence of the interarrival times.</p></li>
+<li><p><strong>Fresh-start property</strong>. The part of the Poisson process that starts at any particular time <img src="https://latex.codecogs.com/png.latex?t%3E0"> is a probabilistic replica of the Poisson process starting at time 0, and is independent of the part of the process prior to time <img src="https://latex.codecogs.com/png.latex?t">. This can be seen as a special case of point 1.</p></li>
+<li><p><strong>Memoryless interarrival time distribution</strong>. If <img src="https://latex.codecogs.com/png.latex?T"> is the time of the first arrival and if we know that <img src="https://latex.codecogs.com/png.latex?T%3Et">, then the remaining time <img src="https://latex.codecogs.com/png.latex?T%E2%88%92t"> is exponentially distributed, with the same parameter <img src="https://latex.codecogs.com/png.latex?%5Clambda">:</p></li>
+</ol>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0A%5Ctext%7BPr%7D(T%3Et+s%5C,%5Cvert%5C,T%3Et)&amp;=%5Cfrac%7B%5Ctext%7BPr%7D(T%3Et+s,T%3Et)%7D%7B%5Ctext%7BPr%7D(T%3Et)%7D%5C%5C%0A&amp;=%5Cfrac%7B%5Ctext%7BPr%7D(T%3Et+s)%7D%7B%5Ctext%7BPr%7D(T%3Et)%7D=%5Cfrac%7B1-F_T(t+s)%7D%7B1-F_T(t)%7D%5C%5C%0A&amp;=%5Cfrac%7Be%5E%7B-%5Clambda(t+s)%7D%7D%7Be%5E%7B-%5Clambda%20t%7D%7D=e%5E%7B-%5Clambda%20s%7D=%5Ctext%7BPr%7D(T%3Es)%0A%5Cend%7Bsplit%7D%0A"></p>
+<p>Properties 2.-3. can be rephrased saying that the ones whose life is modeled by an exponential distribution, well they should remain <em>forever young</em>: no matter how long they have lived so far, the remaining time to their death is predicted as if they are just born!</p>
+</div>
+</div>
+<p>The term <strong>random incidence</strong> denotes the arrival of an observer at an arbitrary time <img src="https://latex.codecogs.com/png.latex?t%5E*"> into a <em>gap</em> between two consecutive arrivals in an arrival-type process that is not necessarily described by a Poisson model, Figure&nbsp;1.</p>
+<div id="fig-fig1" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/random_incidence/random_incidence.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="450">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Illustration of the random incidence phenomenon.
+</figcaption>
+</figure>
+</div>
+<p>We are not saying that <img src="https://latex.codecogs.com/png.latex?t%5E*"> is random; in this regard, perhaps, using the term random incidence may appear misleading. However, the interval between the time of the previous arrival <img src="https://latex.codecogs.com/png.latex?t_p"> and <img src="https://latex.codecogs.com/png.latex?t%5E*">, and the interval between <img src="https://latex.codecogs.com/png.latex?t%5E*"> and the time of the next arrival <img src="https://latex.codecogs.com/png.latex?t_n"> are random. All we need to state to start our discussion is to assume that the observer enters the arrival-type process in a situation when a previous arrival has surely occurred: probabilistically, the gap <img src="https://latex.codecogs.com/png.latex?t_n-t_p"> is then a well-defined quantity.</p>
+<p>Suppose that we know the probability law of the interarrival times <img src="https://latex.codecogs.com/png.latex?Y">. Let us denote by <img src="https://latex.codecogs.com/png.latex?W"> the random variable that describes the duration of the gap entered by random incidence, <img src="https://latex.codecogs.com/png.latex?W=T_n-T_p">. Finally, we denote by <img src="https://latex.codecogs.com/png.latex?T"> the random variable that describes the waiting time for the next arrival from when the gap is entered by random incidence, <img src="https://latex.codecogs.com/png.latex?T=T_n-T%5E*">.</p>
+<p>It is argued that the probability that <img src="https://latex.codecogs.com/png.latex?W"> assumes a value between <img src="https://latex.codecogs.com/png.latex?w"> and <img src="https://latex.codecogs.com/png.latex?w+dw"> is proportional to both the the duration of the gap <img src="https://latex.codecogs.com/png.latex?w"> and the relative frequency of occurrence of such gaps <img src="https://latex.codecogs.com/png.latex?p_Y(w)dw">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Ctext%7BPr%7D(w%5Cleq%20W%5Cleq%20w+dw)=p_W(w)dw%5Cpropto%20w%5C,p_Y(w)dw%0A"></p>
+<p>Therefore:</p>
+<p><span id="eq-eq1"><img src="https://latex.codecogs.com/png.latex?%0Ap_W(w)=%5Cfrac%7Bw%5C,p_Y(w)%7D%7BE%5BY%5D%7D%0A%5Ctag%7B1%7D"></span></p>
+<p>where the constant of proportionality is calculated to enforce the constraint of normalization for the PDF <img src="https://latex.codecogs.com/png.latex?p_W(w)"> of <img src="https://latex.codecogs.com/png.latex?W"> (its integral from 0 to infinity must be 1).</p>
+<p>Now, given that a gap of length <img src="https://latex.codecogs.com/png.latex?w"> is entered by random incidence, we are equally likely to be anywhere within the gap. More precisely, <em>given</em> <img src="https://latex.codecogs.com/png.latex?w">, the time until the next arrival <img src="https://latex.codecogs.com/png.latex?T"> has a uniform PDF:</p>
+<p><span id="eq-eq2"><img src="https://latex.codecogs.com/png.latex?%0Ap_%7BT%5Cvert%20W%7D(t%5C,%5Cvert%5C,w)=%5Cfrac%7B1%7D%7Bw%7D,%5C;0%5Cleq%20t%5Cleq%20w%0A%5Ctag%7B2%7D"></span></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?p_%7BT%5Cvert%20W%7D(t%5C,%5Cvert%5C,w)"> is the conditional PDF of <img src="https://latex.codecogs.com/png.latex?T"> given <img src="https://latex.codecogs.com/png.latex?W">. Using Equation&nbsp;1, Equation&nbsp;2 the joint PDF <img src="https://latex.codecogs.com/png.latex?p_%7BTW%7D(t,w)"> can be written:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Ap_%7BTW%7D(t,w)=p_%7BT%5Cvert%20W%7D(t%5C,%5Cvert%5C,w)%5C,p_W(w)=%5Cfrac%7Bp_Y(w)%7D%7BE%5BY%5D%7D,%5C;0%5Cleq%20t%5Cleq%20w%3C%5Cinfty%0A"></p>
+<p>Finally, the marginal PDF <img src="https://latex.codecogs.com/png.latex?p_T(t)"> of the waiting time for the next arrival from when the gap is entered by random incidence can be formed simply by <em>integrating out</em> <img src="https://latex.codecogs.com/png.latex?W">:</p>
+<p><span id="eq-eq3"><img src="https://latex.codecogs.com/png.latex?%0A%5Cboxed%7Bp_T(t)=%5Cint_%7Bt%7D%5E%7B%5Cinfty%7D%5Cfrac%7Bp_Y(w)%7D%7BE%5BY%5D%7Ddw=%5Cfrac%7B1-F_Y(t)%7D%7BE%5BY%5D%7D,%5C;t%5Cgeq0%7D%0A%5Ctag%7B3%7D"></span></p>
+<div id="exm-exm1" class="theorem example">
+<p><span class="theorem-title"><strong>Example 1</strong></span> Consider a bus passenger arriving at a bus stop. The probabilistic law of the bus headways <img src="https://latex.codecogs.com/png.latex?F_Y(y)"> will determine the probability law for the waiting time until the next bus arrives, <img src="https://latex.codecogs.com/png.latex?p_T(t)"> via Equation&nbsp;3, if we ignore interactions between successive buses and assume that the arrivals are identically distributed and independent.</p>
+<p>Suppose that buses maintain perfect headways, being always spaced <img src="https://latex.codecogs.com/png.latex?T_0"> minutes apart:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AF_Y(y)=%5Cleft%5C%7B%5Cbegin%7Bsplit%7D0&amp;%5Cquad%20y%3CT_0%5C%5C1&amp;%5Cquad%20y%5Cgeq%20T_0%5Cend%7Bsplit%7D%5Cright.%5Crightarrow%20p_Y(y)=%5Cdelta(y-T_0)%5Crightarrow%20E%5BY%5D=T_0%0A"></p>
+<p>where the PDF is expressed in terms of a delta function located at time <img src="https://latex.codecogs.com/png.latex?T_0">. The PDF of <img src="https://latex.codecogs.com/png.latex?T"> can be written:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Ap_T(t)=%5Cleft%5C%7B%5Cbegin%7Bsplit%7D&amp;%5Cfrac%7B1%7D%7BT_0%7D&amp;%5Cquad%200%5Cleq%20t%5Cleq%20T_0%5C%5C&amp;0&amp;%5Cquad%20t%3ET_0%5Cend%7Bsplit%7D%5Cright.%5Crightarrow%20E%5BT%5D=%5Cfrac%7BT_0%7D%7B2%7D%0A"></p>
+<p>As expected intuitively, the time until the next arrival, <em>given random incidence</em>, is uniformly distributed between <img src="https://latex.codecogs.com/png.latex?0"> and <img src="https://latex.codecogs.com/png.latex?T_0">, with mean value <img src="https://latex.codecogs.com/png.latex?E%5BT%5D=T_0/2">: if <img src="https://latex.codecogs.com/png.latex?T_0=60"> min the average waiting time is 30 min.</p>
+<p>Now, suppose that the bus headways are on the hour, and fifteen minutes after the hour. Thus, the interarrival times alternate between 15 and 45 minutes. If the bus passenger shows up at the bus stop at any time uniformly distributed within a hour, she/he has to wait for an average time of 15/2 min (with probability 1/4) and 45/2 min (with probability 3/4):</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AE%5BT%5D=%5Cfrac%7B15%7D%7B2%7D%5Ccdot%5Cfrac%7B1%7D%7B4%7D+%5Cfrac%7B45%7D%7B2%7D%5Ccdot%5Cfrac%7B3%7D%7B4%7D=18.75%5C;%5Ctext%7Bmin%7D%0A"></p>
+<p>More formally:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AF_Y(y)=%5Cleft%5C%7B%5Cbegin%7Bsplit%7D0&amp;%5Cquad0%5Cleq%20y%3C15%5C%5C1/2&amp;%5Cquad15%5Cleq%20y%3C45%5C%5C1&amp;%5Cquad%20y%5Cgeq45%5Cend%7Bsplit%7D%5Cright.%5Crightarrow%20E%5BY%5D=30%5C;%5Ctext%7Bmin%7D%0A"></p>
+<p>Using Equation&nbsp;3:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Ap_T(t)=%5Cleft%5C%7B%5Cbegin%7Bsplit%7D1/30&amp;%5Cquad0%5Cleq%20t%3C15%5C%5C1/60&amp;%5Cquad15%5Cleq%20t%3C45%5C%5C0&amp;%5Cquad%20t%5Cgeq45%5Cend%7Bsplit%7D%5Cright.%5Crightarrow%20E%5BT%5D=18.75%5C,%5Ctext%7Bmin%7D%0A"></p>
+<p>On average, the bus passenger has to wait longer than it might be expected taking into account <img src="https://latex.codecogs.com/png.latex?E%5BY%5D"> only, namely <img src="https://latex.codecogs.com/png.latex?E%5BY%5D/2=15"> min.</p>
+<blockquote class="blockquote">
+<p>This is because an observer who arrives at an arbitrary time, the bus passenger in this example, is more likely to fall in a large rather than a small interarrival interval: large interarrival intervals tend therefore to determine longer waiting times!</p>
+</blockquote>
+</div>
+<div id="exm-exm2" class="theorem example">
+<p><span class="theorem-title"><strong>Example 2</strong></span> Consider the (unrealistic) case that the bus headways are Poissonian. What does this mean? Basically, we state that the interarrival times are modeled by independent exponentially distributed random variables with rate <img src="https://latex.codecogs.com/png.latex?%5Clambda"> (the rate denotes the number of arrivals per unit time):</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AF_Y(y)=1-e%5E%7B-%5Clambda%20t%7D,%5C;t%5Cgeq%200%5Crightarrow%20p_Y(y)=%5Cfrac%7BF_Y(y)%7D%7Bdy%7D=%5Clambda%20e%5E%7B-%5Clambda%20t%7D,%5C;t%5Cgeq0%5Crightarrow%20E%5BY%5D=1/%5Clambda%0A"></p>
+<p>Hence:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Ap_T(t)=%5Clambda%20e%5E%7B-%5Clambda%20t%7D,%5C;t%5Cgeq0%0A"></p>
+<p>Hence <img src="https://latex.codecogs.com/png.latex?T"> is exponentially distributed with rate <img src="https://latex.codecogs.com/png.latex?%5Clambda">. The average time of waiting is <img src="https://latex.codecogs.com/png.latex?E%5BT%5D=1/%5Clambda">. No matter when the event occurred, the observer who arrives at an arbitrary time <img src="https://latex.codecogs.com/png.latex?t%5E*"> (the bus passenger in this example) sees the Poisson process to start fresh at time <img src="https://latex.codecogs.com/png.latex?t%5E*">, Figure&nbsp;1. It is worth noting that, according to the properties of independence, start-fresh and memorylessness stated above, we can run a Poisson process either forwards or backwards in time, without its properties are modified. Hence, not only <img src="https://latex.codecogs.com/png.latex?T_n-T%5E*">, but also <img src="https://latex.codecogs.com/png.latex?T%5E*-T_p"> is exponentially distributed with parameter <img src="https://latex.codecogs.com/png.latex?%5Clambda">. Moreover, <img src="https://latex.codecogs.com/png.latex?T_n-T%5E*"> and <img src="https://latex.codecogs.com/png.latex?T_n-T%5E*"> are independent. We have therefore established that the gap <img src="https://latex.codecogs.com/png.latex?W"> entered by random incidence is the sum of two independent exponential random variables with parameter <img src="https://latex.codecogs.com/png.latex?%5Clambda">, with mean <img src="https://latex.codecogs.com/png.latex?2/%5Clambda">. More formally, using Equation&nbsp;1 we get:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Ap_W(w)=%5Clambda%20w%5C,e%5E%7B-%5Clambda%20w%7D,%5C;w%5Cgeq0%0A"></p>
+<p>We recall that the random variable <img src="https://latex.codecogs.com/png.latex?X"> Erlang of order <img src="https://latex.codecogs.com/png.latex?k"> has PDF:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Ap(x)=%5Cfrac%7B%5Clambda%5Ekx%5E%7Bk-1%7De%5E%7B-%5Clambda%20x%7D%7D%7B(k-1)!%7D%0A"></p>
+<p>In conclusion, the gap duration is a random variable Erlang of order 2.</p>
+</div>
+
+
+
+ ]]></description>
+  <category>probability</category>
+  <guid>https://amsabatini.netlify.app/posts/random_incidence/</guid>
+  <pubDate>Sun, 21 Apr 2024 22:00:00 GMT</pubDate>
+  <media:content url="https://amsabatini.netlify.app/posts/random_incidence/bus.jpg" medium="image" type="image/jpeg"/>
+</item>
 <item>
   <title>Frequency resolution of spectral analysis</title>
   <dc:creator>Angelo Maria Sabatini</dc:creator>

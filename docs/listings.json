@@ -2,12 +2,14 @@
   {
     "listing": "/blog.html",
     "items": [
+      "/posts/random_incidence/index.html",
       "/posts/resolution/index.html"
     ]
   },
   {
     "listing": "/archive.html",
     "items": [
+      "/posts/random_incidence/index.html",
       "/posts/resolution/index.html"
     ]
   }
