@@ -113,6 +113,9 @@ Figure&nbsp;1: Illustration of the random incidence phenomenon.
 <p>We recall that the random variable <img src="https://latex.codecogs.com/png.latex?X"> Erlang of order <img src="https://latex.codecogs.com/png.latex?k"> has PDF:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0Ap(x)=%5Cfrac%7B%5Clambda%5Ekx%5E%7Bk-1%7De%5E%7B-%5Clambda%20x%7D%7D%7B(k-1)!%7D%0A"></p>
 <p>In conclusion, the gap duration is a random variable Erlang of order 2.</p>
+<blockquote class="blockquote">
+<p>In a similar fashion to Example&nbsp;1, when landing into a Poisson process at an arbitrary time, we are more likely to fall in a large interarrival interval; the length of what we perceive as a <em>typical</em> interarrival interval is then greater than it is in reality.</p>
+</blockquote>
 </div>
 
 
