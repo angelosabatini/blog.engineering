@@ -8,7 +8,7 @@
 
 <meta name="author" content="Angelo Maria Sabatini">
 <meta name="dcterms.date" content="2024-04-27">
-<meta name="description" content="Usually confidence intervals for the estimation of proportions are built using methods, whose application requires the validity of the normal approximation to the binomial distribution. By simulation, two of these methods (Wilson and Wald) are tested for their ability to provide the stated coverage for small-to-large samples.">
+<meta name="description" content="Usually confidence intervals for the estimation of proportions are based on methods that exploit the normal approximation to the binomial distribution. By simulation, two of these methods (Wilson and Wald) are tested for their ability to provide the stated coverage for small-to-large samples.">
 
 <title>Angelo Maria Sabatini - Confidence intervals for proportions</title>
 <style>
@@ -22,6 +22,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -194,7 +228,7 @@ window.Quarto = {
 
 <div>
   <div class="description">
-    Usually confidence intervals for the estimation of proportions are built using methods, whose application requires the validity of the normal approximation to the binomial distribution. By simulation, two of these methods (Wilson and Wald) are tested for their ability to provide the stated coverage for small-to-large samples.
+    Usually confidence intervals for the estimation of proportions are based on methods that exploit the normal approximation to the binomial distribution. By simulation, two of these methods (Wilson and Wald) are tested for their ability to provide the stated coverage for small-to-large samples.
   </div>
 </div>
 
@@ -223,7 +257,7 @@ window.Quarto = {
 </header>
 
 
-<p>Consider a Bernoulli test with <span class="math inline">\(n\)</span> independent trials and <span class="math inline">\(x\)</span> successes that are recorded in the test. The proportion <span class="math inline">\(f=x/n\)</span> is assumed to be the estimate of the true probability <span class="math inline">\(p\)</span>; we want to determine the values <span class="math inline">\(p_1\)</span> and <span class="math inline">\(p_2\)</span> of the confidence interval (CI) with the required confidence level (<span class="math inline">\(CL=100(1-\alpha)\%\)</span>) associated to <span class="math inline">\(f\)</span>.</p>
+<p>Consider a Bernoulli test with <span class="math inline">\(n\)</span> independent trials and <span class="math inline">\(x\)</span> successes that are recorded in the test. The proportion <span class="math inline">\(f=x/n\)</span> is assumed to be the estimate of the true probability <span class="math inline">\(p\)</span>; we want to determine the values <span class="math inline">\(p_1\)</span> and <span class="math inline">\(p_2\)</span> of the confidence interval (CI) with the required confidence level associated to <span class="math inline">\(f\)</span>, namely <span class="math inline">\(CL=100(1-\alpha)\%\)</span>.</p>
 <p>The <strong>Clopper-Pearson equations</strong> can be used to calculate the CI:</p>
 <p><span id="eq-eq1"><span class="math display">\[
 \left\{
@@ -234,33 +268,44 @@ window.Quarto = {
 \right.
 \tag{1}\]</span></span></p>
 <p>where <span class="math inline">\(CL=1-c_1-c_2\)</span>. One common choice for <span class="math inline">\(c_1\)</span> and <span class="math inline">\(c_2\)</span> is the symmetric interval, <span class="math inline">\(c_1=c_2=(1-CL)/2\)</span>. For instance, when <span class="math inline">\(CL=95\%\)</span>, <span class="math inline">\(\alpha=0.05\)</span> and <span class="math inline">\(c_1=c_2=2.5\%\)</span>. The Clopper-Pearson interval is also called the exact interval, since the solution of <a href="#eq-eq1" class="quarto-xref">Equation&nbsp;1</a> with respect to <span class="math inline">\(p_1\)</span> and <span class="math inline">\(p_2\)</span> gives the correct probability estimate, even for small samples.</p>
-<p>The normal approximation to the binomial distribution is oftentimes considered as an alternative to the formulation of the CI via the Clopper-Pearson equations:</p>
-<p><span id="eq-eq2"><span class="math display">\[
-\frac{\vert\,f-p\,\vert}{\sqrt{\dfrac{p(1-p)}{n}}}\leq t_{1-\alpha/2}
-\tag{2}\]</span></span></p>
-<p>where <span class="math inline">\(t_{1-\alpha/2}\)</span> is the quantile of the normal distribution at specified probability <span class="math inline">\(1-\alpha/2\)</span>: for <span class="math inline">\(\alpha=0.05\)</span>, <span class="math inline">\(t_{1-\alpha/2}=1.96\)</span>. To formulate <a href="#eq-eq2" class="quarto-xref">Equation&nbsp;2</a> use is also made of the fact that a binomial random variable <span class="math inline">\(X\)</span> with parameters <span class="math inline">\(n\)</span> (the number of independent trials) and <span class="math inline">\(p\)</span> (the probability of success) has mean value and variance:</p>
+<p>It is noted that the binomial model has been used in <a href="#eq-eq1" class="quarto-xref">Equation&nbsp;1</a> to capture events of the type “number of successes out of a given number of independent trials”, namely:</p>
+<p><span class="math display">\[
+\text{Pr}(k\;\text{successes out of}\;n\;\text{trials})={n\choose k}p^k(1-p)^{n-k}
+\]</span></p>
+<p>where <span class="math inline">\(0\leq k\leq n\)</span> and <span class="math inline">\({n\choose k}\)</span> is the number of combinations of <span class="math inline">\(k\)</span>-length sequences from an <span class="math inline">\(n\)</span>-length sequence (I discussed this in a previous post of mine).</p>
+<p>We recall that a binomial random variable <span class="math inline">\(X\)</span> with parameters <span class="math inline">\(n\)</span> (the number of independent trials) and <span class="math inline">\(p\)</span> (the probability of success) has mean value and standard deviation:</p>
 <p><span class="math display">\[
 \left\{
 \begin{split}
 \mu_X&amp;=np\\
-\sigma^2_X&amp;=np(1-p)
+\sigma_X&amp;=\sqrt{np(1-p)}
 \end{split}
 \right.
 \]</span></p>
-<p>Therefore the random variable <span class="math inline">\(F=X/n\)</span> has mean value and variance:</p>
+<p>Therefore the random variable <span class="math inline">\(F=X/n\)</span> has mean value and standard deviation:</p>
 <p><span class="math display">\[
 \left\{
 \begin{split}
 \mu_F&amp;=p\\
-\sigma^2_F&amp;=\frac{\sigma^2_X}{n^2}=\frac{p(1-p)}{n}
+\sigma_F&amp;=\frac{\sigma_X}{\sqrt{n}}=\sqrt{\frac{p(1-p)}{n}}
 \end{split}
 \right.
 \]</span></p>
+<p>The normal approximation to the binomial distribution, as stated by the De Moivre-Laplace theorem, is considered as an alternative to <a href="#eq-eq1" class="quarto-xref">Equation&nbsp;1</a> for CI construction. This theorem states that the random variable</p>
+<p><span class="math display">\[
+T=\frac{F-p}{\sigma_F}
+\]</span></p>
+<p>is <em>approximately</em> normally distributed - in practice, good approximations are achieved for <span class="math inline">\(np,n(1-p)\gg1\)</span>.</p>
+<p>Given a variate <span class="math inline">\(t\)</span> of <span class="math inline">\(T\)</span>, the CI can be written as follows:</p>
+<p><span id="eq-eq2"><span class="math display">\[
+\frac{\vert\,f-p\,\vert}{\sqrt{\dfrac{p(1-p)}{n}}}\leq t_{1-\alpha/2}
+\tag{2}\]</span></span></p>
+<p>where <span class="math inline">\(t_{1-\alpha/2}\)</span> is the quantile of the normal distribution at specified probability <span class="math inline">\(1-\alpha/2\)</span>: for <span class="math inline">\(\alpha=0.05\)</span>, <span class="math inline">\(t_{1-\alpha/2}=1.96\)</span>.</p>
 <p>Squaring <a href="#eq-eq2" class="quarto-xref">Equation&nbsp;2</a> we get:</p>
 <p><span class="math display">\[
 n(f-p)^2\leq t_{1-\alpha/2}^2\,p(1-p)
 \]</span></p>
-<p>We can solve the resulting second-order equation with respect to the unknown <span class="math inline">\(p\)</span>, yielding the <strong>Wilson interval</strong>:</p>
+<p>We can solve the resulting second-order equation <em>with respect to the unknown</em> <span class="math inline">\(p\)</span>, yielding the <strong>Wilson interval</strong>:</p>
 <p><span id="eq-eq3"><span class="math display">\[
 p\in\dfrac{f+\dfrac{t^2_{1-\alpha/2}}{2n}}{\dfrac{t^2_{1-\alpha/2}}{n}+1}\pm\dfrac{t_{1-\alpha/2}\sqrt{\dfrac{t^2_{1-\alpha/2}}{4n^2}+\dfrac{f(1-f)}{n}}}{\dfrac{t^2_{1-\alpha/2}}{n}+1}
 \tag{3}\]</span></span></p>
@@ -289,12 +334,45 @@ p_{\pm}\in\dfrac{f_{\pm}+\dfrac{t^2_{1-\alpha/2}}{2n}}{\dfrac{t^2_{1-\alpha/2}}{
 \]</span></p>
 </div>
 </div>
-<p>The Wilson interval (with continuity correction) is generally considered valid for <span class="math inline">\(n&gt;10\)</span>. For <span class="math inline">\(n\gg1\)</span> (namely, <span class="math inline">\(n&gt;30\)</span>), another useful approximate formulation of the CI is the <strong>Wald interval</strong>:</p>
+<p>The Wilson interval (with continuity correction) is generally considered valid for <span class="math inline">\(n&gt;10\)</span>. For <span class="math inline">\(n\gg1\)</span> (namely, <span class="math inline">\(n&gt;30\)</span>), a very popular approximate formulation of the CI is the <strong>Wald interval</strong>:</p>
 <p><span id="eq-eq4"><span class="math display">\[
 p\in f\pm t_{1-\alpha/2}\sqrt{\dfrac{f(1-f)}{n}}
 \tag{4}\]</span></span></p>
-<p>The Wald interval, which does not require any continuity correction, is symmetric around the estimated proportion, as it would be the Wilson interval for <span class="math inline">\(n\gg1\)</span>. For <span class="math inline">\(n\gg1\)</span> it is noted indeed that the Wilson interval tends to be identical to the Wald interval. The question is how big <span class="math inline">\(n\)</span> would be considered big enough for a safe application of the Wald method.</p>
-<p>The R code below is a fully reproducible code to generate coverage plots for the Wilson interval (with continuity correction) and the Wald interval.</p>
+<p>The Wald interval, which does not require any continuity correction, is symmetric around the estimated proportion. For <span class="math inline">\(n\gg1\)</span> it is noted indeed that the Wilson interval tends to become symmetric and identical to the Wald interval.</p>
+<p>The question is when <span class="math inline">\(n\)</span> is large enough for these methods to produce accurate inference. The R code below is a fully reproducible code to generate coverage plots for the Wilson interval (with continuity correction) and the Wald interval.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1789</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n  <span class="ot">&lt;-</span> <span class="dv">30</span>                          <span class="co"># number of Bernoulli trials</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>L  <span class="ot">&lt;-</span> <span class="dv">1000</span>                        <span class="co"># number of simulated sequences </span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>a  <span class="ot">&lt;-</span> <span class="fl">0.95</span>                        <span class="co"># confidence level</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>t  <span class="ot">&lt;-</span> <span class="fu">qnorm</span>((<span class="dv">1</span><span class="sc">+</span>a)<span class="sc">/</span><span class="dv">2</span>)              <span class="co"># quantile of the normal distribution</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>p  <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fl">0.05</span>, <span class="fl">0.95</span>, <span class="at">by =</span> <span class="fl">0.01</span>)  <span class="co"># tested values of probability</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>np <span class="ot">&lt;-</span> <span class="fu">length</span>(p)                   <span class="co"># number of tested values of probability</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>c_wald   <span class="ot">&lt;-</span> <span class="fu">numeric</span>(np)           <span class="co"># Wald approach</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>c_wilson <span class="ot">&lt;-</span> <span class="fu">numeric</span>(np)           <span class="co"># Wilson approach</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>np) {</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span>(j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>L) {</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    x <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="dv">1</span>, <span class="at">size =</span> n, <span class="at">prob =</span> p[i])  <span class="co"># number of successes</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    f <span class="ot">&lt;-</span> x<span class="sc">/</span>n                               <span class="co"># proportion of successes</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    fl <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="dv">0</span>, (x<span class="fl">-0.5</span>)<span class="sc">/</span>n) <span class="co"># continuity correction</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    fu <span class="ot">&lt;-</span> <span class="fu">min</span>(<span class="dv">1</span>, (x<span class="fl">+0.5</span>)<span class="sc">/</span>n) </span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    CIl <span class="ot">&lt;-</span> (fl<span class="sc">+</span>t<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>(<span class="dv">2</span><span class="sc">*</span>n))<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span>t<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>n) <span class="sc">-</span> t<span class="sc">*</span><span class="fu">sqrt</span>(fl<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>fl)<span class="sc">/</span>n <span class="sc">+</span> t<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>(<span class="dv">4</span><span class="sc">*</span>n<span class="sc">^</span><span class="dv">2</span>))<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span>t<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>n)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    CIu <span class="ot">&lt;-</span> (fu<span class="sc">+</span>t<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>(<span class="dv">2</span><span class="sc">*</span>n))<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span>t<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>n) <span class="sc">+</span> t<span class="sc">*</span><span class="fu">sqrt</span>(fu<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>fu)<span class="sc">/</span>n <span class="sc">+</span> t<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>(<span class="dv">4</span><span class="sc">*</span>n<span class="sc">^</span><span class="dv">2</span>))<span class="sc">/</span>(<span class="dv">1</span><span class="sc">+</span>t<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>n)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    CI_lower_wilson <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fl">0.0</span>, CIl) <span class="co"># Wilson interval</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    CI_upper_wilson <span class="ot">&lt;-</span> <span class="fu">min</span>(<span class="fl">1.0</span>, CIu)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    CI_lower_wald <span class="ot">&lt;-</span> f <span class="sc">-</span> t<span class="sc">*</span><span class="fu">sqrt</span>(f<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>f)<span class="sc">/</span>n) <span class="co"># Wald interval</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    CI_upper_wald <span class="ot">&lt;-</span> f <span class="sc">+</span> t<span class="sc">*</span><span class="fu">sqrt</span>(f<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span>f)<span class="sc">/</span>n)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span>(CI_lower_wilson <span class="sc">&lt;=</span> p[i] <span class="sc">&amp;&amp;</span> CI_upper_wilson <span class="sc">&gt;=</span> p[i]) c_wilson[i] <span class="ot">=</span> c_wilson[i] <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span>(CI_lower_wald <span class="sc">&lt;=</span> p[i] <span class="sc">&amp;&amp;</span> CI_upper_wald <span class="sc">&gt;=</span> p[i]) c_wald[i] <span class="ot">=</span> c_wald[i] <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>c_wilson <span class="ot">&lt;-</span> c_wilson<span class="sc">/</span>L </span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>c_wald   <span class="ot">&lt;-</span> c_wald<span class="sc">/</span>L   <span class="co"># estimated coverage</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 <div class="cell">
 <div class="cell-output-display">
 <div id="fig-fig1" class="quarto-figure quarto-figure-center quarto-float anchored">
@@ -309,7 +387,7 @@ Figure&nbsp;1: Coverage curves for the binomial distribution with <span class="m
 </div>
 </div>
 </div>
-<p>The simulation results of <a href="#fig-fig1" class="quarto-xref">Figure&nbsp;1</a> (<span class="math inline">\(n=30\)</span>) show that, whereas the Wilson method tends to provide some limited over-coverage for all values of <span class="math inline">\(p\)</span> (this is simply due to <span class="math inline">\(x\)</span> being present in both the sums of <a href="#eq-eq1" class="quarto-xref">Equation&nbsp;1</a>), the Wald interval performs poorly, with severe under-coverage, especially for low and high values of <span class="math inline">\(p\)</span>. These results seem to raise objections against the use of the Wald interval, even in situations when <span class="math inline">\(n\gg1\)</span>: <a href="#fig-fig2" class="quarto-xref">Figure&nbsp;2</a> shows the coverage plots in the case of <span class="math inline">\(n=100\)</span>.</p>
+<p>The simulation results of <a href="#fig-fig1" class="quarto-xref">Figure&nbsp;1</a> (<span class="math inline">\(n=30\)</span>) show that, whereas the Wilson method tends just to provide some limited over-coverage for all values of <span class="math inline">\(p\)</span> (this is simply due to <span class="math inline">\(x\)</span> being present in both the sums of <a href="#eq-eq1" class="quarto-xref">Equation&nbsp;1</a>), the Wald interval performs poorly, with severe under-coverage, especially for low and high values of <span class="math inline">\(p\)</span>. These results seem to raise objections against the use of the Wald interval, even in situations when <span class="math inline">\(n\gg1\)</span>: <a href="#fig-fig2" class="quarto-xref">Figure&nbsp;2</a> shows the coverage plots in the case of <span class="math inline">\(n=100\)</span>.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div id="fig-fig2" class="quarto-figure quarto-figure-center quarto-float anchored">
@@ -324,9 +402,9 @@ Figure&nbsp;2: Coverage curves for the binomial distribution with <span class="m
 </div>
 </div>
 </div>
-<p>Although the performance of the Wald method slightly improve, the Wilson method still outperforms it, especially for small and high values of <span class="math inline">\(p\)</span>.</p>
+<p>Although the performance of the Wald method has slightly improved, the Wilson method still outperforms it, especially for small and high values of <span class="math inline">\(p\)</span>.</p>
 <blockquote class="blockquote">
-<p>To conclude, when estimating the confidence interval associated to the estimate of proportions, the Wald interval - the most basic confidence interval - appears to be seriously flawed, also for values of the number of trials that are greeted as suitable for it to work in most statistics textbooks. The Wilson interval with continuity correction tends to perform much better.</p>
+<p>To conclude, when estimating the confidence interval associated to the estimate of proportions, the Wald interval - the most basic confidence interval usually considered by experimentalists - appears to be seriously flawed, also for values of the number of trials that are considered <em>large</em> in most statistical textbooks. The Wilson interval with continuity correction tends to perform much better and it use should be encouraged.</p>
 </blockquote>
 
 
