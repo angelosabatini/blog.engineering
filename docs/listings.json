@@ -2,6 +2,7 @@
   {
     "listing": "/blog.html",
     "items": [
+      "/posts/probability_estimation/index.html",
       "/posts/combinatorics/index.html",
       "/posts/random_incidence/index.html",
       "/posts/resolution/index.html"
@@ -10,6 +11,7 @@
   {
     "listing": "/archive.html",
     "items": [
+      "/posts/probability_estimation/index.html",
       "/posts/combinatorics/index.html",
       "/posts/random_incidence/index.html",
       "/posts/resolution/index.html"

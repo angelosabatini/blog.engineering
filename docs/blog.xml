@@ -10,7 +10,94 @@
 <atom:link href="https://amsabatini.netlify.app/blog.xml" rel="self" type="application/rss+xml"/>
 <description>This the personal blog of Angelo Maria Sabatini</description>
 <generator>quarto-1.4.550</generator>
-<lastBuildDate>Tue, 23 Apr 2024 22:00:00 GMT</lastBuildDate>
+<lastBuildDate>Fri, 26 Apr 2024 22:00:00 GMT</lastBuildDate>
+<item>
+  <title>Simulation of counting experiments</title>
+  <dc:creator>Angelo Maria Sabatini</dc:creator>
+  <link>https://amsabatini.netlify.app/posts/probability_estimation/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>Consider a Bernoulli test with <img src="https://latex.codecogs.com/png.latex?n"> independent trials and <img src="https://latex.codecogs.com/png.latex?x"> successes that are recorded in the test. The frequency (proportion) <img src="https://latex.codecogs.com/png.latex?f=x/n"> is assumed to be the estimate of the true probability <img src="https://latex.codecogs.com/png.latex?p">; we want to determine the values <img src="https://latex.codecogs.com/png.latex?p_1"> and <img src="https://latex.codecogs.com/png.latex?p_2"> of the confidence interval (CI) with the required confidence level (<img src="https://latex.codecogs.com/png.latex?CL=100(1-%5Calpha)%5C%25">) associated to <img src="https://latex.codecogs.com/png.latex?f">.</p>
+<p>The <strong>Clopper-Pearson equations</strong> can be used to calculate the CI:</p>
+<p><span id="eq-eq1"><img src="https://latex.codecogs.com/png.latex?%0A%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7D%0A%5Csum_%7Bk=x%7D%5E%7B%5Cinfty%7D%7Bn%5Cchoose%20k%7Dp_1%5Ek(1-p_1)%5E%7Bn-k%7D&amp;=c_1%5C%5C%0A%5Csum_%7Bk=0%7D%5Ex%7Bn%5Cchoose%20k%7Dp_2%5Ek(1-p_2)%5E%7Bn-k%7D&amp;=c_2%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A%5Ctag%7B1%7D"></span></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?CL=1-c_1-c_2">. One common choice for <img src="https://latex.codecogs.com/png.latex?c_1"> and <img src="https://latex.codecogs.com/png.latex?c_2"> is the symmetric interval, <img src="https://latex.codecogs.com/png.latex?c_1=c_2=(1-CL)/2">. For instance, when <img src="https://latex.codecogs.com/png.latex?CL=95%5C%25">, <img src="https://latex.codecogs.com/png.latex?%5Calpha=0.05"> and <img src="https://latex.codecogs.com/png.latex?c_1=c_2=2.5%5C%25">. The Clopper-Pearson interval is also called the exact interval, since the solution of Equation&nbsp;1 with respect to <img src="https://latex.codecogs.com/png.latex?p_1"> and <img src="https://latex.codecogs.com/png.latex?p_2"> gives the correct probability estimate, even for small samples.</p>
+<p>The normal approximation to the binomial distribution is oftentimes considered as an alternative to the formulation of the CI via the Clopper-Pearson equations:</p>
+<p><span id="eq-eq2"><img src="https://latex.codecogs.com/png.latex?%0A%5Cfrac%7B%5Cvert%5C,f-p%5C,%5Cvert%7D%7B%5Csqrt%7B%5Cdfrac%7Bp(1-p)%7D%7Bn%7D%7D%7D%5Cleq%20t_%7B1-%5Calpha/2%7D%0A%5Ctag%7B2%7D"></span></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?t_%7B1-%5Calpha/2%7D"> is the quantile of the normal distribution at specified probability <img src="https://latex.codecogs.com/png.latex?1-%5Calpha/2">: for <img src="https://latex.codecogs.com/png.latex?%5Calpha=0.05">, <img src="https://latex.codecogs.com/png.latex?t_%7B1-%5Calpha/2%7D=1.96">. To formulate Equation&nbsp;2 use is also made of the fact that a binomial random variable <img src="https://latex.codecogs.com/png.latex?X"> with parameters <img src="https://latex.codecogs.com/png.latex?n"> (the number of independent trials) and <img src="https://latex.codecogs.com/png.latex?p"> (the probability of success) has mean value and variance:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7D%0A%5Cmu_X&amp;=np%5C%5C%0A%5Csigma%5E2_X&amp;=np(1-p)%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A"></p>
+<p>Therefore the random variable <img src="https://latex.codecogs.com/png.latex?F=X/n"> has mean value and variance:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7D%0A%5Cmu_F&amp;=p%5C%5C%0A%5Csigma%5E2_F&amp;=%5Cfrac%7B%5Csigma%5E2_X%7D%7Bn%5E2%7D=%5Cfrac%7Bp(1-p)%7D%7Bn%7D%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A"></p>
+<p>Squaring Equation&nbsp;2 we get:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0An(f-p)%5E2%5Cleq%20t_%7B1-%5Calpha/2%7D%5E2%5C,p(1-p)%0A"></p>
+<p>We can solve the resulting second-order equation with respect to the unknown <img src="https://latex.codecogs.com/png.latex?p">, yielding the <strong>Wilson interval</strong>:</p>
+<p><span id="eq-eq3"><img src="https://latex.codecogs.com/png.latex?%0Ap%5Cin%5Cdfrac%7Bf+%5Cdfrac%7Bt%5E2_%7B1-%5Calpha/2%7D%7D%7B2n%7D%7D%7B%5Cdfrac%7Bt%5E2_%7B1-%5Calpha/2%7D%7D%7Bn%7D+1%7D%5Cpm%5Cdfrac%7Bt_%7B1-%5Calpha/2%7D%5Csqrt%7B%5Cdfrac%7Bt%5E2_%7B1-%5Calpha/2%7D%7D%7B4n%5E2%7D+%5Cdfrac%7Bf(1-f)%7D%7Bn%7D%7D%7D%7B%5Cdfrac%7Bt%5E2_%7B1-%5Calpha/2%7D%7D%7Bn%7D+1%7D%0A%5Ctag%7B3%7D"></span></p>
+<p>It is noted that the Wilson interval is not centered on the measured frequency <img src="https://latex.codecogs.com/png.latex?f"> but on the value <img src="https://latex.codecogs.com/png.latex?(f+t_%7B1-%5Calpha/2%7D%5E2/2n)/(t_%7B1-%5Calpha/2%7D%5E2/n+1)">, which is a function of <img src="https://latex.codecogs.com/png.latex?f"> and the number of trials <img src="https://latex.codecogs.com/png.latex?n">. This is due to the asymmetry of the binomial distribution for small <img src="https://latex.codecogs.com/png.latex?n">.</p>
+<div class="callout callout-style-default callout-caution callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Continuity correction
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The accuracy of Equation&nbsp;3 can be improved by applying the <strong>continuity correction</strong> to the frequency <img src="https://latex.codecogs.com/png.latex?f=x/n">. This correction improves the accuracy of CI construction for discrete variables when they can be approximated by Gaussian variables:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Af_%7B%5Cpm%7D=%5Cfrac%7Bx%5Cpm0.5%7D%7Bn%7D%5Crightarrow%5Cleft%5C%7B%5Cbegin%7Bsplit%7Df_%7B+%7D&amp;=%5Cmin%5Cleft(1,%5Cdfrac%7Bx+0.5%7D%7Bn%7D%5Cright)%5C%5Cf_%7B-%7D&amp;=%5Cmax%5Cleft(0,%5Cdfrac%7Bx-0.5%7D%7Bn%7D%5Cright)%5Cend%7Bsplit%7D%5Cright.%0A"></p>
+<p>The interval is estimated as follows:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Ap%5Cin%5B%5Cmax(0,p_%7B-%7D),%5Cmin(1,p_%7B+%7D)%5D%0A"></p>
+<p>where:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Ap_%7B%5Cpm%7D%5Cin%5Cdfrac%7Bf_%7B%5Cpm%7D+%5Cdfrac%7Bt%5E2_%7B1-%5Calpha/2%7D%7D%7B2n%7D%7D%7B%5Cdfrac%7Bt%5E2_%7B1-%5Calpha/2%7D%7D%7Bn%7D+1%7D%5Cpm%5Cdfrac%7Bt_%7B1-%5Calpha/2%7D%5Csqrt%7B%5Cdfrac%7Bt%5E2_%7B1-%5Calpha/2%7D%7D%7B4n%5E2%7D+%5Cdfrac%7Bf_%7B%5Cpm%7D(1-f_%7B%5Cpm%7D)%7D%7Bn%7D%7D%7D%7B%5Cdfrac%7Bt%5E2_%7B1-%5Calpha/2%7D%7D%7Bn%7D+1%7D%0A"></p>
+</div>
+</div>
+<p>The Wilson interval (with continuity correction) is generally considered valid for <img src="https://latex.codecogs.com/png.latex?n%3E10">. For <img src="https://latex.codecogs.com/png.latex?n%5Cgg1"> (namely, <img src="https://latex.codecogs.com/png.latex?n%3E20-30">), another useful approximate formulation of the CI is the <strong>Wald interval</strong>:</p>
+<p><span id="eq-eq4"><img src="https://latex.codecogs.com/png.latex?%0Ap%5Cin%20f%5Cpm%20t_%7B1-%5Calpha/2%7D%5Csqrt%7B%5Cdfrac%7Bf(1-f)%7D%7Bn%7D%7D%0A%5Ctag%7B4%7D"></span></p>
+<p>The Wald interval, which does not require any continuity correction, is symmetric around the estimated frequency, as it would be the Wilson interval for <img src="https://latex.codecogs.com/png.latex?n%5Cgg1">. For <img src="https://latex.codecogs.com/png.latex?n%5Cgg1"> it is noted indeed that the Wilson interval tends to be identical to the Wald interval. The question is how big <img src="https://latex.codecogs.com/png.latex?n"> would be considered big enough for a safe application of the Wald method.</p>
+<p>The R code below is a fully reproducible code to generate coverage plots for the Wilson interval (with continuity correction) and the Wald interval.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-fig1" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/probability_estimation/index_files/figure-html/fig-fig1-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Coverage curves for the binomial distribution with <img src="https://latex.codecogs.com/png.latex?N=40">.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The simulation results of Figure&nbsp;1 (<img src="https://latex.codecogs.com/png.latex?n=40">) show that, whereas the Wilson method tends to provide some limited over-coverage for all values of <img src="https://latex.codecogs.com/png.latex?p"> (this is simply due to <img src="https://latex.codecogs.com/png.latex?x"> being present in both the sums of Equation&nbsp;1), the Wald interval performs poorly, with severe under-coverage, especially for low and high values of <img src="https://latex.codecogs.com/png.latex?p">. These results seem to raise objections against the use of the Wald interval, even in situations when <img src="https://latex.codecogs.com/png.latex?n%5Cgg1">: Figure&nbsp;2 shows the coverage plots in the case of <img src="https://latex.codecogs.com/png.latex?n=100">.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-fig2" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/probability_estimation/index_files/figure-html/fig-fig2-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Coverage curves for the binomial distribution with <img src="https://latex.codecogs.com/png.latex?N=100">.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Although the performance of the Wald method slightly improve, the Wilson method still outperforms it, especially for small and high values of <img src="https://latex.codecogs.com/png.latex?p">.</p>
+<blockquote class="blockquote">
+<p>To conclude, when estimating the confidence interval associated to the estimate of probabilites and frequencies (proportions), the Wald interval - the most basic confidence interval - appears to be seriously flawed, also for values of the number of trials that are greeted as suitable for it to work in most statistics textbooks. The Wilson interval with continuity correction tends to perform much better.</p>
+</blockquote>
+
+
+
+ ]]></description>
+  <category>statistics</category>
+  <guid>https://amsabatini.netlify.app/posts/probability_estimation/</guid>
+  <pubDate>Fri, 26 Apr 2024 22:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Pills of combinatorics</title>
   <dc:creator>Angelo Maria Sabatini</dc:creator>
