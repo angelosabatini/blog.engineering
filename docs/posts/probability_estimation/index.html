@@ -8,9 +8,9 @@
 
 <meta name="author" content="Angelo Maria Sabatini">
 <meta name="dcterms.date" content="2024-04-27">
-<meta name="description" content="Confidence intervals for the estimation of probabilities and frequencies (proportions) are usually built using the binomial model. Approximate formulae are presented in many textbooks, and they are widely used when the number of trials is believed sufficiently high for the normal distribution to approximate the binomial distribution. By simulation, the properties of two popular methods, the Wilson method and the Wald method, are checked for their ability to provide the stated coverage.">
+<meta name="description" content="Usually confidence intervals for the estimation of proportions are built using methods, whose application requires the validity of the normal approximation to the binomial distribution. By simulation, two of these methods (Wilson and Wald) are tested for their ability to provide the stated coverage for small-to-large samples.">
 
-<title>Angelo Maria Sabatini - Simulation of counting experiments</title>
+<title>Angelo Maria Sabatini - Confidence intervals for proportions</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -186,7 +186,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Simulation of counting experiments</h1>
+<h1 class="title">Confidence intervals for proportions</h1>
   <div class="quarto-categories">
     <div class="quarto-category">statistics</div>
   </div>
@@ -194,7 +194,7 @@ window.Quarto = {
 
 <div>
   <div class="description">
-    Confidence intervals for the estimation of probabilities and frequencies (proportions) are usually built using the binomial model. Approximate formulae are presented in many textbooks, and they are widely used when the number of trials is believed sufficiently high for the normal distribution to approximate the binomial distribution. By simulation, the properties of two popular methods, the Wilson method and the Wald method, are checked for their ability to provide the stated coverage.
+    Usually confidence intervals for the estimation of proportions are built using methods, whose application requires the validity of the normal approximation to the binomial distribution. By simulation, two of these methods (Wilson and Wald) are tested for their ability to provide the stated coverage for small-to-large samples.
   </div>
 </div>
 
@@ -223,7 +223,7 @@ window.Quarto = {
 </header>
 
 
-<p>Consider a Bernoulli test with <span class="math inline">\(n\)</span> independent trials and <span class="math inline">\(x\)</span> successes that are recorded in the test. The frequency (proportion) <span class="math inline">\(f=x/n\)</span> is assumed to be the estimate of the true probability <span class="math inline">\(p\)</span>; we want to determine the values <span class="math inline">\(p_1\)</span> and <span class="math inline">\(p_2\)</span> of the confidence interval (CI) with the required confidence level (<span class="math inline">\(CL=100(1-\alpha)\%\)</span>) associated to <span class="math inline">\(f\)</span>.</p>
+<p>Consider a Bernoulli test with <span class="math inline">\(n\)</span> independent trials and <span class="math inline">\(x\)</span> successes that are recorded in the test. The proportion <span class="math inline">\(f=x/n\)</span> is assumed to be the estimate of the true probability <span class="math inline">\(p\)</span>; we want to determine the values <span class="math inline">\(p_1\)</span> and <span class="math inline">\(p_2\)</span> of the confidence interval (CI) with the required confidence level (<span class="math inline">\(CL=100(1-\alpha)\%\)</span>) associated to <span class="math inline">\(f\)</span>.</p>
 <p>The <strong>Clopper-Pearson equations</strong> can be used to calculate the CI:</p>
 <p><span id="eq-eq1"><span class="math display">\[
 \left\{
@@ -264,7 +264,7 @@ n(f-p)^2\leq t_{1-\alpha/2}^2\,p(1-p)
 <p><span id="eq-eq3"><span class="math display">\[
 p\in\dfrac{f+\dfrac{t^2_{1-\alpha/2}}{2n}}{\dfrac{t^2_{1-\alpha/2}}{n}+1}\pm\dfrac{t_{1-\alpha/2}\sqrt{\dfrac{t^2_{1-\alpha/2}}{4n^2}+\dfrac{f(1-f)}{n}}}{\dfrac{t^2_{1-\alpha/2}}{n}+1}
 \tag{3}\]</span></span></p>
-<p>It is noted that the Wilson interval is not centered on the measured frequency <span class="math inline">\(f\)</span> but on the value <span class="math inline">\((f+t_{1-\alpha/2}^2/2n)/(t_{1-\alpha/2}^2/n+1)\)</span>, which is a function of <span class="math inline">\(f\)</span> and the number of trials <span class="math inline">\(n\)</span>. This is due to the asymmetry of the binomial distribution for small <span class="math inline">\(n\)</span>.</p>
+<p>It is noted that the Wilson interval is not centered on the measured proportion <span class="math inline">\(f\)</span> but on the value <span class="math inline">\((f+t_{1-\alpha/2}^2/2n)/(t_{1-\alpha/2}^2/n+1)\)</span>, which is a function of <span class="math inline">\(f\)</span> and the number of trials <span class="math inline">\(n\)</span>. This is due to the asymmetry of the binomial distribution for small <span class="math inline">\(n\)</span>.</p>
 <div class="callout callout-style-default callout-caution callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -275,7 +275,7 @@ Continuity correction
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The accuracy of <a href="#eq-eq3" class="quarto-xref">Equation&nbsp;3</a> can be improved by applying the <strong>continuity correction</strong> to the frequency <span class="math inline">\(f=x/n\)</span>. This correction improves the accuracy of CI construction for discrete variables when they can be approximated by Gaussian variables:</p>
+<p>The accuracy of <a href="#eq-eq3" class="quarto-xref">Equation&nbsp;3</a> can be improved by applying the <strong>continuity correction</strong> to the proportion <span class="math inline">\(f=x/n\)</span>. This correction improves the accuracy of CI construction for discrete variables when they can be approximated by normal variables:</p>
 <p><span class="math display">\[
 f_{\pm}=\frac{x\pm0.5}{n}\rightarrow\left\{\begin{split}f_{+}&amp;=\min\left(1,\dfrac{x+0.5}{n}\right)\\f_{-}&amp;=\max\left(0,\dfrac{x-0.5}{n}\right)\end{split}\right.
 \]</span></p>
@@ -289,11 +289,11 @@ p_{\pm}\in\dfrac{f_{\pm}+\dfrac{t^2_{1-\alpha/2}}{2n}}{\dfrac{t^2_{1-\alpha/2}}{
 \]</span></p>
 </div>
 </div>
-<p>The Wilson interval (with continuity correction) is generally considered valid for <span class="math inline">\(n&gt;10\)</span>. For <span class="math inline">\(n\gg1\)</span> (namely, <span class="math inline">\(n&gt;20-30\)</span>), another useful approximate formulation of the CI is the <strong>Wald interval</strong>:</p>
+<p>The Wilson interval (with continuity correction) is generally considered valid for <span class="math inline">\(n&gt;10\)</span>. For <span class="math inline">\(n\gg1\)</span> (namely, <span class="math inline">\(n&gt;30\)</span>), another useful approximate formulation of the CI is the <strong>Wald interval</strong>:</p>
 <p><span id="eq-eq4"><span class="math display">\[
 p\in f\pm t_{1-\alpha/2}\sqrt{\dfrac{f(1-f)}{n}}
 \tag{4}\]</span></span></p>
-<p>The Wald interval, which does not require any continuity correction, is symmetric around the estimated frequency, as it would be the Wilson interval for <span class="math inline">\(n\gg1\)</span>. For <span class="math inline">\(n\gg1\)</span> it is noted indeed that the Wilson interval tends to be identical to the Wald interval. The question is how big <span class="math inline">\(n\)</span> would be considered big enough for a safe application of the Wald method.</p>
+<p>The Wald interval, which does not require any continuity correction, is symmetric around the estimated proportion, as it would be the Wilson interval for <span class="math inline">\(n\gg1\)</span>. For <span class="math inline">\(n\gg1\)</span> it is noted indeed that the Wilson interval tends to be identical to the Wald interval. The question is how big <span class="math inline">\(n\)</span> would be considered big enough for a safe application of the Wald method.</p>
 <p>The R code below is a fully reproducible code to generate coverage plots for the Wilson interval (with continuity correction) and the Wald interval.</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -303,13 +303,13 @@ p\in f\pm t_{1-\alpha/2}\sqrt{\dfrac{f(1-f)}{n}}
 <img src="index_files/figure-html/fig-fig1-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: Coverage curves for the binomial distribution with <span class="math inline">\(N=40\)</span>.
+Figure&nbsp;1: Coverage curves for the binomial distribution with <span class="math inline">\(n=30\)</span>.
 </figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p>The simulation results of <a href="#fig-fig1" class="quarto-xref">Figure&nbsp;1</a> (<span class="math inline">\(n=40\)</span>) show that, whereas the Wilson method tends to provide some limited over-coverage for all values of <span class="math inline">\(p\)</span> (this is simply due to <span class="math inline">\(x\)</span> being present in both the sums of <a href="#eq-eq1" class="quarto-xref">Equation&nbsp;1</a>), the Wald interval performs poorly, with severe under-coverage, especially for low and high values of <span class="math inline">\(p\)</span>. These results seem to raise objections against the use of the Wald interval, even in situations when <span class="math inline">\(n\gg1\)</span>: <a href="#fig-fig2" class="quarto-xref">Figure&nbsp;2</a> shows the coverage plots in the case of <span class="math inline">\(n=100\)</span>.</p>
+<p>The simulation results of <a href="#fig-fig1" class="quarto-xref">Figure&nbsp;1</a> (<span class="math inline">\(n=30\)</span>) show that, whereas the Wilson method tends to provide some limited over-coverage for all values of <span class="math inline">\(p\)</span> (this is simply due to <span class="math inline">\(x\)</span> being present in both the sums of <a href="#eq-eq1" class="quarto-xref">Equation&nbsp;1</a>), the Wald interval performs poorly, with severe under-coverage, especially for low and high values of <span class="math inline">\(p\)</span>. These results seem to raise objections against the use of the Wald interval, even in situations when <span class="math inline">\(n\gg1\)</span>: <a href="#fig-fig2" class="quarto-xref">Figure&nbsp;2</a> shows the coverage plots in the case of <span class="math inline">\(n=100\)</span>.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div id="fig-fig2" class="quarto-figure quarto-figure-center quarto-float anchored">
@@ -318,7 +318,7 @@ Figure&nbsp;1: Coverage curves for the binomial distribution with <span class="m
 <img src="index_files/figure-html/fig-fig2-1.png" class="img-fluid figure-img" width="672">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2: Coverage curves for the binomial distribution with <span class="math inline">\(N=100\)</span>.
+Figure&nbsp;2: Coverage curves for the binomial distribution with <span class="math inline">\(n=100\)</span>.
 </figcaption>
 </figure>
 </div>
@@ -326,7 +326,7 @@ Figure&nbsp;2: Coverage curves for the binomial distribution with <span class="m
 </div>
 <p>Although the performance of the Wald method slightly improve, the Wilson method still outperforms it, especially for small and high values of <span class="math inline">\(p\)</span>.</p>
 <blockquote class="blockquote">
-<p>To conclude, when estimating the confidence interval associated to the estimate of probabilites and frequencies (proportions), the Wald interval - the most basic confidence interval - appears to be seriously flawed, also for values of the number of trials that are greeted as suitable for it to work in most statistics textbooks. The Wilson interval with continuity correction tends to perform much better.</p>
+<p>To conclude, when estimating the confidence interval associated to the estimate of proportions, the Wald interval - the most basic confidence interval - appears to be seriously flawed, also for values of the number of trials that are greeted as suitable for it to work in most statistics textbooks. The Wilson interval with continuity correction tends to perform much better.</p>
 </blockquote>
 
 
