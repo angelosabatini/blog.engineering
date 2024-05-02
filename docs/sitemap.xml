@@ -2,34 +2,38 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://amsabatini.netlify.app/blog.html</loc>
-    <lastmod>2024-04-13T08:47:31.499Z</lastmod>
+    <lastmod>2024-05-02T09:31:15.523Z</lastmod>
   </url>
   <url>
-    <loc>https://amsabatini.netlify.app/archive.html</loc>
-    <lastmod>2024-04-12T07:15:17.100Z</lastmod>
-  </url>
-  <url>
-    <loc>https://amsabatini.netlify.app/posts/combinatorics/index.html</loc>
-    <lastmod>2024-04-24T20:53:39.202Z</lastmod>
-  </url>
-  <url>
-    <loc>https://amsabatini.netlify.app/posts/resolution/index.html</loc>
-    <lastmod>2024-04-27T17:10:13.594Z</lastmod>
-  </url>
-  <url>
-    <loc>https://amsabatini.netlify.app/posts/probability_estimation/index.html</loc>
-    <lastmod>2024-04-28T05:50:01.299Z</lastmod>
-  </url>
-  <url>
-    <loc>https://amsabatini.netlify.app/posts/multivariate_probability_regions/index.html</loc>
-    <lastmod>2024-05-02T07:44:05.285Z</lastmod>
+    <loc>https://amsabatini.netlify.app/index.html</loc>
+    <lastmod>2024-05-02T09:07:44.865Z</lastmod>
   </url>
   <url>
     <loc>https://amsabatini.netlify.app/posts/random_incidence/index.html</loc>
     <lastmod>2024-04-24T20:49:10.922Z</lastmod>
   </url>
   <url>
-    <loc>https://amsabatini.netlify.app/index.html</loc>
-    <lastmod>2024-04-13T15:18:14.646Z</lastmod>
+    <loc>https://amsabatini.netlify.app/posts/multivariate_probability_regions/index.html</loc>
+    <lastmod>2024-05-02T10:22:27.883Z</lastmod>
+  </url>
+  <url>
+    <loc>https://amsabatini.netlify.app/posts/probability_estimation/index.html</loc>
+    <lastmod>2024-04-28T05:50:01.299Z</lastmod>
+  </url>
+  <url>
+    <loc>https://amsabatini.netlify.app/posts/resolution/index.html</loc>
+    <lastmod>2024-04-27T17:10:13.594Z</lastmod>
+  </url>
+  <url>
+    <loc>https://amsabatini.netlify.app/posts/combinatorics/index.html</loc>
+    <lastmod>2024-04-24T20:53:39.202Z</lastmod>
+  </url>
+  <url>
+    <loc>https://amsabatini.netlify.app/archive.html</loc>
+    <lastmod>2024-04-12T07:15:17.100Z</lastmod>
+  </url>
+  <url>
+    <loc>https://amsabatini.netlify.app/about.html</loc>
+    <lastmod>2024-05-02T09:19:58.081Z</lastmod>
   </url>
 </urlset>

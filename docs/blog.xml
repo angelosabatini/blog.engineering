@@ -12,7 +12,7 @@
 <generator>quarto-1.4.550</generator>
 <lastBuildDate>Wed, 01 May 2024 22:00:00 GMT</lastBuildDate>
 <item>
-  <title>Multivariate probability distributions</title>
+  <title>Multivariate probability regions</title>
   <dc:creator>Angelo Maria Sabatini</dc:creator>
   <link>https://amsabatini.netlify.app/posts/multivariate_probability_regions/</link>
   <description><![CDATA[ 
@@ -23,23 +23,23 @@
 <section id="prediction-hyperellipsoid" class="level2">
 <h2 class="anchored" data-anchor-id="prediction-hyperellipsoid">Prediction hyperellipsoid</h2>
 <p>Consider the case of a multivariate random variable <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BX%7D%5Cin%5Cmathbb%7BR%7D%5Ed">, whose distribution is normal with mean value <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7B%5Cmu%7D"> and covariance matrix <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BC%7D">:</p>
-<p><span id="eq-eq13"><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7BC%7D=%5Cbegin%7Bbmatrix%7D%5Csigma_1%5E2&amp;%5Ccdots&amp;%5Csigma_%7B1d%7D%5C%5C%5Cvdots&amp;%5Cddots&amp;%5Cvdots%5C%5C%5Csigma_%7Bd1%7D&amp;%5Ccdots&amp;%5Csigma%5E2_d%5Cend%7Bbmatrix%7D%0A%5Ctag%7B1%7D"></span></p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7BC%7D=%5Cbegin%7Bbmatrix%7D%5Csigma_1%5E2&amp;%5Ccdots&amp;%5Csigma_%7B1d%7D%5C%5C%5Cvdots&amp;%5Cddots&amp;%5Cvdots%5C%5C%5Csigma_%7Bd1%7D&amp;%5Ccdots&amp;%5Csigma%5E2_d%5Cend%7Bbmatrix%7D%0A"></p>
 <p>from which we draw a sample of <img src="https://latex.codecogs.com/png.latex?n"> data points:</p>
-<p><span id="eq-eq1"><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7Bx%7D_i=%5Cbegin%7Bbmatrix%7Dx_%7Bi1%7D%5C%5C%5Cvdots%5C%5Cx_%7Bid%7D%5Cend%7Bbmatrix%7D%0A%5Ctag%7B2%7D"></span></p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7Bx%7D_i=%5Cbegin%7Bbmatrix%7Dx_%7Bi1%7D%5C%5C%5Cvdots%5C%5Cx_%7Bid%7D%5Cend%7Bbmatrix%7D%0A"></p>
 <p>We suppose that either the mean value or the covariance matrix are unknown; they can be estimated using the <strong>sample mean</strong>, denoted by <img src="https://latex.codecogs.com/png.latex?%5Cbar%7B%5Cmathbf%7Bx%7D%7D">:</p>
-<p><span id="eq-eq2"><img src="https://latex.codecogs.com/png.latex?%0A%5Cbar%7B%5Cmathbf%7Bx%7D%7D=%5Cbegin%7Bbmatrix%7D%5Cbar%7Bx%7D_1%5C%5C%5Cvdots%5C%5C%5Cbar%7Bx%7D_d%5Cend%7Bbmatrix%7D=%5Cfrac%7B1%7D%7Bn%7D%5Csum_%7Bi=1%7D%5En%5Cbegin%7Bbmatrix%7Dx_%7Bi1%7D%5C%5C%5Cvdots%5C%5Cx_%7Bid%7D%5Cend%7Bbmatrix%7D=%5Cfrac%7B1%7D%7Bn%7D%5Csum_%7Bi=1%7D%5En%5Cmathbf%7Bx%7D_i%0A%5Ctag%7B3%7D"></span></p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbar%7B%5Cmathbf%7Bx%7D%7D=%5Cbegin%7Bbmatrix%7D%5Cbar%7Bx%7D_1%5C%5C%5Cvdots%5C%5C%5Cbar%7Bx%7D_d%5Cend%7Bbmatrix%7D=%5Cfrac%7B1%7D%7Bn%7D%5Csum_%7Bi=1%7D%5En%5Cbegin%7Bbmatrix%7Dx_%7Bi1%7D%5C%5C%5Cvdots%5C%5Cx_%7Bid%7D%5Cend%7Bbmatrix%7D=%5Cfrac%7B1%7D%7Bn%7D%5Csum_%7Bi=1%7D%5En%5Cmathbf%7Bx%7D_i%0A"></p>
 <p>and the <strong>sample covariance matrix</strong>, denoted by <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7B%5CSigma%7D">:</p>
-<p><span id="eq-eq3"><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7B%5CSigma%7D=%5C%7B%5C,%5Csigma_%7Bjk%7D,j,k=1,%5Ccdots%20d%5C,%5C%7D=%5Cfrac%7B1%7D%7Bn-1%7D%5Csum_%7Bi=1%7D%5En(%5Cmathbf%7Bx%7D_i-%5Cbar%7B%5Cmathbf%7Bx%7D%7D)(%5Cmathbf%7Bx%7D_i-%5Cbar%7B%5Cmathbf%7Bx%7D%7D)%5ET%0A%5Ctag%7B4%7D"></span></p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7B%5CSigma%7D=%5C%7B%5C,%5Csigma_%7Bjk%7D,j,k=1,%5Ccdots%20d%5C,%5C%7D=%5Cfrac%7B1%7D%7Bn-1%7D%5Csum_%7Bi=1%7D%5En(%5Cmathbf%7Bx%7D_i-%5Cbar%7B%5Cmathbf%7Bx%7D%7D)(%5Cmathbf%7Bx%7D_i-%5Cbar%7B%5Cmathbf%7Bx%7D%7D)%5ET%0A"></p>
 <p>whose <img src="https://latex.codecogs.com/png.latex?jk">th element is written:</p>
-<p><span id="eq-eq4"><img src="https://latex.codecogs.com/png.latex?%0A%5CSigma_%7Bjk%7D=%5Cfrac%7B1%7D%7Bn-1%7D%5Csum_%7Bi=1%7D%5En(x_%7Bij%7D-%5Cbar%7Bx%7D_j)(x_%7Bik%7D-%5Cbar%7Bx%7D_k)%0A%5Ctag%7B5%7D"></span></p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5CSigma_%7Bjk%7D=%5Cfrac%7B1%7D%7Bn-1%7D%5Csum_%7Bi=1%7D%5En(x_%7Bij%7D-%5Cbar%7Bx%7D_j)(x_%7Bik%7D-%5Cbar%7Bx%7D_k)%0A"></p>
 <p>The <img src="https://latex.codecogs.com/png.latex?95%5C%25"> prediction interval is a <img src="https://latex.codecogs.com/png.latex?d">-dimensional <strong>prediction hyperellipsoid</strong>, which, formally, is written as follows:</p>
-<p><span id="eq-eq5"><img src="https://latex.codecogs.com/png.latex?%0A%5Cboxed%7B(%5Cmathbf%7Bx%7D_%7B%5Ctext%7Bnew%7D%7D-%5Cbar%7B%5Cmathbf%7Bx%7D%7D)%5ET%5Cmathbf%7B%5CSigma%7D%5E%7B-1%7D(%5Cmathbf%7Bx%7D_%7B%5Ctext%7Bnew%7D%7D-%5Cbar%7B%5Cmathbf%7Bx%7D%7D)%5Cleq%20F_%7B0.95,d,n-d%7D%5Cfrac%7B(n-1)(n+1)%7D%7Bn(n-d)%7Dd%7D%0A%5Ctag%7B6%7D"></span></p>
+<p><span id="eq-eq1"><img src="https://latex.codecogs.com/png.latex?%0A%5Cboxed%7B(%5Cmathbf%7Bx%7D_%7B%5Ctext%7Bnew%7D%7D-%5Cbar%7B%5Cmathbf%7Bx%7D%7D)%5ET%5Cmathbf%7B%5CSigma%7D%5E%7B-1%7D(%5Cmathbf%7Bx%7D_%7B%5Ctext%7Bnew%7D%7D-%5Cbar%7B%5Cmathbf%7Bx%7D%7D)%5Cleq%20F_%7B0.95,d,n-d%7D%5Cfrac%7B(n-1)(n+1)%7D%7Bn(n-d)%7Dd%7D%0A%5Ctag%7B1%7D"></span></p>
 <p>where <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bx%7D_%7B%5Ctext%7Bnew%7D%7D"> is the new observation for which the prediction interval is desired. <img src="https://latex.codecogs.com/png.latex?F_%7B0.95,n,n-d%7D"> is the quantile with probability 0.95 of the Fisher’s <img src="https://latex.codecogs.com/png.latex?F">-distribution with <img src="https://latex.codecogs.com/png.latex?d"> and <img src="https://latex.codecogs.com/png.latex?(n-d)"> degrees of freedom.</p>
-<p>Equation&nbsp;6 is the formula for predicting the next single observation where we only have estimates of the mean value and the covariance matrix from the sample.</p>
+<p>Equation&nbsp;1 is the formula for predicting the next single observation where we only have estimates of the mean value and the covariance matrix from the sample.</p>
 <p>Another interesting formula can be elaborated as for the computation of the volume of the prediction hyperellipsoid. Recall that the prediction hyperellipsoid is the transformation of the hypersphere of radius</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0Ar=%5Csqrt%7BF_%7B0.95,d,n-d%7D%5Cfrac%7B(n-1)(n+1)%7D%7Bn(n-d)%7Dd%7D%0A"></p>
+<p><span id="eq-eq7"><img src="https://latex.codecogs.com/png.latex?%0Ar=%5Csqrt%7BF_%7B0.95,d,n-d%7D%5Cfrac%7B(n-1)(n+1)%7D%7Bn(n-d)%7Dd%7D%0A%5Ctag%7B2%7D"></span></p>
 <p>by the linear transform of matrix <img src="https://latex.codecogs.com/png.latex?%5CSigma%5E%7B1/2%7D">. Let <img src="https://latex.codecogs.com/png.latex?V"> the volume of the hypersphere of radius <img src="https://latex.codecogs.com/png.latex?r"> in an <img src="https://latex.codecogs.com/png.latex?d">-dimensional space. The volume of the hyperellipsoid can be obtained from <img src="https://latex.codecogs.com/png.latex?V"> by multiplying with the determinant of the linear transform:</p>
-<p><span id="eq-eq14"><img src="https://latex.codecogs.com/png.latex?%0AV_d=%5Cunderbrace%7B%5Cfrac%7B2%7D%7Bd%7D%5Cfrac%7B%5Cpi%5E%7Bd/2%7D%7D%7B%5CGamma(d/2)%7Dr%5Ed%7D_%7BV%7D%5Csqrt%7B%5Cdet(%5CSigma)%7D%0A%5Ctag%7B7%7D"></span></p>
+<p><span id="eq-eq6"><img src="https://latex.codecogs.com/png.latex?%0AV_d=%5Cunderbrace%7B%5Cfrac%7B2%7D%7Bd%7D%5Cfrac%7B%5Cpi%5E%7Bd/2%7D%7D%7B%5CGamma(d/2)%7Dr%5Ed%7D_%7BV%7D%5Csqrt%7B%5Cdet(%5CSigma)%7D%0A%5Ctag%7B3%7D"></span></p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -51,29 +51,29 @@ Univariate and bivariate random variables
 </div>
 <div class="callout-body-container callout-body">
 <p><strong>Univariate random variable</strong></p>
-<p>When <img src="https://latex.codecogs.com/png.latex?d=1">, Equation&nbsp;6 reads:</p>
-<p><span id="eq-eq6"><img src="https://latex.codecogs.com/png.latex?%0A%5Cfrac%7B%5Cvert%5C,x_%7B%5Ctext%7Bnew%7D%7D-%5Cbar%7Bx%7D%5C,%5Cvert%7D%7Bs%7D%5Cleq%5Csqrt%7BF_%7B0.95,1,n-1%7D%5E%7B%5Cphantom%7B'%7D%7D%7D%5Csqrt%7B1+%5Cfrac%7B1%7D%7Bn%7D%5E%7B%5Cphantom%7B'%7D%7D%7D%0A%5Ctag%7B8%7D"></span></p>
+<p>When <img src="https://latex.codecogs.com/png.latex?d=1">, Equation&nbsp;1 reads:</p>
+<p><span id="eq-eq2"><img src="https://latex.codecogs.com/png.latex?%0A%5Cfrac%7B%5Cvert%5C,x_%7B%5Ctext%7Bnew%7D%7D-%5Cbar%7Bx%7D%5C,%5Cvert%7D%7Bs%7D%5Cleq%5Csqrt%7BF_%7B0.95,1,n-1%7D%5E%7B%5Cphantom%7B'%7D%7D%7D%5Csqrt%7B1+%5Cfrac%7B1%7D%7Bn%7D%5E%7B%5Cphantom%7B'%7D%7D%7D%0A%5Ctag%7B4%7D"></span></p>
 <p>where <img src="https://latex.codecogs.com/png.latex?s"> is the sample standard deviation:</p>
-<p><span id="eq-eq7"><img src="https://latex.codecogs.com/png.latex?%0As=%5Csqrt%7B%5Cfrac%7B1%7D%7Bn-1%7D%5Csum_%7Bi=1%7D%5En(x_i-%5Cbar%7Bx%7D)%5E2%7D%0A%5Ctag%7B9%7D"></span></p>
+<p><img src="https://latex.codecogs.com/png.latex?%0As=%5Csqrt%7B%5Cfrac%7B1%7D%7Bn-1%7D%5Csum_%7Bi=1%7D%5En(x_i-%5Cbar%7Bx%7D)%5E2%7D%0A"></p>
 <p>It is noted that</p>
-<p><span id="eq-eq8"><img src="https://latex.codecogs.com/png.latex?%0AF_%7B0.95,1,n-1%7D=t_%7B0.975,n-1%7D%5E2%0A%5Ctag%7B10%7D"></span></p>
-<p>where <img src="https://latex.codecogs.com/png.latex?t_%7B0.975,n-1%7D"> is the quantile with probability 0.975 of the <img src="https://latex.codecogs.com/png.latex?t">-Student distribution with <img src="https://latex.codecogs.com/png.latex?n-1"> degrees of freedom. Therefore Equation&nbsp;8 can be written:</p>
-<p><span id="eq-eq9"><img src="https://latex.codecogs.com/png.latex?%0A%5Cvert%5C,x_%7B%5Ctext%7Bnew%7D%7D-%5Cbar%7Bx%7D%5C,%5Cvert%5Cleq%20t_%7B0.975,n-1%7Ds%5Csqrt%7B1+%5Cfrac%7B1%7D%7Bn%7D%5E%7B%5Cphantom%7B'%7D%7D%7D%0A%5Ctag%7B11%7D"></span></p>
-<p>For large <img src="https://latex.codecogs.com/png.latex?n">, when the central limit theorem can be applied, Equation&nbsp;11 can be simplified:</p>
-<p><span id="eq-eq10"><img src="https://latex.codecogs.com/png.latex?%0A%5Cboxed%7B%5Cvert%5C,x_%7B%5Ctext%7Bnew%7D%7D-%5Cbar%7Bx%7D%5C,%5Cvert%5Cleq%20z_%7B0.975%7Ds%7D%0A%5Ctag%7B12%7D"></span></p>
+<p><span id="eq-eq8"><img src="https://latex.codecogs.com/png.latex?%0AF_%7B0.95,1,n-1%7D=t_%7B0.975,n-1%7D%5E2%0A%5Ctag%7B5%7D"></span></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?t_%7B0.975,n-1%7D"> is the quantile with probability 0.975 of the <img src="https://latex.codecogs.com/png.latex?t">-Student distribution with <img src="https://latex.codecogs.com/png.latex?n-1"> degrees of freedom. Therefore Equation&nbsp;4 can be written:</p>
+<p><span id="eq-eq3"><img src="https://latex.codecogs.com/png.latex?%0A%5Cvert%5C,x_%7B%5Ctext%7Bnew%7D%7D-%5Cbar%7Bx%7D%5C,%5Cvert%5Cleq%20t_%7B0.975,n-1%7Ds%5Csqrt%7B1+%5Cfrac%7B1%7D%7Bn%7D%5E%7B%5Cphantom%7B'%7D%7D%7D%0A%5Ctag%7B6%7D"></span></p>
+<p>For large <img src="https://latex.codecogs.com/png.latex?n">, when the central limit theorem can be applied, Equation&nbsp;6 can be simplified:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cboxed%7B%5Cvert%5C,x_%7B%5Ctext%7Bnew%7D%7D-%5Cbar%7Bx%7D%5C,%5Cvert%5Cleq%20z_%7B0.975%7Ds%7D%0A"></p>
 <p>where <img src="https://latex.codecogs.com/png.latex?z_%7B0.975%7D=1.96"> is the quantile with probability 0.975 of the standard normal distribution.</p>
 <p><strong>Bivariate random variable</strong></p>
-<p>When <img src="https://latex.codecogs.com/png.latex?d=2">, Equation&nbsp;6 reads:</p>
-<p><span id="eq-eq11"><img src="https://latex.codecogs.com/png.latex?%0A(%5Cmathbf%7Bx%7D_%7B%5Ctext%7Bnew%7D%7D-%5Cbar%7B%5Cmathbf%7Bx%7D%7D)%5ET%5Cmathbf%7B%5CSigma%7D%5E%7B-1%7D(%5Cmathbf%7Bx%7D_%7B%5Ctext%7Bnew%7D%7D-%5Cbar%7B%5Cmathbf%7Bx%7D%7D)%5Cleq2F_%7B0.95,2,n-2%7D%5Cfrac%7B(n-1)(n+1)%7D%7Bn(n-2)%7D%0A%5Ctag%7B13%7D"></span></p>
-<p>Since <img src="https://latex.codecogs.com/png.latex?2F_%7B0.95,2,%5Cinfty%7D=%5Cchi%5E2(2)">, for large <img src="https://latex.codecogs.com/png.latex?n"> we can simplity Equation&nbsp;13 as follows:</p>
-<p><span id="eq-eq12"><img src="https://latex.codecogs.com/png.latex?%0A%5Cboxed%7B(%5Cmathbf%7Bx%7D_%7B%5Ctext%7Bnew%7D%7D-%5Cbar%7B%5Cmathbf%7Bx%7D%7D)%5ET%5Cmathbf%7B%5CSigma%7D%5E%7B-1%7D(%5Cmathbf%7Bx%7D_%7B%5Ctext%7Bnew%7D%7D-%5Cbar%7B%5Cmathbf%7Bx%7D%7D)%5Cleq%5Cchi%5E2(0.95,2)%7D%0A%5Ctag%7B14%7D"></span></p>
+<p>When <img src="https://latex.codecogs.com/png.latex?d=2">, Equation&nbsp;1 reads:</p>
+<p><span id="eq-eq4"><img src="https://latex.codecogs.com/png.latex?%0A(%5Cmathbf%7Bx%7D_%7B%5Ctext%7Bnew%7D%7D-%5Cbar%7B%5Cmathbf%7Bx%7D%7D)%5ET%5Cmathbf%7B%5CSigma%7D%5E%7B-1%7D(%5Cmathbf%7Bx%7D_%7B%5Ctext%7Bnew%7D%7D-%5Cbar%7B%5Cmathbf%7Bx%7D%7D)%5Cleq2F_%7B0.95,2,n-2%7D%5Cfrac%7B(n-1)(n+1)%7D%7Bn(n-2)%7D%0A%5Ctag%7B7%7D"></span></p>
+<p>Since <img src="https://latex.codecogs.com/png.latex?2F_%7B0.95,2,%5Cinfty%7D=%5Cchi%5E2(2)">, for large <img src="https://latex.codecogs.com/png.latex?n"> we can simplity Equation&nbsp;7 as follows:</p>
+<p><span id="eq-eq5"><img src="https://latex.codecogs.com/png.latex?%0A%5Cboxed%7B(%5Cmathbf%7Bx%7D_%7B%5Ctext%7Bnew%7D%7D-%5Cbar%7B%5Cmathbf%7Bx%7D%7D)%5ET%5Cmathbf%7B%5CSigma%7D%5E%7B-1%7D(%5Cmathbf%7Bx%7D_%7B%5Ctext%7Bnew%7D%7D-%5Cbar%7B%5Cmathbf%7Bx%7D%7D)%5Cleq%5Cchi%5E2(0.95,2)%7D%0A%5Ctag%7B8%7D"></span></p>
 </div>
 </div>
 </section>
 <section id="concentration-ellipse" class="level2">
 <h2 class="anchored" data-anchor-id="concentration-ellipse">Concentration ellipse</h2>
-<p>Equation&nbsp;14 is the equation of the <img src="https://latex.codecogs.com/png.latex?95%5C%25"> prediction ellipse for a bivariate normal distribution, whose sample mean value and sample covariance matrix are calculated from a large-size dataset. The ellipse is also called the <strong>concentration ellipse</strong>. Using Equation&nbsp;14 the area <img src="https://latex.codecogs.com/png.latex?A=V_2"> of the concentration ellipse can be computed from Equation&nbsp;7 when <img src="https://latex.codecogs.com/png.latex?n"> is large as follows:</p>
-<p><span id="eq-eq15"><img src="https://latex.codecogs.com/png.latex?%0AA=%5Cpi%5Csqrt%7B%5Cdet(%5CSigma)%7D%5C,%5Cchi%5E2_%7B0.95,2%7D%0A%5Ctag%7B15%7D"></span></p>
+<p>Equation&nbsp;8 is the equation of the <img src="https://latex.codecogs.com/png.latex?95%5C%25"> prediction ellipse for a bivariate normal distribution, whose sample mean value and sample covariance matrix are calculated from a large-size dataset. The ellipse is also called the <strong>concentration ellipse</strong>. Using Equation&nbsp;5 the area <img src="https://latex.codecogs.com/png.latex?A=V_2"> of the concentration ellipse can be computed from Equation&nbsp;2-Equation&nbsp;3 when <img src="https://latex.codecogs.com/png.latex?n"> is large as follows:</p>
+<p><span id="eq-eq9"><img src="https://latex.codecogs.com/png.latex?%0A%5Cboxed%7BA=%5Cpi%5Csqrt%7B%5Cdet(%5CSigma)%7D%5C,%5Cchi%5E2_%7B0.95,2%7D%7D%0A%5Ctag%7B9%7D"></span></p>
 <div id="exm-exm1" class="theorem example">
 <p><span class="theorem-title"><strong>Example 1 (Simulation)</strong></span> The dataset is composed of 1000 points simulated from a bivariate normal distribution with mean value and covariance matrix:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7B%5Cmu%7D=%5Cbegin%7Bbmatrix%7D1%5C%5C2%5Cend%7Bbmatrix%7D%5Cquad%5Cmathbf%7BC%7D=%5Cbegin%7Bbmatrix%7D5&amp;2%5C%5C2&amp;4%5Cend%7Bbmatrix%7D%0A"></p>
@@ -488,12 +488,13 @@ Figure&nbsp;1: The curve corresponding to the value <img src="https://latex.code
 </div>
 </div>
 </div>
-<p>The coverage of the concentration ellipse is 94.9%. Moreover, the code calculates the area enclosed by the concentration ellipse, which is 74 (arbitrary units).</p>
+<p>The coverage of the concentration ellipse is 94.9%. Moreover, the code calculates the area enclosed by the concentration ellipse, Equation&nbsp;9: 74 (arbitrary units).</p>
 </div>
 </section>
 <section id="an-application-to-posturography" class="level2">
 <h2 class="anchored" data-anchor-id="an-application-to-posturography">An application to posturography</h2>
-<p>Postural control is often quantified by recording the trajectory of the center of pressure (CoP) during human quiet standing. This quantification has many important applications, including the assessment of balance disorders and the early detection of balance degradation to prevent falls in geriatric populations. The CoP trajectory in time, reported as the anteroposterior (AP) component (forward/backward) and the mediolateral (ML) component (left/rigth) paired together to form the so-called stabilogram, is typically acquired by means of a force platform, on top of which tested subjects are asked to stand in their upright posture for a while, typically 60 s, as still as possible. Manipulation of testing conditions, e.g., presence or absence of vision, different kind of surfaces for the feet to stay on are possible, so as to gain further insights about the postural control system performance. Among the many CoP features that have been introduced in the literature, few of them have to do with the concentration ellipse of the CoP. E.g., the principal sway direction, to represent the relative contribution of the ML and AP components to the CoP fluctuations, in terms of the angle between the AP axis and the direction of the main eigenvector produced by the PCA. Another feature of interest, the one considered in this post, is the area of the concentration ellipse, also called the <strong>sway area</strong>. For instance, an increase in this feature value among elderly people has been associated with a higher risk of fall. I want to show here an example of calculation of the sway area using the code above, by taking an exemplary stabilogram from a recently published dataset <span class="citation" data-cites="dossantos2017">[@dossantos2017]</span>, Figure&nbsp;2.</p>
+<p>Postural control is often quantified by recording the trajectory of the center of pressure (CoP) during human quiet standing. This quantification has many important applications, including the assessment of balance disorders and the early detection of balance degradation to prevent falls in geriatric populations. The CoP trajectory in time, reported as the anteroposterior (AP) component (forward/backward) and the mediolateral (ML) component (left/right) paired together to form the so-called stabilogram, is typically acquired by means of a force platform, on top of which tested subjects are asked to stand in their upright posture for a while, typically 60 s, as still as possible. Manipulation of testing conditions, e.g., presence or absence of vision, different kind of surfaces for the feet to stay on are possible, so as to gain further insights about the postural control system performance.</p>
+<p>Among the many CoP features that have been introduced in the literature, few of them have to do with the concentration ellipse of the CoP. E.g., the principal sway direction, to represent the relative contribution of the ML and AP components to the CoP fluctuations, in terms of the angle between the AP axis and the direction of the main eigenvector produced by the PCA. Another feature of interest, the one considered in this post, is the area of the concentration ellipse, also called the <strong>sway area</strong> <span class="citation" data-cites="schubert2014">(Schubert and Kirchner 2014)</span>. For instance, an increase in this feature value among elderly people has been associated with a higher risk of fall. I want to show here an example of calculation of the sway area using the code above, by taking an exemplary stabilogram from a recently published dataset <span class="citation" data-cites="dossantos2017">(Santos et al. 2017)</span>, Figure&nbsp;2.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -705,7 +706,7 @@ Figure&nbsp;2: Anteroposterior and mediolateral components of the CoP for the su
 </div>
 </div>
 </div>
-<p>The stabilogram with superimposed the concentration ellipse is shown in Figure&nbsp;3.</p>
+<p>The stabilogram with the concentration ellipse superimposed on it are shown in Figure&nbsp;3.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -958,9 +959,17 @@ Figure&nbsp;3: Exemplary stabilogram with superimposed the concentration ellipse
 <p>The coverage of the concentration ellipse is 97%. The sway area is 3.09 cm<img src="https://latex.codecogs.com/png.latex?%5E2">.</p>
 
 
+
 </section>
 
- ]]></description>
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0">
+<div id="ref-dossantos2017" class="csl-entry">
+Santos, Damiana A. dos, Claudiane A. Fukuchi, Reginaldo K. Fukuchi, and Marcos Duarte. 2017. <span>“A Data Set with Kinematic and Ground Reaction Forces of Human Balance.”</span> <em>PeerJ</em> 5 (July): e3626. <a href="https://doi.org/10.7717/peerj.3626">https://doi.org/10.7717/peerj.3626</a>.
+</div>
+<div id="ref-schubert2014" class="csl-entry">
+Schubert, Patric, and Marietta Kirchner. 2014. <span>“Ellipse Area Calculations and Their Applicability in Posturography.”</span> <em>Gait &amp; Posture</em> 39 (1): 518–22. <a href="https://doi.org/10.1016/j.gaitpost.2013.09.001">https://doi.org/10.1016/j.gaitpost.2013.09.001</a>.
+</div>
+</div></section></div> ]]></description>
   <category>statistics</category>
   <guid>https://amsabatini.netlify.app/posts/multivariate_probability_regions/</guid>
   <pubDate>Wed, 01 May 2024 22:00:00 GMT</pubDate>

@@ -8,8 +8,9 @@
 
 <meta name="author" content="Angelo Maria Sabatini">
 <meta name="dcterms.date" content="2024-05-02">
+<meta name="description" content="Computing probability regions in the space where sample data are assumed to live relates to the determination of regions that we are confident are occupied by the underlying population with the prescribed value of probability. After reviewing the theory for multivariate normal distributions, I present an example of application from the analysis of posturographic data.">
 
-<title>Angelo Maria Sabatini - Multivariate probability distributions</title>
+<title>Angelo Maria Sabatini - Multivariate probability regions</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -56,7 +57,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
@@ -186,6 +207,14 @@ window.Quarto = {
     <a class="nav-link" href="../../blog.html"> 
 <span class="menu-text">Blog</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../archive.html"> 
+<span class="menu-text">Archive</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">Use and permissions</span></a>
+  </li>  
   <li class="nav-item compact">
     <a class="nav-link" href="https://github.com/angelosabatini"> <i class="bi bi-github" role="img">
 </i> 
@@ -195,10 +224,6 @@ window.Quarto = {
     <a class="nav-link" href="../../blog.xml"> <i class="bi bi-rss" role="img">
 </i> 
 <span class="menu-text"></span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../../archive.html"> 
-<span class="menu-text">Archive</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -227,12 +252,17 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Multivariate probability distributions</h1>
+<h1 class="title">Multivariate probability regions</h1>
   <div class="quarto-categories">
     <div class="quarto-category">statistics</div>
   </div>
   </div>
 
+<div>
+  <div class="description">
+    Computing probability regions in the space where sample data are assumed to live relates to the determination of regions that we are <em>confident</em> are occupied by the underlying population with the prescribed value of probability. After reviewing the theory for multivariate normal distributions, I present an example of application from the analysis of posturographic data.
+  </div>
+</div>
 
 
 <div class="quarto-title-meta">
@@ -262,39 +292,39 @@ window.Quarto = {
 <section id="prediction-hyperellipsoid" class="level2">
 <h2 class="anchored" data-anchor-id="prediction-hyperellipsoid">Prediction hyperellipsoid</h2>
 <p>Consider the case of a multivariate random variable <span class="math inline">\(\mathbf{X}\in\mathbb{R}^d\)</span>, whose distribution is normal with mean value <span class="math inline">\(\mathbf{\mu}\)</span> and covariance matrix <span class="math inline">\(\mathbf{C}\)</span>:</p>
-<p><span id="eq-eq13"><span class="math display">\[
-\mathbf{C}=\begin{bmatrix}\sigma_1^2&amp;\cdots&amp;\sigma_{1d}\\\vdots&amp;\ddots&amp;\vdots\\\sigma_{d1}&amp;\cdots&amp;\sigma^2_d\end{bmatrix}
-\tag{1}\]</span></span></p>
-<p>from which we draw a sample of <span class="math inline">\(n\)</span> data points:</p>
-<p><span id="eq-eq1"><span class="math display">\[
-\mathbf{x}_i=\begin{bmatrix}x_{i1}\\\vdots\\x_{id}\end{bmatrix}
-\tag{2}\]</span></span></p>
-<p>We suppose that either the mean value or the covariance matrix are unknown; they can be estimated using the <strong>sample mean</strong>, denoted by <span class="math inline">\(\bar{\mathbf{x}}\)</span>:</p>
-<p><span id="eq-eq2"><span class="math display">\[
-\bar{\mathbf{x}}=\begin{bmatrix}\bar{x}_1\\\vdots\\\bar{x}_d\end{bmatrix}=\frac{1}{n}\sum_{i=1}^n\begin{bmatrix}x_{i1}\\\vdots\\x_{id}\end{bmatrix}=\frac{1}{n}\sum_{i=1}^n\mathbf{x}_i
-\tag{3}\]</span></span></p>
-<p>and the <strong>sample covariance matrix</strong>, denoted by <span class="math inline">\(\mathbf{\Sigma}\)</span>:</p>
-<p><span id="eq-eq3"><span class="math display">\[
-\mathbf{\Sigma}=\{\,\sigma_{jk},j,k=1,\cdots d\,\}=\frac{1}{n-1}\sum_{i=1}^n(\mathbf{x}_i-\bar{\mathbf{x}})(\mathbf{x}_i-\bar{\mathbf{x}})^T
-\tag{4}\]</span></span></p>
-<p>whose <span class="math inline">\(jk\)</span>th element is written:</p>
-<p><span id="eq-eq4"><span class="math display">\[
-\Sigma_{jk}=\frac{1}{n-1}\sum_{i=1}^n(x_{ij}-\bar{x}_j)(x_{ik}-\bar{x}_k)
-\tag{5}\]</span></span></p>
-<p>The <span class="math inline">\(95\%\)</span> prediction interval is a <span class="math inline">\(d\)</span>-dimensional <strong>prediction hyperellipsoid</strong>, which, formally, is written as follows:</p>
-<p><span id="eq-eq5"><span class="math display">\[
-\boxed{(\mathbf{x}_{\text{new}}-\bar{\mathbf{x}})^T\mathbf{\Sigma}^{-1}(\mathbf{x}_{\text{new}}-\bar{\mathbf{x}})\leq F_{0.95,d,n-d}\frac{(n-1)(n+1)}{n(n-d)}d}
-\tag{6}\]</span></span></p>
-<p>where <span class="math inline">\(\mathbf{x}_{\text{new}}\)</span> is the new observation for which the prediction interval is desired. <span class="math inline">\(F_{0.95,n,n-d}\)</span> is the quantile with probability 0.95 of the Fisher’s <span class="math inline">\(F\)</span>-distribution with <span class="math inline">\(d\)</span> and <span class="math inline">\((n-d)\)</span> degrees of freedom.</p>
-<p><a href="#eq-eq5" class="quarto-xref">Equation&nbsp;6</a> is the formula for predicting the next single observation where we only have estimates of the mean value and the covariance matrix from the sample.</p>
-<p>Another interesting formula can be elaborated as for the computation of the volume of the prediction hyperellipsoid. Recall that the prediction hyperellipsoid is the transformation of the hypersphere of radius</p>
 <p><span class="math display">\[
-r=\sqrt{F_{0.95,d,n-d}\frac{(n-1)(n+1)}{n(n-d)}d}
+\mathbf{C}=\begin{bmatrix}\sigma_1^2&amp;\cdots&amp;\sigma_{1d}\\\vdots&amp;\ddots&amp;\vdots\\\sigma_{d1}&amp;\cdots&amp;\sigma^2_d\end{bmatrix}
 \]</span></p>
+<p>from which we draw a sample of <span class="math inline">\(n\)</span> data points:</p>
+<p><span class="math display">\[
+\mathbf{x}_i=\begin{bmatrix}x_{i1}\\\vdots\\x_{id}\end{bmatrix}
+\]</span></p>
+<p>We suppose that either the mean value or the covariance matrix are unknown; they can be estimated using the <strong>sample mean</strong>, denoted by <span class="math inline">\(\bar{\mathbf{x}}\)</span>:</p>
+<p><span class="math display">\[
+\bar{\mathbf{x}}=\begin{bmatrix}\bar{x}_1\\\vdots\\\bar{x}_d\end{bmatrix}=\frac{1}{n}\sum_{i=1}^n\begin{bmatrix}x_{i1}\\\vdots\\x_{id}\end{bmatrix}=\frac{1}{n}\sum_{i=1}^n\mathbf{x}_i
+\]</span></p>
+<p>and the <strong>sample covariance matrix</strong>, denoted by <span class="math inline">\(\mathbf{\Sigma}\)</span>:</p>
+<p><span class="math display">\[
+\mathbf{\Sigma}=\{\,\sigma_{jk},j,k=1,\cdots d\,\}=\frac{1}{n-1}\sum_{i=1}^n(\mathbf{x}_i-\bar{\mathbf{x}})(\mathbf{x}_i-\bar{\mathbf{x}})^T
+\]</span></p>
+<p>whose <span class="math inline">\(jk\)</span>th element is written:</p>
+<p><span class="math display">\[
+\Sigma_{jk}=\frac{1}{n-1}\sum_{i=1}^n(x_{ij}-\bar{x}_j)(x_{ik}-\bar{x}_k)
+\]</span></p>
+<p>The <span class="math inline">\(95\%\)</span> prediction interval is a <span class="math inline">\(d\)</span>-dimensional <strong>prediction hyperellipsoid</strong>, which, formally, is written as follows:</p>
+<p><span id="eq-eq1"><span class="math display">\[
+\boxed{(\mathbf{x}_{\text{new}}-\bar{\mathbf{x}})^T\mathbf{\Sigma}^{-1}(\mathbf{x}_{\text{new}}-\bar{\mathbf{x}})\leq F_{0.95,d,n-d}\frac{(n-1)(n+1)}{n(n-d)}d}
+\tag{1}\]</span></span></p>
+<p>where <span class="math inline">\(\mathbf{x}_{\text{new}}\)</span> is the new observation for which the prediction interval is desired. <span class="math inline">\(F_{0.95,n,n-d}\)</span> is the quantile with probability 0.95 of the Fisher’s <span class="math inline">\(F\)</span>-distribution with <span class="math inline">\(d\)</span> and <span class="math inline">\((n-d)\)</span> degrees of freedom.</p>
+<p><a href="#eq-eq1" class="quarto-xref">Equation&nbsp;1</a> is the formula for predicting the next single observation where we only have estimates of the mean value and the covariance matrix from the sample.</p>
+<p>Another interesting formula can be elaborated as for the computation of the volume of the prediction hyperellipsoid. Recall that the prediction hyperellipsoid is the transformation of the hypersphere of radius</p>
+<p><span id="eq-eq7"><span class="math display">\[
+r=\sqrt{F_{0.95,d,n-d}\frac{(n-1)(n+1)}{n(n-d)}d}
+\tag{2}\]</span></span></p>
 <p>by the linear transform of matrix <span class="math inline">\(\Sigma^{1/2}\)</span>. Let <span class="math inline">\(V\)</span> the volume of the hypersphere of radius <span class="math inline">\(r\)</span> in an <span class="math inline">\(d\)</span>-dimensional space. The volume of the hyperellipsoid can be obtained from <span class="math inline">\(V\)</span> by multiplying with the determinant of the linear transform:</p>
-<p><span id="eq-eq14"><span class="math display">\[
+<p><span id="eq-eq6"><span class="math display">\[
 V_d=\underbrace{\frac{2}{d}\frac{\pi^{d/2}}{\Gamma(d/2)}r^d}_{V}\sqrt{\det(\Sigma)}
-\tag{7}\]</span></span></p>
+\tag{3}\]</span></span></p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -306,45 +336,45 @@ Univariate and bivariate random variables
 </div>
 <div class="callout-body-container callout-body">
 <p><strong>Univariate random variable</strong></p>
-<p>When <span class="math inline">\(d=1\)</span>, <a href="#eq-eq5" class="quarto-xref">Equation&nbsp;6</a> reads:</p>
-<p><span id="eq-eq6"><span class="math display">\[
+<p>When <span class="math inline">\(d=1\)</span>, <a href="#eq-eq1" class="quarto-xref">Equation&nbsp;1</a> reads:</p>
+<p><span id="eq-eq2"><span class="math display">\[
 \frac{\vert\,x_{\text{new}}-\bar{x}\,\vert}{s}\leq\sqrt{F_{0.95,1,n-1}^{\phantom{'}}}\sqrt{1+\frac{1}{n}^{\phantom{'}}}
-\tag{8}\]</span></span></p>
+\tag{4}\]</span></span></p>
 <p>where <span class="math inline">\(s\)</span> is the sample standard deviation:</p>
-<p><span id="eq-eq7"><span class="math display">\[
+<p><span class="math display">\[
 s=\sqrt{\frac{1}{n-1}\sum_{i=1}^n(x_i-\bar{x})^2}
-\tag{9}\]</span></span></p>
+\]</span></p>
 <p>It is noted that</p>
 <p><span id="eq-eq8"><span class="math display">\[
 F_{0.95,1,n-1}=t_{0.975,n-1}^2
-\tag{10}\]</span></span></p>
-<p>where <span class="math inline">\(t_{0.975,n-1}\)</span> is the quantile with probability 0.975 of the <span class="math inline">\(t\)</span>-Student distribution with <span class="math inline">\(n-1\)</span> degrees of freedom. Therefore <a href="#eq-eq6" class="quarto-xref">Equation&nbsp;8</a> can be written:</p>
-<p><span id="eq-eq9"><span class="math display">\[
+\tag{5}\]</span></span></p>
+<p>where <span class="math inline">\(t_{0.975,n-1}\)</span> is the quantile with probability 0.975 of the <span class="math inline">\(t\)</span>-Student distribution with <span class="math inline">\(n-1\)</span> degrees of freedom. Therefore <a href="#eq-eq2" class="quarto-xref">Equation&nbsp;4</a> can be written:</p>
+<p><span id="eq-eq3"><span class="math display">\[
 \vert\,x_{\text{new}}-\bar{x}\,\vert\leq t_{0.975,n-1}s\sqrt{1+\frac{1}{n}^{\phantom{'}}}
-\tag{11}\]</span></span></p>
-<p>For large <span class="math inline">\(n\)</span>, when the central limit theorem can be applied, <a href="#eq-eq9" class="quarto-xref">Equation&nbsp;11</a> can be simplified:</p>
-<p><span id="eq-eq10"><span class="math display">\[
+\tag{6}\]</span></span></p>
+<p>For large <span class="math inline">\(n\)</span>, when the central limit theorem can be applied, <a href="#eq-eq3" class="quarto-xref">Equation&nbsp;6</a> can be simplified:</p>
+<p><span class="math display">\[
 \boxed{\vert\,x_{\text{new}}-\bar{x}\,\vert\leq z_{0.975}s}
-\tag{12}\]</span></span></p>
+\]</span></p>
 <p>where <span class="math inline">\(z_{0.975}=1.96\)</span> is the quantile with probability 0.975 of the standard normal distribution.</p>
 <p><strong>Bivariate random variable</strong></p>
-<p>When <span class="math inline">\(d=2\)</span>, <a href="#eq-eq5" class="quarto-xref">Equation&nbsp;6</a> reads:</p>
-<p><span id="eq-eq11"><span class="math display">\[
+<p>When <span class="math inline">\(d=2\)</span>, <a href="#eq-eq1" class="quarto-xref">Equation&nbsp;1</a> reads:</p>
+<p><span id="eq-eq4"><span class="math display">\[
 (\mathbf{x}_{\text{new}}-\bar{\mathbf{x}})^T\mathbf{\Sigma}^{-1}(\mathbf{x}_{\text{new}}-\bar{\mathbf{x}})\leq2F_{0.95,2,n-2}\frac{(n-1)(n+1)}{n(n-2)}
-\tag{13}\]</span></span></p>
-<p>Since <span class="math inline">\(2F_{0.95,2,\infty}=\chi^2(2)\)</span>, for large <span class="math inline">\(n\)</span> we can simplity <a href="#eq-eq11" class="quarto-xref">Equation&nbsp;13</a> as follows:</p>
-<p><span id="eq-eq12"><span class="math display">\[
+\tag{7}\]</span></span></p>
+<p>Since <span class="math inline">\(2F_{0.95,2,\infty}=\chi^2(2)\)</span>, for large <span class="math inline">\(n\)</span> we can simplity <a href="#eq-eq4" class="quarto-xref">Equation&nbsp;7</a> as follows:</p>
+<p><span id="eq-eq5"><span class="math display">\[
 \boxed{(\mathbf{x}_{\text{new}}-\bar{\mathbf{x}})^T\mathbf{\Sigma}^{-1}(\mathbf{x}_{\text{new}}-\bar{\mathbf{x}})\leq\chi^2(0.95,2)}
-\tag{14}\]</span></span></p>
+\tag{8}\]</span></span></p>
 </div>
 </div>
 </section>
 <section id="concentration-ellipse" class="level2">
 <h2 class="anchored" data-anchor-id="concentration-ellipse">Concentration ellipse</h2>
-<p><a href="#eq-eq12" class="quarto-xref">Equation&nbsp;14</a> is the equation of the <span class="math inline">\(95\%\)</span> prediction ellipse for a bivariate normal distribution, whose sample mean value and sample covariance matrix are calculated from a large-size dataset. The ellipse is also called the <strong>concentration ellipse</strong>. Using <a href="#eq-eq12" class="quarto-xref">Equation&nbsp;14</a> the area <span class="math inline">\(A=V_2\)</span> of the concentration ellipse can be computed from <a href="#eq-eq14" class="quarto-xref">Equation&nbsp;7</a> when <span class="math inline">\(n\)</span> is large as follows:</p>
-<p><span id="eq-eq15"><span class="math display">\[
-A=\pi\sqrt{\det(\Sigma)}\,\chi^2_{0.95,2}
-\tag{15}\]</span></span></p>
+<p><a href="#eq-eq5" class="quarto-xref">Equation&nbsp;8</a> is the equation of the <span class="math inline">\(95\%\)</span> prediction ellipse for a bivariate normal distribution, whose sample mean value and sample covariance matrix are calculated from a large-size dataset. The ellipse is also called the <strong>concentration ellipse</strong>. Using <a href="#eq-eq8" class="quarto-xref">Equation&nbsp;5</a> the area <span class="math inline">\(A=V_2\)</span> of the concentration ellipse can be computed from <a href="#eq-eq7" class="quarto-xref">Equation&nbsp;2</a>-<a href="#eq-eq6" class="quarto-xref">Equation&nbsp;3</a> when <span class="math inline">\(n\)</span> is large as follows:</p>
+<p><span id="eq-eq9"><span class="math display">\[
+\boxed{A=\pi\sqrt{\det(\Sigma)}\,\chi^2_{0.95,2}}
+\tag{9}\]</span></span></p>
 <div id="exm-exm1" class="theorem example">
 <p><span class="theorem-title"><strong>Example 1 (Simulation)</strong></span> The dataset is composed of 1000 points simulated from a bivariate normal distribution with mean value and covariance matrix:</p>
 <p><span class="math display">\[
@@ -413,12 +443,13 @@ Figure&nbsp;1: The curve corresponding to the value <span class="math inline">\(
 </div>
 </div>
 </div>
-<p>The coverage of the concentration ellipse is 94.9%. Moreover, the code calculates the area enclosed by the concentration ellipse, which is 74 (arbitrary units).</p>
+<p>The coverage of the concentration ellipse is 94.9%. Moreover, the code calculates the area enclosed by the concentration ellipse, <a href="#eq-eq9" class="quarto-xref">Equation&nbsp;9</a>: 74 (arbitrary units).</p>
 </div>
 </section>
 <section id="an-application-to-posturography" class="level2">
 <h2 class="anchored" data-anchor-id="an-application-to-posturography">An application to posturography</h2>
-<p>Postural control is often quantified by recording the trajectory of the center of pressure (CoP) during human quiet standing. This quantification has many important applications, including the assessment of balance disorders and the early detection of balance degradation to prevent falls in geriatric populations. The CoP trajectory in time, reported as the anteroposterior (AP) component (forward/backward) and the mediolateral (ML) component (left/rigth) paired together to form the so-called stabilogram, is typically acquired by means of a force platform, on top of which tested subjects are asked to stand in their upright posture for a while, typically 60 s, as still as possible. Manipulation of testing conditions, e.g., presence or absence of vision, different kind of surfaces for the feet to stay on are possible, so as to gain further insights about the postural control system performance. Among the many CoP features that have been introduced in the literature, few of them have to do with the concentration ellipse of the CoP. E.g., the principal sway direction, to represent the relative contribution of the ML and AP components to the CoP fluctuations, in terms of the angle between the AP axis and the direction of the main eigenvector produced by the PCA. Another feature of interest, the one considered in this post, is the area of the concentration ellipse, also called the <strong>sway area</strong>. For instance, an increase in this feature value among elderly people has been associated with a higher risk of fall. I want to show here an example of calculation of the sway area using the code above, by taking an exemplary stabilogram from a recently published dataset <span class="citation" data-cites="dossantos2017">[@dossantos2017]</span>, <a href="#fig-fig2" class="quarto-xref">Figure&nbsp;2</a>.</p>
+<p>Postural control is often quantified by recording the trajectory of the center of pressure (CoP) during human quiet standing. This quantification has many important applications, including the assessment of balance disorders and the early detection of balance degradation to prevent falls in geriatric populations. The CoP trajectory in time, reported as the anteroposterior (AP) component (forward/backward) and the mediolateral (ML) component (left/right) paired together to form the so-called stabilogram, is typically acquired by means of a force platform, on top of which tested subjects are asked to stand in their upright posture for a while, typically 60 s, as still as possible. Manipulation of testing conditions, e.g., presence or absence of vision, different kind of surfaces for the feet to stay on are possible, so as to gain further insights about the postural control system performance.</p>
+<p>Among the many CoP features that have been introduced in the literature, few of them have to do with the concentration ellipse of the CoP. E.g., the principal sway direction, to represent the relative contribution of the ML and AP components to the CoP fluctuations, in terms of the angle between the AP axis and the direction of the main eigenvector produced by the PCA. Another feature of interest, the one considered in this post, is the area of the concentration ellipse, also called the <strong>sway area</strong> <span class="citation" data-cites="schubert2014">(<a href="#ref-schubert2014" role="doc-biblioref">Schubert and Kirchner 2014</a>)</span>. For instance, an increase in this feature value among elderly people has been associated with a higher risk of fall. I want to show here an example of calculation of the sway area using the code above, by taking an exemplary stabilogram from a recently published dataset <span class="citation" data-cites="dossantos2017">(<a href="#ref-dossantos2017" role="doc-biblioref">Santos et al. 2017</a>)</span>, <a href="#fig-fig2" class="quarto-xref">Figure&nbsp;2</a>.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -462,7 +493,7 @@ Figure&nbsp;2: Anteroposterior and mediolateral components of the CoP for the su
 </div>
 </div>
 </div>
-<p>The stabilogram with superimposed the concentration ellipse is shown in <a href="#fig-fig3" class="quarto-xref">Figure&nbsp;3</a>.</p>
+<p>The stabilogram with the concentration ellipse superimposed on it are shown in <a href="#fig-fig3" class="quarto-xref">Figure&nbsp;3</a>.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -507,9 +538,17 @@ Figure&nbsp;3: Exemplary stabilogram with superimposed the concentration ellipse
 <p>The coverage of the concentration ellipse is 97%. The sway area is 3.09 cm<span class="math inline">\(^2\)</span>.</p>
 
 
+
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-dossantos2017" class="csl-entry" role="listitem">
+Santos, Damiana A. dos, Claudiane A. Fukuchi, Reginaldo K. Fukuchi, and Marcos Duarte. 2017. <span>“A Data Set with Kinematic and Ground Reaction Forces of Human Balance.”</span> <em>PeerJ</em> 5 (July): e3626. <a href="https://doi.org/10.7717/peerj.3626">https://doi.org/10.7717/peerj.3626</a>.
+</div>
+<div id="ref-schubert2014" class="csl-entry" role="listitem">
+Schubert, Patric, and Marietta Kirchner. 2014. <span>“Ellipse Area Calculations and Their Applicability in Posturography.”</span> <em>Gait &amp; Posture</em> 39 (1): 518–22. <a href="https://doi.org/10.1016/j.gaitpost.2013.09.001">https://doi.org/10.1016/j.gaitpost.2013.09.001</a>.
+</div>
+</div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
