@@ -10,7 +10,962 @@
 <atom:link href="https://amsabatini.netlify.app/blog.xml" rel="self" type="application/rss+xml"/>
 <description>This the personal blog of Angelo Maria Sabatini</description>
 <generator>quarto-1.4.550</generator>
-<lastBuildDate>Fri, 26 Apr 2024 22:00:00 GMT</lastBuildDate>
+<lastBuildDate>Wed, 01 May 2024 22:00:00 GMT</lastBuildDate>
+<item>
+  <title>Multivariate probability distributions</title>
+  <dc:creator>Angelo Maria Sabatini</dc:creator>
+  <link>https://amsabatini.netlify.app/posts/multivariate_probability_regions/</link>
+  <description><![CDATA[ 
+
+
+
+
+<section id="prediction-hyperellipsoid" class="level2">
+<h2 class="anchored" data-anchor-id="prediction-hyperellipsoid">Prediction hyperellipsoid</h2>
+<p>Consider the case of a multivariate random variable <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BX%7D%5Cin%5Cmathbb%7BR%7D%5Ed">, whose distribution is normal with mean value <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7B%5Cmu%7D"> and covariance matrix <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BC%7D">:</p>
+<p><span id="eq-eq13"><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7BC%7D=%5Cbegin%7Bbmatrix%7D%5Csigma_1%5E2&amp;%5Ccdots&amp;%5Csigma_%7B1d%7D%5C%5C%5Cvdots&amp;%5Cddots&amp;%5Cvdots%5C%5C%5Csigma_%7Bd1%7D&amp;%5Ccdots&amp;%5Csigma%5E2_d%5Cend%7Bbmatrix%7D%0A%5Ctag%7B1%7D"></span></p>
+<p>from which we draw a sample of <img src="https://latex.codecogs.com/png.latex?n"> data points:</p>
+<p><span id="eq-eq1"><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7Bx%7D_i=%5Cbegin%7Bbmatrix%7Dx_%7Bi1%7D%5C%5C%5Cvdots%5C%5Cx_%7Bid%7D%5Cend%7Bbmatrix%7D%0A%5Ctag%7B2%7D"></span></p>
+<p>We suppose that either the mean value or the covariance matrix are unknown; they can be estimated using the <strong>sample mean</strong>, denoted by <img src="https://latex.codecogs.com/png.latex?%5Cbar%7B%5Cmathbf%7Bx%7D%7D">:</p>
+<p><span id="eq-eq2"><img src="https://latex.codecogs.com/png.latex?%0A%5Cbar%7B%5Cmathbf%7Bx%7D%7D=%5Cbegin%7Bbmatrix%7D%5Cbar%7Bx%7D_1%5C%5C%5Cvdots%5C%5C%5Cbar%7Bx%7D_d%5Cend%7Bbmatrix%7D=%5Cfrac%7B1%7D%7Bn%7D%5Csum_%7Bi=1%7D%5En%5Cbegin%7Bbmatrix%7Dx_%7Bi1%7D%5C%5C%5Cvdots%5C%5Cx_%7Bid%7D%5Cend%7Bbmatrix%7D=%5Cfrac%7B1%7D%7Bn%7D%5Csum_%7Bi=1%7D%5En%5Cmathbf%7Bx%7D_i%0A%5Ctag%7B3%7D"></span></p>
+<p>and the <strong>sample covariance matrix</strong>, denoted by <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7B%5CSigma%7D">:</p>
+<p><span id="eq-eq3"><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7B%5CSigma%7D=%5C%7B%5C,%5Csigma_%7Bjk%7D,j,k=1,%5Ccdots%20d%5C,%5C%7D=%5Cfrac%7B1%7D%7Bn-1%7D%5Csum_%7Bi=1%7D%5En(%5Cmathbf%7Bx%7D_i-%5Cbar%7B%5Cmathbf%7Bx%7D%7D)(%5Cmathbf%7Bx%7D_i-%5Cbar%7B%5Cmathbf%7Bx%7D%7D)%5ET%0A%5Ctag%7B4%7D"></span></p>
+<p>whose <img src="https://latex.codecogs.com/png.latex?jk">th element is written:</p>
+<p><span id="eq-eq4"><img src="https://latex.codecogs.com/png.latex?%0A%5CSigma_%7Bjk%7D=%5Cfrac%7B1%7D%7Bn-1%7D%5Csum_%7Bi=1%7D%5En(x_%7Bij%7D-%5Cbar%7Bx%7D_j)(x_%7Bik%7D-%5Cbar%7Bx%7D_k)%0A%5Ctag%7B5%7D"></span></p>
+<p>The <img src="https://latex.codecogs.com/png.latex?95%5C%25"> prediction interval is a <img src="https://latex.codecogs.com/png.latex?d">-dimensional <strong>prediction hyperellipsoid</strong>, which, formally, is written as follows:</p>
+<p><span id="eq-eq5"><img src="https://latex.codecogs.com/png.latex?%0A%5Cboxed%7B(%5Cmathbf%7Bx%7D_%7B%5Ctext%7Bnew%7D%7D-%5Cbar%7B%5Cmathbf%7Bx%7D%7D)%5ET%5Cmathbf%7B%5CSigma%7D%5E%7B-1%7D(%5Cmathbf%7Bx%7D_%7B%5Ctext%7Bnew%7D%7D-%5Cbar%7B%5Cmathbf%7Bx%7D%7D)%5Cleq%20F_%7B0.95,d,n-d%7D%5Cfrac%7B(n-1)(n+1)%7D%7Bn(n-d)%7Dd%7D%0A%5Ctag%7B6%7D"></span></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bx%7D_%7B%5Ctext%7Bnew%7D%7D"> is the new observation for which the prediction interval is desired. <img src="https://latex.codecogs.com/png.latex?F_%7B0.95,n,n-d%7D"> is the quantile with probability 0.95 of the Fisher’s <img src="https://latex.codecogs.com/png.latex?F">-distribution with <img src="https://latex.codecogs.com/png.latex?d"> and <img src="https://latex.codecogs.com/png.latex?(n-d)"> degrees of freedom.</p>
+<p>Equation&nbsp;6 is the formula for predicting the next single observation where we only have estimates of the mean value and the covariance matrix from the sample.</p>
+<p>Another interesting formula can be elaborated as for the computation of the volume of the prediction hyperellipsoid. Recall that the prediction hyperellipsoid is the transformation of the hypersphere of radius</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Ar=%5Csqrt%7BF_%7B0.95,d,n-d%7D%5Cfrac%7B(n-1)(n+1)%7D%7Bn(n-d)%7Dd%7D%0A"></p>
+<p>by the linear transform of matrix <img src="https://latex.codecogs.com/png.latex?%5CSigma%5E%7B1/2%7D">. Let <img src="https://latex.codecogs.com/png.latex?V"> the volume of the hypersphere of radius <img src="https://latex.codecogs.com/png.latex?r"> in an <img src="https://latex.codecogs.com/png.latex?d">-dimensional space. The volume of the hyperellipsoid can be obtained from <img src="https://latex.codecogs.com/png.latex?V"> by multiplying with the determinant of the linear transform:</p>
+<p><span id="eq-eq14"><img src="https://latex.codecogs.com/png.latex?%0AV_d=%5Cunderbrace%7B%5Cfrac%7B2%7D%7Bd%7D%5Cfrac%7B%5Cpi%5E%7Bd/2%7D%7D%7B%5CGamma(d/2)%7Dr%5Ed%7D_%7BV%7D%5Csqrt%7B%5Cdet(%5CSigma)%7D%0A%5Ctag%7B7%7D"></span></p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Univariate and bivariate random variables
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Univariate random variable</strong></p>
+<p>When <img src="https://latex.codecogs.com/png.latex?d=1">, Equation&nbsp;6 reads:</p>
+<p><span id="eq-eq6"><img src="https://latex.codecogs.com/png.latex?%0A%5Cfrac%7B%5Cvert%5C,x_%7B%5Ctext%7Bnew%7D%7D-%5Cbar%7Bx%7D%5C,%5Cvert%7D%7Bs%7D%5Cleq%5Csqrt%7BF_%7B0.95,1,n-1%7D%5E%7B%5Cphantom%7B'%7D%7D%7D%5Csqrt%7B1+%5Cfrac%7B1%7D%7Bn%7D%5E%7B%5Cphantom%7B'%7D%7D%7D%0A%5Ctag%7B8%7D"></span></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?s"> is the sample standard deviation:</p>
+<p><span id="eq-eq7"><img src="https://latex.codecogs.com/png.latex?%0As=%5Csqrt%7B%5Cfrac%7B1%7D%7Bn-1%7D%5Csum_%7Bi=1%7D%5En(x_i-%5Cbar%7Bx%7D)%5E2%7D%0A%5Ctag%7B9%7D"></span></p>
+<p>It is noted that</p>
+<p><span id="eq-eq8"><img src="https://latex.codecogs.com/png.latex?%0AF_%7B0.95,1,n-1%7D=t_%7B0.975,n-1%7D%5E2%0A%5Ctag%7B10%7D"></span></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?t_%7B0.975,n-1%7D"> is the quantile with probability 0.975 of the <img src="https://latex.codecogs.com/png.latex?t">-Student distribution with <img src="https://latex.codecogs.com/png.latex?n-1"> degrees of freedom. Therefore Equation&nbsp;8 can be written:</p>
+<p><span id="eq-eq9"><img src="https://latex.codecogs.com/png.latex?%0A%5Cvert%5C,x_%7B%5Ctext%7Bnew%7D%7D-%5Cbar%7Bx%7D%5C,%5Cvert%5Cleq%20t_%7B0.975,n-1%7Ds%5Csqrt%7B1+%5Cfrac%7B1%7D%7Bn%7D%5E%7B%5Cphantom%7B'%7D%7D%7D%0A%5Ctag%7B11%7D"></span></p>
+<p>For large <img src="https://latex.codecogs.com/png.latex?n">, when the central limit theorem can be applied, Equation&nbsp;11 can be simplified:</p>
+<p><span id="eq-eq10"><img src="https://latex.codecogs.com/png.latex?%0A%5Cboxed%7B%5Cvert%5C,x_%7B%5Ctext%7Bnew%7D%7D-%5Cbar%7Bx%7D%5C,%5Cvert%5Cleq%20z_%7B0.975%7Ds%7D%0A%5Ctag%7B12%7D"></span></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?z_%7B0.975%7D=1.96"> is the quantile with probability 0.975 of the standard normal distribution.</p>
+<p><strong>Bivariate random variable</strong></p>
+<p>When <img src="https://latex.codecogs.com/png.latex?d=2">, Equation&nbsp;6 reads:</p>
+<p><span id="eq-eq11"><img src="https://latex.codecogs.com/png.latex?%0A(%5Cmathbf%7Bx%7D_%7B%5Ctext%7Bnew%7D%7D-%5Cbar%7B%5Cmathbf%7Bx%7D%7D)%5ET%5Cmathbf%7B%5CSigma%7D%5E%7B-1%7D(%5Cmathbf%7Bx%7D_%7B%5Ctext%7Bnew%7D%7D-%5Cbar%7B%5Cmathbf%7Bx%7D%7D)%5Cleq2F_%7B0.95,2,n-2%7D%5Cfrac%7B(n-1)(n+1)%7D%7Bn(n-2)%7D%0A%5Ctag%7B13%7D"></span></p>
+<p>Since <img src="https://latex.codecogs.com/png.latex?2F_%7B0.95,2,%5Cinfty%7D=%5Cchi%5E2(2)">, for large <img src="https://latex.codecogs.com/png.latex?n"> we can simplity Equation&nbsp;13 as follows:</p>
+<p><span id="eq-eq12"><img src="https://latex.codecogs.com/png.latex?%0A%5Cboxed%7B(%5Cmathbf%7Bx%7D_%7B%5Ctext%7Bnew%7D%7D-%5Cbar%7B%5Cmathbf%7Bx%7D%7D)%5ET%5Cmathbf%7B%5CSigma%7D%5E%7B-1%7D(%5Cmathbf%7Bx%7D_%7B%5Ctext%7Bnew%7D%7D-%5Cbar%7B%5Cmathbf%7Bx%7D%7D)%5Cleq%5Cchi%5E2(0.95,2)%7D%0A%5Ctag%7B14%7D"></span></p>
+</div>
+</div>
+</section>
+<section id="concentration-ellipse" class="level2">
+<h2 class="anchored" data-anchor-id="concentration-ellipse">Concentration ellipse</h2>
+<p>Equation&nbsp;14 is the equation of the <img src="https://latex.codecogs.com/png.latex?95%5C%25"> prediction ellipse for a bivariate normal distribution, whose sample mean value and sample covariance matrix are calculated from a large-size dataset. The ellipse is also called the <strong>concentration ellipse</strong>. Using Equation&nbsp;14 the area <img src="https://latex.codecogs.com/png.latex?A=V_2"> of the concentration ellipse can be computed from Equation&nbsp;7 when <img src="https://latex.codecogs.com/png.latex?n"> is large as follows:</p>
+<p><span id="eq-eq15"><img src="https://latex.codecogs.com/png.latex?%0AA=%5Cpi%5Csqrt%7B%5Cdet(%5CSigma)%7D%5C,%5Cchi%5E2_%7B0.95,2%7D%0A%5Ctag%7B15%7D"></span></p>
+<div id="exm-exm1" class="theorem example">
+<p><span class="theorem-title"><strong>Example 1 (Simulation)</strong></span> The dataset is composed of 1000 points simulated from a bivariate normal distribution with mean value and covariance matrix:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7B%5Cmu%7D=%5Cbegin%7Bbmatrix%7D1%5C%5C2%5Cend%7Bbmatrix%7D%5Cquad%5Cmathbf%7BC%7D=%5Cbegin%7Bbmatrix%7D5&amp;2%5C%5C2&amp;4%5Cend%7Bbmatrix%7D%0A"></p>
+<p>I used the function <a href="https://rdrr.io/cran/splus2R/man/rmvnorm.html"><code>rmvnorm()</code></a> from the package <code>rvnorm</code> for the simulation of the dataset, and the function <a href="https://ggplot2.tidyverse.org/reference/stat_ellipse.html"><code>stat_ellipse()</code></a> of <code>ggplot2</code> for drawing the ellipse, Figure&nbsp;1. Using <code>stat_ellipse()</code> dispensed me from computing eigenvalues and eigenvectors of the sample covariance matrix, which are needed to evaluate the orientation and the eccentricity of the ellipse in the Cartesian plane. This computation can be based on a simple principal component analysis (PCA).</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse)</span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(mvtnorm)</span>
+<span id="cb1-3"></span>
+<span id="cb1-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1492</span>)</span>
+<span id="cb1-5">sigma <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ncol =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)</span>
+<span id="cb1-6">n <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span></span>
+<span id="cb1-7">x <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rmvnorm</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> n, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mean =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sigma =</span> sigma)</span>
+<span id="cb1-8"></span>
+<span id="cb1-9">dist <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">qchisq</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.95</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)                <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># to define the 95% probability contour</span></span>
+<span id="cb1-10">m <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ncol =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) </span>
+<span id="cb1-11"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">for</span> (i <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">in</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>) m[i] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(x[, i])    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># sample mean value</span></span>
+<span id="cb1-12">C <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cov</span>(x)                            <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># sample covariance matrix</span></span>
+<span id="cb1-13">S <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">solve</span>(C)                          <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># inverse of C</span></span>
+<span id="cb1-14">Q <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">numeric</span>(n)                        </span>
+<span id="cb1-15"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">for</span> (i <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">in</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span>n) Q[i] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">t</span>(x[i, ] <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> m) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%*%</span> S <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%*%</span> (x[i, ] <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> m) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># computation of the quadratic form</span></span>
+<span id="cb1-16"></span>
+<span id="cb1-17">df <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(x, Q)</span>
+<span id="cb1-18">df <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> df <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb1-19">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">inside =</span> Q <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;=</span> dist)</span>
+<span id="cb1-20">aest <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span>df<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>inside)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span>n), <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># estimated coverage</span></span>
+<span id="cb1-21">area <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> pi<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>dist<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sqrt</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">det</span>(C)) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># area of the concentration ellipse </span></span>
+<span id="cb1-22"></span>
+<span id="cb1-23">my_theme <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb1-24">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axis.title.x =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">16</span>),</span>
+<span id="cb1-25">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axis.text.x =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">14</span>),</span>
+<span id="cb1-26">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axis.title.y =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">16</span>),</span>
+<span id="cb1-27">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axis.text.y =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">14</span>),</span>
+<span id="cb1-28">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">14</span>),</span>
+<span id="cb1-29">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.text =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">14</span>),</span>
+<span id="cb1-30">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">panel.border =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_blank</span>(),</span>
+<span id="cb1-31">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">panel.grid.major =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_blank</span>(),</span>
+<span id="cb1-32">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">panel.grid.minor =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_blank</span>(),</span>
+<span id="cb1-33">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">panel.background =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_blank</span>(),</span>
+<span id="cb1-34">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axis.line =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_line</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"black"</span>),</span>
+<span id="cb1-35">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">aspect.ratio =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,</span>
+<span id="cb1-36">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"none"</span>)</span>
+<span id="cb1-37"></span>
+<span id="cb1-38"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(df, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> X1, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> X2, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> inside)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb1-39">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_colour_manual</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">values =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"blue"</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb1-40">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_point</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb1-41">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">stat_ellipse</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">geom =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"polygon"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">type =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"norm"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">level =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.95</span>, </span>
+<span id="cb1-42">               <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"blue"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"blue"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb1-43">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_x_continuous</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">limits =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> </span>
+<span id="cb1-44">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_y_continuous</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">limits =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> </span>
+<span id="cb1-45">  my_theme</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-fig1" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/multivariate_probability_regions/index_files/figure-html/fig-fig1-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: The curve corresponding to the value <img src="https://latex.codecogs.com/png.latex?%5Cchi%5E2(0.95,2)=5.99"> contains <img src="https://latex.codecogs.com/png.latex?95%5C%25"> of the variable pairs; the points falling outside the concentration ellipse are plotted in red.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The coverage of the concentration ellipse is 94.9%. Moreover, the code calculates the area enclosed by the concentration ellipse, which is 74 (arbitrary units).</p>
+</div>
+</section>
+<section id="an-application-to-posturography" class="level2">
+<h2 class="anchored" data-anchor-id="an-application-to-posturography">An application to posturography</h2>
+<p>Postural control is often quantified by recording the trajectory of the center of pressure (CoP) during human quiet standing. This quantification has many important applications, including the assessment of balance disorders and the early detection of balance degradation to prevent falls in geriatric populations. The CoP trajectory in time, reported as the anteroposterior (AP) component (forward/backward) and the mediolateral (ML) component (left/rigth) paired together to form the so-called stabilogram, is typically acquired by means of a force platform, on top of which tested subjects are asked to stand in their upright posture for a while, typically 60 s, as still as possible. Manipulation of testing conditions, e.g., presence or absence of vision, different kind of surfaces for the feet to stay on are possible, so as to gain further insights about the postural control system performance. Among the many CoP features that have been introduced in the literature, few of them have to do with the concentration ellipse of the CoP. E.g., the principal sway direction, to represent the relative contribution of the ML and AP components to the CoP fluctuations, in terms of the angle between the AP axis and the direction of the main eigenvector produced by the PCA. Another feature of interest, the one considered in this post, is the area of the concentration ellipse, also called the <strong>sway area</strong>. For instance, an increase in this feature value among elderly people has been associated with a higher risk of fall. I want to show here an example of calculation of the sway area using the code above, by taking an exemplary stabilogram from a recently published dataset <span class="citation" data-cites="dossantos2017">[@dossantos2017]</span>, Figure&nbsp;2.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(ggpubr)</span>
+<span id="cb2-2"></span>
+<span id="cb2-3">data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">read.table</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">file =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'PDS01OR1grf.txt'</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">header =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sep =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\t</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>)</span>
+<span id="cb2-4">t <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>Time                  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># 6000 samples acquired at a rate of 100 Hz</span></span>
+<span id="cb2-5">CoP_AP <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>COPNET_X<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1e2</span>     <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># anteroposterior component (AP), cm</span></span>
+<span id="cb2-6">CoP_ML <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>COPNET_Z<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1e2</span>     <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># mediolateral component (ML), cm</span></span>
+<span id="cb2-7">CoP_AP <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> CoP_AP <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(CoP_AP) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># detrending</span></span>
+<span id="cb2-8">CoP_ML <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> CoP_ML <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(CoP_ML) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># detrending</span></span>
+<span id="cb2-9"></span>
+<span id="cb2-10">df <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">time =</span> t, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x_ap =</span> CoP_AP, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x_ml =</span> CoP_ML)</span>
+<span id="cb2-11"></span>
+<span id="cb2-12">p_ap <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(df, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> time, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> x_ap)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-13">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_line</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"blue"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-14">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"time, s"</span>,</span>
+<span id="cb2-15">       <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"AP direction, cm"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> </span>
+<span id="cb2-16">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_y_continuous</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">limits =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-17">  my_theme</span>
+<span id="cb2-18"></span>
+<span id="cb2-19">p_ml <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(df, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> time, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> x_ml)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-20">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_line</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-21">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"time, s"</span>,</span>
+<span id="cb2-22">       <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ML direction, cm"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> </span>
+<span id="cb2-23">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_y_continuous</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">limits =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-24">  my_theme</span>
+<span id="cb2-25"></span>
+<span id="cb2-26"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggarrange</span>(p_ap, p_ml)</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-fig2" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/multivariate_probability_regions/index_files/figure-html/fig-fig2-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Anteroposterior and mediolateral components of the CoP for the subject with ID 1 from the Duarte’s dataset, tested Open-Eyes on a Rigid surface (first trial out of three).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The stabilogram with superimposed the concentration ellipse is shown in Figure&nbsp;3.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1">x <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cbind</span>(df<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>x_ml, df<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>x_ap) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># detrending already done</span></span>
+<span id="cb3-2">d <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">qchisq</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.95</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)         <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># to define the 95% probability contour</span></span>
+<span id="cb3-3">n <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">nrow</span>(x)</span>
+<span id="cb3-4">C <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cov</span>(x)                  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># sample covariance matrix</span></span>
+<span id="cb3-5">S <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">solve</span>(C)                <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># inverse of C</span></span>
+<span id="cb3-6">Q <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">numeric</span>(n)                        </span>
+<span id="cb3-7"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">for</span> (i <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">in</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span>n) Q[i] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">t</span>(x[i, ]) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%*%</span> S <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%*%</span> x[i, ] <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># computation of the quadratic form</span></span>
+<span id="cb3-8"></span>
+<span id="cb3-9">df_Q <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(x, Q)</span>
+<span id="cb3-10">df_Q <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> df_Q <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb3-11">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">inside =</span> Q <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;=</span> dist)</span>
+<span id="cb3-12">aest <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span>df_Q<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>inside)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span>n), <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># estimated coverage</span></span>
+<span id="cb3-13">area <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> pi<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>dist<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sqrt</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">det</span>(C)) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># area of the concentration ellipse </span></span>
+<span id="cb3-14"></span>
+<span id="cb3-15"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(df_Q, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> X1, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> X2, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> inside)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb3-16">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_colour_manual</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">values =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"blue"</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb3-17">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_point</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb3-18">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">stat_ellipse</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">geom =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"polygon"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">type =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"norm"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">level =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.95</span>, </span>
+<span id="cb3-19">               <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"blue"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"blue"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb3-20">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ML component, cm"</span>,</span>
+<span id="cb3-21">       <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"AP component, cm"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb3-22">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_x_continuous</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">limits =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> </span>
+<span id="cb3-23">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_y_continuous</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">limits =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> </span>
+<span id="cb3-24">  my_theme</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-fig3" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fig3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/multivariate_probability_regions/index_files/figure-html/fig-fig3-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Exemplary stabilogram with superimposed the concentration ellipse - parts of the CoP trajectory outside the concentration ellipse are displayed in red.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The coverage of the concentration ellipse is 97%. The sway area is 3.09 cm<img src="https://latex.codecogs.com/png.latex?%5E2">.</p>
+
+
+</section>
+
+ ]]></description>
+  <category>statistics</category>
+  <guid>https://amsabatini.netlify.app/posts/multivariate_probability_regions/</guid>
+  <pubDate>Wed, 01 May 2024 22:00:00 GMT</pubDate>
+  <media:content url="https://amsabatini.netlify.app/posts/multivariate_probability_regions/fig-cop.png" medium="image" type="image/png" height="103" width="144"/>
+</item>
 <item>
   <title>Confidence intervals for proportions</title>
   <dc:creator>Angelo Maria Sabatini</dc:creator>
@@ -88,9 +1043,9 @@ background-color: null;
 font-style: inherit;"># number of simulated sequences </span></span>
 <span id="cb1-4">a  <span class="ot" style="color: #003B4F;
 background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fl" style="color: #AD0000;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">0.95</span>                        <span class="co" style="color: #5E5E5E;
+font-style: inherit;">95</span>                          <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># confidence level</span></span>
 <span id="cb1-5">t  <span class="ot" style="color: #003B4F;
@@ -101,11 +1056,15 @@ font-style: inherit;">qnorm</span>((<span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">+</span>a)<span class="sc" style="color: #5E5E5E;
+font-style: inherit;">+</span>a<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">/</span><span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">2</span>)              <span class="co" style="color: #5E5E5E;
+font-style: inherit;">100</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)          <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># quantile of the normal distribution</span></span>
 <span id="cb1-6">p  <span class="ot" style="color: #003B4F;
@@ -431,16 +1390,24 @@ font-style: inherit;">1</span></span>
 <span id="cb1-26">}</span>
 <span id="cb1-27">c_wilson <span class="ot" style="color: #003B4F;
 background-color: null;
-font-style: inherit;">&lt;-</span> c_wilson<span class="sc" style="color: #5E5E5E;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">/</span>L </span>
+font-style: inherit;">100</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>c_wilson<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span>L <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># estimated coverage</span></span>
 <span id="cb1-28">c_wald   <span class="ot" style="color: #003B4F;
 background-color: null;
-font-style: inherit;">&lt;-</span> c_wald<span class="sc" style="color: #5E5E5E;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">/</span>L   <span class="co" style="color: #5E5E5E;
+font-style: inherit;">100</span><span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;"># estimated coverage</span></span></code></pre></div>
+font-style: inherit;">*</span>c_wald<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span>L   </span></code></pre></div>
 </details>
 </div>
 <div class="cell">
@@ -474,7 +1441,7 @@ Figure&nbsp;2: Coverage curves for the binomial distribution with <img src="http
 </div>
 <p>Although the performance of the Wald method has slightly improved, the Wilson method still outperforms it, especially for small and high values of <img src="https://latex.codecogs.com/png.latex?p">.</p>
 <blockquote class="blockquote">
-<p>To conclude, when estimating the confidence interval associated to the estimate of proportions, the Wald interval - the most basic confidence interval usually considered by experimentalists - appears to be seriously flawed, also for values of the number of trials that are considered <em>large</em> in most statistical textbooks. The Wilson interval with continuity correction tends to perform much better and it use should be encouraged.</p>
+<p>To conclude, when estimating the confidence interval associated to the estimate of proportions, the Wald interval - the most basic confidence interval usually considered by experimentalists - appears to be seriously flawed, also for values of the number of trials that are considered <em>large</em> in most statistical textbooks. The Wilson interval with continuity correction tends to perform much better and its use should be encouraged.</p>
 </blockquote>
 
 

@@ -346,8 +346,8 @@ p\in f\pm t_{1-\alpha/2}\sqrt{\dfrac{f(1-f)}{n}}
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1789</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>n  <span class="ot">&lt;-</span> <span class="dv">30</span>                          <span class="co"># number of Bernoulli trials</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>L  <span class="ot">&lt;-</span> <span class="dv">1000</span>                        <span class="co"># number of simulated sequences </span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>a  <span class="ot">&lt;-</span> <span class="fl">0.95</span>                        <span class="co"># confidence level</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>t  <span class="ot">&lt;-</span> <span class="fu">qnorm</span>((<span class="dv">1</span><span class="sc">+</span>a)<span class="sc">/</span><span class="dv">2</span>)              <span class="co"># quantile of the normal distribution</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>a  <span class="ot">&lt;-</span> <span class="dv">95</span>                          <span class="co"># confidence level</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>t  <span class="ot">&lt;-</span> <span class="fu">qnorm</span>((<span class="dv">1</span><span class="sc">+</span>a<span class="sc">/</span><span class="dv">100</span>)<span class="sc">/</span><span class="dv">2</span>)          <span class="co"># quantile of the normal distribution</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>p  <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fl">0.05</span>, <span class="fl">0.95</span>, <span class="at">by =</span> <span class="fl">0.01</span>)  <span class="co"># tested values of probability</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>np <span class="ot">&lt;-</span> <span class="fu">length</span>(p)                   <span class="co"># number of tested values of probability</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>c_wald   <span class="ot">&lt;-</span> <span class="fu">numeric</span>(np)           <span class="co"># Wald approach</span></span>
@@ -369,8 +369,8 @@ p\in f\pm t_{1-\alpha/2}\sqrt{\dfrac{f(1-f)}{n}}
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span>(CI_lower_wald <span class="sc">&lt;=</span> p[i] <span class="sc">&amp;&amp;</span> CI_upper_wald <span class="sc">&gt;=</span> p[i]) c_wald[i] <span class="ot">=</span> c_wald[i] <span class="sc">+</span> <span class="dv">1</span></span>
 <span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>c_wilson <span class="ot">&lt;-</span> c_wilson<span class="sc">/</span>L </span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>c_wald   <span class="ot">&lt;-</span> c_wald<span class="sc">/</span>L   <span class="co"># estimated coverage</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>c_wilson <span class="ot">&lt;-</span> <span class="dv">100</span><span class="sc">*</span>c_wilson<span class="sc">/</span>L <span class="co"># estimated coverage</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>c_wald   <span class="ot">&lt;-</span> <span class="dv">100</span><span class="sc">*</span>c_wald<span class="sc">/</span>L   </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div class="cell">
@@ -404,7 +404,7 @@ Figure&nbsp;2: Coverage curves for the binomial distribution with <span class="m
 </div>
 <p>Although the performance of the Wald method has slightly improved, the Wilson method still outperforms it, especially for small and high values of <span class="math inline">\(p\)</span>.</p>
 <blockquote class="blockquote">
-<p>To conclude, when estimating the confidence interval associated to the estimate of proportions, the Wald interval - the most basic confidence interval usually considered by experimentalists - appears to be seriously flawed, also for values of the number of trials that are considered <em>large</em> in most statistical textbooks. The Wilson interval with continuity correction tends to perform much better and it use should be encouraged.</p>
+<p>To conclude, when estimating the confidence interval associated to the estimate of proportions, the Wald interval - the most basic confidence interval usually considered by experimentalists - appears to be seriously flawed, also for values of the number of trials that are considered <em>large</em> in most statistical textbooks. The Wilson interval with continuity correction tends to perform much better and its use should be encouraged.</p>
 </blockquote>
 
 

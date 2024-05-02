@@ -2,6 +2,7 @@
   {
     "listing": "/blog.html",
     "items": [
+      "/posts/multivariate_probability_regions/index.html",
       "/posts/probability_estimation/index.html",
       "/posts/combinatorics/index.html",
       "/posts/random_incidence/index.html",
@@ -11,6 +12,7 @@
   {
     "listing": "/archive.html",
     "items": [
+      "/posts/multivariate_probability_regions/index.html",
       "/posts/probability_estimation/index.html",
       "/posts/combinatorics/index.html",
       "/posts/random_incidence/index.html",
