@@ -11,7 +11,14 @@
     "href": "index.html",
     "title": "Angelo Maria Sabatini",
     "section": "",
-    "text": "I am an associate professor at the BioRobotics Institute of the Scuola Superiore Sant’Anna, in Pisa, Italy. In my posts, I attempt to explain various concepts that I studied, in my double role of teacher and researcher.\nThere have been two main reasons for me to start this blog: first, learning - since writing is a very effective tool against shallow understanding (mine!); second, I wish to help others who may be struggling with similar problems.\nMy teaching is in the general area of instrumentation & measurement, statistics, signal processing and data analysis. My research focuses on developing algorithms for wearable inertial-sensor-based systems applied to motion analysis and assessment of human performance.\nRecently, I started studying the theory of diffusive processes for the modeling of time series of human motion.\nFor a record of my publications, please visit this site. Feel free to reach out to me via mail."
+    "text": "I am an associate professor at the BioRobotics Institute of the Scuola Superiore Sant’Anna, in Pisa, Italy. In my posts, I attempt to explain various concepts that I studied, in my double role of teacher and researcher.\nThere have been two main reasons for me to start this blog: first, learning - since writing is a very effective tool against shallow understanding (mine!); second, I wish to help others who may be struggling with similar problems.\nMy teaching is in the general area of instrumentation & measurement, statistics, signal processing and data analysis. My research focuses on developing algorithms for wearable inertial-sensor-based systems applied to motion analysis and assessment of human performance.\nRecently, I started studying the theory of diffusive processes for the modeling of time series of human motion.\nFor a record of my publications, please visit this site. Feel free to reach out to me via mail.\n\n\nThis blog’s content is under the Creative Commons Attribution-ShareAlike 4.0 International License:\n\nAngelo Maria Sabatini’s blog by Angelo Maria Sabatini is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.\nBased on a work at https://amsabatini.netlify.app"
+  },
+  {
+    "objectID": "index.html#copyrightpermissions",
+    "href": "index.html#copyrightpermissions",
+    "title": "Angelo Maria Sabatini",
+    "section": "",
+    "text": "This blog’s content is under the Creative Commons Attribution-ShareAlike 4.0 International License:\n\nAngelo Maria Sabatini’s blog by Angelo Maria Sabatini is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.\nBased on a work at https://amsabatini.netlify.app"
   },
   {
     "objectID": "posts/random_incidence/index.html",
@@ -116,6 +123,6 @@
     "href": "about.html",
     "title": "Using the blog",
     "section": "",
-    "text": "Using the blog\nAt the top you should find a search box and a menu for ordering the posts as you prefer, from them you please start searching for something useful to you. The “Categories” menu is also available to find something specific in the main areas in which I subdivided my posts (although, borders between categories are, sometimes, quite fuzzy). An “Archive” menu is also provided to render the search easier.\n\n\nCopyright/permissions\nThis blog’s content is under the Creative Commons Attribution-ShareAlike 4.0 International License:\n\nAngelo Maria Sabatini’s blog by Angelo Maria Sabatini is licensed under a Creative Commons Attribution-ShareAlike 4.0 International License.\nBased on a work at https://amsabatini.netlify.app"
+    "text": "Using the blog\nAt the top you should find a search box and a menu for ordering the posts as you prefer, from them you please start searching for something useful to you. The “Categories” menu is also available to find something specific in the main areas in which I subdivided my posts (although, borders between categories are, sometimes, quite fuzzy). An “Archive” menu is also provided to render the search easier."
   }
 ]
