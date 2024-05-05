@@ -8,6 +8,7 @@
 
 <meta name="author" content="Angelo Maria Sabatini">
 <meta name="dcterms.date" content="2024-05-05">
+<meta name="description" content="The gambler’s ruin problem is often applied to gamblers with finite wealth playing against a bookie or casino assumed to have a much larger amount of wealth available, in principle infinite. It can then be proven that the probability of the gambler’s eventual ruin tends to 1 even in the scenario where the game is fair.">
 
 <title>Angelo Maria Sabatini - Gambler’s ruin</title>
 <style>
@@ -254,6 +255,11 @@ window.Quarto = {
   </div>
   </div>
 
+<div>
+  <div class="description">
+    The gambler’s ruin problem is often applied to gamblers with finite wealth playing against a bookie or casino assumed to have a much larger amount of wealth available, in principle infinite. It can then be proven that the probability of the gambler’s eventual ruin tends to 1 even in the scenario where the game is fair.
+  </div>
+</div>
 
 
 <div class="quarto-title-meta">
@@ -282,7 +288,11 @@ window.Quarto = {
 
 <section id="problem" class="level2">
 <h2 class="anchored" data-anchor-id="problem">Problem</h2>
-<p>Consider a gambler who starts with an initial wealth of €<span class="math inline">\(k\)</span> and then on each successive bet either wins €1 or loses €1 with probabilities <span class="math inline">\(p\)</span> and <span class="math inline">\(q=1−p\)</span> respectively. Different bets are assumed independent. The gambler’s objective is to reach a total wealth of €<span class="math inline">\(n\)</span> (<span class="math inline">\(n&gt;k\)</span>). If the gambler succeeds, then the gambler is said to win the game. The gambler stops playing after winning or getting ruined (running out of money), whichever happens first. Calculate the probability of winning.</p>
+<p>The gambler’s ruin problem, first mentioned by <a href="https://en.wikipedia.org/wiki/Blaise_Pascal">Blaise Pascal</a> in one of his letters to <a href="https://en.wikipedia.org/wiki/Pierre_de_Fermat">Pierre Fermat</a>, was then reformulated by <a href="https://en.wikipedia.org/wiki/Christiaan_Huygens">Christiaan Huygens</a>, leading to important advances in the mathematical theory of probability. The statement of the problem considered here is slightly different from the one described by either Pascal or Huygens <span class="citation" data-cites="noauthororeditor">(<a href="#ref-noauthororeditor" role="doc-biblioref">Bertsekas and Tsitsiklis 2008</a>)</span>.</p>
+<blockquote class="blockquote">
+<p>Consider a gambler who starts with an initial wealth of €<span class="math inline">\(k\)</span> and then on each successive bet either wins €1 or loses €1 with probabilities <span class="math inline">\(p\)</span> and <span class="math inline">\(q=1−p\)</span> respectively. Different bets are assumed independent. The gambler’s objective is to reach a total wealth of €<span class="math inline">\(n\)</span> (<span class="math inline">\(n&gt;k\)</span>). If the gambler succeeds, then the gambler is said to win the game. The gambler stops playing after winning or getting ruined (running out of money), whichever happens first.</p>
+</blockquote>
+<p>Calculate the probability that the gambler wins. In particular, which is the probability of the gambler becoming infinitely rich?</p>
 </section>
 <section id="solution" class="level2">
 <h2 class="anchored" data-anchor-id="solution">Solution</h2>
@@ -295,9 +305,9 @@ w_k&amp;=P(A\,\vert\,F)P(F)+P(A\,\vert\,\overline{F})P(\overline{F})\\
 \tag{1}\]</span></span></p>
 <p>where <span class="math inline">\(\overline{F}\)</span> is the complement of <span class="math inline">\(F\)</span>, namely the event <span class="math inline">\(\overline{F}\)</span> is that the gambler loses the first bet.</p>
 <p>Now, the event <span class="math inline">\(A\,\vert\,F\)</span> is the event <span class="math inline">\(A\)</span> given that the gambler starts with €<span class="math inline">\((k+1)\)</span>, whose probability is <span class="math inline">\(w_{k+1}\)</span> (because of the independence from the past). The event <span class="math inline">\(A\,\vert\,\overline{F}\)</span> is the event <span class="math inline">\(A\)</span> given that the gambler starts with €<span class="math inline">\((k-1)\)</span>, whose probability is <span class="math inline">\(w_{k-1}\)</span> (because of the independence from the past). <a href="#eq-eq1" class="quarto-xref">Equation&nbsp;1</a> reads:</p>
-<p><span class="math display">\[
+<p><span id="eq-eq10"><span class="math display">\[
 w_k=p\,w_{k+1}+(1-p)\,w_{k-1}
-\]</span></p>
+\tag{2}\]</span></span></p>
 <p>If we define <span class="math inline">\(r=(1-p)/p\)</span>, we can also write:</p>
 <p><span id="eq-eq2"><span class="math display">\[
 \left\{
@@ -307,7 +317,7 @@ w_k=p\,w_{k+1}+(1-p)\,w_{k-1}
 &amp;w_n=1
 \end{split}
 \right.
-\tag{2}\]</span></span></p>
+\tag{3}\]</span></span></p>
 <p>Since <span class="math inline">\(w_{k+1}=w_k+r^k(w_1-w_0)=w_k+r^kw_1=w_1\sum_{i=0}^kr^i\)</span>, we can calculate <span class="math inline">\(w_k\)</span> as follows:</p>
 <p><span id="eq-eq3"><span class="math display">\[
 w_k=\left\{
@@ -316,8 +326,8 @@ w_k=\left\{
 &amp;kw_1&amp;\quad\text{if}\;r=1
 \end{split}
 \right.
-\tag{3}\]</span></span></p>
-<p>We also know that <span class="math inline">\(w_n=1\)</span>. Therefore, we can solve <a href="#eq-eq3" class="quarto-xref">Equation&nbsp;3</a> for <span class="math inline">\(w_1\)</span>:</p>
+\tag{4}\]</span></span></p>
+<p>We also know that <span class="math inline">\(w_n=1\)</span>. Therefore, we can solve <a href="#eq-eq3" class="quarto-xref">Equation&nbsp;4</a> for <span class="math inline">\(w_1\)</span>:</p>
 <p><span class="math display">\[
 w_1=\left\{
 \begin{split}
@@ -326,7 +336,7 @@ w_1=\left\{
 \end{split}
 \right.
 \]</span></p>
-<p>Plugging this expression of <span class="math inline">\(w_1\)</span> into <a href="#eq-eq3" class="quarto-xref">Equation&nbsp;3</a>, we obtain:</p>
+<p>Plugging this expression of <span class="math inline">\(w_1\)</span> into <a href="#eq-eq3" class="quarto-xref">Equation&nbsp;4</a>, we obtain:</p>
 <p><span id="eq-eq4"><span class="math display">\[
 \boxed{w_k=\left\{
 \begin{split}
@@ -334,21 +344,21 @@ w_1=\left\{
 &amp;\frac{k}{n}&amp;\quad\text{if}\;r=1
 \end{split}
 \right.}
-\tag{4}\]</span></span></p>
-<p>The probability that the gambler becomes infinitely rich is written:</p>
+\tag{5}\]</span></span></p>
+<p>The probability that the gambler becomes infinitely rich (event <span class="math inline">\(R\)</span>) is written:</p>
 <p><span id="eq-eq5"><span class="math display">\[
 \left\{
 \begin{split}
-\text{Pr}(\text{the gambler becomes infinitely rich})&amp;=\lim_{n\rightarrow\infty}w_k=0,\;p\leq1/2\;(r\geq1)\\
-\text{Pr}(\text{the gambler becomes infinitely rich})&amp;=\lim_{n\rightarrow\infty}w_k=1-\left(\frac{1-p}{p}\right)^k&gt;0,\;p&gt;1/2\;(r&lt;1)\\
+\text{Pr}(R)&amp;=\lim_{n\rightarrow\infty}w_k=1-\left(\frac{1-p}{p}\right)^k&gt;0,&amp;\quad p&gt;1/2\;(r&lt;1)\\
+\text{Pr}(R)&amp;=\lim_{n\rightarrow\infty}w_k=0,&amp;\quad p\leq1/2\;(r\geq1)\\
 \end{split}
 \right.
-\tag{5}\]</span></span></p>
-<p>To interpret the meaning of <a href="#eq-eq5" class="quarto-xref">Equation&nbsp;5</a>, suppose that the gambler starting with an initial wealth of €<span class="math inline">\(k\)</span> wishes to continue gambling, with the intention of earning as much money as possible. So there is no winning value €<span class="math inline">\(n\)</span>: the gambler will only stop if ruined. If <span class="math inline">\(p&gt;1/2\)</span> (each gamble is in favor of the gambler), then there is a positive probability that the gambler will never get ruined but instead will become infinitely rich. Conversely, if <span class="math inline">\(p\leq0.5\)</span> (each gamble is not in favor of the gambler), then the gambler will get ruined with probability one.</p>
+\tag{6}\]</span></span></p>
+<p>To interpret the meaning of <a href="#eq-eq5" class="quarto-xref">Equation&nbsp;6</a>, suppose that the gambler starting with an initial wealth of €<span class="math inline">\(k\)</span> wishes to continue gambling, with the intention of earning as much money as possible. So there is no winning value €<span class="math inline">\(n\)</span>: the gambler will only stop if ruined. If <span class="math inline">\(p&gt;1/2\)</span> (each gamble is in favor of the gambler), then there is a positive probability that the gambler will never get ruined but instead will become infinitely rich. Conversely, if <span class="math inline">\(p\leq0.5\)</span> (each gamble is not in favor of the gambler), then the gambler will get ruined with probability one.</p>
 </section>
 <section id="markov-chain-model" class="level2">
 <h2 class="anchored" data-anchor-id="markov-chain-model">Markov chain model</h2>
-<p>The discrete-state discrete-time Markov chain show in <a href="#fig-fig1" class="quarto-xref">Figure&nbsp;1</a> can be proposed to model the gambler process. The <span class="math inline">\(n+1\)</span> states, numbered from 0 to <span class="math inline">\(n\)</span>, represent the gambler’s wealth at the start of each bet. The first state 0 corresponds to ruin (getting out of money), the last state <span class="math inline">\(n\)</span> corresponds to win. Given the rules of the game, the states 0 and <span class="math inline">\(n\)</span> are absorbing, in the sense that it is not possible to escape from each of them anymore, once they are reached. All the other states are transient.</p>
+<p>The discrete-state discrete-time Markov chain show in <a href="#fig-fig1" class="quarto-xref">Figure&nbsp;1</a> can be proposed to model the gambler process <span class="citation" data-cites="noauthororeditor">(<a href="#ref-noauthororeditor" role="doc-biblioref">Bertsekas and Tsitsiklis 2008</a>)</span>. The <span class="math inline">\(n+1\)</span> states, numbered from 0 to <span class="math inline">\(n\)</span>, represent the gambler’s wealth at the start of each bet. The first state 0 corresponds to ruin (getting out of money), the last state <span class="math inline">\(n\)</span> corresponds to win. Given the rules of the game, the states 0 and <span class="math inline">\(n\)</span> are absorbing, in the sense that it is not possible to escape from each of them anymore, once they are entered. All the other states are transient.</p>
 <div id="fig-fig1" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -370,15 +380,15 @@ Transition probability matrix
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The state of the chain is denoted by <span class="math inline">\(X_n\)</span>, that can change at certain discrete time instants <span class="math inline">\(n\)</span>. The state space of the chain is composed of a finite set <span class="math inline">\(\mathscr{S}=\{1,2,\cdots,m\}\)</span>. The Markov chain is described in terms of its transition probability <span class="math inline">\(p_{ij}\)</span>:</p>
+<p>The state of a discrete-state discrete-time Markov chain is denoted by <span class="math inline">\(X_t\)</span>, that can change at certain discrete time instants <span class="math inline">\(n\)</span>. The state space of the chain is composed of a finite set <span class="math inline">\(\mathscr{S}=\{1,\cdots,m\}\)</span>. The Markov chain is described in terms of its transition probability <span class="math inline">\(p_{ij}\)</span>:</p>
 <p><span id="eq-eq6"><span class="math display">\[
-p_{ij}=P(X_{n+1}=j\,\vert\,X_n=i),\quad i,j\in\mathscr{S}
-\tag{6}\]</span></span></p>
+p_{ij}=P(X_{t+1}=j\,\vert\,X_t=i),\quad i,j\in\mathscr{S}
+\tag{7}\]</span></span></p>
 <p>The key assumption underlying Markov chains is that the <strong>Markov property</strong> holds:</p>
 <p><span id="eq-eq7"><span class="math display">\[
-P(X_{n+1}=j\,\vert\,X_n=i,X_{n-1}=i_{n-1},\cdots,X_0=i_0)=P(X_{n+1}=j \,\vert\,X_n=i)=p_{ij}
-\tag{7}\]</span></span></p>
-<p>for all times <span class="math inline">\(n\)</span>, all states <span class="math inline">\(i,j\in\mathscr{S}\)</span> and all possible sequences <span class="math inline">\(i_0,i_1,\cdots,i_{n-1}\)</span> of earlier states. Thus, the probability law of the next state <span class="math inline">\(X_{n+1}\)</span> depends on the past only through the value of the present state <span class="math inline">\(X_n\)</span>.</p>
+P(X_{t+1}=j\,\vert\,X_t=i,X_{t-1}=i_{t-1},\cdots,X_0=i_0)=P(X_{t+1}=j \,\vert\,X_t=i)=p_{ij}
+\tag{8}\]</span></span></p>
+<p>for all times <span class="math inline">\(t\)</span>, all states <span class="math inline">\(i,j\in\mathscr{S}\)</span> and all possible sequences <span class="math inline">\(i_0,i_1,\cdots,i_{t-1}\)</span> of earlier states. Thus, the probability law of the next state <span class="math inline">\(X_{t+1}\)</span> depends on the past only through the value of the present state <span class="math inline">\(X_t\)</span>.</p>
 <p>All of the elements of a Markov chain model can be encoded in a <strong>transition probability matrix</strong>, which is simply a two-dimensional array whose elements at the <span class="math inline">\(i\)</span>th row and <span class="math inline">\(j\)</span>th column is <span class="math inline">\(P_{ij}\)</span>:</p>
 <p><span id="eq-eq8"><span class="math display">\[
 \begin{bmatrix}
@@ -387,12 +397,11 @@ p_{21}&amp;p_{22}&amp;\cdots&amp;p_{2m}\\
 \vdots&amp;\vdots&amp;\vdots&amp;\vdots\\
 p_{m1}&amp;p_{m2}&amp;\cdots&amp;p_{mm}
 \end{bmatrix}
-\tag{8}\]</span></span></p>
-<p>Consider a Markov chain in which each state is either transient or absorbing. We fix a particular absorbing state <span class="math inline">\(s\)</span>. It is possible to show that the probabilities <span class="math inline">\(w_k\)</span> of eventually reaching state <span class="math inline">\(s\)</span>, starting from <span class="math inline">\(i\)</span>, are the unique solution of the equations <span class="math inline">\(w_s=1, w_i=0\)</span>, for all absorbing <span class="math inline">\(i\neq s\)</span>, and for all transient <span class="math inline">\(i\)</span>:</p>
+\tag{9}\]</span></span></p>
+<p>Consider a Markov chain in which each state is either transient or absorbing. We fix a particular absorbing state <span class="math inline">\(s\)</span>. It is possible to show that the probabilities <span class="math inline">\(w_k\)</span> of eventually reaching state <span class="math inline">\(s\)</span>, starting from <span class="math inline">\(k\)</span>, are the unique solution of the equations <span class="math inline">\(w_s=1, w_i=0\)</span>, for all absorbing <span class="math inline">\(i\neq s\)</span>, and for all transient <span class="math inline">\(i\)</span>:</p>
 <p><span id="eq-eq9"><span class="math display">\[
 w_i=\sum_{j=1}^mp_{ij}w_j
-\tag{9}\]</span></span></p>
-<p>See, for instance <span class="citation" data-cites="noauthororeditor">(<a href="#ref-noauthororeditor" role="doc-biblioref">Bertsekas and Tsitsiklis 2008</a>)</span>.</p>
+\tag{10}\]</span></span></p>
 </div>
 </div>
 <div id="exm-exm1" class="theorem example">
@@ -406,11 +415,11 @@ q&amp;0&amp;p&amp;0&amp;0\\
 0&amp;0&amp;0&amp;0&amp;1
 \end{bmatrix}
 \]</span></p>
-<p><a href="#eq-eq9" class="quarto-xref">Equation&nbsp;9</a> can be reformulated as follows:</p>
+<p>In the case of the gambler’s ruin problem, @eq-eq9 can be reformulated as follows:</p>
 <p><span class="math display">\[
 w_k=(1-p)\,w_{k-1}+p\,w_{k+1}
 \]</span></p>
-<p>with <span class="math inline">\(w_0=0,w_n=1\)</span>, leading to <a href="#eq-eq2" class="quarto-xref">Equation&nbsp;2</a>.</p>
+<p>with <span class="math inline">\(w_0=0,w_n=1\)</span>, leading to <a href="#eq-eq10" class="quarto-xref">Equation&nbsp;2</a>.</p>
 </div>
 </section>
 <section id="simulation" class="level2">
@@ -437,7 +446,7 @@ w_k=(1-p)\,w_{k-1}+p\,w_{k+1}
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>p_ruin <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">sum</span>(sim)<span class="sc">/</span>ntrials </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>The probability of ruin estimated over 1000 iterations of the gambler process is 0.888, in close agreement with the value 0.875 computed from <a href="#eq-eq4" class="quarto-xref">Equation&nbsp;4</a>.</p>
+<p>The probability of ruin estimated over 1000 iterations of the gambler process is 0.888, in close agreement with the value 0.875 computed from <a href="#eq-eq4" class="quarto-xref">Equation&nbsp;5</a>.</p>
 <p>It is noted that, at each time step, the gambler appears to move randomly, either to the left or to the right by a fixed unit distance with probability <span class="math inline">\(p\)</span> and <span class="math inline">\(1-p\)</span>, respectively. The gambler undergoes a simple random walk in one dimension, whose state space is the set of the integers <span class="math inline">\(\mathbb{Z}\)</span>. The limitations to values of <span class="math inline">\(\mathbb{Z}\)</span> between 0 (ruin) and <span class="math inline">\(n\)</span> (win) are the consequence of the gambling rules: these rules settle two absorbing barriers to the motion of the random walker. Nine exemplary sample paths of the random walk are shown in <a href="#fig-fig2" class="quarto-xref">Figure&nbsp;2</a>, for the case that <span class="math inline">\(k=30,n=120,p=0.5\)</span>.</p>
 <div class="cell">
 <details class="code-fold">
