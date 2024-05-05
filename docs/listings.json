@@ -2,6 +2,7 @@
   {
     "listing": "/blog.html",
     "items": [
+      "/posts/gambler/index.html",
       "/posts/multivariate_probability_regions/index.html",
       "/posts/probability_estimation/index.html",
       "/posts/combinatorics/index.html",
@@ -12,6 +13,7 @@
   {
     "listing": "/archive.html",
     "items": [
+      "/posts/gambler/index.html",
       "/posts/multivariate_probability_regions/index.html",
       "/posts/probability_estimation/index.html",
       "/posts/combinatorics/index.html",

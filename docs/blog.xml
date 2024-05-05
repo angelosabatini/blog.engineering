@@ -10,7 +10,621 @@
 <atom:link href="https://amsabatini.netlify.app/blog.xml" rel="self" type="application/rss+xml"/>
 <description>This the personal blog of Angelo Maria Sabatini</description>
 <generator>quarto-1.4.550</generator>
-<lastBuildDate>Wed, 01 May 2024 22:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sat, 04 May 2024 22:00:00 GMT</lastBuildDate>
+<item>
+  <title>Gambler’s ruin</title>
+  <dc:creator>Angelo Maria Sabatini</dc:creator>
+  <link>https://amsabatini.netlify.app/posts/gambler/</link>
+  <description><![CDATA[ 
+
+
+
+
+<section id="problem" class="level2">
+<h2 class="anchored" data-anchor-id="problem">Problem</h2>
+<p>Consider a gambler who starts with an initial wealth of €<img src="https://latex.codecogs.com/png.latex?k"> and then on each successive bet either wins €1 or loses €1 with probabilities <img src="https://latex.codecogs.com/png.latex?p"> and <img src="https://latex.codecogs.com/png.latex?q=1%E2%88%92p"> respectively. Different bets are assumed independent. The gambler’s objective is to reach a total wealth of €<img src="https://latex.codecogs.com/png.latex?n"> (<img src="https://latex.codecogs.com/png.latex?n%3Ek">). If the gambler succeeds, then the gambler is said to win the game. The gambler stops playing after winning or getting ruined (running out of money), whichever happens first. Calculate the probability of winning.</p>
+</section>
+<section id="solution" class="level2">
+<h2 class="anchored" data-anchor-id="solution">Solution</h2>
+<p>Let us denote by <img src="https://latex.codecogs.com/png.latex?A"> the event that the gambler ends up with €<img src="https://latex.codecogs.com/png.latex?n"> and by <img src="https://latex.codecogs.com/png.latex?F"> the event that the gambler wins the first bet. The probability of the event <img src="https://latex.codecogs.com/png.latex?A"> given that the gambler starts with €<img src="https://latex.codecogs.com/png.latex?k"> is written <img src="https://latex.codecogs.com/png.latex?w_k">. The total probability law allows us to write:</p>
+<p><span id="eq-eq1"><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0Aw_k&amp;=P(A%5C,%5Cvert%5C,F)P(F)+P(A%5C,%5Cvert%5C,%5Coverline%7BF%7D)P(%5Coverline%7BF%7D)%5C%5C%0A&amp;=pP(A%5C,%5Cvert%5C,F)+(1-p)P(A%5C,%5Cvert%5C,%5Coverline%7BF%7D)%0A%5Cend%7Bsplit%7D%0A%5Ctag%7B1%7D"></span></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?%5Coverline%7BF%7D"> is the complement of <img src="https://latex.codecogs.com/png.latex?F">, namely the event <img src="https://latex.codecogs.com/png.latex?%5Coverline%7BF%7D"> is that the gambler loses the first bet.</p>
+<p>Now, the event <img src="https://latex.codecogs.com/png.latex?A%5C,%5Cvert%5C,F"> is the event <img src="https://latex.codecogs.com/png.latex?A"> given that the gambler starts with €<img src="https://latex.codecogs.com/png.latex?(k+1)">, whose probability is <img src="https://latex.codecogs.com/png.latex?w_%7Bk+1%7D"> (because of the independence from the past). The event <img src="https://latex.codecogs.com/png.latex?A%5C,%5Cvert%5C,%5Coverline%7BF%7D"> is the event <img src="https://latex.codecogs.com/png.latex?A"> given that the gambler starts with €<img src="https://latex.codecogs.com/png.latex?(k-1)">, whose probability is <img src="https://latex.codecogs.com/png.latex?w_%7Bk-1%7D"> (because of the independence from the past). Equation&nbsp;1 reads:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Aw_k=p%5C,w_%7Bk+1%7D+(1-p)%5C,w_%7Bk-1%7D%0A"></p>
+<p>If we define <img src="https://latex.codecogs.com/png.latex?r=(1-p)/p">, we can also write:</p>
+<p><span id="eq-eq2"><img src="https://latex.codecogs.com/png.latex?%0A%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7D%0A&amp;w_%7Bk+1%7D-w_k=r(w_k-w_%7Bk-1%7D),%5C;0%3Ck%3Cn%5C%5C%0A&amp;w_0=0%5C%5C%0A&amp;w_n=1%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A%5Ctag%7B2%7D"></span></p>
+<p>Since <img src="https://latex.codecogs.com/png.latex?w_%7Bk+1%7D=w_k+r%5Ek(w_1-w_0)=w_k+r%5Ekw_1=w_1%5Csum_%7Bi=0%7D%5Ekr%5Ei">, we can calculate <img src="https://latex.codecogs.com/png.latex?w_k"> as follows:</p>
+<p><span id="eq-eq3"><img src="https://latex.codecogs.com/png.latex?%0Aw_k=%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7D%0A&amp;%5Cfrac%7B1-r%5Ek%7D%7B1-r%7Dw_1&amp;%5Cquad%5Ctext%7Bif%7D%5C;r%5Cneq1%5C%5C%0A&amp;kw_1&amp;%5Cquad%5Ctext%7Bif%7D%5C;r=1%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A%5Ctag%7B3%7D"></span></p>
+<p>We also know that <img src="https://latex.codecogs.com/png.latex?w_n=1">. Therefore, we can solve Equation&nbsp;3 for <img src="https://latex.codecogs.com/png.latex?w_1">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Aw_1=%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7D%0A&amp;%5Cfrac%7B1-r%7D%7B1-r%5En%7Dw_1&amp;%5Cquad%5Ctext%7Bif%7D%5C;r%5Cneq1%5C%5C%0A&amp;%5Cfrac%7B1%7D%7Bn%7D&amp;%5Cquad%5Ctext%7Bif%7D%5C;r=1%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A"></p>
+<p>Plugging this expression of <img src="https://latex.codecogs.com/png.latex?w_1"> into Equation&nbsp;3, we obtain:</p>
+<p><span id="eq-eq4"><img src="https://latex.codecogs.com/png.latex?%0A%5Cboxed%7Bw_k=%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7D%0A&amp;%5Cfrac%7B1-r%5Ek%7D%7B1-r%5En%7D&amp;%5Cquad%5Ctext%7Bif%7D%5C;r%5Cneq1%5C%5C%0A&amp;%5Cfrac%7Bk%7D%7Bn%7D&amp;%5Cquad%5Ctext%7Bif%7D%5C;r=1%0A%5Cend%7Bsplit%7D%0A%5Cright.%7D%0A%5Ctag%7B4%7D"></span></p>
+<p>The probability that the gambler becomes infinitely rich is written:</p>
+<p><span id="eq-eq5"><img src="https://latex.codecogs.com/png.latex?%0A%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7D%0A%5Ctext%7BPr%7D(%5Ctext%7Bthe%20gambler%20becomes%20infinitely%20rich%7D)&amp;=%5Clim_%7Bn%5Crightarrow%5Cinfty%7Dw_k=0,%5C;p%5Cleq1/2%5C;(r%5Cgeq1)%5C%5C%0A%5Ctext%7BPr%7D(%5Ctext%7Bthe%20gambler%20becomes%20infinitely%20rich%7D)&amp;=%5Clim_%7Bn%5Crightarrow%5Cinfty%7Dw_k=1-%5Cleft(%5Cfrac%7B1-p%7D%7Bp%7D%5Cright)%5Ek%3E0,%5C;p%3E1/2%5C;(r%3C1)%5C%5C%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A%5Ctag%7B5%7D"></span></p>
+<p>To interpret the meaning of Equation&nbsp;5, suppose that the gambler starting with an initial wealth of €<img src="https://latex.codecogs.com/png.latex?k"> wishes to continue gambling, with the intention of earning as much money as possible. So there is no winning value €<img src="https://latex.codecogs.com/png.latex?n">: the gambler will only stop if ruined. If <img src="https://latex.codecogs.com/png.latex?p%3E1/2"> (each gamble is in favor of the gambler), then there is a positive probability that the gambler will never get ruined but instead will become infinitely rich. Conversely, if <img src="https://latex.codecogs.com/png.latex?p%5Cleq0.5"> (each gamble is not in favor of the gambler), then the gambler will get ruined with probability one.</p>
+</section>
+<section id="markov-chain-model" class="level2">
+<h2 class="anchored" data-anchor-id="markov-chain-model">Markov chain model</h2>
+<p>The discrete-state discrete-time Markov chain show in Figure&nbsp;1 can be proposed to model the gambler process. The <img src="https://latex.codecogs.com/png.latex?n+1"> states, numbered from 0 to <img src="https://latex.codecogs.com/png.latex?n">, represent the gambler’s wealth at the start of each bet. The first state 0 corresponds to ruin (getting out of money), the last state <img src="https://latex.codecogs.com/png.latex?n"> corresponds to win. Given the rules of the game, the states 0 and <img src="https://latex.codecogs.com/png.latex?n"> are absorbing, in the sense that it is not possible to escape from each of them anymore, once they are reached. All the other states are transient.</p>
+<div id="fig-fig1" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/gambler/markov_chain.png" class="img-fluid quarto-figure quarto-figure-center figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Transition probability graph for the gambler’s ruin problem.
+</figcaption>
+</figure>
+</div>
+<p>The problem is then to find the probabilities of absorption at each one of the two absorbing states. These absorption probabilities depend on the initial state <img src="https://latex.codecogs.com/png.latex?k%5C;(0%3Ck%3Cn)">. It is worthy noting that the memoryless character of the process implies that, if the gambler happens to revisit the initial state <img src="https://latex.codecogs.com/png.latex?k"> after a while, the absorption probabilities are the same they were initially.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Transition probability matrix
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The state of the chain is denoted by <img src="https://latex.codecogs.com/png.latex?X_n">, that can change at certain discrete time instants <img src="https://latex.codecogs.com/png.latex?n">. The state space of the chain is composed of a finite set <img src="https://latex.codecogs.com/png.latex?%5Cmathscr%7BS%7D=%5C%7B1,2,%5Ccdots,m%5C%7D">. The Markov chain is described in terms of its transition probability <img src="https://latex.codecogs.com/png.latex?p_%7Bij%7D">:</p>
+<p><span id="eq-eq6"><img src="https://latex.codecogs.com/png.latex?%0Ap_%7Bij%7D=P(X_%7Bn+1%7D=j%5C,%5Cvert%5C,X_n=i),%5Cquad%20i,j%5Cin%5Cmathscr%7BS%7D%0A%5Ctag%7B6%7D"></span></p>
+<p>The key assumption underlying Markov chains is that the <strong>Markov property</strong> holds:</p>
+<p><span id="eq-eq7"><img src="https://latex.codecogs.com/png.latex?%0AP(X_%7Bn+1%7D=j%5C,%5Cvert%5C,X_n=i,X_%7Bn-1%7D=i_%7Bn-1%7D,%5Ccdots,X_0=i_0)=P(X_%7Bn+1%7D=j%20%5C,%5Cvert%5C,X_n=i)=p_%7Bij%7D%0A%5Ctag%7B7%7D"></span></p>
+<p>for all times <img src="https://latex.codecogs.com/png.latex?n">, all states <img src="https://latex.codecogs.com/png.latex?i,j%5Cin%5Cmathscr%7BS%7D"> and all possible sequences <img src="https://latex.codecogs.com/png.latex?i_0,i_1,%5Ccdots,i_%7Bn-1%7D"> of earlier states. Thus, the probability law of the next state <img src="https://latex.codecogs.com/png.latex?X_%7Bn+1%7D"> depends on the past only through the value of the present state <img src="https://latex.codecogs.com/png.latex?X_n">.</p>
+<p>All of the elements of a Markov chain model can be encoded in a <strong>transition probability matrix</strong>, which is simply a two-dimensional array whose elements at the <img src="https://latex.codecogs.com/png.latex?i">th row and <img src="https://latex.codecogs.com/png.latex?j">th column is <img src="https://latex.codecogs.com/png.latex?P_%7Bij%7D">:</p>
+<p><span id="eq-eq8"><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bbmatrix%7D%0Ap_%7B11%7D&amp;p_%7B12%7D&amp;%5Ccdots&amp;p_%7B1m%7D%5C%5C%0Ap_%7B21%7D&amp;p_%7B22%7D&amp;%5Ccdots&amp;p_%7B2m%7D%5C%5C%0A%5Cvdots&amp;%5Cvdots&amp;%5Cvdots&amp;%5Cvdots%5C%5C%0Ap_%7Bm1%7D&amp;p_%7Bm2%7D&amp;%5Ccdots&amp;p_%7Bmm%7D%0A%5Cend%7Bbmatrix%7D%0A%5Ctag%7B8%7D"></span></p>
+<p>Consider a Markov chain in which each state is either transient or absorbing. We fix a particular absorbing state <img src="https://latex.codecogs.com/png.latex?s">. It is possible to show that the probabilities <img src="https://latex.codecogs.com/png.latex?w_k"> of eventually reaching state <img src="https://latex.codecogs.com/png.latex?s">, starting from <img src="https://latex.codecogs.com/png.latex?i">, are the unique solution of the equations <img src="https://latex.codecogs.com/png.latex?w_s=1,%20w_i=0">, for all absorbing <img src="https://latex.codecogs.com/png.latex?i%5Cneq%20s">, and for all transient <img src="https://latex.codecogs.com/png.latex?i">:</p>
+<p><span id="eq-eq9"><img src="https://latex.codecogs.com/png.latex?%0Aw_i=%5Csum_%7Bj=1%7D%5Emp_%7Bij%7Dw_j%0A%5Ctag%7B9%7D"></span></p>
+<p>See, for instance <span class="citation" data-cites="noauthororeditor">(Bertsekas and Tsitsiklis 2008)</span>.</p>
+</div>
+</div>
+<div id="exm-exm1" class="theorem example">
+<p><span class="theorem-title"><strong>Example 1 (Gambler’s discrete-time Markov chain)</strong></span> For <img src="https://latex.codecogs.com/png.latex?n=4,p,q=1-p"> the transition probability matrix of the gambler’s discrete-time Markov chain is given by:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bbmatrix%7D%0A1&amp;0&amp;0&amp;0&amp;0%5C%5C%0Aq&amp;0&amp;p&amp;0&amp;0%5C%5C%0A0&amp;q&amp;0&amp;p&amp;0%5C%5C%0A0&amp;0&amp;q&amp;0&amp;p%5C%5C%0A0&amp;0&amp;0&amp;0&amp;1%0A%5Cend%7Bbmatrix%7D%0A"></p>
+<p>Equation&nbsp;9 can be reformulated as follows:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Aw_k=(1-p)%5C,w_%7Bk-1%7D+p%5C,w_%7Bk+1%7D%0A"></p>
+<p>with <img src="https://latex.codecogs.com/png.latex?w_0=0,w_n=1">, leading to Equation&nbsp;2.</p>
+</div>
+</section>
+<section id="simulation" class="level2">
+<h2 class="anchored" data-anchor-id="simulation">Simulation</h2>
+<p>The following code written in R simulates the gambler process (adapted from <span class="citation" data-cites="dobrow2016">(Dobrow 2016)</span>).</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2001</span>)</span>
+<span id="cb1-2">gambler <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">function</span>(k, n, p) {</span>
+<span id="cb1-3">  stake <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> k</span>
+<span id="cb1-4">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">while</span> (stake <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;</span> stake <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> n) {</span>
+<span id="cb1-5">        bet <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sample</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>), <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">prob =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>p, p))</span>
+<span id="cb1-6">        stake <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> stake <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> bet</span>
+<span id="cb1-7">    }</span>
+<span id="cb1-8">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">if</span> (stake <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> n) <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">return</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">else</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">return</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>)</span>
+<span id="cb1-9">}   </span>
+<span id="cb1-10">k <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span>         <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># initial wealth</span></span>
+<span id="cb1-11">n <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">120</span>        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># final wealth</span></span>
+<span id="cb1-12">p <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># probability of win at each bet</span></span>
+<span id="cb1-13">ntrials <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span> <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># number of independent trials</span></span>
+<span id="cb1-14"></span>
+<span id="cb1-15">sim <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">replicate</span>(ntrials, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">gambler</span>(k, n, p))</span>
+<span id="cb1-16">p_ruin <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(sim)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span>ntrials </span></code></pre></div>
+</details>
+</div>
+<p>The probability of ruin estimated over 1000 iterations of the gambler process is 0.888, in close agreement with the value 0.875 computed from Equation&nbsp;4.</p>
+<p>It is noted that, at each time step, the gambler appears to move randomly, either to the left or to the right by a fixed unit distance with probability <img src="https://latex.codecogs.com/png.latex?p"> and <img src="https://latex.codecogs.com/png.latex?1-p">, respectively. The gambler undergoes a simple random walk in one dimension, whose state space is the set of the integers <img src="https://latex.codecogs.com/png.latex?%5Cmathbb%7BZ%7D">. The limitations to values of <img src="https://latex.codecogs.com/png.latex?%5Cmathbb%7BZ%7D"> between 0 (ruin) and <img src="https://latex.codecogs.com/png.latex?n"> (win) are the consequence of the gambling rules: these rules settle two absorbing barriers to the motion of the random walker. Nine exemplary sample paths of the random walk are shown in Figure&nbsp;2, for the case that <img src="https://latex.codecogs.com/png.latex?k=30,n=120,p=0.5">.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse)</span>
+<span id="cb2-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(ggpubr)</span>
+<span id="cb2-3"></span>
+<span id="cb2-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2001</span>)</span>
+<span id="cb2-5">k <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span>       <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># initial wealth</span></span>
+<span id="cb2-6">n <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">120</span>      <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># final wealth</span></span>
+<span id="cb2-7">p <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>      <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># probability of win at each bet</span></span>
+<span id="cb2-8">ntrials <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">9</span>  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># number of independent trials</span></span>
+<span id="cb2-9">nstep <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span> <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># number of steps</span></span>
+<span id="cb2-10">traj <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(<span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NA</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow =</span> nstep, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ncol =</span> ntrials)</span>
+<span id="cb2-11"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">for</span> (i <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">in</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span>ntrials) {</span>
+<span id="cb2-12">  traj[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, i] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> k</span>
+<span id="cb2-13">  jmax <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> nstep</span>
+<span id="cb2-14">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">for</span> (j <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">in</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span>nstep) {</span>
+<span id="cb2-15">          bet <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sample</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>), <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">prob =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>p, p))</span>
+<span id="cb2-16">          traj[j, i] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> traj[j<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">-1</span>, i] <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> bet</span>
+<span id="cb2-17">          <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">if</span> (traj[j, i] <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">|</span> traj[j, i] <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> n) {</span>
+<span id="cb2-18">            <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">break</span></span>
+<span id="cb2-19">          }</span>
+<span id="cb2-20">  }</span>
+<span id="cb2-21">}   </span>
+<span id="cb2-22">t <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rep</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, nstep<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">-1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">by =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>), ntrials)</span>
+<span id="cb2-23">path <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rep</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"1"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"3"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"4"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"5"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"6"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"7"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"8"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"9"</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">each =</span> nstep)</span>
+<span id="cb2-24">traj <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(traj)</span>
+<span id="cb2-25">df <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">t =</span> t, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">path =</span> path, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> traj)</span>
+<span id="cb2-26"></span>
+<span id="cb2-27">my_theme <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb2-28">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axis.title.x =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">14</span>),</span>
+<span id="cb2-29">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axis.text.x =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>),</span>
+<span id="cb2-30">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axis.title.y =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">14</span>),</span>
+<span id="cb2-31">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axis.text.y =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>),</span>
+<span id="cb2-32">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>),</span>
+<span id="cb2-33">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.text =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>),</span>
+<span id="cb2-34">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">panel.border =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_blank</span>(),</span>
+<span id="cb2-35">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">panel.grid.major =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_blank</span>(),</span>
+<span id="cb2-36">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">panel.grid.minor =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_blank</span>(),</span>
+<span id="cb2-37">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">panel.background =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_blank</span>(),</span>
+<span id="cb2-38">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">panel.spacing =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unit</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"lines"</span>),</span>
+<span id="cb2-39">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axis.line =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_line</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"black"</span>))</span>
+<span id="cb2-40"></span>
+<span id="cb2-41"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(df, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> t, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> data, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">path =</span> path)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> </span>
+<span id="cb2-42">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_line</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-43">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bets"</span>,</span>
+<span id="cb2-44">       <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"gambler's wealth"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-45">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_hline</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">yintercept =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linetype =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dashed"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> </span>
+<span id="cb2-46">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_hline</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">yintercept =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">120</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linetype =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"dashed"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-47">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale_y_continuous</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">breaks =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">60</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">90</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">120</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb2-48">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">facet_wrap</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span>path, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">labeller =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"label_both"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> </span>
+<span id="cb2-49">  my_theme</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-fig2" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/gambler/index_files/figure-html/fig-fig2-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Gambler’s random walk: nine sample paths. The outcome of up to a maixmum of 1000 bets is considered here.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0">
+<div id="ref-noauthororeditor" class="csl-entry">
+Bertsekas, Dimitri P., and John N. Tsitsiklis. 2008. <span>“Introduction to Probability.”</span> <a href="https://ocw.mit.edu/resources/res-6-012-introduction-to-probability-spring-2018/part-i-the-fundamentals/MITRES_6_012S18_Textbook.pdf">https://ocw.mit.edu/resources/res-6-012-introduction-to-probability-spring-2018/part-i-the-fundamentals/MITRES_6_012S18_Textbook.pdf</a>.
+</div>
+<div id="ref-dobrow2016" class="csl-entry">
+Dobrow, Robert P. 2016. <span>“Introduction to Stochastic Processes with r,”</span> March. <a href="https://doi.org/10.1002/9781118740712">https://doi.org/10.1002/9781118740712</a>.
+</div>
+</div></section></div> ]]></description>
+  <category>probability</category>
+  <guid>https://amsabatini.netlify.app/posts/gambler/</guid>
+  <pubDate>Sat, 04 May 2024 22:00:00 GMT</pubDate>
+  <media:content url="https://amsabatini.netlify.app/posts/gambler" medium="image"/>
+</item>
 <item>
   <title>Multivariate probability regions</title>
   <dc:creator>Angelo Maria Sabatini</dc:creator>
