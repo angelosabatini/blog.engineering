@@ -85,7 +85,7 @@ Transition probability matrix
 <div id="exm-exm1" class="theorem example">
 <p><span class="theorem-title"><strong>Example 1 (Gambler’s discrete-time Markov chain)</strong></span> For <img src="https://latex.codecogs.com/png.latex?n=4,p,q=1-p"> the transition probability matrix of the gambler’s discrete-time Markov chain is given by:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bbmatrix%7D%0A1&amp;0&amp;0&amp;0&amp;0%5C%5C%0Aq&amp;0&amp;p&amp;0&amp;0%5C%5C%0A0&amp;q&amp;0&amp;p&amp;0%5C%5C%0A0&amp;0&amp;q&amp;0&amp;p%5C%5C%0A0&amp;0&amp;0&amp;0&amp;1%0A%5Cend%7Bbmatrix%7D%0A"></p>
-<p>In the case of the gambler’s ruin problem, @eq-eq9 can be reformulated as follows:</p>
+<p>In the case of the gambler’s ruin problem, Equation&nbsp;10 can be reformulated as follows:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0Aw_k=(1-p)%5C,w_%7Bk-1%7D+p%5C,w_%7Bk+1%7D%0A"></p>
 <p>with <img src="https://latex.codecogs.com/png.latex?w_0=0,w_n=1">, leading to Equation&nbsp;2.</p>
 </div>
