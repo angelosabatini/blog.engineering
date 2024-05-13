@@ -10,7 +10,552 @@
 <atom:link href="https://amsabatini.netlify.app/blog.xml" rel="self" type="application/rss+xml"/>
 <description>This the personal blog of Angelo Maria Sabatini</description>
 <generator>quarto-1.4.550</generator>
-<lastBuildDate>Sat, 04 May 2024 22:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sun, 12 May 2024 22:00:00 GMT</lastBuildDate>
+<item>
+  <title>Augmented Dickey-Fuller test</title>
+  <dc:creator>Angelo Maria Sabatini</dc:creator>
+  <link>https://amsabatini.netlify.app/posts/dickey_fuller/</link>
+  <description><![CDATA[ 
+
+
+
+
+<section id="stationary-time-series" class="level2">
+<h2 class="anchored" data-anchor-id="stationary-time-series">Stationary time series</h2>
+<p>Roughly, for a time series to be stationary three conditions are needed:</p>
+<ul>
+<li><p>it shows mean reversion, namely it fluctuates around a constant long-term mean</p></li>
+<li><p>it has finite variance that is time-invariant.</p></li>
+<li><p>autocorrelations decay relatively fast as lag lenghts increase.</p></li>
+</ul>
+<p>The identification of stationary series can be done by checking whether the autocorrelation function (ACF) drops to zero relatively quickly; usually, the ACF of non-stationary data decreases slowly, and the first-lag value is often large and positive. However, this method is necessarily imprecise, leading to ambiguous situations that cannot be easily deciphered, especially when the sample size is small.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Backshift notation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The backward shift operator <img src="https://latex.codecogs.com/png.latex?B"> is defined as follows:</p>
+<p><span id="eq-eq1"><img src="https://latex.codecogs.com/png.latex?%0ABY_t=Y_%7Bt-1%7D%0A%5Ctag%7B1%7D"></span></p>
+<p>The operator <img src="https://latex.codecogs.com/png.latex?B"> operates on the <img src="https://latex.codecogs.com/png.latex?t">th sample of a time series, with the effect of shifting the sample back one period (first difference). Recall that two applications of the backward shift operator to <img src="https://latex.codecogs.com/png.latex?Y_t"> shift the sample back two periods (second difference):</p>
+<p><span id="eq-eq2"><img src="https://latex.codecogs.com/png.latex?%0AB(BY_t)=B%5E2Y_t=Y_%7Bt-2%7D%0A%5Ctag%7B2%7D"></span></p>
+<p>For example, in the case of monthly data, if we wish to consider <em>the same month last year</em>, the notation is <img src="https://latex.codecogs.com/png.latex?B%5E%7B12%7DY_t=Y_%7Bt-12%7D">.</p>
+<p>The backward shift operator is useful to describe the operation of <strong>differencing</strong>, the technique of election to stabilize the mean value of nonstationary time series by removing changes in the level of a time series, and therefore eliminating (or reducing) trend and seasonality.</p>
+<p>A first-order difference is defined as follows:</p>
+<p><span id="eq-eq3"><img src="https://latex.codecogs.com/png.latex?%0AY%5E%7B%5Cprime%7D_t=Y_t-Y_%7Bt-1%7D=Y_t-BY_t=(1-B)Y_t%0A%5Ctag%7B3%7D"></span></p>
+<p>If a second-order difference is considered, namely the first-order difference of a first-order difference, we can write:</p>
+<p><span id="eq-eq4"><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0AY%5E%7B%5Cprime%5Cprime%7D_t&amp;=Y%5E%7B%5Cprime%7D_t-Y%5E%7B%5Cprime%7D_%7Bt-1%7D%5C%5C%0A&amp;=(1-B)%5E2Y_t=Y_t-2BY_t+B%5E2Y_t%5C%5C%0A&amp;=Y_t-2Y_%7Bt-1%7D+Y_%7Bt-2%7D%0A%5Cend%7Bsplit%7D%0A%5Ctag%7B4%7D"></span></p>
+<p>A <img src="https://latex.codecogs.com/png.latex?d">-order difference can be written <img src="https://latex.codecogs.com/png.latex?(1-B)%5Ed">. It is important to note that a second-order difference, denoted by <img src="https://latex.codecogs.com/png.latex?(1-B)%5E2">, is not the same as a second difference, which is denoted by <img src="https://latex.codecogs.com/png.latex?B%5E2">.</p>
+<p>For example, a seasonal difference followed by a first difference can be written:</p>
+<p><span id="eq-eq5"><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0AY%5E%7B%5Cprime%7D_t&amp;=(1-B)(1-B%5E%7B12%7D)Y_t%5C%5C%0A&amp;=(1-B-B%5E%7B12%7D-B%5E%7B13%7D)Y_t%5C%5C%0A&amp;=Y_t-Y_%7Bt-1%7D-Y_%7Bt-12%7D-Y_%7Bt-13%7D%0A%5Cend%7Bsplit%7D%0A%5Ctag%7B5%7D"></span></p>
+<p>Sometimes, as I will always do in the following of this post, the notation <img src="https://latex.codecogs.com/png.latex?%5CDelta"> is also used to indicate the first-order difference, i.e., <img src="https://latex.codecogs.com/png.latex?%5CDelta%20Y_t=(1-B)Y_t">.</p>
+</div>
+</div>
+<p>A <strong>unit root process</strong>, also called difference-stationary process (DSP), is a data-generating process whose first difference is stationary.</p>
+<p>There are two basic models for time series with linear growth characteristics:</p>
+<ul>
+<li>Trend stationary process</li>
+</ul>
+<p><span id="eq-eq6"><img src="https://latex.codecogs.com/png.latex?%0AY_t=c+%5Cdelta%20t+%5Ctext%7Bstationary%20process%7D%0A%5Ctag%7B6%7D"></span></p>
+<ul>
+<li>Unit root process</li>
+</ul>
+<p><span id="eq-eq7"><img src="https://latex.codecogs.com/png.latex?%0AY_t=Y_%7Bt-1%7D+%5Ctext%7Bstationary%20process%7D%0A%5Ctag%7B7%7D"></span></p>
+<p>The processes are indistinguishable for short data records, in the sense that both a trend stationary process (TSP) and a DSP can fit short data records extremely well. However, the processes can be distinguished when restricted to a particular subclass of data-generating processes, such as AR(<img src="https://latex.codecogs.com/png.latex?p">) processes.</p>
+<p>Consider the case of an AR(1) process:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AY_t=a_1Y_%7Bt-1%7D+%5Cepsilon_t%0A"></p>
+<p>We may be interested in testing the hypothesis <img src="https://latex.codecogs.com/png.latex?a_1=1">. Since under the null hypothesis the sequence <img src="https://latex.codecogs.com/png.latex?%5C%7BY_t%5C%7D"> is generated by a nonstationary process, and the variance becomes infinitely large as <img src="https://latex.codecogs.com/png.latex?t"> increases, classical statistical methods cannot be used.</p>
+<p>Dickey and Fuller devised a procedure to formally test for the presence of a unit root against a number of possible alternatives for explaining the data. It is important to recall that TSP and DSP can produce different forecasts and can give rise to spurious regressions, therefore their detection in time series is a truly important task.</p>
+</section>
+<section id="augmented-dickey-fuller-test" class="level2">
+<h2 class="anchored" data-anchor-id="augmented-dickey-fuller-test">Augmented Dickey-Fuller test</h2>
+<p>A distinction between stationary and nonstationary time series is made by formal statistical procedures such as the ADF (Augmented Dickey-Fuller) test, which is frequently used since it also accounts for serial correlation in the time series.</p>
+<p>Three specifications of the ADF test are based on the following regression equations.</p>
+<section id="type-1-unit-root" class="level4">
+<h4 class="anchored" data-anchor-id="type-1-unit-root">Type 1 (unit root)</h4>
+<p><span id="eq-eq8"><img src="https://latex.codecogs.com/png.latex?%0A%5CDelta%20Y_t=%5Cgamma%20Y_%7Bt-1%7D+%5Cunderbrace%7B%5Csum_%7Bi=2%7D%5Ep%5Cbeta_i%5CDelta%20Y_%7Bt-i+1%7D%7D_%7B%5Ctext%7Bserial%20correlation%7D%7D+%5Cepsilon_t%0A%5Ctag%7B8%7D"></span></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?%5Cepsilon_t"> is white Gaussian noise, stationary with zero mean and constant variance. The statistical hypothesis test is:</p>
+<p><span id="eq-eq9"><img src="https://latex.codecogs.com/png.latex?%0A(%5Ctau_1)%5Crightarrow%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7DH_0:&amp;%5Cquad%5Cgamma=0%5C%5C%0AH_1:&amp;%5Cquad%5Cgamma%5Cneq%200%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A%5Ctag%7B9%7D"></span></p>
+<p>The null hypothesis prescribes the existence of a unit-root in the model. Rejection of the null implies that the original time series <em>does not have a unit root</em>.</p>
+</section>
+<section id="type-2-unit-root-with-drift" class="level4">
+<h4 class="anchored" data-anchor-id="type-2-unit-root-with-drift">Type 2 (unit root with drift)</h4>
+<p><span id="eq-eq10"><img src="https://latex.codecogs.com/png.latex?%0A%5CDelta%20Y_t=%5Cgamma%20Y_%7Bt-1%7D+%5Cunderbrace%7Ba_0%7D_%7B%5Ctext%7Bdrift%7D%7D+%5Cunderbrace%7B%5Csum_%7Bi=2%7D%5Ep%5Cbeta_i%5CDelta%20Y_%7Bt-i+1%7D%7D_%7B%5Ctext%7Bserial%20correlation%7D%7D+%5Cepsilon_t%0A%5Ctag%7B10%7D"></span></p>
+<p>The statistical hypothesis tests are:</p>
+<p><span id="eq-eq11"><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0A&amp;(%5Cphi_1)%5Crightarrow%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7DH_0:&amp;%5Cquad%5Cgamma=0%5C;%5Ctext%7Band%7D%5C;a_0=0%5C%5C%0AH_1:&amp;%5Cquad%5Cgamma%5Cneq%200%5C;%5Ctext%7B%20%20or%7D%5C;%5C;%5C,a_0%5Cneq0%0A%5Cend%7Bsplit%7D%0A%5Cright.%5C%5C%0A&amp;%5C%5C%0A&amp;(%5Ctau_2)%5Crightarrow%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7DH_0:&amp;%5Cquad%5Cgamma=0%5C%5C%0AH_1:&amp;%5Cquad%5Cgamma%5Cneq%200%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A%5Cend%7Bsplit%7D%0A%5Ctag%7B11%7D"></span></p>
+</section>
+<section id="type-3-unit-root-with-drift-and-trend" class="level4">
+<h4 class="anchored" data-anchor-id="type-3-unit-root-with-drift-and-trend">Type 3 (unit root with drift and trend)</h4>
+<p><span id="eq-eq12"><img src="https://latex.codecogs.com/png.latex?%0A%5CDelta%20Y_t=%5Cgamma%20Y_%7Bt-1%7D+%5Cunderbrace%7Ba_0%7D_%7B%5Ctext%7Bdrift%7D%7D+%5Cunderbrace%7Ba_2t%7D_%7B%5Ctext%7Btrend%7D%7D+%5Cunderbrace%7B%5Csum_%7Bi=2%7D%5Ep%5Cbeta_i%5CDelta%20Y_%7Bt-i+1%7D%7D_%7B%5Ctext%7Bserial%20correlation%7D%7D+%5Cepsilon_t%0A%5Ctag%7B12%7D"></span></p>
+<p>The statistical hypothesis tests are:</p>
+<p><span id="eq-eq13"><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0A&amp;(%5Cphi_2)%5Crightarrow%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7DH_0:&amp;%5Cquad%5Cgamma=0%5C;%5Ctext%7Band%7D%5C;a_0=0%5C;%5Ctext%7Band%7D%5C;a_2=0%5C%5C%0AH_1:&amp;%5Cquad%5Cgamma%5Cneq%200%5C;%5Ctext%7B%20%20or%7D%5C;%5C;%5C,a_0%5Cneq0%5C;%5Ctext%7B%20%20or%7D%5C;%5C;%5C,a_2%5Cneq0%5C%5C%0A%5Cend%7Bsplit%7D%0A%5Cright.%5C%5C%0A&amp;%5C%5C%0A&amp;(%5Cphi_3)%5Crightarrow%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7DH_0:&amp;%5Cquad%5Cgamma=0%5C;%5Ctext%7Band%7D%5C;a_2=0%5C%5C%0AH_1:&amp;%5Cquad%5Cgamma%5Cneq%200%5C;%5Ctext%7B%20%20or%7D%5C;%5C;%5C,a_2%5Cneq0%0A%5Cend%7Bsplit%7D%0A%5Cright.%5C%5C%0A&amp;%5C%5C%0A&amp;(%5Ctau_3)%5Crightarrow%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7DH_0:&amp;%5Cquad%5Cgamma=0%5C%5C%0AH_1:&amp;%5Cquad%5Cgamma%5Cneq%200%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A%5Cend%7Bsplit%7D%0A%5Ctag%7B13%7D"></span></p>
+<p>Each of the six tests <img src="https://latex.codecogs.com/png.latex?(%5Ctau_1),(%5Ctau_2),(%5Ctau_3),(%5Cphi_1),(%5Cphi_2),(%5Cphi_3)"> is a progressively more complex linear regression. In all of them there is the root, but in the drift model there is also a drift term, and in the drift and trend model there are also drift and trend terms. All the coefficients in the models have an associated significance level. While the significance of the root coefficient is the most important and the main focus of the ADF test, we might also be interested in knowing whether or not the drift and trend coefficients are statistically significant.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Summary of the Dickey-Fuller tests
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0A&amp;%5Cbegin%7Bsplit%7D%0A&amp;%5Ctextbf%7BTrend%7D%5Cquad%5Cquad%5CDelta%20Y_t=%5Cgamma%20Y_%7Bt-1%7D+a_0+a_2t+%5Csum_%7Bi=2%7D%5Ep%5Cbeta_i%5CDelta%20Y_%7Bt-i+1%7D+%5Cepsilon_t%5C%5C%0A&amp;%5Cbegin%7Bsplit%7D%0A&amp;%5Ctext%7Bif%7D%5C;(%5Cphi_2)%5C;%5Ctext%7Bis%20rejected,%20unit%20root%20is%20NOT%20present%20OR%20there%20is%20trend%20OR%20there%20is%20drift%7D%5C%5C%0A&amp;%5Ctext%7Bif%7D%5C;(%5Cphi_2)%5C;%5Ctext%7Bfails%20to%20be%20rejected,%20unit%20root%20is%20present%20AND%20there%20is%20NO%20trend%20AND%20there%20is%20NO%20drift%7D%5C%5C%0A&amp;%5Ctext%7Bif%7D%5C;(%5Cphi_3)%5C;%5Ctext%7Bis%20rejected,%20unit%20root%20is%20NOT%20present%20OR%20there%20is%20trend%7D%5C%5C%0A&amp;%5Ctext%7Bif%7D%5C;(%5Cphi_3)%5C;%5Ctext%7Bfails%20to%20be%20rejected,%20unit%20root%20is%20present%20AND%20there%20is%20NO%20trend%7D%5C%5C%0A&amp;%5Ctext%7Bif%7D%5C;(%5Ctau_3)%5C;%5Ctext%7Bis%20rejected,%20unit%20root%20is%20NOT%20present%7D%5C%5C%0A&amp;%5Ctext%7Bif%7D%5C;(%5Ctau_3)%5C;%5Ctext%7Bfails%20to%20be%20rejected,%20unit%20root%20is%20present%7D%5C%5C%0A&amp;%5Cend%7Bsplit%7D%0A&amp;%5Cend%7Bsplit%7D%5C%5C%0A&amp;%5Cbegin%7Bsplit%7D%0A&amp;%5Ctextbf%7BDrift%7D%5Cquad%5Cquad%5CDelta%20Y_t=%5Cgamma%20Y_%7Bt-1%7D+a_0+%5Csum_%7Bi=2%7D%5Ep%5Cbeta_i%5CDelta%20Y_%7Bt-i+1%7D+%5Cepsilon_t%5C%5C%0A&amp;%5Cbegin%7Bsplit%7D%0A&amp;%5Ctext%7Bif%7D%5C;(%5Cphi_1)%5C;%5Ctext%7Bis%20rejected,%20unit%20root%20is%20NOT%20present%20OR%20there%20is%20drift%7D%5C%5C%0A&amp;%5Ctext%7Bif%7D%5C;(%5Cphi_1)%5C;%5Ctext%7Bfails%20to%20be%20rejected,%20unit%20root%20is%20present%20AND%20there%20is%20NO%20drift%7D%5C%5C%0A&amp;%5Ctext%7Bif%7D%5C;(%5Ctau_2)%5C;%5Ctext%7Bis%20rejected,%20unit%20root%20is%20NOT%20present%7D%5C%5C%0A&amp;%5Ctext%7Bif%7D%5C;(%5Ctau_2)%5C;%5Ctext%7Bfails%20to%20be%20rejected,%20unit%20root%20is%20present%7D%5C%5C%0A&amp;%5Cend%7Bsplit%7D%0A&amp;%5Cend%7Bsplit%7D%5C%5C%0A&amp;%5Cbegin%7Bsplit%7D%0A&amp;%5Ctextbf%7BNone%7D%5Cquad%5Cquad%5CDelta%20Y_t=%5Cgamma%20Y_%7Bt-1%7D+%5Csum_%7Bi=2%7D%5Ep%5Cbeta_i%5CDelta%20Y_%7Bt-i+1%7D+%5Cepsilon_t%5C%5C%0A&amp;%5Cbegin%7Bsplit%7D%0A&amp;%5Ctext%7Bif%7D%5C;(%5Ctau_1)%5C;%5Ctext%7Bis%20rejected,%20unit%20root%20is%20NOT%20present%7D%5C%5C%0A&amp;%5Ctext%7Bif%7D%5C;(%5Ctau_1)%5C;%5Ctext%7Bfails%20to%20be%20rejected,%20unit%20root%20is%20present%7D%0A&amp;%5Cend%7Bsplit%7D%0A&amp;%5Cend%7Bsplit%7D%0A%5Cend%7Bsplit%7D%0A"></p>
+</div>
+</div>
+<p>An important extension of the ADF test concerns the case when the noise error term is not white. If the error term is not white and we run the ADF test as it is without accounting for serial correlation, many more rejection of the null tend to be produced than stated at the specified significance level. As the ADF test also deal with the serial correlation by introducing lagged terms, hence we need to select this lag order. This is accomplished by investigating several information criteria, including the autocorrelation function (ACF), but henceforth I limit to use the automatic lag selection functionality provided by the same function of R I will use for running the ADF test. Recall that, in general, the test statistics of the ADF test are very sensitive to changes in the lag structure.</p>
+</section>
+</section>
+<section id="example" class="level2">
+<h2 class="anchored" data-anchor-id="example">Example</h2>
+<p>I use functions and data from the <code>urca</code> package. The data set contains the series that S. Johansen and K. Juselius considered for estimating the money demand function of Denmark <span class="citation" data-cites="johansen1990">(Johansen and Juselius 1990)</span>. A data frame with quarterly data from Denmark starting in 1974:Q1 until 1987:Q3 contains six variables, including the log real income <code>LRY</code>, whose evolution, together with that of its first difference, is shown in Figure&nbsp;1.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse)</span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(ggpubr)</span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(urca)</span>
+<span id="cb1-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(zoo)</span>
+<span id="cb1-5"></span>
+<span id="cb1-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data</span>(denmark)</span>
+<span id="cb1-7"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">attach</span>(denmark)</span>
+<span id="cb1-8">denmark <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.data.frame</span>(denmark)</span>
+<span id="cb1-9">a <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.character</span>(ENTRY)</span>
+<span id="cb1-10">k <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">length</span>(a)</span>
+<span id="cb1-11"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">for</span> (i <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">in</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span>k) <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">substring</span>(a[i], <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">first =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">last =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>) <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"-"</span></span>
+<span id="cb1-12">ENTRY <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.yearqtr</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.factor</span>(a))</span>
+<span id="cb1-13"></span>
+<span id="cb1-14">df_ts  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> ENTRY, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> LRY)</span>
+<span id="cb1-15">df_dts <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> ENTRY[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span>k<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">-1</span>], <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">diff</span>(LRY))</span>
+<span id="cb1-16"></span>
+<span id="cb1-17">my_theme <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(</span>
+<span id="cb1-18">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axis.title.x =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">16</span>),</span>
+<span id="cb1-19">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axis.text.x =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">14</span>),</span>
+<span id="cb1-20">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axis.title.y =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">16</span>),</span>
+<span id="cb1-21">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axis.text.y =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">14</span>),</span>
+<span id="cb1-22">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">14</span>),</span>
+<span id="cb1-23">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.text =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">14</span>),</span>
+<span id="cb1-24">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">panel.border =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_blank</span>(),</span>
+<span id="cb1-25">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">panel.grid.major =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_blank</span>(),</span>
+<span id="cb1-26">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">panel.grid.minor =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_blank</span>(),</span>
+<span id="cb1-27">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">panel.background =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_blank</span>(),</span>
+<span id="cb1-28">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">panel.spacing =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unit</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"lines"</span>),</span>
+<span id="cb1-29">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axis.line =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_line</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"black"</span>))</span>
+<span id="cb1-30"></span>
+<span id="cb1-31">p_ts <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(df_ts, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(x, y)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb1-32">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_line</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"blue"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb1-33">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>,</span>
+<span id="cb1-34">       <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"LRY"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> </span>
+<span id="cb1-35">  my_theme</span>
+<span id="cb1-36"></span>
+<span id="cb1-37">p_dts <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(df_dts, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(x, y)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb1-38">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_line</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"blue"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb1-39">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>,</span>
+<span id="cb1-40">       <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"first difference, LRY"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> </span>
+<span id="cb1-41">  my_theme</span>
+<span id="cb1-42"></span>
+<span id="cb1-43"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggarrange</span>(p_ts, p_dts)</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-fig1" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/dickey_fuller/index_files/figure-html/fig-fig1-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Time series to be tested for stationarity. On the left, the natural logarithm of real income vs.&nbsp;time; on the right its first difference.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The function <code>ur.df()</code> from the <code>urca</code> package performs the ADF test, with three types of models and related tests, named “none” (i.e., Equation&nbsp;8-Equation&nbsp;9), “drift” (i.e., Equation&nbsp;10-Equation&nbsp;11) and “trend” (Equation&nbsp;12-Equation&nbsp;13). The argument <code>selectlags</code> in <code>ur.df()</code> allows to perform automatic selection of the lag structure according to a predefined criterion, as shown in the following code block.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">mdl_none_ts   <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ur.df</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> df_ts<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>y, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">type =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"none"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">selectlags =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"BIC"</span>))</span>
+<span id="cb2-2">mdl_drift_ts  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ur.df</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> df_ts<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>y, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">type =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"drift"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">selectlags =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"BIC"</span>))</span>
+<span id="cb2-3">mdl_trend_ts  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ur.df</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> df_ts<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>y, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">type =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"trend"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">selectlags =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"BIC"</span>))</span>
+<span id="cb2-4">mdl_none_dts  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ur.df</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> df_dts<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>y, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">type =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"none"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">selectlags =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"BIC"</span>))</span>
+<span id="cb2-5">mdl_drift_dts <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ur.df</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> df_dts<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>y, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">type =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"drift"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">selectlags =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"BIC"</span>))</span>
+<span id="cb2-6">mdl_trend_dts <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ur.df</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> df_dts<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>y, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">type =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"trend"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">selectlags =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"BIC"</span>))</span>
+<span id="cb2-7"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summary</span>(mdl_trend_ts)</span></code></pre></div>
+</details>
+</div>
+<p>The summary produced when the ADF test is applied to the original time series with the type “trend” is shown in Figure&nbsp;2.</p>
+<div id="fig-fig2" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/dickey_fuller/summary.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="500">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Results of fitting the “trend” regression model in the ADF test when applied to the `LRY`variable from the `denmark` dataset.
+</figcaption>
+</figure>
+</div>
+<p>The part of interest for the analysis is within the rectangle highlighted in orange. The “Value of test-statistic is -2.4216 2.1927 2.9343” for tests <img src="https://latex.codecogs.com/png.latex?(%5Ctau_3),%20(%5Cphi_2)"> and <img src="https://latex.codecogs.com/png.latex?(%5Cphi_3)"> are given and the corresponding “Critical values for test statistics” at significance levels 1%, 5% and 10% are reported below, denoted by <code>tau3</code>, <code>phi2</code> and <code>phi3</code>, respectively. For instance, for the test <img src="https://latex.codecogs.com/png.latex?(%5Ctau_3)">, given that the test statistic -2.4216 is within the three regions -4.04, -3.45, -3.15 (1%, 5%, 10%) where we fail to reject the null, we do not have evidence to reject the presence of a unit root in the regression model: we can say that there is a unit root. From the <img src="https://latex.codecogs.com/png.latex?(%5Cphi_2)">-statistic, the joint null hypothesis is not rejected, therefore there is a unit root AND drift and trend terms are not needed. Similarly, the <img src="https://latex.codecogs.com/png.latex?(%5Cphi_3)">-statistic shows that there is a unit root AND a trend term is not needed and the <img src="https://latex.codecogs.com/png.latex?(%5Ctau_3)">-statistic shows that there is a unit root. A summary of test results for the variable <code>LRY</code> is reported within the rectangle highlighted in blue in Figure&nbsp;3.</p>
+<div id="fig-fig3" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fig3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/dickey_fuller/summary_1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="400">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Results of the three type of ADF tests for the variable `LRY`from the `denmark`dataset.
+</figcaption>
+</figure>
+</div>
+<p>A close examination of Figure&nbsp;3 shows that all the tests applied to data of the variable <code>LRY</code> are consistent with failing to reject the corresponding nulls. From the <img src="https://latex.codecogs.com/png.latex?(%5Cphi_1)">-statistic, the joint null hypothesis is not rejected, therefore there is a unit root AND the drift term is not needed, and the <img src="https://latex.codecogs.com/png.latex?(%5Ctau_2)">-statistic shows that there is a unit root. Finally, the <img src="https://latex.codecogs.com/png.latex?(%5Ctau_1)">-statistic also shows that there is a unit root.</p>
+<p>On the other hand, all the tests applied to the first difference of the variable <code>LRY</code> reject the corresponding nulls, as shown in the same Figure&nbsp;3 (summary within the rectangle highlighted in red): although drift and trend terms might be presumed, this variable does not therefore contain a unit root.</p>
+<blockquote class="blockquote">
+<p>Finally, we can conclude that the logarithm of real income contains a unit root and can be a stationary time series by taking the first difference.</p>
+</blockquote>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0">
+<div id="ref-johansen1990" class="csl-entry">
+Johansen, Søren, and Katarina Juselius. 1990. <span>“Maximum Likelihood Estimation and Inference on Cointegration <span></span> with Applications to the Demand for Money.”</span> <em>Oxford Bulletin of Economics and Statistics</em> 52 (2): 169–210. <a href="https://doi.org/10.1111/j.1468-0084.1990.mp52002003.x">https://doi.org/10.1111/j.1468-0084.1990.mp52002003.x</a>.
+</div>
+</div></section></div> ]]></description>
+  <category>time series</category>
+  <guid>https://amsabatini.netlify.app/posts/dickey_fuller/</guid>
+  <pubDate>Sun, 12 May 2024 22:00:00 GMT</pubDate>
+  <media:content url="https://amsabatini.netlify.app/posts/dickey_fuller" medium="image"/>
+</item>
 <item>
   <title>Gambler’s ruin</title>
   <dc:creator>Angelo Maria Sabatini</dc:creator>
