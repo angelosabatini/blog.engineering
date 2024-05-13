@@ -305,36 +305,36 @@ Backshift notation
 </div>
 <div class="callout-body-container callout-body">
 <p>The backward shift operator <span class="math inline">\(B\)</span> is defined as follows:</p>
-<p><span id="eq-eq1"><span class="math display">\[
+<p><span class="math display">\[
 BY_t=Y_{t-1}
-\tag{1}\]</span></span></p>
+\]</span></p>
 <p>The operator <span class="math inline">\(B\)</span> operates on the <span class="math inline">\(t\)</span>th sample of a time series, with the effect of shifting the sample back one period (first difference). Recall that two applications of the backward shift operator to <span class="math inline">\(Y_t\)</span> shift the sample back two periods (second difference):</p>
-<p><span id="eq-eq2"><span class="math display">\[
+<p><span class="math display">\[
 B(BY_t)=B^2Y_t=Y_{t-2}
-\tag{2}\]</span></span></p>
+\]</span></p>
 <p>For example, in the case of monthly data, if we wish to consider <em>the same month last year</em>, the notation is <span class="math inline">\(B^{12}Y_t=Y_{t-12}\)</span>.</p>
 <p>The backward shift operator is useful to describe the operation of <strong>differencing</strong>, the technique of election to stabilize the mean value of nonstationary time series by removing changes in the level of a time series, and therefore eliminating (or reducing) trend and seasonality.</p>
 <p>A first-order difference is defined as follows:</p>
-<p><span id="eq-eq3"><span class="math display">\[
+<p><span class="math display">\[
 Y^{\prime}_t=Y_t-Y_{t-1}=Y_t-BY_t=(1-B)Y_t
-\tag{3}\]</span></span></p>
+\]</span></p>
 <p>If a second-order difference is considered, namely the first-order difference of a first-order difference, we can write:</p>
-<p><span id="eq-eq4"><span class="math display">\[
+<p><span class="math display">\[
 \begin{split}
 Y^{\prime\prime}_t&amp;=Y^{\prime}_t-Y^{\prime}_{t-1}\\
 &amp;=(1-B)^2Y_t=Y_t-2BY_t+B^2Y_t\\
 &amp;=Y_t-2Y_{t-1}+Y_{t-2}
 \end{split}
-\tag{4}\]</span></span></p>
+\]</span></p>
 <p>A <span class="math inline">\(d\)</span>-order difference can be written <span class="math inline">\((1-B)^d\)</span>. It is important to note that a second-order difference, denoted by <span class="math inline">\((1-B)^2\)</span>, is not the same as a second difference, which is denoted by <span class="math inline">\(B^2\)</span>.</p>
 <p>For example, a seasonal difference followed by a first difference can be written:</p>
-<p><span id="eq-eq5"><span class="math display">\[
+<p><span class="math display">\[
 \begin{split}
 Y^{\prime}_t&amp;=(1-B)(1-B^{12})Y_t\\
 &amp;=(1-B-B^{12}-B^{13})Y_t\\
 &amp;=Y_t-Y_{t-1}-Y_{t-12}-Y_{t-13}
 \end{split}
-\tag{5}\]</span></span></p>
+\]</span></p>
 <p>Sometimes, as I will always do in the following of this post, the notation <span class="math inline">\(\Delta\)</span> is also used to indicate the first-order difference, i.e., <span class="math inline">\(\Delta Y_t=(1-B)Y_t\)</span>.</p>
 </div>
 </div>
@@ -343,15 +343,15 @@ Y^{\prime}_t&amp;=(1-B)(1-B^{12})Y_t\\
 <ul>
 <li>Trend stationary process</li>
 </ul>
-<p><span id="eq-eq6"><span class="math display">\[
+<p><span class="math display">\[
 Y_t=c+\delta t+\text{stationary process}
-\tag{6}\]</span></span></p>
+\]</span></p>
 <ul>
 <li>Unit root process</li>
 </ul>
-<p><span id="eq-eq7"><span class="math display">\[
+<p><span class="math display">\[
 Y_t=Y_{t-1}+\text{stationary process}
-\tag{7}\]</span></span></p>
+\]</span></p>
 <p>The processes are indistinguishable for short data records, in the sense that both a trend stationary process (TSP) and a DSP can fit short data records extremely well. However, the processes can be distinguished when restricted to a particular subclass of data-generating processes, such as AR(<span class="math inline">\(p\)</span>) processes.</p>
 <p>Consider the case of an AR(1) process:</p>
 <p><span class="math display">\[
@@ -364,11 +364,11 @@ Y_t=a_1Y_{t-1}+\epsilon_t
 <h2 class="anchored" data-anchor-id="augmented-dickey-fuller-test">Augmented Dickey-Fuller test</h2>
 <p>A distinction between stationary and nonstationary time series is made by formal statistical procedures such as the ADF (Augmented Dickey-Fuller) test, which is frequently used since it also accounts for serial correlation in the time series.</p>
 <p>Three specifications of the ADF test are based on the following regression equations.</p>
-<section id="type-1-unit-root" class="level4">
-<h4 class="anchored" data-anchor-id="type-1-unit-root">Type 1 (unit root)</h4>
+<section id="type-1-unit-root-with-none" class="level4">
+<h4 class="anchored" data-anchor-id="type-1-unit-root-with-none">Type 1 (unit root with “none”)</h4>
 <p><span id="eq-eq8"><span class="math display">\[
 \Delta Y_t=\gamma Y_{t-1}+\underbrace{\sum_{i=2}^p\beta_i\Delta Y_{t-i+1}}_{\text{serial correlation}}+\epsilon_t
-\tag{8}\]</span></span></p>
+\tag{1}\]</span></span></p>
 <p>where <span class="math inline">\(\epsilon_t\)</span> is white Gaussian noise, stationary with zero mean and constant variance. The statistical hypothesis test is:</p>
 <p><span id="eq-eq9"><span class="math display">\[
 (\tau_1)\rightarrow\left\{
@@ -376,14 +376,14 @@ Y_t=a_1Y_{t-1}+\epsilon_t
 H_1:&amp;\quad\gamma\neq 0
 \end{split}
 \right.
-\tag{9}\]</span></span></p>
+\tag{2}\]</span></span></p>
 <p>The null hypothesis prescribes the existence of a unit-root in the model. Rejection of the null implies that the original time series <em>does not have a unit root</em>.</p>
 </section>
 <section id="type-2-unit-root-with-drift" class="level4">
-<h4 class="anchored" data-anchor-id="type-2-unit-root-with-drift">Type 2 (unit root with drift)</h4>
+<h4 class="anchored" data-anchor-id="type-2-unit-root-with-drift">Type 2 (unit root with “drift”)</h4>
 <p><span id="eq-eq10"><span class="math display">\[
 \Delta Y_t=\gamma Y_{t-1}+\underbrace{a_0}_{\text{drift}}+\underbrace{\sum_{i=2}^p\beta_i\Delta Y_{t-i+1}}_{\text{serial correlation}}+\epsilon_t
-\tag{10}\]</span></span></p>
+\tag{3}\]</span></span></p>
 <p>The statistical hypothesis tests are:</p>
 <p><span id="eq-eq11"><span class="math display">\[
 \begin{split}
@@ -399,13 +399,13 @@ H_1:&amp;\quad\gamma\neq 0
 \end{split}
 \right.
 \end{split}
-\tag{11}\]</span></span></p>
+\tag{4}\]</span></span></p>
 </section>
 <section id="type-3-unit-root-with-drift-and-trend" class="level4">
-<h4 class="anchored" data-anchor-id="type-3-unit-root-with-drift-and-trend">Type 3 (unit root with drift and trend)</h4>
+<h4 class="anchored" data-anchor-id="type-3-unit-root-with-drift-and-trend">Type 3 (unit root with “drift and trend”)</h4>
 <p><span id="eq-eq12"><span class="math display">\[
 \Delta Y_t=\gamma Y_{t-1}+\underbrace{a_0}_{\text{drift}}+\underbrace{a_2t}_{\text{trend}}+\underbrace{\sum_{i=2}^p\beta_i\Delta Y_{t-i+1}}_{\text{serial correlation}}+\epsilon_t
-\tag{12}\]</span></span></p>
+\tag{5}\]</span></span></p>
 <p>The statistical hypothesis tests are:</p>
 <p><span id="eq-eq13"><span class="math display">\[
 \begin{split}
@@ -427,8 +427,8 @@ H_1:&amp;\quad\gamma\neq 0
 \end{split}
 \right.
 \end{split}
-\tag{13}\]</span></span></p>
-<p>Each of the six tests <span class="math inline">\((\tau_1),(\tau_2),(\tau_3),(\phi_1),(\phi_2),(\phi_3)\)</span> is a progressively more complex linear regression. In all of them there is the root, but in the drift model there is also a drift term, and in the drift and trend model there are also drift and trend terms. All the coefficients in the models have an associated significance level. While the significance of the root coefficient is the most important and the main focus of the ADF test, we might also be interested in knowing whether or not the drift and trend coefficients are statistically significant.</p>
+\tag{6}\]</span></span></p>
+<p>Each of the six tests <span class="math inline">\((\tau_1),(\tau_2),(\tau_3),(\phi_1),(\phi_2),(\phi_3)\)</span> in <a href="#eq-eq9" class="quarto-xref">Equation&nbsp;2</a>, <a href="#eq-eq11" class="quarto-xref">Equation&nbsp;4</a> and <a href="#eq-eq13" class="quarto-xref">Equation&nbsp;6</a> corresponds to a progressively more complex linear regression. In all of them there is the root, but in the “drift” model there is also a drift term, and in the “drift and trend” model there are also drift and trend terms. All the coefficients in the models have an associated significance level. While the significance of the root coefficient is the most important and the main focus of the ADF test, we might also be interested in knowing whether or not the drift and trend coefficients are statistically significant.</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -538,7 +538,7 @@ Figure&nbsp;1: Time series to be tested for stationarity. On the left, the natur
 </div>
 </div>
 </div>
-<p>The function <code>ur.df()</code> from the <code>urca</code> package performs the ADF test, with three types of models and related tests, named “none” (i.e., <a href="#eq-eq8" class="quarto-xref">Equation&nbsp;8</a>-<a href="#eq-eq9" class="quarto-xref">Equation&nbsp;9</a>), “drift” (i.e., <a href="#eq-eq10" class="quarto-xref">Equation&nbsp;10</a>-<a href="#eq-eq11" class="quarto-xref">Equation&nbsp;11</a>) and “trend” (<a href="#eq-eq12" class="quarto-xref">Equation&nbsp;12</a>-<a href="#eq-eq13" class="quarto-xref">Equation&nbsp;13</a>). The argument <code>selectlags</code> in <code>ur.df()</code> allows to perform automatic selection of the lag structure according to a predefined criterion, as shown in the following code block.</p>
+<p>The function <code>ur.df()</code> from the <code>urca</code> package performs the ADF test, with three types of models and related tests, named “none” (i.e., <a href="#eq-eq8" class="quarto-xref">Equation&nbsp;1</a>-<a href="#eq-eq9" class="quarto-xref">Equation&nbsp;2</a>), “drift” (i.e., <a href="#eq-eq10" class="quarto-xref">Equation&nbsp;3</a>-<a href="#eq-eq11" class="quarto-xref">Equation&nbsp;4</a>) and “trend” (<a href="#eq-eq12" class="quarto-xref">Equation&nbsp;5</a>-<a href="#eq-eq13" class="quarto-xref">Equation&nbsp;6</a>). The argument <code>selectlags</code> in <code>ur.df()</code> allows to perform automatic selection of the lag structure according to a predefined criterion, as shown in the following code block.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>

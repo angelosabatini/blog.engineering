@@ -40,18 +40,18 @@ Backshift notation
 </div>
 <div class="callout-body-container callout-body">
 <p>The backward shift operator <img src="https://latex.codecogs.com/png.latex?B"> is defined as follows:</p>
-<p><span id="eq-eq1"><img src="https://latex.codecogs.com/png.latex?%0ABY_t=Y_%7Bt-1%7D%0A%5Ctag%7B1%7D"></span></p>
+<p><img src="https://latex.codecogs.com/png.latex?%0ABY_t=Y_%7Bt-1%7D%0A"></p>
 <p>The operator <img src="https://latex.codecogs.com/png.latex?B"> operates on the <img src="https://latex.codecogs.com/png.latex?t">th sample of a time series, with the effect of shifting the sample back one period (first difference). Recall that two applications of the backward shift operator to <img src="https://latex.codecogs.com/png.latex?Y_t"> shift the sample back two periods (second difference):</p>
-<p><span id="eq-eq2"><img src="https://latex.codecogs.com/png.latex?%0AB(BY_t)=B%5E2Y_t=Y_%7Bt-2%7D%0A%5Ctag%7B2%7D"></span></p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AB(BY_t)=B%5E2Y_t=Y_%7Bt-2%7D%0A"></p>
 <p>For example, in the case of monthly data, if we wish to consider <em>the same month last year</em>, the notation is <img src="https://latex.codecogs.com/png.latex?B%5E%7B12%7DY_t=Y_%7Bt-12%7D">.</p>
 <p>The backward shift operator is useful to describe the operation of <strong>differencing</strong>, the technique of election to stabilize the mean value of nonstationary time series by removing changes in the level of a time series, and therefore eliminating (or reducing) trend and seasonality.</p>
 <p>A first-order difference is defined as follows:</p>
-<p><span id="eq-eq3"><img src="https://latex.codecogs.com/png.latex?%0AY%5E%7B%5Cprime%7D_t=Y_t-Y_%7Bt-1%7D=Y_t-BY_t=(1-B)Y_t%0A%5Ctag%7B3%7D"></span></p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AY%5E%7B%5Cprime%7D_t=Y_t-Y_%7Bt-1%7D=Y_t-BY_t=(1-B)Y_t%0A"></p>
 <p>If a second-order difference is considered, namely the first-order difference of a first-order difference, we can write:</p>
-<p><span id="eq-eq4"><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0AY%5E%7B%5Cprime%5Cprime%7D_t&amp;=Y%5E%7B%5Cprime%7D_t-Y%5E%7B%5Cprime%7D_%7Bt-1%7D%5C%5C%0A&amp;=(1-B)%5E2Y_t=Y_t-2BY_t+B%5E2Y_t%5C%5C%0A&amp;=Y_t-2Y_%7Bt-1%7D+Y_%7Bt-2%7D%0A%5Cend%7Bsplit%7D%0A%5Ctag%7B4%7D"></span></p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0AY%5E%7B%5Cprime%5Cprime%7D_t&amp;=Y%5E%7B%5Cprime%7D_t-Y%5E%7B%5Cprime%7D_%7Bt-1%7D%5C%5C%0A&amp;=(1-B)%5E2Y_t=Y_t-2BY_t+B%5E2Y_t%5C%5C%0A&amp;=Y_t-2Y_%7Bt-1%7D+Y_%7Bt-2%7D%0A%5Cend%7Bsplit%7D%0A"></p>
 <p>A <img src="https://latex.codecogs.com/png.latex?d">-order difference can be written <img src="https://latex.codecogs.com/png.latex?(1-B)%5Ed">. It is important to note that a second-order difference, denoted by <img src="https://latex.codecogs.com/png.latex?(1-B)%5E2">, is not the same as a second difference, which is denoted by <img src="https://latex.codecogs.com/png.latex?B%5E2">.</p>
 <p>For example, a seasonal difference followed by a first difference can be written:</p>
-<p><span id="eq-eq5"><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0AY%5E%7B%5Cprime%7D_t&amp;=(1-B)(1-B%5E%7B12%7D)Y_t%5C%5C%0A&amp;=(1-B-B%5E%7B12%7D-B%5E%7B13%7D)Y_t%5C%5C%0A&amp;=Y_t-Y_%7Bt-1%7D-Y_%7Bt-12%7D-Y_%7Bt-13%7D%0A%5Cend%7Bsplit%7D%0A%5Ctag%7B5%7D"></span></p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0AY%5E%7B%5Cprime%7D_t&amp;=(1-B)(1-B%5E%7B12%7D)Y_t%5C%5C%0A&amp;=(1-B-B%5E%7B12%7D-B%5E%7B13%7D)Y_t%5C%5C%0A&amp;=Y_t-Y_%7Bt-1%7D-Y_%7Bt-12%7D-Y_%7Bt-13%7D%0A%5Cend%7Bsplit%7D%0A"></p>
 <p>Sometimes, as I will always do in the following of this post, the notation <img src="https://latex.codecogs.com/png.latex?%5CDelta"> is also used to indicate the first-order difference, i.e., <img src="https://latex.codecogs.com/png.latex?%5CDelta%20Y_t=(1-B)Y_t">.</p>
 </div>
 </div>
@@ -60,11 +60,11 @@ Backshift notation
 <ul>
 <li>Trend stationary process</li>
 </ul>
-<p><span id="eq-eq6"><img src="https://latex.codecogs.com/png.latex?%0AY_t=c+%5Cdelta%20t+%5Ctext%7Bstationary%20process%7D%0A%5Ctag%7B6%7D"></span></p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AY_t=c+%5Cdelta%20t+%5Ctext%7Bstationary%20process%7D%0A"></p>
 <ul>
 <li>Unit root process</li>
 </ul>
-<p><span id="eq-eq7"><img src="https://latex.codecogs.com/png.latex?%0AY_t=Y_%7Bt-1%7D+%5Ctext%7Bstationary%20process%7D%0A%5Ctag%7B7%7D"></span></p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AY_t=Y_%7Bt-1%7D+%5Ctext%7Bstationary%20process%7D%0A"></p>
 <p>The processes are indistinguishable for short data records, in the sense that both a trend stationary process (TSP) and a DSP can fit short data records extremely well. However, the processes can be distinguished when restricted to a particular subclass of data-generating processes, such as AR(<img src="https://latex.codecogs.com/png.latex?p">) processes.</p>
 <p>Consider the case of an AR(1) process:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0AY_t=a_1Y_%7Bt-1%7D+%5Cepsilon_t%0A"></p>
@@ -75,25 +75,25 @@ Backshift notation
 <h2 class="anchored" data-anchor-id="augmented-dickey-fuller-test">Augmented Dickey-Fuller test</h2>
 <p>A distinction between stationary and nonstationary time series is made by formal statistical procedures such as the ADF (Augmented Dickey-Fuller) test, which is frequently used since it also accounts for serial correlation in the time series.</p>
 <p>Three specifications of the ADF test are based on the following regression equations.</p>
-<section id="type-1-unit-root" class="level4">
-<h4 class="anchored" data-anchor-id="type-1-unit-root">Type 1 (unit root)</h4>
-<p><span id="eq-eq8"><img src="https://latex.codecogs.com/png.latex?%0A%5CDelta%20Y_t=%5Cgamma%20Y_%7Bt-1%7D+%5Cunderbrace%7B%5Csum_%7Bi=2%7D%5Ep%5Cbeta_i%5CDelta%20Y_%7Bt-i+1%7D%7D_%7B%5Ctext%7Bserial%20correlation%7D%7D+%5Cepsilon_t%0A%5Ctag%7B8%7D"></span></p>
+<section id="type-1-unit-root-with-none" class="level4">
+<h4 class="anchored" data-anchor-id="type-1-unit-root-with-none">Type 1 (unit root with “none”)</h4>
+<p><span id="eq-eq8"><img src="https://latex.codecogs.com/png.latex?%0A%5CDelta%20Y_t=%5Cgamma%20Y_%7Bt-1%7D+%5Cunderbrace%7B%5Csum_%7Bi=2%7D%5Ep%5Cbeta_i%5CDelta%20Y_%7Bt-i+1%7D%7D_%7B%5Ctext%7Bserial%20correlation%7D%7D+%5Cepsilon_t%0A%5Ctag%7B1%7D"></span></p>
 <p>where <img src="https://latex.codecogs.com/png.latex?%5Cepsilon_t"> is white Gaussian noise, stationary with zero mean and constant variance. The statistical hypothesis test is:</p>
-<p><span id="eq-eq9"><img src="https://latex.codecogs.com/png.latex?%0A(%5Ctau_1)%5Crightarrow%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7DH_0:&amp;%5Cquad%5Cgamma=0%5C%5C%0AH_1:&amp;%5Cquad%5Cgamma%5Cneq%200%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A%5Ctag%7B9%7D"></span></p>
+<p><span id="eq-eq9"><img src="https://latex.codecogs.com/png.latex?%0A(%5Ctau_1)%5Crightarrow%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7DH_0:&amp;%5Cquad%5Cgamma=0%5C%5C%0AH_1:&amp;%5Cquad%5Cgamma%5Cneq%200%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A%5Ctag%7B2%7D"></span></p>
 <p>The null hypothesis prescribes the existence of a unit-root in the model. Rejection of the null implies that the original time series <em>does not have a unit root</em>.</p>
 </section>
 <section id="type-2-unit-root-with-drift" class="level4">
-<h4 class="anchored" data-anchor-id="type-2-unit-root-with-drift">Type 2 (unit root with drift)</h4>
-<p><span id="eq-eq10"><img src="https://latex.codecogs.com/png.latex?%0A%5CDelta%20Y_t=%5Cgamma%20Y_%7Bt-1%7D+%5Cunderbrace%7Ba_0%7D_%7B%5Ctext%7Bdrift%7D%7D+%5Cunderbrace%7B%5Csum_%7Bi=2%7D%5Ep%5Cbeta_i%5CDelta%20Y_%7Bt-i+1%7D%7D_%7B%5Ctext%7Bserial%20correlation%7D%7D+%5Cepsilon_t%0A%5Ctag%7B10%7D"></span></p>
+<h4 class="anchored" data-anchor-id="type-2-unit-root-with-drift">Type 2 (unit root with “drift”)</h4>
+<p><span id="eq-eq10"><img src="https://latex.codecogs.com/png.latex?%0A%5CDelta%20Y_t=%5Cgamma%20Y_%7Bt-1%7D+%5Cunderbrace%7Ba_0%7D_%7B%5Ctext%7Bdrift%7D%7D+%5Cunderbrace%7B%5Csum_%7Bi=2%7D%5Ep%5Cbeta_i%5CDelta%20Y_%7Bt-i+1%7D%7D_%7B%5Ctext%7Bserial%20correlation%7D%7D+%5Cepsilon_t%0A%5Ctag%7B3%7D"></span></p>
 <p>The statistical hypothesis tests are:</p>
-<p><span id="eq-eq11"><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0A&amp;(%5Cphi_1)%5Crightarrow%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7DH_0:&amp;%5Cquad%5Cgamma=0%5C;%5Ctext%7Band%7D%5C;a_0=0%5C%5C%0AH_1:&amp;%5Cquad%5Cgamma%5Cneq%200%5C;%5Ctext%7B%20%20or%7D%5C;%5C;%5C,a_0%5Cneq0%0A%5Cend%7Bsplit%7D%0A%5Cright.%5C%5C%0A&amp;%5C%5C%0A&amp;(%5Ctau_2)%5Crightarrow%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7DH_0:&amp;%5Cquad%5Cgamma=0%5C%5C%0AH_1:&amp;%5Cquad%5Cgamma%5Cneq%200%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A%5Cend%7Bsplit%7D%0A%5Ctag%7B11%7D"></span></p>
+<p><span id="eq-eq11"><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0A&amp;(%5Cphi_1)%5Crightarrow%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7DH_0:&amp;%5Cquad%5Cgamma=0%5C;%5Ctext%7Band%7D%5C;a_0=0%5C%5C%0AH_1:&amp;%5Cquad%5Cgamma%5Cneq%200%5C;%5Ctext%7B%20%20or%7D%5C;%5C;%5C,a_0%5Cneq0%0A%5Cend%7Bsplit%7D%0A%5Cright.%5C%5C%0A&amp;%5C%5C%0A&amp;(%5Ctau_2)%5Crightarrow%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7DH_0:&amp;%5Cquad%5Cgamma=0%5C%5C%0AH_1:&amp;%5Cquad%5Cgamma%5Cneq%200%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A%5Cend%7Bsplit%7D%0A%5Ctag%7B4%7D"></span></p>
 </section>
 <section id="type-3-unit-root-with-drift-and-trend" class="level4">
-<h4 class="anchored" data-anchor-id="type-3-unit-root-with-drift-and-trend">Type 3 (unit root with drift and trend)</h4>
-<p><span id="eq-eq12"><img src="https://latex.codecogs.com/png.latex?%0A%5CDelta%20Y_t=%5Cgamma%20Y_%7Bt-1%7D+%5Cunderbrace%7Ba_0%7D_%7B%5Ctext%7Bdrift%7D%7D+%5Cunderbrace%7Ba_2t%7D_%7B%5Ctext%7Btrend%7D%7D+%5Cunderbrace%7B%5Csum_%7Bi=2%7D%5Ep%5Cbeta_i%5CDelta%20Y_%7Bt-i+1%7D%7D_%7B%5Ctext%7Bserial%20correlation%7D%7D+%5Cepsilon_t%0A%5Ctag%7B12%7D"></span></p>
+<h4 class="anchored" data-anchor-id="type-3-unit-root-with-drift-and-trend">Type 3 (unit root with “drift and trend”)</h4>
+<p><span id="eq-eq12"><img src="https://latex.codecogs.com/png.latex?%0A%5CDelta%20Y_t=%5Cgamma%20Y_%7Bt-1%7D+%5Cunderbrace%7Ba_0%7D_%7B%5Ctext%7Bdrift%7D%7D+%5Cunderbrace%7Ba_2t%7D_%7B%5Ctext%7Btrend%7D%7D+%5Cunderbrace%7B%5Csum_%7Bi=2%7D%5Ep%5Cbeta_i%5CDelta%20Y_%7Bt-i+1%7D%7D_%7B%5Ctext%7Bserial%20correlation%7D%7D+%5Cepsilon_t%0A%5Ctag%7B5%7D"></span></p>
 <p>The statistical hypothesis tests are:</p>
-<p><span id="eq-eq13"><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0A&amp;(%5Cphi_2)%5Crightarrow%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7DH_0:&amp;%5Cquad%5Cgamma=0%5C;%5Ctext%7Band%7D%5C;a_0=0%5C;%5Ctext%7Band%7D%5C;a_2=0%5C%5C%0AH_1:&amp;%5Cquad%5Cgamma%5Cneq%200%5C;%5Ctext%7B%20%20or%7D%5C;%5C;%5C,a_0%5Cneq0%5C;%5Ctext%7B%20%20or%7D%5C;%5C;%5C,a_2%5Cneq0%5C%5C%0A%5Cend%7Bsplit%7D%0A%5Cright.%5C%5C%0A&amp;%5C%5C%0A&amp;(%5Cphi_3)%5Crightarrow%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7DH_0:&amp;%5Cquad%5Cgamma=0%5C;%5Ctext%7Band%7D%5C;a_2=0%5C%5C%0AH_1:&amp;%5Cquad%5Cgamma%5Cneq%200%5C;%5Ctext%7B%20%20or%7D%5C;%5C;%5C,a_2%5Cneq0%0A%5Cend%7Bsplit%7D%0A%5Cright.%5C%5C%0A&amp;%5C%5C%0A&amp;(%5Ctau_3)%5Crightarrow%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7DH_0:&amp;%5Cquad%5Cgamma=0%5C%5C%0AH_1:&amp;%5Cquad%5Cgamma%5Cneq%200%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A%5Cend%7Bsplit%7D%0A%5Ctag%7B13%7D"></span></p>
-<p>Each of the six tests <img src="https://latex.codecogs.com/png.latex?(%5Ctau_1),(%5Ctau_2),(%5Ctau_3),(%5Cphi_1),(%5Cphi_2),(%5Cphi_3)"> is a progressively more complex linear regression. In all of them there is the root, but in the drift model there is also a drift term, and in the drift and trend model there are also drift and trend terms. All the coefficients in the models have an associated significance level. While the significance of the root coefficient is the most important and the main focus of the ADF test, we might also be interested in knowing whether or not the drift and trend coefficients are statistically significant.</p>
+<p><span id="eq-eq13"><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0A&amp;(%5Cphi_2)%5Crightarrow%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7DH_0:&amp;%5Cquad%5Cgamma=0%5C;%5Ctext%7Band%7D%5C;a_0=0%5C;%5Ctext%7Band%7D%5C;a_2=0%5C%5C%0AH_1:&amp;%5Cquad%5Cgamma%5Cneq%200%5C;%5Ctext%7B%20%20or%7D%5C;%5C;%5C,a_0%5Cneq0%5C;%5Ctext%7B%20%20or%7D%5C;%5C;%5C,a_2%5Cneq0%5C%5C%0A%5Cend%7Bsplit%7D%0A%5Cright.%5C%5C%0A&amp;%5C%5C%0A&amp;(%5Cphi_3)%5Crightarrow%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7DH_0:&amp;%5Cquad%5Cgamma=0%5C;%5Ctext%7Band%7D%5C;a_2=0%5C%5C%0AH_1:&amp;%5Cquad%5Cgamma%5Cneq%200%5C;%5Ctext%7B%20%20or%7D%5C;%5C;%5C,a_2%5Cneq0%0A%5Cend%7Bsplit%7D%0A%5Cright.%5C%5C%0A&amp;%5C%5C%0A&amp;(%5Ctau_3)%5Crightarrow%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7DH_0:&amp;%5Cquad%5Cgamma=0%5C%5C%0AH_1:&amp;%5Cquad%5Cgamma%5Cneq%200%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A%5Cend%7Bsplit%7D%0A%5Ctag%7B6%7D"></span></p>
+<p>Each of the six tests <img src="https://latex.codecogs.com/png.latex?(%5Ctau_1),(%5Ctau_2),(%5Ctau_3),(%5Cphi_1),(%5Cphi_2),(%5Cphi_3)"> in Equation&nbsp;2, Equation&nbsp;4 and Equation&nbsp;6 corresponds to a progressively more complex linear regression. In all of them there is the root, but in the “drift” model there is also a drift term, and in the “drift and trend” model there are also drift and trend terms. All the coefficients in the models have an associated significance level. While the significance of the root coefficient is the most important and the main focus of the ADF test, we might also be interested in knowing whether or not the drift and trend coefficients are statistically significant.</p>
 <div class="callout callout-style-default callout-important callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -391,7 +391,7 @@ Figure&nbsp;1: Time series to be tested for stationarity. On the left, the natur
 </div>
 </div>
 </div>
-<p>The function <code>ur.df()</code> from the <code>urca</code> package performs the ADF test, with three types of models and related tests, named “none” (i.e., Equation&nbsp;8-Equation&nbsp;9), “drift” (i.e., Equation&nbsp;10-Equation&nbsp;11) and “trend” (Equation&nbsp;12-Equation&nbsp;13). The argument <code>selectlags</code> in <code>ur.df()</code> allows to perform automatic selection of the lag structure according to a predefined criterion, as shown in the following code block.</p>
+<p>The function <code>ur.df()</code> from the <code>urca</code> package performs the ADF test, with three types of models and related tests, named “none” (i.e., Equation&nbsp;1-Equation&nbsp;2), “drift” (i.e., Equation&nbsp;3-Equation&nbsp;4) and “trend” (Equation&nbsp;5-Equation&nbsp;6). The argument <code>selectlags</code> in <code>ur.df()</code> allows to perform automatic selection of the lag structure according to a predefined criterion, as shown in the following code block.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -554,7 +554,6 @@ Johansen, Søren, and Katarina Juselius. 1990. <span>“Maximum Likelihood Estim
   <category>time series</category>
   <guid>https://amsabatini.netlify.app/posts/dickey_fuller/</guid>
   <pubDate>Sun, 12 May 2024 22:00:00 GMT</pubDate>
-  <media:content url="https://amsabatini.netlify.app/posts/dickey_fuller" medium="image"/>
 </item>
 <item>
   <title>Gambler’s ruin</title>
