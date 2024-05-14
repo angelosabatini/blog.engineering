@@ -10,7 +10,198 @@
 <atom:link href="https://amsabatini.netlify.app/blog.xml" rel="self" type="application/rss+xml"/>
 <description>This the personal blog of Angelo Maria Sabatini</description>
 <generator>quarto-1.4.550</generator>
-<lastBuildDate>Sun, 12 May 2024 22:00:00 GMT</lastBuildDate>
+<lastBuildDate>Mon, 13 May 2024 22:00:00 GMT</lastBuildDate>
+<item>
+  <title>Significant figures</title>
+  <dc:creator>Angelo Maria Sabatini</dc:creator>
+  <link>https://amsabatini.netlify.app/posts/significant_figures/</link>
+  <description><![CDATA[ 
+
+
+
+
+<section id="significant-figures" class="level2">
+<h2 class="anchored" data-anchor-id="significant-figures">Significant figures</h2>
+<p>It happens frequently that the number of digits that are available to report measurement results is high. Usually, measurement results are produced by carrying arithmetic operations with computers or calculators, whose level of numerical precision, albeit finite, is too high given the true information gathered by the measurements. In other words, the precision can be excessive, and too many digits can simply swamp the observer, making the message in the measurements more obscure. <strong>Significant figures</strong>, also referred to as significant digits, are specific digits within a number written in positional notation that carry both reliability and necessity in reporting a measurement result. Proper use of significant figures is thus an essential element in the presentation of both experimental and calculated results together with their associated uncertainty.</p>
+<section id="rules-for-significant-figures" class="level3">
+<h3 class="anchored" data-anchor-id="rules-for-significant-figures">Rules for significant figures</h3>
+<p>A number of rules exist for determining how many significant figures are in a number:</p>
+<ol type="1">
+<li>non-zero digits are always significant</li>
+</ol>
+<ul>
+<li>4.6 has two significant figures</li>
+</ul>
+<ol start="2" type="1">
+<li>leading zeros placed before the first non-zero digit are not significant (they are called <em>placeholders</em>)</li>
+</ol>
+<ul>
+<li>0.046 has two significant figures</li>
+</ul>
+<ol start="3" type="1">
+<li>trailing zeros placed after all other digits but behind a decimal point are significant</li>
+</ol>
+<ul>
+<li>4.60 has three significant figures</li>
+</ul>
+<p>The leftmost digit which is not a zero is referred to as the <em>most significant digit</em> (MSD); the rightmost digit of a decimal number is the <em>least significant digit</em> (LSD), regardless it is a zero or not: 4 and 0 are thus, respectively, the MSD and the LSD of 4.60; 4 and 1 are, respectively, the MSD and the LSD of 4.61. Every digit between the LSD and the MSD, including zeros, should be counted as significant figures, hence 4.60 and 40.60 have, respectively, three and four significant figures.</p>
+<p>Ambiguous situations arise when zeros are at the end of the number and not behind a decimal point as, for example, in the number 4600. Confusion can be avoided if the number is expressed in <em>scientific notation</em>.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Scientific notation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Scientific notation is a way of expressing numbers that are much too large or much too small to be conveniently written in decimal form (i.e., their representation would involve a long string of digits). In scientific notation, nonzero numbers are written in the form:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Am%5Ctimes10%5En%0A"></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?n"> is an integer, and the coefficient <img src="https://latex.codecogs.com/png.latex?m"> is a nonzero real number (usually <img src="https://latex.codecogs.com/png.latex?1%5Cleq%5Cvert%5C,m%5C,%5Cvert%3C10">). The integer <img src="https://latex.codecogs.com/png.latex?n"> is called the <em>exponent</em> and the real number <img src="https://latex.codecogs.com/png.latex?m"> is called the <em>mantissa</em>. If the number is negative, then a minus sign precedes <img src="https://latex.codecogs.com/png.latex?m">, as in ordinary decimal notation.</p>
+</div>
+</div>
+<p>In scientific notation, the number 4600 can be written using a different number of significant figures, based on rule 2. above:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0A4.600%5Ctimes%2010%5E3&amp;%5Cquad%5Ctext%7Bfour%20significant%20figures%7D%5C%5C%0A4.60%5Ctimes%2010%5E3&amp;%5Cquad%5Ctext%7Bthree%20significant%20figures%7D%5C%5C%0A4.6%5Ctimes%2010%5E3&amp;%5Cquad%5Ctext%7Btwo%20significant%20figures%7D%0A%5Cend%7Bsplit%7D%0A"></p>
+</section>
+<section id="rounding" class="level3">
+<h3 class="anchored" data-anchor-id="rounding">Rounding</h3>
+<p>A number can be <em>rounded</em> so as to drop digits until a prescribed number of significant figures is retained in the final representation. Recall that all the digits after the decimal point to the right of the desired LSD are to be dropped and not replaced with zeros, which otherwise should add to the number of significant figures (rule 3 above). The rules of rounding are the following:</p>
+<ol type="1">
+<li>if the digit to the right of the desired LSD is greater than 5, add 1 to the LSD, otherwise do nothing</li>
+</ol>
+<ul>
+<li>Example - round at the fourth significant figure</li>
+</ul>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0A53.8%5Cunderline%7B7%7D4&amp;%5Crightarrow53.87%5C%5C%0A53.8%5Cunderline%7B7%7D9&amp;%5Crightarrow53.88%0A%5Cend%7Bsplit%7D%0A"></p>
+<ol start="2" type="1">
+<li>if the digit to the right of the LSD is 5, apply a tie-breaking rule, also called the <em>five rule</em>. When the first digit to be dropped is 5, the leading digit next to it is examined. If this digit is even, including zero, it is left unaltered; otherwise, one unit is added. This helps avoiding the accumulation of errors that would be otherwise determined by rounding systematically up or down. Using the five rule, five out of ten cases consist of rounding up and five out of ten cases consist of rounding down.</li>
+</ol>
+<ul>
+<li>Example - round at the fifth significant figure</li>
+</ul>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0A726.8%5Cunderline%7B0%7D51%5Crightarrow%20726.80%5C%5C%0A726.8%5Cunderline%7B3%7D51%5Crightarrow%20726.84%5C%5C%0A726.8%5Cunderline%7B6%7D51%5Crightarrow%20726.86%5C%5C%0A726.8%5Cunderline%7B9%7D51%5Crightarrow%20726.90%0A%5Cend%7Bsplit%7D%0A"></p>
+</section>
+</section>
+<section id="finite-precision-arithmetic" class="level2">
+<h2 class="anchored" data-anchor-id="finite-precision-arithmetic">Finite precision arithmetic</h2>
+<p>In mathematical operations involving significant figures, the result cannot be more precise than the least precise number. Calculations in finite precision arithmetic can be done following a few simple rules. One rule applies to multiplication and division, and another rule applies to addition and subtraction. Recall that values that are considered exact numbers, e.g., known conversion factors or physical constants, are not to be included in the determination of the number of significant figures.</p>
+<section id="multiplication-and-division" class="level3">
+<h3 class="anchored" data-anchor-id="multiplication-and-division">Multiplication and division</h3>
+<blockquote class="blockquote">
+<p>When we multiply/divide two numbers, we should add their relative uncertainties. The uncertainty of the result is given roughly by the number of the digits, regardless of their placement.</p>
+</blockquote>
+<p>In a calculation involving multiplication/division the number of significant figures in the result should equal the least number of significant figures in any one of the numbers being multiplied or divided.</p>
+<p>In the following example, the number 1.6 is reported with two significant figures; the number 2, seen as a known constant, can be considered having an infinite number of significant figures, whereas the number 2.0 has two significant figures. The result should be reported with two significant figures in both cases:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0A&amp;1.6%5Ctimes2=3.2&amp;%5C%5C%0A&amp;1.61%5Ctimes2.0=3.2&amp;%5Cquad%5Ctext%7Bnot%7D%5C;3.22%0A%5Cend%7Bsplit%7D%0A"></p>
+</section>
+<section id="addition-and-subtraction" class="level3">
+<h3 class="anchored" data-anchor-id="addition-and-subtraction">Addition and subtraction</h3>
+<blockquote class="blockquote">
+<p>When we add/subtract two numbers, we should add their uncertainties. The uncertainty of the result is given roughly by the placement of the digits, not by the number of digits.</p>
+</blockquote>
+<p>In a calculation involving addition/subtraction, the number of decimal places in the result should equal the least number of decimal places in any one of the numbers being added or subtracted.</p>
+<p>In the following example, the number 132.03 is reported with five significant figures, and the number 3.210 is reported with four significant figures. However, when the two numbers are added, what matters really is the number of decimal places, i.e., two for the number 132.03 and three for the number 3.210. The result should be reported with two decimal digits and not reported using four significant figures.</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0A&amp;132.03+3.210=135.24&amp;%5C;%5Ctext%7Band%20not%7D%5C;135.2%5C%5C%0A&amp;132.03+3=135&amp;%5C;%5Ctext%7Band%20not%7D%5C;135.03%5C%5C%0A&amp;132.03+3.00=135.03&amp;%5C;%5Ctext%7Band%20not%7D%5C;135%5C%5C%0A%5Cend%7Bsplit%7D%0A"></p>
+<p>The prescription about the minimum number of decimal places of any of the numbers involved in the calculation can be explained by considering that, implicitly, the precision of any measurement is dictated by the decimal place. For a measurement of length expressed in meters, for example, the second decimal digit implies a measurement precise to the hundredths (centimeter-level), the third decimal digit to the thousandth (millimeter-level). So by keeping the result with the minimum number of decimal places we basically state that we do not want to imply to get a result more precise than the least precise measurement that was needed to produce the result itself.</p>
+</section>
+<section id="multiple-arithmetic-operations" class="level3">
+<h3 class="anchored" data-anchor-id="multiple-arithmetic-operations">Multiple arithmetic operations</h3>
+<blockquote class="blockquote">
+<p>In a calculation involving multiple arithmetic operations, the rules are applied without rounding results after each intermediate step. Instead keep track of the rightmost digit that would be retained. The operations would be performed in the following order:</p>
+</blockquote>
+<ul>
+<li><p>operations in parentheses ( )</p></li>
+<li><p>multiplication</p></li>
+<li><p>division</p></li>
+<li><p>addition</p></li>
+<li><p>subtraction</p></li>
+</ul>
+<p>It is important to always perform intermediate calculations without rounding the numbers that are involved in the operations. If numbers are rounded every time during many sequential calculations, the results are skewed and some systematic error is surely introduced. Only after that all calculations are carried out with all digits retained at each step, the final result has to be rounded to the desired number of significant figures.</p>
+<p>As an example, two numbers reported with five significant figures each are added, and the final result is rounded to three significant figures. If the addends are first rounded to three significant figures and then added, the result we produce is wrong:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0A&amp;1.4248+1.2732=2.6980%5Crightarrow%202.70&amp;%5Cquad%5Ctext%7Bcorrect%7D%5C%5C%0A&amp;1.42+1.27=2.69%5Crightarrow%202.70&amp;%5Cquad%5Ctext%7Bwrong%7D%0A%5Cend%7Bsplit%7D%0A"></p>
+<p>When doing multi-step calculations, we need:</p>
+<ul>
+<li><p>to keep at least one more significant figure in intermediate results than needed in the final answer. Furthermore, never round intermediate answers: rounding, say, to two significant figures in an intermediate answer, and then writing three significant figures in the final answer is wrong.</p></li>
+<li><p>not to write more significant figures in the final result (of a measurement process) than justified (by the measurement uncertainty).</p></li>
+</ul>
+<div id="exm-exm1" class="theorem example">
+<p><span class="theorem-title"><strong>Example 1 (Sequential calculation)</strong></span> Suppose that we want to perform the following operation:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A(2.5%5Ctimes3.42)+13.681-0.1%0A"></p>
+<ol type="1">
+<li>perform first the product between parentheses - we keep track of the first decimal place, which would be retained based on rule B above.</li>
+</ol>
+<p><img src="https://latex.codecogs.com/png.latex?%0A2.5%5Ctimes3.42=8.%5Cunderline%7B5%7D500%0A"></p>
+<ol start="2" type="1">
+<li>perform addition - although, based on rule A above, the result would be expressed using five significant figures, only the first decimal place is kept tracked:</li>
+</ol>
+<p><img src="https://latex.codecogs.com/png.latex?%0A8.5500+13.681=22.%5Cunderline%7B2%7D310%0A"></p>
+<ol start="3" type="1">
+<li>perform subtraction:</li>
+</ol>
+<p><img src="https://latex.codecogs.com/png.latex?%0A22.2310-0.1=22.%5Cunderline%7B1%7D31%0A"></p>
+<ol start="4" type="1">
+<li>rounding to three significant figures:</li>
+</ol>
+<p><img src="https://latex.codecogs.com/png.latex?%0A(2.5%5Ctimes3.42)+13.681-0.1%5Crightarrow22.1%0A"></p>
+</div>
+</section>
+</section>
+<section id="significant-figures-and-measurement-uncertainty" class="level2">
+<h2 class="anchored" data-anchor-id="significant-figures-and-measurement-uncertainty">Significant figures and measurement uncertainty</h2>
+<p>The value of one measurand must be delivered by rounding the digit loaded by the measurement uncertainty <img src="https://latex.codecogs.com/png.latex?U">, where <img src="https://latex.codecogs.com/png.latex?U"> is represented by a number with, usually, no more than one or two significant figures (rounded up, possibly). The additional uncertainty due to rounding must be checked for being negligible compared to <img src="https://latex.codecogs.com/png.latex?U">. Essentially, <img src="https://latex.codecogs.com/png.latex?U"> gives an estimate of the errors incurred in the measurement.</p>
+<p>For example, if we have a length <img src="https://latex.codecogs.com/png.latex?L=(12.37%5Cpm0.10)%5C;%5Ctext%7Bcm%7D">, we can report the length as <img src="https://latex.codecogs.com/png.latex?L=12.4%5C;%5Ctext%7Bcm%7D">. When we express a number with three significant figures, what we are saying is that the first two digits are essentially exactly correct, and the last one is uncertain by a small amount (generally it is only uncertain by about <img src="https://latex.codecogs.com/png.latex?%5Cpm1">). In the example above, we rounded our answer to <img src="https://latex.codecogs.com/png.latex?12.4%5C;%5Ctext%7Bcm%7D"> because our answer is uncertain to <img src="https://latex.codecogs.com/png.latex?%5Cpm0.1%5C;%5Ctext%7Bcm%7D">, namely our answer is uncertain in the last digit by about 1.</p>
+<div id="exm-exm2" class="theorem example">
+<p><span class="theorem-title"><strong>Example 2 (Rounding)</strong></span> Round the measurement <img src="https://latex.codecogs.com/png.latex?z=12.0349%5C;%5Ctext%7Bcm%7D">, whose uncertainty is stated being <img src="https://latex.codecogs.com/png.latex?%5CDelta%20z=0.153%5C;%5Ctext%7Bcm%7D">.</p>
+<ol type="1">
+<li>round the uncertainty to two significant figures:</li>
+</ol>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5CDelta%20z=0.15%5C,%5Ctext%7Bcm%7D%0A"></p>
+<ol start="2" type="1">
+<li>round <img src="https://latex.codecogs.com/png.latex?z"> using the same number of decimal places as <img src="https://latex.codecogs.com/png.latex?%5CDelta%20z">:</li>
+</ol>
+<p><img src="https://latex.codecogs.com/png.latex?%0Az=12.03%5C,%5Ctext%7Bcm%7D%0A"></p>
+<ol start="3" type="1">
+<li>provide the measurement report:</li>
+</ol>
+<p><img src="https://latex.codecogs.com/png.latex?%0Az%5Cpm%5CDelta%20z=(12.03%5Cpm0.15)%5C,%5Ctext%7Bcm%7D%0A"></p>
+</div>
+<div id="exm-exm3" class="theorem example">
+<p><span class="theorem-title"><strong>Example 3 (Use of the scientific notation)</strong></span> When the answer is given in scientific notation, the uncertainty should be given in scientific notation with the same power of ten as the answer. Suppose that <img src="https://latex.codecogs.com/png.latex?z=1.43%5Ctimes10%5E6%5C;%5Ctext%7Bs%7D"> and <img src="https://latex.codecogs.com/png.latex?%5CDelta%20z=2%5Ctimes10%5E4%5C;%5Ctext%7Bs%7D">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Az%5Cpm%5CDelta%20z=(1.43%5Cpm0.02)%5C,10%5E6%5C;%5Ctext%7Bs%7D%0A"></p>
+</div>
+<div id="exm-exm4" class="theorem example">
+<p><span class="theorem-title"><strong>Example 4 (Addition/subtraction of uncertain numbers)</strong></span> The length of two blocks is measured, and the measurements are <img src="https://latex.codecogs.com/png.latex?l_1=1.13%5C;%5Ctext%7Bm%7D"> (considered precise to the level of centimeters) and <img src="https://latex.codecogs.com/png.latex?l_2=0.551%5C;%5Ctext%7Bm%7D"> (considered precise to the level of millimeters). We need to compute the length <img src="https://latex.codecogs.com/png.latex?l"> of the block resulting from stacking the two blocks together:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Al=l_1+l_2=1.681%5C;%5Ctext%7Bm%7D%5Crightarrow%20l=1.68%5C;%5Ctext%7Bm%7D%0A"></p>
+<p>It does not make any physical sense to consider the length of the overall block precise to the level of the millimeters, given that one of the two blocks is measured less precisely. The result should be at least as precise as the least precise term involved in the addition, as stated by the rule for addition/subtraction of uncertain numbers.</p>
+</div>
+<div id="exm-exm5" class="theorem example">
+<p><span class="theorem-title"><strong>Example 5 (Multiplication/division of uncertain numbers)</strong></span> A rectangular floor needs to be covered by a number of squared tiles. According to the measurements that are available, the rectangular floor has width <img src="https://latex.codecogs.com/png.latex?w=1.91%5C;%5Ctext%7Bm%7D"> and length <img src="https://latex.codecogs.com/png.latex?l=1.57%5C;%5Ctext%7Bm%7D"> and each squared tile has size <img src="https://latex.codecogs.com/png.latex?a=0.15%5C;%5Ctext%7Bm%7D">. All measurements are considered precise to the level of centimeters, and three significant figures should then be considered for their numerical representation. The number of tiles can be easily calculated:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AN%5Capprox%5Cdfrac%7Bw%5C,l%7D%7Ba%5E2%7D=133.2756%5C;%5Ctext%7Bm%7D%5E2%5C,%5Ctext%7Bm%7D%5E%7B-2%7D%0A"></p>
+<p>To comply with the rule for multiplication/division between uncertain number, 133.2756 has to be rounded using three significant figures, yielding the integer <img src="https://latex.codecogs.com/png.latex?N=133">, which is then the number of tiles expected to cover the floor.</p>
+</div>
+<div id="exm-exm6" class="theorem example">
+<p><span class="theorem-title"><strong>Example 6 (Conversion of scale)</strong></span> A measurement of temperature is performed, leading to the following report:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AT_c=(54.0%5Cpm0.5)%5C;%5E%7B%5Ccirc%7D%5Ctext%7BC%7D%0A"></p>
+<p>We want to convert this expression in units of kelvin:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AT_K=T_C+273.15=(327.15%5Cpm0.5)%5C;%5Ctext%7BK%7D%0A"></p>
+<p>The uncertainty expressed in degree Celsius (<img src="https://latex.codecogs.com/png.latex?%5Cpm0.5%5C;%5E%7B%5Ccirc%7D%5Ctext%7BC%7D">) translates directly in the uncertainty expressed in kelvin (<img src="https://latex.codecogs.com/png.latex?%5Cpm%200.5%5C;%5Ctext%7BK%7D">). This is because transforming a measurement expressed in degree Celsius into a measurement expressed in kelvin implies a change of offset, but not a change of scale. Since the uncertainty loads the first decimal digit of the numerical representation of the measured temperature, we should report <img src="https://latex.codecogs.com/png.latex?T_K"> with one decimal digit, which requires rounding (based on the five rule):</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AT_k=(327.2%5Cpm0.5)%5C;%5Ctext%7BK%7D%0A"></p>
+<p>The prescription of the minimum number of significant figures (rule for the addition/subtraction of uncertain numbers) would yield <img src="https://latex.codecogs.com/png.latex?T_k=327%5C;%5Ctext%7BK%7D">. This is because <img src="https://latex.codecogs.com/png.latex?54.0"> has three significant figures, and <img src="https://latex.codecogs.com/png.latex?273.15"> can be considered to have an infinite number of significant figures, since it is a known constant; hence <img src="https://latex.codecogs.com/png.latex?T_K"> should be reported with three significant figures according to the rule for addition/subtraction of uncertain numbers. However, this rule is superseded by considering the prescription concerning how to express the measurement uncertainty.</p>
+</div>
+<blockquote class="blockquote">
+<p>The concept of significant figures and their relation with measurement uncertainty has been briefly reviewed. This topic is important because many measured quantities are often reported with more significant figures than necessary, in the face of the loaded uncertainty. Reporting too many digits is confusing for the reader and of no relevance as for the information content associated to the measurements.</p>
+</blockquote>
+
+
+</section>
+
+ ]]></description>
+  <category>measurement</category>
+  <guid>https://amsabatini.netlify.app/posts/significant_figures/</guid>
+  <pubDate>Mon, 13 May 2024 22:00:00 GMT</pubDate>
+  <media:content url="https://amsabatini.netlify.app/posts/significant_figures/significant_figures.png" medium="image" type="image/png"/>
+</item>
 <item>
   <title>Augmented Dickey-Fuller test</title>
   <dc:creator>Angelo Maria Sabatini</dc:creator>

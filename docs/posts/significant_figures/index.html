@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.550">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Angelo Maria Sabatini">
+<meta name="dcterms.date" content="2024-05-14">
+<meta name="description" content="The use of calculators and computers leads to lab reports with far too many digits in every number produced. Assessing the correct number of significant figures is essential in reporting either experimental or computed results together with their stated uncertainties.">
+
+<title>Angelo Maria Sabatini - Significant figures</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-G7T7XXSXKG"></script>
+
+<script type="text/plain" cookie-consent="tracking">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-G7T7XXSXKG', { 'anonymize_ip': true});
+</script>
+
+<script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"implied",
+  "palette":"light",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":""
+  ,
+"language":"en"
+  });
+});
+</script> 
+  
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Angelo Maria Sabatini</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../blog.html"> 
+<span class="menu-text">Blog</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../archive.html"> 
+<span class="menu-text">Archive</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/angelosabatini"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../blog.xml"> <i class="bi bi-rss" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#significant-figures" id="toc-significant-figures" class="nav-link active" data-scroll-target="#significant-figures">Significant figures</a>
+  <ul class="collapse">
+  <li><a href="#rules-for-significant-figures" id="toc-rules-for-significant-figures" class="nav-link" data-scroll-target="#rules-for-significant-figures">Rules for significant figures</a></li>
+  <li><a href="#rounding" id="toc-rounding" class="nav-link" data-scroll-target="#rounding">Rounding</a></li>
+  </ul></li>
+  <li><a href="#finite-precision-arithmetic" id="toc-finite-precision-arithmetic" class="nav-link" data-scroll-target="#finite-precision-arithmetic">Finite precision arithmetic</a>
+  <ul class="collapse">
+  <li><a href="#multiplication-and-division" id="toc-multiplication-and-division" class="nav-link" data-scroll-target="#multiplication-and-division">Multiplication and division</a></li>
+  <li><a href="#addition-and-subtraction" id="toc-addition-and-subtraction" class="nav-link" data-scroll-target="#addition-and-subtraction">Addition and subtraction</a></li>
+  <li><a href="#multiple-arithmetic-operations" id="toc-multiple-arithmetic-operations" class="nav-link" data-scroll-target="#multiple-arithmetic-operations">Multiple arithmetic operations</a></li>
+  </ul></li>
+  <li><a href="#significant-figures-and-measurement-uncertainty" id="toc-significant-figures-and-measurement-uncertainty" class="nav-link" data-scroll-target="#significant-figures-and-measurement-uncertainty">Significant figures and measurement uncertainty</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Significant figures</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">measurement</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    The use of calculators and computers leads to lab reports with far too many digits in every number produced. Assessing the correct number of significant figures is essential in reporting either experimental or computed results together with their stated uncertainties.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Angelo Maria Sabatini </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">May 14, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="significant-figures" class="level2">
+<h2 class="anchored" data-anchor-id="significant-figures">Significant figures</h2>
+<p>It happens frequently that the number of digits that are available to report measurement results is high. Usually, measurement results are produced by carrying arithmetic operations with computers or calculators, whose level of numerical precision, albeit finite, is too high given the true information gathered by the measurements. In other words, the precision can be excessive, and too many digits can simply swamp the observer, making the message in the measurements more obscure. <strong>Significant figures</strong>, also referred to as significant digits, are specific digits within a number written in positional notation that carry both reliability and necessity in reporting a measurement result. Proper use of significant figures is thus an essential element in the presentation of both experimental and calculated results together with their associated uncertainty.</p>
+<section id="rules-for-significant-figures" class="level3">
+<h3 class="anchored" data-anchor-id="rules-for-significant-figures">Rules for significant figures</h3>
+<p>A number of rules exist for determining how many significant figures are in a number:</p>
+<ol type="1">
+<li>non-zero digits are always significant</li>
+</ol>
+<ul>
+<li>4.6 has two significant figures</li>
+</ul>
+<ol start="2" type="1">
+<li>leading zeros placed before the first non-zero digit are not significant (they are called <em>placeholders</em>)</li>
+</ol>
+<ul>
+<li>0.046 has two significant figures</li>
+</ul>
+<ol start="3" type="1">
+<li>trailing zeros placed after all other digits but behind a decimal point are significant</li>
+</ol>
+<ul>
+<li>4.60 has three significant figures</li>
+</ul>
+<p>The leftmost digit which is not a zero is referred to as the <em>most significant digit</em> (MSD); the rightmost digit of a decimal number is the <em>least significant digit</em> (LSD), regardless it is a zero or not: 4 and 0 are thus, respectively, the MSD and the LSD of 4.60; 4 and 1 are, respectively, the MSD and the LSD of 4.61. Every digit between the LSD and the MSD, including zeros, should be counted as significant figures, hence 4.60 and 40.60 have, respectively, three and four significant figures.</p>
+<p>Ambiguous situations arise when zeros are at the end of the number and not behind a decimal point as, for example, in the number 4600. Confusion can be avoided if the number is expressed in <em>scientific notation</em>.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Scientific notation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Scientific notation is a way of expressing numbers that are much too large or much too small to be conveniently written in decimal form (i.e., their representation would involve a long string of digits). In scientific notation, nonzero numbers are written in the form:</p>
+<p><span class="math display">\[
+m\times10^n
+\]</span></p>
+<p>where <span class="math inline">\(n\)</span> is an integer, and the coefficient <span class="math inline">\(m\)</span> is a nonzero real number (usually <span class="math inline">\(1\leq\vert\,m\,\vert&lt;10\)</span>). The integer <span class="math inline">\(n\)</span> is called the <em>exponent</em> and the real number <span class="math inline">\(m\)</span> is called the <em>mantissa</em>. If the number is negative, then a minus sign precedes <span class="math inline">\(m\)</span>, as in ordinary decimal notation.</p>
+</div>
+</div>
+<p>In scientific notation, the number 4600 can be written using a different number of significant figures, based on rule 2. above:</p>
+<p><span class="math display">\[
+\begin{split}
+4.600\times 10^3&amp;\quad\text{four significant figures}\\
+4.60\times 10^3&amp;\quad\text{three significant figures}\\
+4.6\times 10^3&amp;\quad\text{two significant figures}
+\end{split}
+\]</span></p>
+</section>
+<section id="rounding" class="level3">
+<h3 class="anchored" data-anchor-id="rounding">Rounding</h3>
+<p>A number can be <em>rounded</em> so as to drop digits until a prescribed number of significant figures is retained in the final representation. Recall that all the digits after the decimal point to the right of the desired LSD are to be dropped and not replaced with zeros, which otherwise should add to the number of significant figures (rule 3 above). The rules of rounding are the following:</p>
+<ol type="1">
+<li>if the digit to the right of the desired LSD is greater than 5, add 1 to the LSD, otherwise do nothing</li>
+</ol>
+<ul>
+<li>Example - round at the fourth significant figure</li>
+</ul>
+<p><span class="math display">\[
+\begin{split}
+53.8\underline{7}4&amp;\rightarrow53.87\\
+53.8\underline{7}9&amp;\rightarrow53.88
+\end{split}
+\]</span></p>
+<ol start="2" type="1">
+<li>if the digit to the right of the LSD is 5, apply a tie-breaking rule, also called the <em>five rule</em>. When the first digit to be dropped is 5, the leading digit next to it is examined. If this digit is even, including zero, it is left unaltered; otherwise, one unit is added. This helps avoiding the accumulation of errors that would be otherwise determined by rounding systematically up or down. Using the five rule, five out of ten cases consist of rounding up and five out of ten cases consist of rounding down.</li>
+</ol>
+<ul>
+<li>Example - round at the fifth significant figure</li>
+</ul>
+<p><span class="math display">\[
+\begin{split}
+726.8\underline{0}51\rightarrow 726.80\\
+726.8\underline{3}51\rightarrow 726.84\\
+726.8\underline{6}51\rightarrow 726.86\\
+726.8\underline{9}51\rightarrow 726.90
+\end{split}
+\]</span></p>
+</section>
+</section>
+<section id="finite-precision-arithmetic" class="level2">
+<h2 class="anchored" data-anchor-id="finite-precision-arithmetic">Finite precision arithmetic</h2>
+<p>In mathematical operations involving significant figures, the result cannot be more precise than the least precise number. Calculations in finite precision arithmetic can be done following a few simple rules. One rule applies to multiplication and division, and another rule applies to addition and subtraction. Recall that values that are considered exact numbers, e.g., known conversion factors or physical constants, are not to be included in the determination of the number of significant figures.</p>
+<section id="multiplication-and-division" class="level3">
+<h3 class="anchored" data-anchor-id="multiplication-and-division">Multiplication and division</h3>
+<blockquote class="blockquote">
+<p>When we multiply/divide two numbers, we should add their relative uncertainties. The uncertainty of the result is given roughly by the number of the digits, regardless of their placement.</p>
+</blockquote>
+<p>In a calculation involving multiplication/division the number of significant figures in the result should equal the least number of significant figures in any one of the numbers being multiplied or divided.</p>
+<p>In the following example, the number 1.6 is reported with two significant figures; the number 2, seen as a known constant, can be considered having an infinite number of significant figures, whereas the number 2.0 has two significant figures. The result should be reported with two significant figures in both cases:</p>
+<p><span class="math display">\[
+\begin{split}
+&amp;1.6\times2=3.2&amp;\\
+&amp;1.61\times2.0=3.2&amp;\quad\text{not}\;3.22
+\end{split}
+\]</span></p>
+</section>
+<section id="addition-and-subtraction" class="level3">
+<h3 class="anchored" data-anchor-id="addition-and-subtraction">Addition and subtraction</h3>
+<blockquote class="blockquote">
+<p>When we add/subtract two numbers, we should add their uncertainties. The uncertainty of the result is given roughly by the placement of the digits, not by the number of digits.</p>
+</blockquote>
+<p>In a calculation involving addition/subtraction, the number of decimal places in the result should equal the least number of decimal places in any one of the numbers being added or subtracted.</p>
+<p>In the following example, the number 132.03 is reported with five significant figures, and the number 3.210 is reported with four significant figures. However, when the two numbers are added, what matters really is the number of decimal places, i.e., two for the number 132.03 and three for the number 3.210. The result should be reported with two decimal digits and not reported using four significant figures.</p>
+<p><span class="math display">\[
+\begin{split}
+&amp;132.03+3.210=135.24&amp;\;\text{and not}\;135.2\\
+&amp;132.03+3=135&amp;\;\text{and not}\;135.03\\
+&amp;132.03+3.00=135.03&amp;\;\text{and not}\;135\\
+\end{split}
+\]</span></p>
+<p>The prescription about the minimum number of decimal places of any of the numbers involved in the calculation can be explained by considering that, implicitly, the precision of any measurement is dictated by the decimal place. For a measurement of length expressed in meters, for example, the second decimal digit implies a measurement precise to the hundredths (centimeter-level), the third decimal digit to the thousandth (millimeter-level). So by keeping the result with the minimum number of decimal places we basically state that we do not want to imply to get a result more precise than the least precise measurement that was needed to produce the result itself.</p>
+</section>
+<section id="multiple-arithmetic-operations" class="level3">
+<h3 class="anchored" data-anchor-id="multiple-arithmetic-operations">Multiple arithmetic operations</h3>
+<blockquote class="blockquote">
+<p>In a calculation involving multiple arithmetic operations, the rules are applied without rounding results after each intermediate step. Instead keep track of the rightmost digit that would be retained. The operations would be performed in the following order:</p>
+</blockquote>
+<ul>
+<li><p>operations in parentheses ( )</p></li>
+<li><p>multiplication</p></li>
+<li><p>division</p></li>
+<li><p>addition</p></li>
+<li><p>subtraction</p></li>
+</ul>
+<p>It is important to always perform intermediate calculations without rounding the numbers that are involved in the operations. If numbers are rounded every time during many sequential calculations, the results are skewed and some systematic error is surely introduced. Only after that all calculations are carried out with all digits retained at each step, the final result has to be rounded to the desired number of significant figures.</p>
+<p>As an example, two numbers reported with five significant figures each are added, and the final result is rounded to three significant figures. If the addends are first rounded to three significant figures and then added, the result we produce is wrong:</p>
+<p><span class="math display">\[
+\begin{split}
+&amp;1.4248+1.2732=2.6980\rightarrow 2.70&amp;\quad\text{correct}\\
+&amp;1.42+1.27=2.69\rightarrow 2.70&amp;\quad\text{wrong}
+\end{split}
+\]</span></p>
+<p>When doing multi-step calculations, we need:</p>
+<ul>
+<li><p>to keep at least one more significant figure in intermediate results than needed in the final answer. Furthermore, never round intermediate answers: rounding, say, to two significant figures in an intermediate answer, and then writing three significant figures in the final answer is wrong.</p></li>
+<li><p>not to write more significant figures in the final result (of a measurement process) than justified (by the measurement uncertainty).</p></li>
+</ul>
+<div id="exm-exm1" class="theorem example">
+<p><span class="theorem-title"><strong>Example 1 (Sequential calculation)</strong></span> Suppose that we want to perform the following operation:</p>
+<p><span class="math display">\[
+(2.5\times3.42)+13.681-0.1
+\]</span></p>
+<ol type="1">
+<li>perform first the product between parentheses - we keep track of the first decimal place, which would be retained based on rule B above.</li>
+</ol>
+<p><span class="math display">\[
+2.5\times3.42=8.\underline{5}500
+\]</span></p>
+<ol start="2" type="1">
+<li>perform addition - although, based on rule A above, the result would be expressed using five significant figures, only the first decimal place is kept tracked:</li>
+</ol>
+<p><span class="math display">\[
+8.5500+13.681=22.\underline{2}310
+\]</span></p>
+<ol start="3" type="1">
+<li>perform subtraction:</li>
+</ol>
+<p><span class="math display">\[
+22.2310-0.1=22.\underline{1}31
+\]</span></p>
+<ol start="4" type="1">
+<li>rounding to three significant figures:</li>
+</ol>
+<p><span class="math display">\[
+(2.5\times3.42)+13.681-0.1\rightarrow22.1
+\]</span></p>
+</div>
+</section>
+</section>
+<section id="significant-figures-and-measurement-uncertainty" class="level2">
+<h2 class="anchored" data-anchor-id="significant-figures-and-measurement-uncertainty">Significant figures and measurement uncertainty</h2>
+<p>The value of one measurand must be delivered by rounding the digit loaded by the measurement uncertainty <span class="math inline">\(U\)</span>, where <span class="math inline">\(U\)</span> is represented by a number with, usually, no more than one or two significant figures (rounded up, possibly). The additional uncertainty due to rounding must be checked for being negligible compared to <span class="math inline">\(U\)</span>. Essentially, <span class="math inline">\(U\)</span> gives an estimate of the errors incurred in the measurement.</p>
+<p>For example, if we have a length <span class="math inline">\(L=(12.37\pm0.10)\;\text{cm}\)</span>, we can report the length as <span class="math inline">\(L=12.4\;\text{cm}\)</span>. When we express a number with three significant figures, what we are saying is that the first two digits are essentially exactly correct, and the last one is uncertain by a small amount (generally it is only uncertain by about <span class="math inline">\(\pm1\)</span>). In the example above, we rounded our answer to <span class="math inline">\(12.4\;\text{cm}\)</span> because our answer is uncertain to <span class="math inline">\(\pm0.1\;\text{cm}\)</span>, namely our answer is uncertain in the last digit by about 1.</p>
+<div id="exm-exm2" class="theorem example">
+<p><span class="theorem-title"><strong>Example 2 (Rounding)</strong></span> Round the measurement <span class="math inline">\(z=12.0349\;\text{cm}\)</span>, whose uncertainty is stated being <span class="math inline">\(\Delta z=0.153\;\text{cm}\)</span>.</p>
+<ol type="1">
+<li>round the uncertainty to two significant figures:</li>
+</ol>
+<p><span class="math display">\[
+\Delta z=0.15\,\text{cm}
+\]</span></p>
+<ol start="2" type="1">
+<li>round <span class="math inline">\(z\)</span> using the same number of decimal places as <span class="math inline">\(\Delta z\)</span>:</li>
+</ol>
+<p><span class="math display">\[
+z=12.03\,\text{cm}
+\]</span></p>
+<ol start="3" type="1">
+<li>provide the measurement report:</li>
+</ol>
+<p><span class="math display">\[
+z\pm\Delta z=(12.03\pm0.15)\,\text{cm}
+\]</span></p>
+</div>
+<div id="exm-exm3" class="theorem example">
+<p><span class="theorem-title"><strong>Example 3 (Use of the scientific notation)</strong></span> When the answer is given in scientific notation, the uncertainty should be given in scientific notation with the same power of ten as the answer. Suppose that <span class="math inline">\(z=1.43\times10^6\;\text{s}\)</span> and <span class="math inline">\(\Delta z=2\times10^4\;\text{s}\)</span>:</p>
+<p><span class="math display">\[
+z\pm\Delta z=(1.43\pm0.02)\,10^6\;\text{s}
+\]</span></p>
+</div>
+<div id="exm-exm4" class="theorem example">
+<p><span class="theorem-title"><strong>Example 4 (Addition/subtraction of uncertain numbers)</strong></span> The length of two blocks is measured, and the measurements are <span class="math inline">\(l_1=1.13\;\text{m}\)</span> (considered precise to the level of centimeters) and <span class="math inline">\(l_2=0.551\;\text{m}\)</span> (considered precise to the level of millimeters). We need to compute the length <span class="math inline">\(l\)</span> of the block resulting from stacking the two blocks together:</p>
+<p><span class="math display">\[
+l=l_1+l_2=1.681\;\text{m}\rightarrow l=1.68\;\text{m}
+\]</span></p>
+<p>It does not make any physical sense to consider the length of the overall block precise to the level of the millimeters, given that one of the two blocks is measured less precisely. The result should be at least as precise as the least precise term involved in the addition, as stated by the rule for addition/subtraction of uncertain numbers.</p>
+</div>
+<div id="exm-exm5" class="theorem example">
+<p><span class="theorem-title"><strong>Example 5 (Multiplication/division of uncertain numbers)</strong></span> A rectangular floor needs to be covered by a number of squared tiles. According to the measurements that are available, the rectangular floor has width <span class="math inline">\(w=1.91\;\text{m}\)</span> and length <span class="math inline">\(l=1.57\;\text{m}\)</span> and each squared tile has size <span class="math inline">\(a=0.15\;\text{m}\)</span>. All measurements are considered precise to the level of centimeters, and three significant figures should then be considered for their numerical representation. The number of tiles can be easily calculated:</p>
+<p><span class="math display">\[
+N\approx\dfrac{w\,l}{a^2}=133.2756\;\text{m}^2\,\text{m}^{-2}
+\]</span></p>
+<p>To comply with the rule for multiplication/division between uncertain number, 133.2756 has to be rounded using three significant figures, yielding the integer <span class="math inline">\(N=133\)</span>, which is then the number of tiles expected to cover the floor.</p>
+</div>
+<div id="exm-exm6" class="theorem example">
+<p><span class="theorem-title"><strong>Example 6 (Conversion of scale)</strong></span> A measurement of temperature is performed, leading to the following report:</p>
+<p><span class="math display">\[
+T_c=(54.0\pm0.5)\;^{\circ}\text{C}
+\]</span></p>
+<p>We want to convert this expression in units of kelvin:</p>
+<p><span class="math display">\[
+T_K=T_C+273.15=(327.15\pm0.5)\;\text{K}
+\]</span></p>
+<p>The uncertainty expressed in degree Celsius (<span class="math inline">\(\pm0.5\;^{\circ}\text{C}\)</span>) translates directly in the uncertainty expressed in kelvin (<span class="math inline">\(\pm 0.5\;\text{K}\)</span>). This is because transforming a measurement expressed in degree Celsius into a measurement expressed in kelvin implies a change of offset, but not a change of scale. Since the uncertainty loads the first decimal digit of the numerical representation of the measured temperature, we should report <span class="math inline">\(T_K\)</span> with one decimal digit, which requires rounding (based on the five rule):</p>
+<p><span class="math display">\[
+T_k=(327.2\pm0.5)\;\text{K}
+\]</span></p>
+<p>The prescription of the minimum number of significant figures (rule for the addition/subtraction of uncertain numbers) would yield <span class="math inline">\(T_k=327\;\text{K}\)</span>. This is because <span class="math inline">\(54.0\)</span> has three significant figures, and <span class="math inline">\(273.15\)</span> can be considered to have an infinite number of significant figures, since it is a known constant; hence <span class="math inline">\(T_K\)</span> should be reported with three significant figures according to the rule for addition/subtraction of uncertain numbers. However, this rule is superseded by considering the prescription concerning how to express the measurement uncertainty.</p>
+</div>
+<blockquote class="blockquote">
+<p>The concept of significant figures and their relation with measurement uncertainty has been briefly reviewed. This topic is important because many measured quantities are often reported with more significant figures than necessary, in the face of the loaded uncertainty. Reporting too many digits is confusing for the reader and of no relevance as for the information content associated to the measurements.</p>
+</blockquote>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<script src="https://utteranc.es/client.js" repo="angelosabatini/blog.comments" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+
+<div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

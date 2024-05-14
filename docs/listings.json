@@ -2,6 +2,7 @@
   {
     "listing": "/blog.html",
     "items": [
+      "/posts/significant_figures/index.html",
       "/posts/dickey_fuller/index.html",
       "/posts/gambler/index.html",
       "/posts/multivariate_probability_regions/index.html",
@@ -14,6 +15,7 @@
   {
     "listing": "/archive.html",
     "items": [
+      "/posts/significant_figures/index.html",
       "/posts/dickey_fuller/index.html",
       "/posts/gambler/index.html",
       "/posts/multivariate_probability_regions/index.html",
