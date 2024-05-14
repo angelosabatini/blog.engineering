@@ -61,7 +61,7 @@ Scientific notation
 <p>where <img src="https://latex.codecogs.com/png.latex?n"> is an integer, and the coefficient <img src="https://latex.codecogs.com/png.latex?m"> is a nonzero real number (usually <img src="https://latex.codecogs.com/png.latex?1%5Cleq%5Cvert%5C,m%5C,%5Cvert%3C10">). The integer <img src="https://latex.codecogs.com/png.latex?n"> is called the <em>exponent</em> and the real number <img src="https://latex.codecogs.com/png.latex?m"> is called the <em>mantissa</em>. If the number is negative, then a minus sign precedes <img src="https://latex.codecogs.com/png.latex?m">, as in ordinary decimal notation.</p>
 </div>
 </div>
-<p>In scientific notation, the number 4600 can be written using a different number of significant figures, based on rule 2. above:</p>
+<p>In scientific notation, the number 4600 can be written using a different number of significant figures, based on rule 3. above:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0A4.600%5Ctimes%2010%5E3&amp;%5Cquad%5Ctext%7Bfour%20significant%20figures%7D%5C%5C%0A4.60%5Ctimes%2010%5E3&amp;%5Cquad%5Ctext%7Bthree%20significant%20figures%7D%5C%5C%0A4.6%5Ctimes%2010%5E3&amp;%5Cquad%5Ctext%7Btwo%20significant%20figures%7D%0A%5Cend%7Bsplit%7D%0A"></p>
 </section>
 <section id="rounding" class="level3">
@@ -120,11 +120,6 @@ Scientific notation
 <p>It is important to always perform intermediate calculations without rounding the numbers that are involved in the operations. If numbers are rounded every time during many sequential calculations, the results are skewed and some systematic error is surely introduced. Only after that all calculations are carried out with all digits retained at each step, the final result has to be rounded to the desired number of significant figures.</p>
 <p>As an example, two numbers reported with five significant figures each are added, and the final result is rounded to three significant figures. If the addends are first rounded to three significant figures and then added, the result we produce is wrong:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0A&amp;1.4248+1.2732=2.6980%5Crightarrow%202.70&amp;%5Cquad%5Ctext%7Bcorrect%7D%5C%5C%0A&amp;1.42+1.27=2.69%5Crightarrow%202.70&amp;%5Cquad%5Ctext%7Bwrong%7D%0A%5Cend%7Bsplit%7D%0A"></p>
-<p>When doing multi-step calculations, we need:</p>
-<ul>
-<li><p>to keep at least one more significant figure in intermediate results than needed in the final answer. Furthermore, never round intermediate answers: rounding, say, to two significant figures in an intermediate answer, and then writing three significant figures in the final answer is wrong.</p></li>
-<li><p>not to write more significant figures in the final result (of a measurement process) than justified (by the measurement uncertainty).</p></li>
-</ul>
 <div id="exm-exm1" class="theorem example">
 <p><span class="theorem-title"><strong>Example 1 (Sequential calculation)</strong></span> Suppose that we want to perform the following operation:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A(2.5%5Ctimes3.42)+13.681-0.1%0A"></p>
@@ -145,6 +140,11 @@ Scientific notation
 </ol>
 <p><img src="https://latex.codecogs.com/png.latex?%0A(2.5%5Ctimes3.42)+13.681-0.1%5Crightarrow22.1%0A"></p>
 </div>
+<p>When doing multi-step calculations, we need:</p>
+<ul>
+<li><p>to keep at least one more significant figure in intermediate results than needed in the final answer. Furthermore, never round intermediate answers: rounding, say, to two significant figures in an intermediate answer, and then writing three significant figures in the final answer is wrong.</p></li>
+<li><p>not to write more significant figures in the final result (of a measurement process) than justified (by the measurement uncertainty).</p></li>
+</ul>
 </section>
 </section>
 <section id="significant-figures-and-measurement-uncertainty" class="level2">
