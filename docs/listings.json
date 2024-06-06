@@ -2,6 +2,7 @@
   {
     "listing": "/blog.html",
     "items": [
+      "/posts/numerical_simulation/index.html",
       "/posts/significant_figures/index.html",
       "/posts/dickey_fuller/index.html",
       "/posts/gambler/index.html",
@@ -15,6 +16,7 @@
   {
     "listing": "/archive.html",
     "items": [
+      "/posts/numerical_simulation/index.html",
       "/posts/significant_figures/index.html",
       "/posts/dickey_fuller/index.html",
       "/posts/gambler/index.html",

@@ -10,7 +10,543 @@
 <atom:link href="https://amsabatini.netlify.app/blog.xml" rel="self" type="application/rss+xml"/>
 <description>This the personal blog of Angelo Maria Sabatini</description>
 <generator>quarto-1.4.550</generator>
-<lastBuildDate>Mon, 13 May 2024 22:00:00 GMT</lastBuildDate>
+<lastBuildDate>Wed, 05 Jun 2024 22:00:00 GMT</lastBuildDate>
+<item>
+  <title>Numerical simulation for stochastic differential equations</title>
+  <dc:creator>Angelo Maria Sabatini</dc:creator>
+  <link>https://amsabatini.netlify.app/posts/numerical_simulation/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>We consider here the class of stochastic processes known as diffusion processes, which are solutions to stochastic differential equation (SDE) of the form:</p>
+<p><span id="eq-eq1"><img src="https://latex.codecogs.com/png.latex?%0AdX(t)=b(t,X(t))%5C,dt+%5Csigma(t,X(t))%5C,dW(t)%0A%5Ctag%7B1%7D"></span></p>
+<p>with some initial condition <img src="https://latex.codecogs.com/png.latex?X(0)"> which can be regarded as being either constant or random. The SDE is interpreted in the Itô sense:</p>
+<p><span id="eq-eq2"><img src="https://latex.codecogs.com/png.latex?%0AX(t)=X(0)+%5Cint_0%5Etb(s,X(s))%5C,ds+%5Cint_0%5Et%5Csigma(s,X(s))%5C,dW(s)%0A%5Ctag%7B2%7D"></span></p>
+<p>and <img src="https://latex.codecogs.com/png.latex?%5C%7BW(t),t%5Cin%5B0,T%5D%5C%7D"> is the so-called Brownian motion or Wiener process.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+The Wiener process
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The Wiener process <img src="https://latex.codecogs.com/png.latex?%5C%7BW(t),t%5Cin%5B0,T%5D%5C%7D"> has independent Gaussian increments and continuous sample paths, and comes endowed with the following properties:</p>
+<ol type="1">
+<li><p><img src="https://latex.codecogs.com/png.latex?W(0)=0"> (with probability 1).</p></li>
+<li><p>For <img src="https://latex.codecogs.com/png.latex?0%5Cleq%20s%5Cleq%20t%5Cleq%20T"> the random variable given by the Gaussian increment <img src="https://latex.codecogs.com/png.latex?W(t)-W(s)"> is distributed with mean zero and variance <img src="https://latex.codecogs.com/png.latex?t-s">; equivalently, <img src="https://latex.codecogs.com/png.latex?W(t)-W(s)%5Cpropto%5Csqrt%7Bt-s%7D%5C,Z">, where <img src="https://latex.codecogs.com/png.latex?Z"> denotes a standard Gaussian random variable, with a mean of zero and a variance of one.</p></li>
+<li><p>For <img src="https://latex.codecogs.com/png.latex?0%5Cleq%20s%5Cleq%20t%5Cleq%20u%5Cleq%20v%5Cleq%20T"> the increments <img src="https://latex.codecogs.com/png.latex?W(t)-W(s)"> and <img src="https://latex.codecogs.com/png.latex?W(v)-W(u)"> are independent (condition of independence on any two disjoint intervals).</p></li>
+</ol>
+</div>
+</div>
+<p>The two deterministic functions <img src="https://latex.codecogs.com/png.latex?b(%5Ccdot,%5Ccdot)"> and <img src="https://latex.codecogs.com/png.latex?%5Csigma(%5Ccdot,%5Ccdot)"> are called, respectively, the drift and the diffusion coefficients of the SDE. Under a number of assumptions regarding their properties (i.e., global Lipschitz and linear growth, see <span class="citation" data-cites="iacus2008">(Iacus 2008)</span> for mathematical details) the SDE has a unique solution with continuous sample paths such that</p>
+<p><span id="eq-eq3"><img src="https://latex.codecogs.com/png.latex?%0AE%5Cleft%5B%5Cint_0%5ET%5Cvert%5C,X(t)%5C,%5Cvert%5E2%5C,dt%5Cright%5D%3C%5Cinfty%0A%5Ctag%7B3%7D"></span></p>
+<p>For the sake of simpler notation, <img src="https://latex.codecogs.com/png.latex?X(t)%5Crightarrow%20X_t"> is used in the following, therefore Equation&nbsp;1 and Equation&nbsp;2 can be written:</p>
+<p><span id="eq-eq4"><img src="https://latex.codecogs.com/png.latex?%0A%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7D%0AdX_t&amp;=b(t,X_t)%5C,dt+%5Csigma(t,X_t)%5C,dW_t%5C%5C%0AX_t&amp;=X_0+%5Cint_0%5Etb(s,X_s)%5C,ds+%5Cint_0%5Et%5Csigma(s,X_s)%5C,dW_s%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A%5Ctag%7B4%7D"></span></p>
+<p>The Itô formula is an important tool of stochastic calculus. It can be regarded as the stochastic version of the Taylor expansion of a function <img src="https://latex.codecogs.com/png.latex?f(t,X_t)"> stopped at the second order, where <img src="https://latex.codecogs.com/png.latex?X_t"> is a diffusion process. If the function <img src="https://latex.codecogs.com/png.latex?f(%5Ccdot,%5Ccdot)"> is a twice differentiable function on both arguments, we have:</p>
+<p><span id="eq-eq5"><img src="https://latex.codecogs.com/png.latex?%0Adf(t,X_t)=f_t(t,X_t)%5C,dt+f_x(t,X_t)%5C,dX_t+%5Cfrac%7B1%7D%7B2%7Df_%7Bxx%7D(t,X_t)(dX_t)%5E2%0A%5Ctag%7B5%7D"></span></p>
+<p>where:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Af_t(t,x)=%5Cdfrac%7B%5Cpartial%7D%7B%5Cpartial%20t%7Df(t,x),%5Cquad%20f_x(t,x)=%5Cdfrac%7B%5Cpartial%20f(t,x)%7D%7B%5Cpartial%20x%7D,%5Cquad%20f_%7Bxx%7D(t,x)=%5Cdfrac%7B%5Cpartial%5E2%20f(t,x)%7D%7B%5Cpartial%20x%5E2%7D%0A"></p>
+<p>Using Equation&nbsp;1 and the Itô lemma, which states that <img src="https://latex.codecogs.com/png.latex?(dW_t)%5E2=dt">, we have:</p>
+<p><span id="eq-eq6"><img src="https://latex.codecogs.com/png.latex?%0A(dX_t)%5E2=%5Cleft%5Bb(t,X_t)%5C,dt+%5Csigma(t,X_t)%5C,dW_t%5Cright%5D%5E2=%5Csigma%5E2(t,X_t)%5C,dt+%5Ctext%7BO%7D(dt%5E%7B3/2%7D)%0A%5Ctag%7B6%7D"></span></p>
+<p>Equation&nbsp;5 can thus be written:</p>
+<p><span id="eq-eq7"><img src="https://latex.codecogs.com/png.latex?%0Adf(t,X_t)=%5Cleft%5Bf_t(t,X_t)+f_x(t,X_t)b(t,X_t)+%5Cfrac%7B1%7D%7B2%7Df_%7Bxx%7D(t,X_t)%5Cright%5Ddt+f_x(t,X_t)%5Csigma(t,X_t)%5C,dW_t%0A%5Ctag%7B7%7D"></span></p>
+<section id="approximation-methods" class="level2">
+<h2 class="anchored" data-anchor-id="approximation-methods">Approximation methods</h2>
+<p>To apply a numerical method to the generic SDE of Equation&nbsp;1 over the time interval <img src="https://latex.codecogs.com/png.latex?%5B0,T%5D">, the time interval needs to be discretized <span class="citation" data-cites="higham.2001">(Higham 2001)</span>. Let <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t=T/M"> for some positive integer <img src="https://latex.codecogs.com/png.latex?M">, and <img src="https://latex.codecogs.com/png.latex?t_n=n%5CDelta%20t">. The numerical approximation to <img src="https://latex.codecogs.com/png.latex?X(t_n)"> will be denoted <img src="https://latex.codecogs.com/png.latex?X_n"> (<img src="https://latex.codecogs.com/png.latex?n=1,%5Ccdots,M">).</p>
+<p>The Euler-Maruyama method takes the form:</p>
+<p><span id="eq-eq8"><img src="https://latex.codecogs.com/png.latex?%0A%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7D%0AX_n&amp;=X_%7Bn-1%7D+b(X_%7Bn-1%7D)%5CDelta%20t+%5Csigma(X_%7Bn-1%7D)%5CDelta%20W_%7Bn-1%7D%5C%5C%0AX_0&amp;=x_0%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A%5Ctag%7B8%7D"></span></p>
+<p>It is worth noting that in the case when <img src="https://latex.codecogs.com/png.latex?%5Csigma(X_t)=0">, then the problem becomes deterministic: this approximation method reduces to the standard Euler method for the ordinary differential equation <img src="https://latex.codecogs.com/png.latex?%5Cdot%7BX%7D_t=b(t,X_t)">.</p>
+<p>The Milstein’s method adds a correction to the stochastic increment to produce the solution to the SDE. The correction arises because the Taylor expansion must be modified in the case of Itô calculus. Truncating the Taylor expansion to the second order at an appropriate point yields:</p>
+<p><span id="eq-eq9"><img src="https://latex.codecogs.com/png.latex?%0A%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7D%0AX_n&amp;=X_%7Bn-1%7D+b(t_%7Bn-1%7D,X_%7Bn-1%7D)%5CDelta%20t+%5Csigma(t_%7Bn-1%7D,X_%7Bn-1%7D)%5CDelta%20W_%7Bn-1%7D%5C%5C%0A&amp;+%5Cdfrac%7B1%7D%7B2%7D%5Csigma(X_%7Bn-1%7D)%5Csigma_x(X_%7Bn-1%7D)%5Cleft%5B(%5CDelta%20W_%7Bn-1%7D)%5E2-%5CDelta%20t%5Cright%5D%5C%5C%0AX_0&amp;=x_0%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A%5Ctag%7B9%7D"></span></p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Strong and weak convergence
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The methods of approximation of the continuous solution to an SDE are classified according to their different properties. Mainly two criteria of optimality are used in the literature: the strong and the weak (orders of) convergence.</p>
+<p>A time-discretized approximation <img src="https://latex.codecogs.com/png.latex?X_%5Cdelta"> of a continuous-time process <img src="https://latex.codecogs.com/png.latex?X">, with <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t"> the time increment of the discretization, is said to be of strong order of convergence <img src="https://latex.codecogs.com/png.latex?%5Cgamma"> to <img src="https://latex.codecogs.com/png.latex?X"> if for any fixed time horizon <img src="https://latex.codecogs.com/png.latex?T"> it holds true that</p>
+<p><span id="eq-eq10"><img src="https://latex.codecogs.com/png.latex?%0AE%5B%5C,%5Cvert%20X_%7B%5CDelta%20t%7D(%5Ctau)-X(%5Ctau)%5Cvert%5C,%5D%5Cleq%20C%5CDelta%20t%5E%5Cgamma,%5Cquad%5Cforall%5CDelta%20t%3C%5CDelta%20t_0%0A%5Ctag%7B10%7D"></span></p>
+<p>for any <img src="https://latex.codecogs.com/png.latex?%5Ctau%5Cin%5B0,T%5D">, with <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t_0%3E0"> and <img src="https://latex.codecogs.com/png.latex?C"> a constant that does not depend on <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t">.</p>
+<p>Along with the strong convergence, the weak convergence can also be defined. In the same conditions as above, <img src="https://latex.codecogs.com/png.latex?X_%7B%5CDelta%20t%7D"> is said to converge weakly of order <img src="https://latex.codecogs.com/png.latex?%5Cgamma"> to <img src="https://latex.codecogs.com/png.latex?X"> if for any fixed horizon <img src="https://latex.codecogs.com/png.latex?T"> and any <img src="https://latex.codecogs.com/png.latex?2(%5Cbeta+1)"> continuous differentiable function <img src="https://latex.codecogs.com/png.latex?g"> of polynomial growth, it holds true that</p>
+<p><span id="eq-eq11"><img src="https://latex.codecogs.com/png.latex?%0A%5Cvert%5C,E_g%5BX_%7B%5CDelta%20t%7D(%5Ctau)%5D-E_g%5BX(%5Ctau)%5D%5C,%5Cvert%5Cleq%20C%5CDelta%20t%5E%5Cbeta%0A%5Ctag%7B11%7D"></span></p>
+<p>for any <img src="https://latex.codecogs.com/png.latex?%5Ctau%5Cin%5B0,T%5D">, with <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t_0%3E0"> and <img src="https://latex.codecogs.com/png.latex?C"> a constant that does not depend on <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t">.</p>
+<p>Whereas the strong order of convergence measures the rate at which the <em>mean of the error</em> decays as <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t%5Crightarrow0">, the weak order of convergence measures the rate of decay of the <em>error of the means</em>.</p>
+<p>Methods of approximation of some order that strongly converge usually have a higher order of weak convergence. This is the case with the Euler-Maruyama method, which is strongly convergent of order <img src="https://latex.codecogs.com/png.latex?%5Cgamma=1/2"> and weakly convergent of order <img src="https://latex.codecogs.com/png.latex?%5Cbeta=1"> (under some smoothness conditions on the coefficients of the SDE). The Milstein’s method has both weak and strong order of convergence, <img src="https://latex.codecogs.com/png.latex?%5Cgamma=%5Cbeta=1">, which is superior to the Euler–Maruyama method.</p>
+<p>It is interesting noting that, when the diffusion coefficient does not depend on the state variable of the process, the Euler-Maruyama and Milstein’s methods coincide. This is one important case, therefore, when the Euler-Maruyama method is strongly convergent of order <img src="https://latex.codecogs.com/png.latex?%5Cgamma=1">.</p>
+</div>
+</div>
+</section>
+<section id="numerical-test" class="level2">
+<h2 class="anchored" data-anchor-id="numerical-test">Numerical test</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Geometric Brownian motion
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The geometric Brownian motion (GBM) is the solution to the SDE:</p>
+<p><span id="eq-eq12"><img src="https://latex.codecogs.com/png.latex?%0A%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7D%0AdX_t&amp;=%5Clambda%5C,X_t%5C,dt+%5Cmu%5C,X_t%5C,dW_t%5C%5C%0AX_0&amp;=x_0%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A%5Ctag%7B12%7D"></span></p>
+<p>where the parameter <img src="https://latex.codecogs.com/png.latex?%5Clambda"> is interpreted as the constant interest rate and <img src="https://latex.codecogs.com/png.latex?%5Cmu%3E0"> as the volatility. For a GBM, the drift and diffusion coefficients are both linearly related to the state variable <img src="https://latex.codecogs.com/png.latex?X">, namely <img src="https://latex.codecogs.com/png.latex?b(t,X_t)=%5Clambda%5C,X_t"> and <img src="https://latex.codecogs.com/png.latex?%5Csigma(X_t)=%5Cmu%5C,X_t">.</p>
+<p>The explicit solution of the SDE Equation&nbsp;12 can be found by operating the following change of variable:</p>
+<p><span id="eq-eq13"><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0AY_t=%5Clog%20X_t%5Cquad%5Crightarrow%5Cquad%20dY_t&amp;=%5Cfrac%7B1%7D%7BX_t%7D%5C,dX_t-%5Cfrac%7B1%7D%7B2X_t%5E2%7D%5C,(dX_t)%5E2%5C%5C%0A&amp;=%5Cleft(%5Clambda-%5Cfrac%7B1%7D%7B2%7D%5Cmu%5E2%5Cright)dt+%5Cmu%5C,dW_t%0A%5Cend%7Bsplit%7D%0A%5Ctag%7B13%7D"></span></p>
+<p>We obtain:</p>
+<p><span id="eq-eq14"><img src="https://latex.codecogs.com/png.latex?%0AX_t=x_0%5Cexp%5Cleft%5B%5Cleft(%5Clambda-%5Cfrac%7B1%7D%7B2%7D%5Cmu%5E2%5Cright)t+%5Cmu%5C,W_t%5Cright%5D%0A%5Ctag%7B14%7D"></span></p>
+</div>
+</div>
+<p>For the GBM, the following stochastic difference equations are obtained for the Euler-Maruyama method:</p>
+<p><span id="eq-eq15"><img src="https://latex.codecogs.com/png.latex?%0A%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7D%0AX%5EE_n&amp;=X%5EE_%7Bn-1%7D(1+%5Clambda%5CDelta%20t+%5Cmu%5CDelta%20W_%7Bn-1%7D)%5C%5C%0AX%5EE_0&amp;=x_0%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A%5Ctag%7B15%7D"></span></p>
+<p>and for the Milstein method:</p>
+<p><span id="eq-eq16"><img src="https://latex.codecogs.com/png.latex?%0A%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7D%0AX%5EM_n&amp;=X%5EM_%7Bn-1%7D+%5Clambda%20X%5EM_%7Bn-1%7D%5CDelta%20t+%5Cmu%20X%5EM_%7Bn-1%7D%5CDelta%20W_%7Bn-1%7D%5C%5C%0A&amp;+%5Cdfrac%7B1%7D%7B2%7D%5Cmu%5E2%20X%5EM_%7Bn-1%7D%5Cleft%5B(%5CDelta%20W_%7Bn-1%7D)%5E2-%5CDelta%20t%5Cright%5D%5C%5C%0A&amp;=X%5EM_%7Bn-1%7D%5Cleft%5B1+%5Cleft(%5Clambda-%5Cdfrac%7B1%7D%7B2%7D%5Cmu%5E2%5Cright)%5CDelta%20t+%5Cmu%5CDelta%20W_%7Bn-1%7D+%5Cdfrac%7B1%7D%7B2%7D%5Cmu%5E2(%5CDelta%20W_%7Bn-1%7D)%5E2%5Cright%5D%5C%5C%0AX%5EM_0&amp;=x_0%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A%5Ctag%7B16%7D"></span></p>
+<p>Recall that <img src="https://latex.codecogs.com/png.latex?%5CDelta%20W_%7Bn-1%7D=%5Csqrt%7B%5CDelta%20t%7D%5C,Z">, where <img src="https://latex.codecogs.com/png.latex?Z%5Cpropto%20N(0,1)">.</p>
+<p>Equation&nbsp;15 reads:</p>
+<p><span id="eq-eq17"><img src="https://latex.codecogs.com/png.latex?%0A%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7D%0AX%5EE_n&amp;=X%5EE_%7Bn-1%7D(1+%5Clambda%5CDelta%20t+%5Cmu%5Csqrt%7B%5CDelta%20t%7D%5C,Z)%5C%5C%0AX%5EE_0&amp;=x_0%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A%5Ctag%7B17%7D"></span></p>
+<p>Equation&nbsp;16 reads:</p>
+<p><span id="eq-eq18"><img src="https://latex.codecogs.com/png.latex?%0A%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7D%0AX%5EM_n&amp;=X%5EM_%7Bn-1%7D%5Cleft%5B1+%5Cleft(%5Clambda+%5Cdfrac%7B1%7D%7B2%7D%5Cmu%5E2(Z%5E2-1)%5Cright)%5CDelta%20t+%5Cmu%5Csqrt%7B%5CDelta%20t%7D%5C,Z%5Cright%5D%5C%5C%0AX%5EM_0&amp;=x_0%5C%5C%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A%5Ctag%7B18%7D"></span></p>
+<p>Comparing the exact solution Equation&nbsp;14 with Equation&nbsp;18 shows how the Milstein method makes the Taylor expansion exact up to order <img src="https://latex.codecogs.com/png.latex?%5Ctext%7BO%7D(%5CDelta%20t)">.</p>
+<p>The following code will test the strong convergence of both methods when they are applied to the linear SDE Equation&nbsp;12, with <img src="https://latex.codecogs.com/png.latex?%5Clambda=2,%5Cmu=1,x_0=1">. One thousand sample paths are simulated over the time interval <img src="https://latex.codecogs.com/png.latex?%5B0,1%5D">, for step sizes being integer multiples of <img src="https://latex.codecogs.com/png.latex?2%5E%7B-9%7D%5C;(8,4,2,1)">. The order of convergence is tested at the end point of the chosen time interval. The results of the simulations are shown in Figure&nbsp;1.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse)</span>
+<span id="cb1-2"></span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1792</span>)</span>
+<span id="cb1-4">lambda  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span> </span>
+<span id="cb1-5">mu      <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span></span>
+<span id="cb1-6">Xzero   <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span></span>
+<span id="cb1-7">T       <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span></span>
+<span id="cb1-8">N       <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">^</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">9</span></span>
+<span id="cb1-9">dt      <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span>N</span>
+<span id="cb1-10">M       <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span></span>
+<span id="cb1-11">Xerr_EM <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow =</span> M, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ncol =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span>
+<span id="cb1-12">Xerr_M  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">matrix</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nrow =</span> M, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ncol =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span>
+<span id="cb1-13"></span>
+<span id="cb1-14"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">for</span> (i <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">in</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, M, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">by =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)) {</span>
+<span id="cb1-15">  dW    <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rnorm</span>(N, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mean =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sd =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sqrt</span>(dt))</span>
+<span id="cb1-16">  W     <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cumsum</span>(dW)</span>
+<span id="cb1-17">  Xtrue <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> Xzero<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">exp</span>((lambda <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>mu<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">^</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>T <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> mu<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>W[N])</span>
+<span id="cb1-18">  <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">for</span> (j <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">in</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>) {</span>
+<span id="cb1-19">    R  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">^</span>(j<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">-1</span>)    </span>
+<span id="cb1-20">    Dt <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> R<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>dt </span>
+<span id="cb1-21">    L  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> N<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span>R</span>
+<span id="cb1-22">    Xtemp_EM <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> Xzero</span>
+<span id="cb1-23">    Xtemp_M  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> Xzero</span>
+<span id="cb1-24">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">for</span> (k <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">in</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, L, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">by =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)) {</span>
+<span id="cb1-25">      Winc     <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(dW[(R<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>(k<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">-1</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span>(R<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>k)])</span>
+<span id="cb1-26">      Xtemp_EM <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> Xtemp_EM<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> Dt<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>lambda <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> mu<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>Winc)</span>
+<span id="cb1-27">      Xtemp_M  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> Xtemp_M<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> Dt<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>lambda <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>mu<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">^</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>(Winc<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">^</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> Dt) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> mu<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>Winc)</span>
+<span id="cb1-28">    }</span>
+<span id="cb1-29">    Xerr_EM[i, j] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">abs</span>(Xtemp_EM <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> Xtrue)</span>
+<span id="cb1-30">    Xerr_M[i, j]  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">abs</span>(Xtemp_M <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> Xtrue)</span>
+<span id="cb1-31">  }</span>
+<span id="cb1-32">}</span>
+<span id="cb1-33">Dtvals <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">8</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>dt</span>
+<span id="cb1-34">Xm_EM  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">array</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dim =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>)</span>
+<span id="cb1-35">Xm_M   <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">array</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dim =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>)</span>
+<span id="cb1-36"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">for</span> (i <span class="cf" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">in</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>) {</span>
+<span id="cb1-37">  Xm_EM[i] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(Xerr_EM[, i])</span>
+<span id="cb1-38">  Xm_M[i]  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(Xerr_M[, i])</span>
+<span id="cb1-39">}</span>
+<span id="cb1-40">t   <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rep</span>(Dtvals, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">by =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)</span>
+<span id="cb1-41">g   <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rep</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Euler-Maruyama"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Milstein"</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">each =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>)</span>
+<span id="cb1-42">e   <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(Xm_EM, Xm_M)</span>
+<span id="cb1-43">e_t <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sqrt</span>(t), t)</span>
+<span id="cb1-44">df <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">t =</span> t, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">method =</span> g, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">error =</span> e, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">error_true =</span> e_t)</span></code></pre></div>
+</details>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-fig1" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/numerical_simulation/index_files/figure-html/fig-fig1-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Strong error plot for the Euler-Maruyama and Milstein’s methods; dashed lines give the appropriate reference slope for each method, <img src="https://latex.codecogs.com/png.latex?%5Cgamma=0.5"> (Euler-Maruyama) and <img src="https://latex.codecogs.com/png.latex?%5Cgamma=1"> (Milstein).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="lamperti-transform" class="level2">
+<h2 class="anchored" data-anchor-id="lamperti-transform">Lamperti transform</h2>
+<p>An interesting application of the Itô formula Equation&nbsp;7 is now discussed in connection with a formulation of Equation&nbsp;4 where the diffusion coefficient is not an explicit function of time, but only depends on the state variable <img src="https://latex.codecogs.com/png.latex?X">:</p>
+<p><span id="eq-eq19"><img src="https://latex.codecogs.com/png.latex?%0AdX_t=b(t,X_t)%5C,dt+%5Csigma(X_t)%5C,dW_t%0A%5Ctag%7B19%7D"></span></p>
+<p>The Lamperti transform is defined as follows:</p>
+<p><span id="eq-eq20"><img src="https://latex.codecogs.com/png.latex?%0AY_t=F(X_t)=%5Cint_z%5E%7BX_t%7D%5Cfrac%7B1%7D%7B%5Csigma(s)%7D%5C,ds%0A%5Ctag%7B20%7D"></span></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?z"> is any arbitrary value in the state space of <img src="https://latex.codecogs.com/png.latex?X">. We assume that the function <img src="https://latex.codecogs.com/png.latex?F(%5Ccdot)"> defines a one-to-one mapping from the state space of <img src="https://latex.codecogs.com/png.latex?X"> to <img src="https://latex.codecogs.com/png.latex?%5Cmathbb%7BR%7D">. We have:</p>
+<p><span id="eq-eq21"><img src="https://latex.codecogs.com/png.latex?%0AF_t(X_t)=0%5Cquad%5Cquad%20F_x(X_t)=%5Cdfrac%7B1%7D%7B%5Csigma(X_t)%7D%5Cquad%5Cquad%20F_%7Bxx%7D(X_t)=-%5Cdfrac%7B%5Csigma_x(X_t)%7D%7B%5Csigma%5E2(X_t)%7D%0A%5Ctag%7B21%7D"></span></p>
+<p>Applying the Itô formula Equation&nbsp;5, we obtain:</p>
+<p><span id="eq-eq22"><img src="https://latex.codecogs.com/png.latex?%0A%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7D%0AdY_t&amp;=%5Cleft%5B%5Cdfrac%7Bb(t,X_t))%7D%7B%5Csigma(X_t)%7D-%5Cdfrac%7B1%7D%7B2%7D%5Csigma_x(X_t)%5Cright%5Ddt+dW_t%5C%5C%0AX_t&amp;=F%5E%7B-1%7D(Y_t)%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A%5Ctag%7B22%7D"></span></p>
+<p>The Lamperti transform changes the generic SDE Equation&nbsp;4 into another SDE with unitary diffusion coefficient. As an example of application of the Lamperti transform, we consider here a result on transformations of SDEs that is relevant for the topic of interest in this post.</p>
+<p>First, we discretize the Lamperti transform of Equation&nbsp;22 using the Euler-Maruyama method (see Equation&nbsp;8):</p>
+<p><span id="eq-eq23"><img src="https://latex.codecogs.com/png.latex?%0AY_n=Y_%7Bn-1%7D+%5Cleft%5B%5Cdfrac%7Bb(t_%7Bn-1%7D,X_%7Bn-1%7D)%7D%7B%5Csigma(X_%7Bn-1%7D)%7D-%5Cdfrac%7B1%7D%7B2%7D%5Csigma_x(X_%7Bn-1%7D)%5Cright%5D%5CDelta%20t+%5Csqrt%7B%5CDelta%20t%7D%5C,Z%0A%5Ctag%7B23%7D"></span></p>
+<p>Second, we apply the Taylor expansion to the inverse transform <img src="https://latex.codecogs.com/png.latex?X_t=G(Y_t)">, noting that:</p>
+<p><span id="eq-eq24"><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0AG_y(Y_t)&amp;=%5Csigma(G(Y_t))%5C%5C%0AG_%7Byy%7D(Y_t)&amp;=%5Csigma(G(Y_t))%5Csigma_x(G(Y_t))%0A%5Cend%7Bsplit%7D%0A%5Ctag%7B24%7D"></span></p>
+<p>We obtain:</p>
+<p><span id="eq-eq25"><img src="https://latex.codecogs.com/png.latex?%0AG(Y_%7Bn%7D)=G(Y_%7Bn-1%7D)+G_y(Y_%7Bn-1%7D)(Y_n-Y_%7Bn-1%7D)+%5Cfrac%7B1%7D%7B2%7DG_%7Byy%7D(Y_%7Bn-1%7D)(Y_n-Y_%7Bn-1%7D)%5E2%0A%5Ctag%7B25%7D"></span></p>
+<p>and hence:</p>
+<p><span id="eq-eq26"><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0AX_n&amp;=X_%7Bn-1%7D+%5Cleft%5Bb(t_%7Bn-1%7D,X_%7Bn-1%7D)-%5Cdfrac%7B1%7D%7B2%7D%5Csigma(X_%7Bn-1%7D)%5Csigma_x(X_%7Bn-1%7D)%5Cright%5D%5CDelta%20t%5C%5C%0A&amp;+%5Csigma(X_%7Bn-1%7D)%5Csqrt%7B%5CDelta%20t%7D%5C,Z+%5Cfrac%7B1%7D%7B2%7D%5Csigma(X_%7Bn-1%7D)%5Csigma_x(X_%7Bn-1%7D)%5CDelta%20t%5C,Z%5E2%0A%5Cend%7Bsplit%7D%0A%5Ctag%7B26%7D"></span></p>
+<p>In conclusion, the Milstein method on the original process and the Euler-Maruyama method on the transformed process are equal up to and including the order <img src="https://latex.codecogs.com/png.latex?%5Ctext%7BO%7D(%5CDelta%20t)">.</p>
+<p>In general if a transformation such as the Lamperti transform eliminates the interactions between the state of the process and the increments of the Wiener process, the performance of the Euler-Maruyama method on the transformed SDE are expected to improve.</p>
+<p>The logarithmic transformation <img src="https://latex.codecogs.com/png.latex?F(X_t)=%5Clog%20X_t"> is an example of nonlinear transformation that is capable of eliminating the interaction between the state <img src="https://latex.codecogs.com/png.latex?X_t"> of the GBM process and the increments of the Wiener process <img src="https://latex.codecogs.com/png.latex?dW_t">, as shown in Equation&nbsp;13. Therefore the Euler-Maruyama method can be confidently applied to the transformed process; the Milstein method is then obtained by simply taking the Taylor expansion of the inverse transform.</p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0">
+<div id="ref-higham.2001" class="csl-entry">
+Higham, Desmond J. 2001. <span>“An Algorithmic Introduction to Numerical Simulation of Stochastic Differential Equations.”</span> <em>SIAM Review</em> 43 (3): 525–46. <a href="https://doi.org/10.1137/s0036144500378302">https://doi.org/10.1137/s0036144500378302</a>.
+</div>
+<div id="ref-iacus2008" class="csl-entry">
+Iacus, Stefano M. 2008. <em>Simulation and Inference for Stochastic Differential Equations</em>. Springer New York. <a href="https://doi.org/10.1007/978-0-387-75839-8">https://doi.org/10.1007/978-0-387-75839-8</a>.
+</div>
+</div></section></div> ]]></description>
+  <category>stochastic calculus</category>
+  <guid>https://amsabatini.netlify.app/posts/numerical_simulation/</guid>
+  <pubDate>Wed, 05 Jun 2024 22:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Significant figures</title>
   <dc:creator>Angelo Maria Sabatini</dc:creator>
