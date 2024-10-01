@@ -9,7 +9,7 @@
 <link>https://amsabatini.netlify.app/blog.html</link>
 <atom:link href="https://amsabatini.netlify.app/blog.xml" rel="self" type="application/rss+xml"/>
 <description>This the personal blog of Angelo Maria Sabatini</description>
-<generator>quarto-1.4.550</generator>
+<generator>quarto-1.5.52</generator>
 <lastBuildDate>Wed, 05 Jun 2024 22:00:00 GMT</lastBuildDate>
 <item>
   <title>Numerical simulation for stochastic differential equations</title>
@@ -200,8 +200,10 @@ font-style: inherit;">5</span>)</span>
 <span id="cb1-13"></span>
 <span id="cb1-14"><span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">for</span> (i <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">in</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">seq</span>(<span class="dv" style="color: #AD0000;
@@ -254,8 +256,10 @@ background-color: null;
 font-style: inherit;">*</span>W[N])</span>
 <span id="cb1-18">  <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">for</span> (j <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">in</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
@@ -290,8 +294,10 @@ background-color: null;
 font-style: inherit;">&lt;-</span> Xzero</span>
 <span id="cb1-24">    <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">for</span> (k <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">in</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">seq</span>(<span class="dv" style="color: #AD0000;
@@ -422,8 +428,10 @@ background-color: null;
 font-style: inherit;">4</span>)</span>
 <span id="cb1-36"><span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">for</span> (i <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">in</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
@@ -882,8 +890,10 @@ background-color: null;
 font-style: inherit;">length</span>(a)</span>
 <span id="cb1-12"><span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">for</span> (i <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">in</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
@@ -1318,7 +1328,7 @@ Johansen, Søren, and Katarina Juselius. 1990. <span>“Maximum Likelihood Estim
 <p>Since <img src="https://latex.codecogs.com/png.latex?w_%7Bk+1%7D=w_k+r%5Ek(w_1-w_0)=w_k+r%5Ekw_1=w_1%5Csum_%7Bi=0%7D%5Ekr%5Ei">, we can calculate <img src="https://latex.codecogs.com/png.latex?w_k"> as follows:</p>
 <p><span id="eq-eq3"><img src="https://latex.codecogs.com/png.latex?%0Aw_k=%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7D%0A&amp;%5Cfrac%7B1-r%5Ek%7D%7B1-r%7Dw_1&amp;%5Cquad%5Ctext%7Bif%7D%5C;r%5Cneq1%5C%5C%0A&amp;kw_1&amp;%5Cquad%5Ctext%7Bif%7D%5C;r=1%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A%5Ctag%7B4%7D"></span></p>
 <p>We also know that <img src="https://latex.codecogs.com/png.latex?w_n=1">. Therefore, we can solve Equation&nbsp;4 for <img src="https://latex.codecogs.com/png.latex?w_1">:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0Aw_1=%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7D%0A&amp;%5Cfrac%7B1-r%7D%7B1-r%5En%7Dw_1&amp;%5Cquad%5Ctext%7Bif%7D%5C;r%5Cneq1%5C%5C%0A&amp;%5Cfrac%7B1%7D%7Bn%7D&amp;%5Cquad%5Ctext%7Bif%7D%5C;r=1%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Aw_1=%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7D%0A&amp;%5Cfrac%7B1-r%7D%7B1-r%5En%7D&amp;%5Cquad%5Ctext%7Bif%7D%5C;r%5Cneq1%5C%5C%0A&amp;%5Cfrac%7B1%7D%7Bn%7D&amp;%5Cquad%5Ctext%7Bif%7D%5C;r=1%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A"></p>
 <p>Plugging this expression of <img src="https://latex.codecogs.com/png.latex?w_1"> into Equation&nbsp;4, we obtain:</p>
 <p><span id="eq-eq4"><img src="https://latex.codecogs.com/png.latex?%0A%5Cboxed%7Bw_k=%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7D%0A&amp;%5Cfrac%7B1-r%5Ek%7D%7B1-r%5En%7D&amp;%5Cquad%5Ctext%7Bif%7D%5C;r%5Cneq1%5C%5C%0A&amp;%5Cfrac%7Bk%7D%7Bn%7D&amp;%5Cquad%5Ctext%7Bif%7D%5C;r=1%0A%5Cend%7Bsplit%7D%0A%5Cright.%7D%0A%5Ctag%7B5%7D"></span></p>
 <p>The probability that the gambler becomes infinitely rich (event <img src="https://latex.codecogs.com/png.latex?R">) is written:</p>
@@ -1328,7 +1338,7 @@ Johansen, Søren, and Katarina Juselius. 1990. <span>“Maximum Likelihood Estim
 <section id="markov-chain-model" class="level2">
 <h2 class="anchored" data-anchor-id="markov-chain-model">Markov chain model</h2>
 <p>The discrete-state discrete-time Markov chain show in Figure&nbsp;1 can be proposed to model the gambler process <span class="citation" data-cites="noauthororeditor">(Bertsekas and Tsitsiklis 2008)</span>. The <img src="https://latex.codecogs.com/png.latex?n+1"> states, numbered from 0 to <img src="https://latex.codecogs.com/png.latex?n">, represent the gambler’s wealth at the start of each bet. The first state 0 corresponds to ruin (getting out of money), the last state <img src="https://latex.codecogs.com/png.latex?n"> corresponds to win. Given the rules of the game, the states 0 and <img src="https://latex.codecogs.com/png.latex?n"> are absorbing, in the sense that it is not possible to escape from each of them anymore, once they are entered. All the other states are transient.</p>
-<div id="fig-fig1" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-align="center">
+<div id="fig-fig1" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://amsabatini.netlify.app/posts/gambler/markov_chain.png" class="img-fluid quarto-figure quarto-figure-center figure-img">
@@ -1383,12 +1393,14 @@ font-style: inherit;">2001</span>)</span>
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">function</span>(k, n, p) {</span>
 <span id="cb1-3">  stake <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> k</span>
 <span id="cb1-4">    <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">while</span> (stake <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
@@ -1429,6 +1441,7 @@ font-style: inherit;">+</span> bet</span>
 <span id="cb1-7">    }</span>
 <span id="cb1-8">    <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">if</span> (stake <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">==</span> n) <span class="fu" style="color: #4758AB;
@@ -1437,6 +1450,7 @@ font-style: inherit;">return</span>(<span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span>) <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">else</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">return</span>(<span class="dv" style="color: #AD0000;
@@ -1557,8 +1571,10 @@ background-color: null;
 font-style: inherit;">ncol =</span> ntrials)</span>
 <span id="cb2-11"><span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">for</span> (i <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">in</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
@@ -1574,8 +1590,10 @@ background-color: null;
 font-style: inherit;">&lt;-</span> nstep</span>
 <span id="cb2-14">  <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">for</span> (j <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">in</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">2</span><span class="sc" style="color: #5E5E5E;
@@ -1613,6 +1631,7 @@ background-color: null;
 font-style: inherit;">+</span> bet</span>
 <span id="cb2-17">          <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">if</span> (traj[j, i] <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
@@ -1624,6 +1643,7 @@ background-color: null;
 font-style: inherit;">==</span> n) {</span>
 <span id="cb2-18">            <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">break</span></span>
 <span id="cb2-19">          }</span>
 <span id="cb2-20">  }</span>
@@ -1876,7 +1896,7 @@ font-style: inherit;">+</span> </span>
 <span id="cb2-49">  my_theme</span></code></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-fig2" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-fig2" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://amsabatini.netlify.app/posts/gambler/index_files/figure-html/fig-fig2-1.png" class="img-fluid figure-img" width="672">
@@ -2060,8 +2080,10 @@ background-color: null;
 font-style: inherit;">1</span>) </span>
 <span id="cb1-11"><span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">for</span> (i <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">in</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
@@ -2096,8 +2118,10 @@ background-color: null;
 font-style: inherit;">numeric</span>(n)                        </span>
 <span id="cb1-15"><span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">for</span> (i <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">in</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
@@ -2653,8 +2677,10 @@ background-color: null;
 font-style: inherit;">numeric</span>(n)                        </span>
 <span id="cb3-7"><span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">for</span> (i <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">in</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
@@ -3010,8 +3036,10 @@ font-style: inherit;"># Wilson approach</span></span>
 <span id="cb1-10"></span>
 <span id="cb1-11"><span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">for</span>(i <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">in</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
@@ -3019,8 +3047,10 @@ background-color: null;
 font-style: inherit;">:</span>np) {</span>
 <span id="cb1-12">  <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">for</span>(j <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">in</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
@@ -3262,6 +3292,7 @@ background-color: null;
 font-style: inherit;">/</span>n)</span>
 <span id="cb1-23">    <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">if</span>(CI_lower_wilson <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">&lt;=</span> p[i] <span class="sc" style="color: #5E5E5E;
@@ -3277,6 +3308,7 @@ background-color: null;
 font-style: inherit;">1</span></span>
 <span id="cb1-24">    <span class="cf" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">if</span>(CI_lower_wald <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">&lt;=</span> p[i] <span class="sc" style="color: #5E5E5E;
@@ -3908,6 +3940,7 @@ font-style: inherit;">2</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">:</span><span class="kw" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">end</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
@@ -3926,6 +3959,7 @@ font-style: inherit;">2</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">:</span><span class="kw" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">end</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
@@ -3945,6 +3979,7 @@ font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">:</span><span class="kw" style="color: #003B4F;
 background-color: null;
+font-weight: bold;
 font-style: inherit;">end</span><span class="op" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
