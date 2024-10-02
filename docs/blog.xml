@@ -503,7 +503,7 @@ font-style: inherit;">error_true =</span> e_t)</span></code></pre></div>
 </div>
 <div class="cell">
 <div class="cell-output-display">
-<div id="fig-fig1" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-fig1" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://amsabatini.netlify.app/posts/numerical_simulation/index_files/figure-html/fig-fig1-1.png" class="img-fluid figure-img" width="672">
@@ -1123,7 +1123,7 @@ background-color: null;
 font-style: inherit;">"last"</span>))</span></code></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-fig1" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-fig1" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://amsabatini.netlify.app/posts/dickey_fuller/index_files/figure-html/fig-fig1-1.png" class="img-fluid figure-img" width="672">
@@ -1259,7 +1259,7 @@ font-style: inherit;">summary</span>(mdl_trend_ts)</span></code></pre></div>
 </details>
 </div>
 <p>The summary produced when the ADF test is applied to the original time series with the type “trend” is shown in Figure&nbsp;2.</p>
-<div id="fig-fig2" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-align="center">
+<div id="fig-fig2" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://amsabatini.netlify.app/posts/dickey_fuller/summary.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="500">
@@ -1270,7 +1270,7 @@ Figure&nbsp;2: Results of fitting the “trend” regression model in the ADF te
 </figure>
 </div>
 <p>The part of interest for the analysis is within the rectangle highlighted in orange. The “Value of test-statistic is -2.4216 2.1927 2.9343” for tests <img src="https://latex.codecogs.com/png.latex?(%5Ctau_3),%20(%5Cphi_2)"> and <img src="https://latex.codecogs.com/png.latex?(%5Cphi_3)"> are given and the corresponding “Critical values for test statistics” at significance levels 1%, 5% and 10% are reported below, denoted by <code>tau3</code>, <code>phi2</code> and <code>phi3</code>, respectively. For instance, for the test <img src="https://latex.codecogs.com/png.latex?(%5Ctau_3)">, given that the test statistic -2.4216 is within the three regions -4.04, -3.45, -3.15 (1%, 5%, 10%) where we fail to reject the null, we do not have evidence to reject the presence of a unit root in the regression model: we can say that there is a unit root. From the <img src="https://latex.codecogs.com/png.latex?(%5Cphi_2)">-statistic, the joint null hypothesis is not rejected, therefore there is a unit root AND drift and trend terms are not needed. Similarly, the <img src="https://latex.codecogs.com/png.latex?(%5Cphi_3)">-statistic shows that there is a unit root AND a trend term is not needed and the <img src="https://latex.codecogs.com/png.latex?(%5Ctau_3)">-statistic shows that there is a unit root. A summary of test results for the variable <code>LRY</code> is reported within the rectangle highlighted in blue in Figure&nbsp;3.</p>
-<div id="fig-fig3" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-align="center">
+<div id="fig-fig3" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-fig3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://amsabatini.netlify.app/posts/dickey_fuller/summary_1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="400">
@@ -2395,7 +2395,7 @@ font-style: inherit;">+</span> </span>
 <span id="cb1-45">  my_theme</span></code></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-fig1" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-fig1" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://amsabatini.netlify.app/posts/multivariate_probability_regions/index_files/figure-html/fig-fig1-1.png" class="img-fluid figure-img" width="672">
@@ -2613,7 +2613,7 @@ background-color: null;
 font-style: inherit;">ggarrange</span>(p_ap, p_ml)</span></code></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-fig2" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-fig2" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://amsabatini.netlify.app/posts/multivariate_probability_regions/index_files/figure-html/fig-fig2-1.png" class="img-fluid figure-img" width="672">
@@ -2865,7 +2865,7 @@ font-style: inherit;">+</span> </span>
 <span id="cb3-24">  my_theme</span></code></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-fig3" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-fig3" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-fig3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://amsabatini.netlify.app/posts/multivariate_probability_regions/index_files/figure-html/fig-fig3-1.png" class="img-fluid figure-img" width="672">
@@ -3348,7 +3348,7 @@ font-style: inherit;">/</span>L   </span></code></pre></div>
 </div>
 <div class="cell">
 <div class="cell-output-display">
-<div id="fig-fig1" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-fig1" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://amsabatini.netlify.app/posts/probability_estimation/index_files/figure-html/fig-fig1-1.png" class="img-fluid figure-img" width="672">
@@ -3363,7 +3363,7 @@ Figure&nbsp;1: Coverage curves for the binomial distribution with <img src="http
 <p>The simulation results of Figure&nbsp;1 (<img src="https://latex.codecogs.com/png.latex?n=30">) show that, whereas the Wilson method tends just to provide some limited over-coverage for all values of <img src="https://latex.codecogs.com/png.latex?p"> (this is simply due to <img src="https://latex.codecogs.com/png.latex?x"> being present in both the sums of Equation&nbsp;1), the Wald interval performs poorly, with severe under-coverage, especially for low and high values of <img src="https://latex.codecogs.com/png.latex?p">. These results seem to raise objections against the use of the Wald interval, even in situations when <img src="https://latex.codecogs.com/png.latex?n%5Cgg1">: Figure&nbsp;2 shows the coverage plots in the case of <img src="https://latex.codecogs.com/png.latex?n=100">.</p>
 <div class="cell">
 <div class="cell-output-display">
-<div id="fig-fig2" class="quarto-figure quarto-figure-center quarto-float anchored">
+<div id="fig-fig2" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://amsabatini.netlify.app/posts/probability_estimation/index_files/figure-html/fig-fig2-1.png" class="img-fluid figure-img" width="672">
@@ -3539,7 +3539,7 @@ Poisson process
 </div>
 </div>
 <p>The term <strong>random incidence</strong> denotes the arrival of an observer at an arbitrary time <img src="https://latex.codecogs.com/png.latex?t%5E*"> into a <em>gap</em> between two consecutive arrivals in an arrival-type process that is not necessarily described by a Poisson model, Figure&nbsp;1.</p>
-<div id="fig-fig1" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-align="center">
+<div id="fig-fig1" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://amsabatini.netlify.app/posts/random_incidence/random_incidence.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="450">
@@ -4040,7 +4040,7 @@ Comments
 </div>
 </div>
 <p>The single-side spectrum of the sinusoidal mixture is shown in Figure&nbsp;1.</p>
-<div id="fig-fig1" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-align="center">
+<div id="fig-fig1" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://amsabatini.netlify.app/posts/resolution/spectrum.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="600">
@@ -4051,7 +4051,7 @@ Figure&nbsp;1: Single-side spectrum of the sinusoidal mixture composed of three 
 </figure>
 </div>
 <p>Consider now the case that the three components of the sinusoidal mixture have frequencies 2.9375 Hz, 3 Hz, 3.0625 Hz. To resolve them, I would need to double the frequency resolution of the FFT, up to 0.0625 Hz, with respect to the scenario of Figure&nbsp;1. Erroneously, I double the sampling frequency. However, this expedient leaves the frequency resolution unaltered, since doubling the sample period without touching the sample period also doubles the number of samples. Moreover, the sample period is not properly chosen to avoid spectral leakage, as clearly seen in Figure&nbsp;2.</p>
-<div id="fig-fig2" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-align="center">
+<div id="fig-fig2" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://amsabatini.netlify.app/posts/resolution/spectrum1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="600">
@@ -4062,7 +4062,7 @@ Figure&nbsp;2: Single-side spectrum of the sinusoidal mixture composed of three 
 </figure>
 </div>
 <p>To resolve the components of the sinusoidal mixture and avoid spectral leakage, the frequency resolution of 0.0625 Hz can be achieved by extending the time period to <img src="https://latex.codecogs.com/png.latex?T_r=16"> s, which corresponds to <img src="https://latex.codecogs.com/png.latex?N=256"> samples at the original sampling frequency <img src="https://latex.codecogs.com/png.latex?f_s=16"> Hz, see Figure&nbsp;3.</p>
-<div id="fig-fig3" class="quarto-figure quarto-figure-center quarto-float anchored" data-fig-align="center">
+<div id="fig-fig3" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-fig3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://amsabatini.netlify.app/posts/resolution/spectrum2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="600">
