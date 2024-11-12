@@ -2,6 +2,7 @@
   {
     "listing": "/blog.html",
     "items": [
+      "/posts/audio_features/index.html",
       "/posts/numerical_simulation/index.html",
       "/posts/significant_figures/index.html",
       "/posts/dickey_fuller/index.html",
@@ -16,6 +17,7 @@
   {
     "listing": "/archive.html",
     "items": [
+      "/posts/audio_features/index.html",
       "/posts/numerical_simulation/index.html",
       "/posts/significant_figures/index.html",
       "/posts/dickey_fuller/index.html",
