@@ -1,0 +1,2490 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.52">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Angelo Maria Sabatini">
+<meta name="dcterms.date" content="2024-12-09">
+<meta name="description" content="Correspondence Analysis (CA) is a type of multidimensional scaling, one of several methods that are available for developing spatial models that reveal associations between two or more categorical variables. Conceptually, CA is similar to principal component analysis, but applies to categorical rather than continuous data. In this post, I will briefly present the theory behind simple CA (the method used when data of only two categorical variables are analyzed), leaving details of how to carry the analysis using the R programming software to a future post.">
+
+<title>Correspondence analysis: Part I – Angelo Maria Sabatini</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-G7T7XXSXKG"></script>
+
+<script type="text/plain" cookie-consent="tracking">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-G7T7XXSXKG', { 'anonymize_ip': true});
+</script>
+
+<script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"implied",
+  "palette":"light",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":""
+  ,
+"language":"en"
+  });
+});
+</script> 
+  
+<script src="../../site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="../../site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Angelo Maria Sabatini</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../blog.html"> 
+<span class="menu-text">Blog</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../archive.html"> 
+<span class="menu-text">Archive</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/angelosabatini"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../blog.xml"> <i class="bi bi-rss" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#exemplary-dataset" id="toc-exemplary-dataset" class="nav-link" data-scroll-target="#exemplary-dataset">Exemplary dataset</a></li>
+  <li><a href="#theory-an-overview" id="toc-theory-an-overview" class="nav-link" data-scroll-target="#theory-an-overview">Theory: An overview</a>
+  <ul class="collapse">
+  <li><a href="#key-terms" id="toc-key-terms" class="nav-link" data-scroll-target="#key-terms">Key terms</a></li>
+  </ul></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a>
+  <ul class="collapse">
+  <li><a href="#chi-square-test" id="toc-chi-square-test" class="nav-link" data-scroll-target="#chi-square-test">Chi-square test</a></li>
+  <li><a href="#pearson-residuals" id="toc-pearson-residuals" class="nav-link" data-scroll-target="#pearson-residuals">Pearson residuals</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Correspondence analysis: Part I</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">multivariate statistics</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Correspondence Analysis (CA) is a type of multidimensional scaling, one of several methods that are available for developing spatial models that reveal associations between two or more categorical variables. Conceptually, CA is similar to principal component analysis, but applies to categorical rather than continuous data. In this post, I will briefly present the theory behind simple CA (the method used when data of only two categorical variables are analyzed), leaving details of how to carry the analysis using the R programming software to a future post.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Angelo Maria Sabatini </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">December 9, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>Correspondence Analysis (CA) is a type of multidimensional scaling, one of several methods that are available for developing spatial models that reveal associations between two or more categorical variables. If data of only two variables are involved, the method is usually called <strong>Simple Correspondence Analysis</strong> (SCA); if data of more than two variables are considered in the dataset, then the method is usually called Multiple Correspondence Analysis (MCA).</p>
+<p>SCA is often used in combination with a standard chi-squared test of independence for two categorical variables that form a contingency table. We recall that a contingency table displays frequencies for combinations of two categorical variables; analysts also refer to contingency tables as crosstabulation and two-way tables. Contingency tables classify outcomes for one variable in rows and the other in columns. The values at the row and column intersections are frequencies for each unique combination of the two variables. These values can suggest whether or not the two variables are correlated.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Libraries </span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gplots)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(corrplot)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(factoextra)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="exemplary-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="exemplary-dataset">Exemplary dataset</h2>
+<p><code>housetasks</code>, available in the package factoextra, is a data frame that contains the frequency of execution of 13 house tasks performed by the couple in four different ways: a) the wife only; b) alternatively; c) the husband only; d) jointly.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(housetasks)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>housetasks <span class="sc">%&gt;%</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="st">"rrrr"</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Wife"</span>, <span class="st">"Alternating"</span>, <span class="st">"Husband"</span>, <span class="st">"Jointly"</span>),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"House tasks contingency table"</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_classic</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="lightable-classic caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>House tasks contingency table</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th"></th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Wife</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Alternating</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Husband</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Jointly</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Laundry</td>
+<td style="text-align: right;">156</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Main_meal</td>
+<td style="text-align: right;">124</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Dinner</td>
+<td style="text-align: right;">77</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">13</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Breakfeast</td>
+<td style="text-align: right;">82</td>
+<td style="text-align: right;">36</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Tidying</td>
+<td style="text-align: right;">53</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">57</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Dishes</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">53</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Shopping</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Official</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">46</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">15</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Driving</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">51</td>
+<td style="text-align: right;">75</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Finances</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">66</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Insurance</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">53</td>
+<td style="text-align: right;">77</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Repairs</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">160</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Holidays</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">153</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<p>To easily interpret the contingency table, a graphical matrix can be drawn using the function <code>balloonplot()</code> from the gplots package. In this graph, each cell contains a dot whose size reflects the relative magnitude of the value it contains.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert the data frame to a table</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>dt <span class="ot">&lt;-</span> <span class="fu">as.table</span>(<span class="fu">as.matrix</span>(housetasks))</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Graph</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">balloonplot</span>(<span class="fu">t</span>(dt), <span class="at">main =</span> <span class="st">"House tasks contingency table"</span>, <span class="at">xlab =</span> <span class="st">""</span>, <span class="at">ylab =</span> <span class="st">""</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">label =</span> <span class="cn">FALSE</span>, <span class="at">show.margins =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="theory-an-overview" class="level2">
+<h2 class="anchored" data-anchor-id="theory-an-overview">Theory: An overview</h2>
+<p>Let us consider a generic two-dimensional contingency table <span class="math inline">\(\bf{T}\)</span>, having <span class="math inline">\(R\)</span> rows (corresponding to the levels of the categorical variable <span class="math inline">\(X\)</span>) and <span class="math inline">\(C\)</span> columns (corresponding to the levels of the categorical variable <span class="math inline">\(Y\)</span>). The table is built based on a dataset of <span class="math inline">\(n\)</span> observations, which are distributed across the <span class="math inline">\(R\cdot C\)</span> cells of <span class="math inline">\(\bf{T}\)</span>. Each cell shows the count <span class="math inline">\(n_{ij},\,i=1,\cdots,R;\,j=1,\cdots,C\)</span>.</p>
+<section id="key-terms" class="level3">
+<h3 class="anchored" data-anchor-id="key-terms">Key terms</h3>
+<p><strong>Row marginals</strong></p>
+<p>The row marginals (or row margins) can be computed by taking the row sums of the counts <span class="math inline">\(n_{ij}\)</span>:</p>
+<p><span class="math display">\[
+n_{i+}=\sum_{j=1}^C n_{ij},\;i=1,\dots,R
+\]</span></p>
+<p><strong>Column marginals</strong></p>
+<p>The column marginals (or col margins) can be computed by taking the column sums of the counts <span class="math inline">\(n_{ij}\)</span>:</p>
+<p><span class="math display">\[
+n_{+j}=\sum_{i=1}^R n_{ij}\;j=1,\dots,C
+\]</span></p>
+<p><strong>Grand total</strong></p>
+<p>The gran total is the complete number after everything has been added up:</p>
+<p><span class="math display">\[
+n_{++}=\sum_{i=1}^R n_{i+}=\sum_{j=1}^Cn_{+j}=\sum_{i=1}^R\sum_{j=1}^Cn_{ij}=n
+\]</span></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Row marginals</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>row.sum <span class="ot">&lt;-</span> <span class="fu">apply</span>(housetasks, <span class="dv">1</span>, sum)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Column marginals</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>col.sum <span class="ot">&lt;-</span> <span class="fu">apply</span>(housetasks, <span class="dv">2</span>, sum)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Gran total</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">sum</span>(housetasks)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>housetasks <span class="sc">%&gt;%</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">total =</span> row.sum) <span class="sc">%&gt;%</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rbind</span>(<span class="st">"Total"</span> <span class="ot">=</span> <span class="fu">c</span>(col.sum, n)) <span class="sc">%&gt;%</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="st">"rrrrr"</span>,</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Wife"</span>, <span class="st">"Alternating"</span>, <span class="st">"Husband"</span>, <span class="st">"Jointly"</span>, <span class="st">"Total"</span>),</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"House task contingency table with row, column margins and gran total"</span>,</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_classic</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="lightable-classic caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>House task contingency table with row, column margins and gran total</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th"></th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Wife</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Alternating</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Husband</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Jointly</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Laundry</td>
+<td style="text-align: right;">156</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">176</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Main_meal</td>
+<td style="text-align: right;">124</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">153</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Dinner</td>
+<td style="text-align: right;">77</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">108</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Breakfeast</td>
+<td style="text-align: right;">82</td>
+<td style="text-align: right;">36</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">140</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Tidying</td>
+<td style="text-align: right;">53</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">57</td>
+<td style="text-align: right;">122</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Dishes</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">53</td>
+<td style="text-align: right;">113</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Shopping</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">55</td>
+<td style="text-align: right;">120</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Official</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">46</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">96</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Driving</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">51</td>
+<td style="text-align: right;">75</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">139</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Finances</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">66</td>
+<td style="text-align: right;">113</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Insurance</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">53</td>
+<td style="text-align: right;">77</td>
+<td style="text-align: right;">139</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Repairs</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">160</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">165</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Holidays</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">153</td>
+<td style="text-align: right;">160</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Total</td>
+<td style="text-align: right;">600</td>
+<td style="text-align: right;">254</td>
+<td style="text-align: right;">381</td>
+<td style="text-align: right;">509</td>
+<td style="text-align: right;">1744</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<p>The gran total is obtained by summing the values of the row margin or the values of the col margin (<span class="math inline">\(n=\)</span> 1744).</p>
+<p>To compare rows (or columns), their profiles can be analyzed, in the search for similar rows (or columns).</p>
+<p><strong>Row profile</strong></p>
+<p>The profile of a row (or row profile) is calculated by taking each row point and dividing by the corresponding value of the row margin:</p>
+<p><span class="math display">\[
+\underline{a}_i,\;i=1,\dots,R=\{\underline{a}_{i_j},\;j=1,\dots,C\}=\{n_{ij}/n_{i+},\;j=1,\dots,C\}
+\]</span></p>
+<p><strong>Average row profile</strong></p>
+<p>The average row profile can be computed from the col margin after dividing it by the grand total:</p>
+<p><span class="math display">\[
+\underline{r}=\{r_j=n_{+j}/n,\;j=1,\dots,C\}
+\]</span></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Row profile</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>row.profile <span class="ot">&lt;-</span> housetasks<span class="sc">/</span>row.sum</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Average row profile</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>average.row.profile <span class="ot">&lt;-</span> col.sum<span class="sc">/</span>n</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Row margins</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>row.profile.sum <span class="ot">&lt;-</span> <span class="fu">apply</span>(row.profile, <span class="dv">1</span>, sum)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>row.profile <span class="sc">%&gt;%</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">TOTAL =</span> row.profile.sum) <span class="sc">%&gt;%</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rbind</span>(<span class="st">`</span><span class="at">Average row profile</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(average.row.profile, <span class="fu">sum</span>(average.row.profile))) <span class="sc">%&gt;%</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="st">"rrrrr"</span>,</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Wife"</span>, <span class="st">"Alternating"</span>, <span class="st">"Husband"</span>, <span class="st">"Jointly"</span>, <span class="st">"Total"</span>),</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">4</span>,</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"House tasks data frame with row profiles and average row profile"</span>,</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_classic</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="lightable-classic caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>House tasks data frame with row profiles and average row profile</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th"></th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Wife</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Alternating</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Husband</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Jointly</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Laundry</td>
+<td style="text-align: right;">0.8864</td>
+<td style="text-align: right;">0.0795</td>
+<td style="text-align: right;">0.0114</td>
+<td style="text-align: right;">0.0227</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Main_meal</td>
+<td style="text-align: right;">0.8105</td>
+<td style="text-align: right;">0.1307</td>
+<td style="text-align: right;">0.0327</td>
+<td style="text-align: right;">0.0261</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Dinner</td>
+<td style="text-align: right;">0.7130</td>
+<td style="text-align: right;">0.1019</td>
+<td style="text-align: right;">0.0648</td>
+<td style="text-align: right;">0.1204</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Breakfeast</td>
+<td style="text-align: right;">0.5857</td>
+<td style="text-align: right;">0.2571</td>
+<td style="text-align: right;">0.1071</td>
+<td style="text-align: right;">0.0500</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Tidying</td>
+<td style="text-align: right;">0.4344</td>
+<td style="text-align: right;">0.0902</td>
+<td style="text-align: right;">0.0082</td>
+<td style="text-align: right;">0.4672</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Dishes</td>
+<td style="text-align: right;">0.2832</td>
+<td style="text-align: right;">0.2124</td>
+<td style="text-align: right;">0.0354</td>
+<td style="text-align: right;">0.4690</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Shopping</td>
+<td style="text-align: right;">0.2750</td>
+<td style="text-align: right;">0.1917</td>
+<td style="text-align: right;">0.0750</td>
+<td style="text-align: right;">0.4583</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Official</td>
+<td style="text-align: right;">0.1250</td>
+<td style="text-align: right;">0.4792</td>
+<td style="text-align: right;">0.2396</td>
+<td style="text-align: right;">0.1562</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Driving</td>
+<td style="text-align: right;">0.0719</td>
+<td style="text-align: right;">0.3669</td>
+<td style="text-align: right;">0.5396</td>
+<td style="text-align: right;">0.0216</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Finances</td>
+<td style="text-align: right;">0.1150</td>
+<td style="text-align: right;">0.1150</td>
+<td style="text-align: right;">0.1858</td>
+<td style="text-align: right;">0.5841</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Insurance</td>
+<td style="text-align: right;">0.0576</td>
+<td style="text-align: right;">0.0072</td>
+<td style="text-align: right;">0.3813</td>
+<td style="text-align: right;">0.5540</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Repairs</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">0.0182</td>
+<td style="text-align: right;">0.9697</td>
+<td style="text-align: right;">0.0121</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Holidays</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">0.0063</td>
+<td style="text-align: right;">0.0375</td>
+<td style="text-align: right;">0.9562</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Average row profile</td>
+<td style="text-align: right;">0.3440</td>
+<td style="text-align: right;">0.1456</td>
+<td style="text-align: right;">0.2185</td>
+<td style="text-align: right;">0.2919</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<p><strong>Column profile</strong></p>
+<p>The profile of a column (or col profile) is calculated by taking each column point and dividing by the corresponding value of the col margin:</p>
+<p><span class="math display">\[
+\underline{b}_j,\;j=1,\dots,C=\{\underline{b}_{j_i},\;i=1,\dots,R\}=\{n_{ij}/n_{+j},\;i=1,\dots,R\}
+\]</span></p>
+<p><strong>Average column profile</strong></p>
+<p>The average column profile (or average col profile) can be computed from the row marginal after dividing it by the grand total:</p>
+<p><span class="math display">\[
+\underline{c}=\{c_i=n_{i+}/n,\;i=1,\dots,R\}
+\]</span></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Column profile</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>col.profile <span class="ot">&lt;-</span> <span class="fu">t</span>(housetasks)<span class="sc">/</span>col.sum</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>col.profile <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">t</span>(col.profile))</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Average column profile</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>average.col.profile <span class="ot">&lt;-</span> row.sum<span class="sc">/</span>n</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Column margins</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>col.profile.sum <span class="ot">&lt;-</span> <span class="fu">apply</span>(col.profile, <span class="dv">2</span>, sum)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>col.profile <span class="sc">%&gt;%</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">Average col profile</span><span class="st">`</span> <span class="ot">=</span> average.col.profile) <span class="sc">%&gt;%</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rbind</span>(<span class="at">Total =</span> <span class="fu">c</span>(col.profile.sum, <span class="fu">sum</span>(average.col.profile))) <span class="sc">%&gt;%</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="st">"rrrrr"</span>,</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Wife"</span>, <span class="st">"Alternating"</span>, <span class="st">"Husband"</span>, <span class="st">"Jointly"</span>, <span class="st">"Average col profile"</span>),</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">4</span>,</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"House tasks data frame with col profiles and average col profile"</span>,</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_classic</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="lightable-classic caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>House tasks data frame with col profiles and average col profile</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th"></th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Wife</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Alternating</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Husband</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Jointly</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Average col profile</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Laundry</td>
+<td style="text-align: right;">0.2600</td>
+<td style="text-align: right;">0.0551</td>
+<td style="text-align: right;">0.0052</td>
+<td style="text-align: right;">0.0079</td>
+<td style="text-align: right;">0.1009</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Main_meal</td>
+<td style="text-align: right;">0.2067</td>
+<td style="text-align: right;">0.0787</td>
+<td style="text-align: right;">0.0131</td>
+<td style="text-align: right;">0.0079</td>
+<td style="text-align: right;">0.0877</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Dinner</td>
+<td style="text-align: right;">0.1283</td>
+<td style="text-align: right;">0.0433</td>
+<td style="text-align: right;">0.0184</td>
+<td style="text-align: right;">0.0255</td>
+<td style="text-align: right;">0.0619</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Breakfeast</td>
+<td style="text-align: right;">0.1367</td>
+<td style="text-align: right;">0.1417</td>
+<td style="text-align: right;">0.0394</td>
+<td style="text-align: right;">0.0138</td>
+<td style="text-align: right;">0.0803</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Tidying</td>
+<td style="text-align: right;">0.0883</td>
+<td style="text-align: right;">0.0433</td>
+<td style="text-align: right;">0.0026</td>
+<td style="text-align: right;">0.1120</td>
+<td style="text-align: right;">0.0700</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Dishes</td>
+<td style="text-align: right;">0.0533</td>
+<td style="text-align: right;">0.0945</td>
+<td style="text-align: right;">0.0105</td>
+<td style="text-align: right;">0.1041</td>
+<td style="text-align: right;">0.0648</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Shopping</td>
+<td style="text-align: right;">0.0550</td>
+<td style="text-align: right;">0.0906</td>
+<td style="text-align: right;">0.0236</td>
+<td style="text-align: right;">0.1081</td>
+<td style="text-align: right;">0.0688</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Official</td>
+<td style="text-align: right;">0.0200</td>
+<td style="text-align: right;">0.1811</td>
+<td style="text-align: right;">0.0604</td>
+<td style="text-align: right;">0.0295</td>
+<td style="text-align: right;">0.0550</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Driving</td>
+<td style="text-align: right;">0.0167</td>
+<td style="text-align: right;">0.2008</td>
+<td style="text-align: right;">0.1969</td>
+<td style="text-align: right;">0.0059</td>
+<td style="text-align: right;">0.0797</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Finances</td>
+<td style="text-align: right;">0.0217</td>
+<td style="text-align: right;">0.0512</td>
+<td style="text-align: right;">0.0551</td>
+<td style="text-align: right;">0.1297</td>
+<td style="text-align: right;">0.0648</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Insurance</td>
+<td style="text-align: right;">0.0133</td>
+<td style="text-align: right;">0.0039</td>
+<td style="text-align: right;">0.1391</td>
+<td style="text-align: right;">0.1513</td>
+<td style="text-align: right;">0.0797</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Repairs</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">0.0118</td>
+<td style="text-align: right;">0.4199</td>
+<td style="text-align: right;">0.0039</td>
+<td style="text-align: right;">0.0946</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Holidays</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">0.0039</td>
+<td style="text-align: right;">0.0157</td>
+<td style="text-align: right;">0.3006</td>
+<td style="text-align: right;">0.0917</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Total</td>
+<td style="text-align: right;">1.0000</td>
+<td style="text-align: right;">1.0000</td>
+<td style="text-align: right;">1.0000</td>
+<td style="text-align: right;">1.0000</td>
+<td style="text-align: right;">1.0000</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<p><strong>Distance (or similarity) between row profiles</strong></p>
+<p>This metrics is useful to compare how similar to each other are two rows of the contingency table:</p>
+<p><span class="math display">\[
+d^2_{kl},\;k,l=1,\dots,R=\Vert \underline{a}_k-\underline{a}_{l}\Vert^2_\underline{r}=\large\sum_{j=1}^C\dfrac{(\underline{a}_{k_j}-\underline{a}_{l_j})^2}{r_j}
+\]</span></p>
+<p>Recall that we need to normalize each component within the sum to the corresponding element of the average row profile.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># "Dinner" and "Driving" profiles</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>dinner.p <span class="ot">&lt;-</span> row.profile[<span class="st">"Dinner"</span>, ]</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>driving.p <span class="ot">&lt;-</span> row.profile[<span class="st">"Driving"</span>, ]</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Distance between "Dinner" and "Driving"</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>d2_1 <span class="ot">&lt;-</span> <span class="fu">sum</span>(((dinner.p <span class="sc">-</span> driving.p)<span class="sc">^</span><span class="dv">2</span>)<span class="sc">/</span>average.row.profile)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co"># "Breakfeast" profile</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>breakfast.p <span class="ot">&lt;-</span> row.profile[<span class="st">"Breakfeast"</span>, ]</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Distance between "Dinner" and "Breakfeast"</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>d2_2 <span class="ot">&lt;-</span> <span class="fu">sum</span>(((dinner.p <span class="sc">-</span> breakfast.p)<span class="sc">^</span><span class="dv">2</span>)<span class="sc">/</span>average.row.profile)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Example - The similarity between “Dinner” and “Driving” profiles is 2.742, whereas the similarity between “Dinner” and “Breakfeast” is 0.238.</p>
+<p><strong>Distance (or similarity) between col profiles</strong></p>
+<p>This metrics is useful to compare how similar to each other are two columns of the contingency table:</p>
+<p><span class="math display">\[
+d^2_{kl},\;k,l=1,\dots,C=\Vert \underline{b}_k-\underline{b}_l\Vert^2_\underline{c}=\large\sum_{i=1}^R\dfrac{(\underline{b}_{k_i}-\underline{b}_{l_i})^2}{c_i}
+\]</span></p>
+<p>Recall that we need to normalize each component within the sum to the corresponding element of the average col profile.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># "Wife" and "Husband" profiles</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>wife.p <span class="ot">&lt;-</span> col.profile[, <span class="st">"Wife"</span>]</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>husband.p <span class="ot">&lt;-</span> col.profile[, <span class="st">"Husband"</span>]</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Distance between "Wife" and "Husband"</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>d2_1 <span class="ot">&lt;-</span> <span class="fu">sum</span>(((wife.p <span class="sc">-</span> husband.p)<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> average.col.profile)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co"># "Jointly" profile</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>jointly.p <span class="ot">&lt;-</span> col.profile[, <span class="st">"Jointly"</span>]</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Distance between "Wife" and "Jointly"</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>d2_2 <span class="ot">&lt;-</span> <span class="fu">sum</span>(((wife.p <span class="sc">-</span> jointly.p)<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> average.col.profile)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Example - The similarity between “Wife” and “Husband” profiles is 4.05, whereas the similarity between “Wife” and “Jointly” is 2.935.</p>
+<p><strong>Distance (or similarity) between each row profile and the average row profile</strong></p>
+<p>This metrics is useful to compare how similar to the average row profile is any row profile.</p>
+<p><span class="math display">\[
+d^2_{k},\;k=1,\dots,R=\Vert\underline{a}_k-\underline{r}\Vert^2_\underline{r}=\large\sum_{j=1}^C\dfrac{(\underline{a}_{k_j}-r_{j})^2}{r_j}
+\]</span></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>d2.row <span class="ot">&lt;-</span> <span class="fu">apply</span>(row.profile, <span class="dv">1</span>, </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>        <span class="cf">function</span>(row.p, av.p){<span class="fu">sum</span>(((row.p <span class="sc">-</span> av.p)<span class="sc">^</span><span class="dv">2</span>)<span class="sc">/</span>av.p)}, </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>        average.row.profile)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">as.matrix</span>(<span class="fu">round</span>(d2.row,<span class="dv">3</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="st">"rc"</span>,</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Task"</span>, <span class="st">"Similarity"</span>),</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Similarity between each row profile and the average row profile"</span>,</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_classic</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="lightable-classic caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Similarity between each row profile and the average row profile</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Task</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Similarity</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Laundry</td>
+<td style="text-align: right;">1.329</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Main_meal</td>
+<td style="text-align: right;">1.034</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Dinner</td>
+<td style="text-align: right;">0.618</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Breakfeast</td>
+<td style="text-align: right;">0.512</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Tidying</td>
+<td style="text-align: right;">0.353</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Dishes</td>
+<td style="text-align: right;">0.302</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Shopping</td>
+<td style="text-align: right;">0.218</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Official</td>
+<td style="text-align: right;">0.968</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Driving</td>
+<td style="text-align: right;">1.274</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Finances</td>
+<td style="text-align: right;">0.456</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Insurance</td>
+<td style="text-align: right;">0.727</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Repairs</td>
+<td style="text-align: right;">3.307</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Holidays</td>
+<td style="text-align: right;">2.140</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<p><strong>Distance (or similarity) between each col profile and the average col profile</strong></p>
+<p>This metrics is useful to compare how similar to the average col profile is any col profile.</p>
+<p><span class="math display">\[
+d^2_{l},\;l=1,\dots,C=\Vert\underline{b}_l-\underline{c}\Vert^2_\underline{c}=\large\sum_{i=1}^R\dfrac{(\underline{b}_{l_i}-c_i)^2}{c_i}
+\]</span></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>d2.col <span class="ot">&lt;-</span> <span class="fu">apply</span>(col.profile, <span class="dv">2</span>, </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>        <span class="cf">function</span>(col.p, av.p){<span class="fu">sum</span>(((col.p <span class="sc">-</span> av.p)<span class="sc">^</span><span class="dv">2</span>)<span class="sc">/</span>av.p)}, </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>        average.col.profile)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="fu">as.matrix</span>(<span class="fu">round</span>(d2.col,<span class="dv">3</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="st">"rc"</span>,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Couple"</span>, <span class="st">"Similarity"</span>),</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Similarity between each col profile and the average col profile"</span>,</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_classic</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="lightable-classic caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Similarity between each col profile and the average col profile</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Couple</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Similarity</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Wife</td>
+<td style="text-align: right;">0.875</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Alternating</td>
+<td style="text-align: right;">0.809</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Husband</td>
+<td style="text-align: right;">1.746</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Jointly</td>
+<td style="text-align: right;">1.078</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<p><strong>Distance matrix</strong></p>
+<p>The similarity can be computed between each row (col) profile and the other row (col) profiles in the contingency table, using, for example, the function <code>dist-matrix()</code> <a href="https://www.sthda.com/english/articles/31-principal-component-methods-in-r-practical-guide/120-correspondence-analysis-theory-and-practice/#ca---singular-value-decomposition-of-the-standardized-residuals">(here)</a>.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># data: a data frame or matrix </span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co"># average.profile: average profile</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>dist.matrix <span class="ot">&lt;-</span> <span class="cf">function</span>(data, average.profile) {</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>   mat <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(<span class="fu">t</span>(data))</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>   n <span class="ot">&lt;-</span> <span class="fu">ncol</span>(mat)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>   dist.mat <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, n, n)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>   <span class="fu">diag</span>(dist.mat) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>(n <span class="sc">-</span> <span class="dv">1</span>)) {</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> (j <span class="cf">in</span> (i <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>n) {</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>            d2 <span class="ot">&lt;-</span> <span class="fu">sum</span>(((mat[, i] <span class="sc">-</span> mat[, j])<span class="sc">^</span><span class="dv">2</span>) <span class="sc">/</span> average.profile)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>            dist.mat[i, j] <span class="ot">&lt;-</span> dist.mat[j, i] <span class="ot">&lt;-</span> d2</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">colnames</span>(dist.mat) <span class="ot">&lt;-</span> <span class="fu">rownames</span>(dist.mat) <span class="ot">&lt;-</span> <span class="fu">colnames</span>(mat)</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  dist.mat</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The result is a distance matrix (a kind of correlation or dissimilarity matrix), either orientated per rows or columns. The distance between row (col) profiles can be computed using the package corrplot for visualization.</p>
+<p><strong>Row distance matrix</strong></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Distance matrix (row)</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>dist.mat <span class="ot">&lt;-</span> <span class="fu">dist.matrix</span>(row.profile, average.row.profile)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>dist.mat <span class="ot">&lt;-</span> <span class="fu">round</span>(dist.mat, <span class="dv">2</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize the matrix (row)</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">corrplot</span>(dist.mat, <span class="at">type =</span> <span class="st">"upper"</span>, <span class="at">is.corr =</span> <span class="cn">FALSE</span>, <span class="at">col =</span> <span class="fu">colorRampPalette</span>(<span class="fu">c</span>(<span class="st">"white"</span>, <span class="st">"steelblue"</span>))(<span class="dv">128</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Col distance matrix</strong></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Distance matrix (column)</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>dist.mat <span class="ot">&lt;-</span> <span class="fu">dist.matrix</span>(<span class="fu">t</span>(col.profile), average.col.profile)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>dist.mat <span class="ot">&lt;-</span> <span class="fu">round</span>(dist.mat, <span class="dv">2</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize the matrix (column)</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="fu">corrplot</span>(dist.mat, <span class="at">type =</span> <span class="st">"upper"</span>, <span class="at">is.corr =</span> <span class="cn">FALSE</span>, <span class="at">col =</span> <span class="fu">colorRampPalette</span>(<span class="fu">c</span>(<span class="st">"white"</span>, <span class="st">"steelblue"</span>))(<span class="dv">128</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Row mass and inertia</strong></p>
+<p>The <strong>row mass</strong> can be defined as the total frequency of each row, obtained by dividing its row sum by the gran total. The <strong>row inertia</strong> is calculated as the row mass multiplied by the squared distance between the row and the average row profile. The inertia is a measure of the information contained in each row.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Row mass</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>row.sum <span class="ot">&lt;-</span> <span class="fu">apply</span>(housetasks, <span class="dv">1</span>, sum)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>grand.total <span class="ot">&lt;-</span> <span class="fu">sum</span>(housetasks)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>row.mass <span class="ot">&lt;-</span> row.sum<span class="sc">/</span>grand.total</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Row inertia</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>row.inertia <span class="ot">&lt;-</span> row.mass<span class="sc">*</span>d2.row</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>row.inertia <span class="sc">%&gt;%</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="st">"rc"</span>,</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Task"</span>, <span class="st">"Inertia"</span>),</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Row inertia of the house tasks contingency table"</span>,</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_classic</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="lightable-classic caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Row inertia of the house tasks contingency table</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Task</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Inertia</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Laundry</td>
+<td style="text-align: right;">0.134</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Main_meal</td>
+<td style="text-align: right;">0.091</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Dinner</td>
+<td style="text-align: right;">0.038</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Breakfeast</td>
+<td style="text-align: right;">0.041</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Tidying</td>
+<td style="text-align: right;">0.025</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Dishes</td>
+<td style="text-align: right;">0.020</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Shopping</td>
+<td style="text-align: right;">0.015</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Official</td>
+<td style="text-align: right;">0.053</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Driving</td>
+<td style="text-align: right;">0.102</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Finances</td>
+<td style="text-align: right;">0.030</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Insurance</td>
+<td style="text-align: right;">0.058</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Repairs</td>
+<td style="text-align: right;">0.313</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Holidays</td>
+<td style="text-align: right;">0.196</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<p><strong>Column mass and inertia</strong></p>
+<p>The <strong>column mass</strong> can be defined as the total frequency of each column, obtained by dividing its col sum by the gran total. The <strong>column inertia</strong> is calculated as the column mass multiplied by the squared distance between the column and the average col profile. The inertia is a measure of the information contained in each column.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Column mass</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>col.sum <span class="ot">&lt;-</span> <span class="fu">apply</span>(housetasks, <span class="dv">2</span>, sum)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>grand.total <span class="ot">&lt;-</span> <span class="fu">sum</span>(housetasks)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>col.mass <span class="ot">&lt;-</span> col.sum<span class="sc">/</span>grand.total</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Column inertia</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>col.inertia <span class="ot">&lt;-</span> col.mass<span class="sc">*</span>d2.col</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>col.inertia <span class="sc">%&gt;%</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="st">"rc"</span>,</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Couple"</span>, <span class="st">"Inertia"</span>),</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Column inertia of the house tasks contingency table"</span>,</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_classic</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="lightable-classic caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Column inertia of the house tasks contingency table</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Couple</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Inertia</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Wife</td>
+<td style="text-align: right;">0.301</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Alternating</td>
+<td style="text-align: right;">0.118</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Husband</td>
+<td style="text-align: right;">0.381</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Jointly</td>
+<td style="text-align: right;">0.315</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<p><strong>Total inertia</strong></p>
+<p>The total inertia is the total information contained in the contingency table.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Total inertia</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>inertia_total_row <span class="ot">&lt;-</span> <span class="fu">sum</span>(row.inertia)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>inertia_total_col <span class="ot">&lt;-</span> <span class="fu">sum</span>(col.inertia)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The total inertia is computed as the sum of row inertias (or equivalently, as the sum of column inertias), in the present case we get the value 1.115.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Row mass</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>row.sum <span class="ot">&lt;-</span> <span class="fu">apply</span>(housetasks, <span class="dv">1</span>, sum)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>grand.total <span class="ot">&lt;-</span> <span class="fu">sum</span>(housetasks)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>row.mass <span class="ot">&lt;-</span> row.sum<span class="sc">/</span>grand.total</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Row inertia</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>row.inertia <span class="ot">&lt;-</span> row.mass<span class="sc">*</span>d2.row</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Total inertia</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>inertia_total_row <span class="ot">&lt;-</span> <span class="fu">sum</span>(row.inertia)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Column mass</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>col.sum <span class="ot">&lt;-</span> <span class="fu">apply</span>(housetasks, <span class="dv">2</span>, sum)</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>col.mass <span class="ot">&lt;-</span> col.sum<span class="sc">/</span>grand.total</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Column inertia</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>col.inertia <span class="ot">&lt;-</span> col.mass<span class="sc">*</span>d2.col</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Total inertia</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>inertia_total_col <span class="ot">&lt;-</span> <span class="fu">sum</span>(col.inertia)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+</section>
+<section id="results" class="level2">
+<h2 class="anchored" data-anchor-id="results">Results</h2>
+<p>The result for rows can be summarized in terms of the squared distance between row profiles and the average row profile (i.e., <code>d2.row</code>), the row mass (i.e., <code>row mass</code>), and the row inertia (i.e., <code>row.inertia</code>). Similarly, the results for columns can be summarized using <code>d2.col</code>, <code>col.mass</code> and <code>col.inertia</code>.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>row <span class="ot">&lt;-</span> <span class="fu">cbind.data.frame</span>(<span class="at">d2 =</span> d2.row, <span class="at">mass =</span> row.mass, <span class="at">inertia =</span> row.inertia)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>col <span class="ot">&lt;-</span> <span class="fu">cbind.data.frame</span>(<span class="at">d2 =</span> d2.col, <span class="at">mass =</span> col.mass, <span class="at">inertia =</span> col.inertia)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>row <span class="sc">%&gt;%</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="st">"rrrr"</span>,</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Task"</span>, <span class="st">"Squared distance"</span>, <span class="st">"Mass"</span>, <span class="st">"Inertia"</span>),</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Summary statistics for the rows of the contingency table"</span>,</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_classic</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="lightable-classic caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Summary statistics for the rows of the contingency table</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Task</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Squared distance</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Mass</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Inertia</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Laundry</td>
+<td style="text-align: right;">1.329</td>
+<td style="text-align: right;">0.101</td>
+<td style="text-align: right;">0.134</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Main_meal</td>
+<td style="text-align: right;">1.034</td>
+<td style="text-align: right;">0.088</td>
+<td style="text-align: right;">0.091</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Dinner</td>
+<td style="text-align: right;">0.618</td>
+<td style="text-align: right;">0.062</td>
+<td style="text-align: right;">0.038</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Breakfeast</td>
+<td style="text-align: right;">0.512</td>
+<td style="text-align: right;">0.080</td>
+<td style="text-align: right;">0.041</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Tidying</td>
+<td style="text-align: right;">0.353</td>
+<td style="text-align: right;">0.070</td>
+<td style="text-align: right;">0.025</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Dishes</td>
+<td style="text-align: right;">0.302</td>
+<td style="text-align: right;">0.065</td>
+<td style="text-align: right;">0.020</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Shopping</td>
+<td style="text-align: right;">0.218</td>
+<td style="text-align: right;">0.069</td>
+<td style="text-align: right;">0.015</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Official</td>
+<td style="text-align: right;">0.968</td>
+<td style="text-align: right;">0.055</td>
+<td style="text-align: right;">0.053</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Driving</td>
+<td style="text-align: right;">1.274</td>
+<td style="text-align: right;">0.080</td>
+<td style="text-align: right;">0.102</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Finances</td>
+<td style="text-align: right;">0.456</td>
+<td style="text-align: right;">0.065</td>
+<td style="text-align: right;">0.030</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Insurance</td>
+<td style="text-align: right;">0.727</td>
+<td style="text-align: right;">0.080</td>
+<td style="text-align: right;">0.058</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Repairs</td>
+<td style="text-align: right;">3.307</td>
+<td style="text-align: right;">0.095</td>
+<td style="text-align: right;">0.313</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Holidays</td>
+<td style="text-align: right;">2.140</td>
+<td style="text-align: right;">0.092</td>
+<td style="text-align: right;">0.196</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>col <span class="sc">%&gt;%</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="st">"rrrr"</span>,</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"couple"</span>, <span class="st">"squared distance"</span>, <span class="st">"mass"</span>, <span class="st">"inertia"</span>),</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">3</span>,</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Summary statistics for the columns of the contingency table"</span>,</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_classic</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="lightable-classic caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Summary statistics for the columns of the contingency table</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">couple</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">squared distance</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">mass</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">inertia</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Wife</td>
+<td style="text-align: right;">0.875</td>
+<td style="text-align: right;">0.344</td>
+<td style="text-align: right;">0.301</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Alternating</td>
+<td style="text-align: right;">0.809</td>
+<td style="text-align: right;">0.146</td>
+<td style="text-align: right;">0.118</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Husband</td>
+<td style="text-align: right;">1.746</td>
+<td style="text-align: right;">0.218</td>
+<td style="text-align: right;">0.381</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Jointly</td>
+<td style="text-align: right;">1.078</td>
+<td style="text-align: right;">0.292</td>
+<td style="text-align: right;">0.315</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<section id="chi-square-test" class="level3">
+<h3 class="anchored" data-anchor-id="chi-square-test">Chi-square test</h3>
+<p>The <strong>chi-square statistic</strong> (<span class="math inline">\(\chi^2\)</span>) is an overall measure of the difference between the frequencies observed in a contingency table and the expected frequencies calculated under the assumption of homogeneity of row profiles (or column profiles). Geometrically, the inertia measures how far away row profiles (or column profiles) are from their average profiles. The average profile can be thought of as the representative of the hypothesis of homogeneity (i.e., equality) of profiles. The distances between profiles are measured using the distance of the chi-square (distance <span class="math inline">\(\chi^2\)</span>). This distance is similar in its formulation to the Euclidean distance between points in a physical space, except that any quadratic difference between coordinates is divided by the corresponding element of the mean profile.</p>
+<p>It can be shown that the total inertia <span class="math inline">\(\Phi\)</span> of a contingency table is the statistic (<span class="math inline">\(\chi^2\)</span>) divided by the grand total <span class="math inline">\(n\)</span>:</p>
+<p><span class="math display">\[
+\Phi=\dfrac{\chi^2}{n}=\sum_{i}^Rc_i\Vert\underline{a}_i-\underline{r}\Vert^2_{\underline{r}}=\sum_{j}^Cr_j\Vert\underline{b}_j-\underline{c}\Vert^2_{\underline{c}}
+\]</span></p>
+<p>The <strong>Chi-squared test</strong> can be used to examine whether rows and columns of a contingency table are statistically significantly associated:</p>
+<ul>
+<li>Null hypothesis (H0): the row and the column variables of the contingency table are independent;</li>
+<li>Alternative hypothesis (H1): row and column variables are dependent</li>
+</ul>
+<p>For each cell of the table, we have to calculate the expected value under H0. For a given cell <span class="math inline">\((i,j)\)</span>, the expected value is calculated by taking the product of the <span class="math inline">\(i\)</span>-th element of the row margin (sum of the elements in the <span class="math inline">\(i\)</span>-th row of the contingency table) and the <span class="math inline">\(j\)</span>-th element of the col margin (sum of the elements in the <span class="math inline">\(j\)</span>-th column of the contingency table), divided by the gran total.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Statistical testing of homogeneity/independence
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Suppose that the population is divided into <span class="math inline">\(R\)</span> groups and each group (or the entire population) is divided into <span class="math inline">\(C\)</span> categories. We would like to test whether the distribution of categories in each group is the same (<strong>homogeneity test</strong>). If observations <span class="math inline">\(X_1,\dots,X_n\)</span> are sampled independently from the entire population then homogeneity over groups is the same as independence of groups and categories. If we have homogeneity:</p>
+<p><span class="math display">\[
+\text{Pr}(\text{Category}_j\vert\text{Group}_i)=\text{Pr}(\text{Category}_j)
+\]</span></p>
+<p>then we have independence:</p>
+<p><span class="math display">\[
+\text{Pr}(\text{Category}_j,\text{Group}_i)=\text{Pr}(\text{Category}_j\vert\text{Group}_i)\text{Pr}(\text{Group}_i)=\text{Pr}(\text{Category}_j)\text{Pr}(\text{Group}_i)
+\]</span></p>
+<p>It is also possible to move the other way around (i.e., start from independence to obtain homogeneity). In other words, to test homogeneity, we can use the test of independence. The computation of the expected cell counts under the null hypothesis H0 (the row and the column variables of the contingency table are independent) is done according to the scheme of <a href="#fig-fig1" class="quarto-xref">Figure&nbsp;1</a>.</p>
+<div id="fig-fig1" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="fig1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="400">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: The expected counts are involved in testing either homegeneity or independence
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>For example, in the case of the house tasks contingency table, the scheme of computation for the cell “Shopping”-“Alternating” is shown in <a href="#fig-fig2" class="quarto-xref">Figure&nbsp;2</a>.</p>
+<div id="fig-fig2" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="fig2.png" class="img-fluid quarto-figure quarto-figure-center figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: How to calculate the expected counts
+</figcaption>
+</figure>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Table of expected counts</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>E <span class="ot">=</span> (row.sum <span class="sc">%*%</span> <span class="fu">t</span>(col.sum))<span class="sc">/</span>n</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="fu">row.names</span>(E) <span class="ot">&lt;-</span> <span class="fu">row.names</span>(housetasks)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>E <span class="sc">%&gt;%</span> </span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="st">"rrrr"</span>,</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Wife"</span>, <span class="st">"Alternating"</span>, <span class="st">"Husband"</span>, <span class="st">"Jointly"</span>),</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">2</span>,</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Table of expected counts"</span>,</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_classic</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="lightable-classic caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Table of expected counts</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th"></th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Wife</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Alternating</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Husband</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Jointly</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Laundry</td>
+<td style="text-align: right;">60.55</td>
+<td style="text-align: right;">25.63</td>
+<td style="text-align: right;">38.45</td>
+<td style="text-align: right;">51.37</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Main_meal</td>
+<td style="text-align: right;">52.64</td>
+<td style="text-align: right;">22.28</td>
+<td style="text-align: right;">33.42</td>
+<td style="text-align: right;">44.65</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Dinner</td>
+<td style="text-align: right;">37.16</td>
+<td style="text-align: right;">15.73</td>
+<td style="text-align: right;">23.59</td>
+<td style="text-align: right;">31.52</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Breakfeast</td>
+<td style="text-align: right;">48.17</td>
+<td style="text-align: right;">20.39</td>
+<td style="text-align: right;">30.58</td>
+<td style="text-align: right;">40.86</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Tidying</td>
+<td style="text-align: right;">41.97</td>
+<td style="text-align: right;">17.77</td>
+<td style="text-align: right;">26.65</td>
+<td style="text-align: right;">35.61</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Dishes</td>
+<td style="text-align: right;">38.88</td>
+<td style="text-align: right;">16.46</td>
+<td style="text-align: right;">24.69</td>
+<td style="text-align: right;">32.98</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Shopping</td>
+<td style="text-align: right;">41.28</td>
+<td style="text-align: right;">17.48</td>
+<td style="text-align: right;">26.22</td>
+<td style="text-align: right;">35.02</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Official</td>
+<td style="text-align: right;">33.03</td>
+<td style="text-align: right;">13.98</td>
+<td style="text-align: right;">20.97</td>
+<td style="text-align: right;">28.02</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Driving</td>
+<td style="text-align: right;">47.82</td>
+<td style="text-align: right;">20.24</td>
+<td style="text-align: right;">30.37</td>
+<td style="text-align: right;">40.57</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Finances</td>
+<td style="text-align: right;">38.88</td>
+<td style="text-align: right;">16.46</td>
+<td style="text-align: right;">24.69</td>
+<td style="text-align: right;">32.98</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Insurance</td>
+<td style="text-align: right;">47.82</td>
+<td style="text-align: right;">20.24</td>
+<td style="text-align: right;">30.37</td>
+<td style="text-align: right;">40.57</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Repairs</td>
+<td style="text-align: right;">56.77</td>
+<td style="text-align: right;">24.03</td>
+<td style="text-align: right;">36.05</td>
+<td style="text-align: right;">48.16</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Holidays</td>
+<td style="text-align: right;">55.05</td>
+<td style="text-align: right;">23.30</td>
+<td style="text-align: right;">34.95</td>
+<td style="text-align: right;">46.70</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<p>The calculated Chi-square statistic <span class="math inline">\(\chi^2\)</span> is compared to the critical value (obtained from statistical tables) with <span class="math inline">\(df=(R-1)(C-1)\)</span> degrees of freedom and <span class="math inline">\(p=0.05\)</span>. Recall that <span class="math inline">\(R, C\)</span> are the number of rows and columns in the contingency table, respectively. If the calculated Chi-square statistic is greater than the critical value, then we must conclude that the row and the column variables are not independent of each other. This implies that they are significantly associated. The function <code>chisq.test()</code> can be used to implement the test.</p>
+<p>The result of <code>chisq.test()</code> function is a list containing the following components:</p>
+<ul>
+<li>statistic: the value the chi-squared test statistic.</li>
+<li>parameter: the degrees of freedom</li>
+<li>p.value: the p-value of the test</li>
+<li>observed: the observed count</li>
+<li>expected: the expected count</li>
+<li>residuals: Pearson residuals</li>
+</ul>
+<p>It is worth noting that the total inertia is equal to the total Chi-square score divided by the grand total. The square root of the total inertia is called <strong>trace</strong> and may be interpreted as a correlation coefficient. Any value of the trace &gt; 0.2 indicates a significant dependency between rows and columns. In the present example 1.056.</p>
+</section>
+<section id="pearson-residuals" class="level3">
+<h3 class="anchored" data-anchor-id="pearson-residuals">Pearson residuals</h3>
+<p>If we want to know the most contributing cells to the total Chi-square score, we just have to calculate the Chi-square statistic for each cell:</p>
+<p><span class="math display">\[
+r_{ij} = \dfrac{o_{ij}-e_{ij}}{\sqrt{e_{ij}}},\,i=1,\dots,R;\,j=1,\dots,C
+\]</span></p>
+<p>The above formula returns the so-called Pearson residuals (<span class="math inline">\(r\)</span>) for each cell (or standardized residuals). Cells with the highest absolute standardized residuals contribute the most to the total Chi-square score. Pearson residuals can be easily extracted from the output of the function <code>chisq.test()</code>.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>chisq <span class="ot">&lt;-</span> <span class="fu">chisq.test</span>(housetasks)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>chisq</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's Chi-squared test
+
+data:  housetasks
+X-squared = 1944.5, df = 36, p-value &lt; 2.2e-16</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Observed counts</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>chisq<span class="sc">$</span>observed</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>           Wife Alternating Husband Jointly
+Laundry     156          14       2       4
+Main_meal   124          20       5       4
+Dinner       77          11       7      13
+Breakfeast   82          36      15       7
+Tidying      53          11       1      57
+Dishes       32          24       4      53
+Shopping     33          23       9      55
+Official     12          46      23      15
+Driving      10          51      75       3
+Finances     13          13      21      66
+Insurance     8           1      53      77
+Repairs       0           3     160       2
+Holidays      0           1       6     153</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Expected counts</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(chisq<span class="sc">$</span>expected, <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>            Wife Alternating Husband Jointly
+Laundry    60.55       25.63   38.45   51.37
+Main_meal  52.64       22.28   33.42   44.65
+Dinner     37.16       15.73   23.59   31.52
+Breakfeast 48.17       20.39   30.58   40.86
+Tidying    41.97       17.77   26.65   35.61
+Dishes     38.88       16.46   24.69   32.98
+Shopping   41.28       17.48   26.22   35.02
+Official   33.03       13.98   20.97   28.02
+Driving    47.82       20.24   30.37   40.57
+Finances   38.88       16.46   24.69   32.98
+Insurance  47.82       20.24   30.37   40.57
+Repairs    56.77       24.03   36.05   48.16
+Holidays   55.05       23.30   34.95   46.70</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Pearson's residuals</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>e <span class="ot">&lt;-</span> chisq<span class="sc">$</span>residuals</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Contribution in percentage of each cell (%)</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>contrib <span class="ot">&lt;-</span> <span class="dv">100</span><span class="sc">*</span>chisq<span class="sc">$</span>residuals<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>chisq<span class="sc">$</span>statistic</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The sign of the standardized residuals is also very important to interpret the association between rows and columns. Positive values in cells specify an attraction (positive association) between the corresponding row and column variables, such as, for instance, between the column “Wife” and the row “Laundry”. There is a strong positive association between the column “Husband” and the row “Repairs”. A negative residual implies a repulsion (negative association) between the corresponding row and column variables. For example the column “Wife” is negatively associated (i.e., “not associated”) with the row “Repairs”. There is a repulsion between the column “Husband” and the rows “Laundry” and “Main_meal”.</p>
+<p>The contribution (in %) of a given cell to the total Chi-square score can be calculated as follows:</p>
+<p><span class="math display">\[
+\text{contrib}\,(\%)=100\,\dfrac{r^2}{\chi^2}
+\]</span></p>
+<p>The relative contribution of each cell to the total Chi-square score give some indication of the nature of the dependency between rows and columns of the contingency table. It can be seen that:</p>
+<ul>
+<li>The column “Wife” is strongly associated with the rows “Laundry”</li>
+<li>The column “Husband” is strongly associated with the row “Repairs”</li>
+<li>The column “Jointly” is frequently associated with the row “Holidays”</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>e <span class="sc">%&gt;%</span> </span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="st">"rrrr"</span>,</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Wife"</span>, <span class="st">"Alternating"</span>, <span class="st">"Husband"</span>, <span class="st">"Jointly"</span>),</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">2</span>,</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Pearson's residuals"</span>,</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_classic</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="lightable-classic caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Pearson's residuals</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th"></th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Wife</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Alternating</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Husband</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Jointly</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Laundry</td>
+<td style="text-align: right;">12.27</td>
+<td style="text-align: right;">-2.30</td>
+<td style="text-align: right;">-5.88</td>
+<td style="text-align: right;">-6.61</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Main_meal</td>
+<td style="text-align: right;">9.84</td>
+<td style="text-align: right;">-0.48</td>
+<td style="text-align: right;">-4.92</td>
+<td style="text-align: right;">-6.08</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Dinner</td>
+<td style="text-align: right;">6.54</td>
+<td style="text-align: right;">-1.19</td>
+<td style="text-align: right;">-3.42</td>
+<td style="text-align: right;">-3.30</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Breakfeast</td>
+<td style="text-align: right;">4.88</td>
+<td style="text-align: right;">3.46</td>
+<td style="text-align: right;">-2.82</td>
+<td style="text-align: right;">-5.30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Tidying</td>
+<td style="text-align: right;">1.70</td>
+<td style="text-align: right;">-1.61</td>
+<td style="text-align: right;">-4.97</td>
+<td style="text-align: right;">3.59</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Dishes</td>
+<td style="text-align: right;">-1.10</td>
+<td style="text-align: right;">1.86</td>
+<td style="text-align: right;">-4.16</td>
+<td style="text-align: right;">3.49</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Shopping</td>
+<td style="text-align: right;">-1.29</td>
+<td style="text-align: right;">1.32</td>
+<td style="text-align: right;">-3.36</td>
+<td style="text-align: right;">3.38</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Official</td>
+<td style="text-align: right;">-3.66</td>
+<td style="text-align: right;">8.56</td>
+<td style="text-align: right;">0.44</td>
+<td style="text-align: right;">-2.46</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Driving</td>
+<td style="text-align: right;">-5.47</td>
+<td style="text-align: right;">6.84</td>
+<td style="text-align: right;">8.10</td>
+<td style="text-align: right;">-5.90</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Finances</td>
+<td style="text-align: right;">-4.15</td>
+<td style="text-align: right;">-0.85</td>
+<td style="text-align: right;">-0.74</td>
+<td style="text-align: right;">5.75</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Insurance</td>
+<td style="text-align: right;">-5.76</td>
+<td style="text-align: right;">-4.28</td>
+<td style="text-align: right;">4.11</td>
+<td style="text-align: right;">5.72</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Repairs</td>
+<td style="text-align: right;">-7.53</td>
+<td style="text-align: right;">-4.29</td>
+<td style="text-align: right;">20.65</td>
+<td style="text-align: right;">-6.65</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Holidays</td>
+<td style="text-align: right;">-7.42</td>
+<td style="text-align: right;">-4.62</td>
+<td style="text-align: right;">-4.90</td>
+<td style="text-align: right;">15.56</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>contrib <span class="sc">%&gt;%</span> </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">align =</span> <span class="st">"rrrr"</span>,</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Wife"</span>, <span class="st">"Alternating"</span>, <span class="st">"Husband"</span>, <span class="st">"Jointly"</span>),</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">2</span>,</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Percentage contribution to the total Chi square"</span>,</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_classic</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="lightable-classic caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Percentage contribution to the total Chi square</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th"></th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Wife</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Alternating</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Husband</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Jointly</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Laundry</td>
+<td style="text-align: right;">7.74</td>
+<td style="text-align: right;">0.27</td>
+<td style="text-align: right;">1.78</td>
+<td style="text-align: right;">2.25</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Main_meal</td>
+<td style="text-align: right;">4.98</td>
+<td style="text-align: right;">0.01</td>
+<td style="text-align: right;">1.24</td>
+<td style="text-align: right;">1.90</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Dinner</td>
+<td style="text-align: right;">2.20</td>
+<td style="text-align: right;">0.07</td>
+<td style="text-align: right;">0.60</td>
+<td style="text-align: right;">0.56</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Breakfeast</td>
+<td style="text-align: right;">1.22</td>
+<td style="text-align: right;">0.61</td>
+<td style="text-align: right;">0.41</td>
+<td style="text-align: right;">1.44</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Tidying</td>
+<td style="text-align: right;">0.15</td>
+<td style="text-align: right;">0.13</td>
+<td style="text-align: right;">1.27</td>
+<td style="text-align: right;">0.66</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Dishes</td>
+<td style="text-align: right;">0.06</td>
+<td style="text-align: right;">0.18</td>
+<td style="text-align: right;">0.89</td>
+<td style="text-align: right;">0.63</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Shopping</td>
+<td style="text-align: right;">0.09</td>
+<td style="text-align: right;">0.09</td>
+<td style="text-align: right;">0.58</td>
+<td style="text-align: right;">0.59</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Official</td>
+<td style="text-align: right;">0.69</td>
+<td style="text-align: right;">3.77</td>
+<td style="text-align: right;">0.01</td>
+<td style="text-align: right;">0.31</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Driving</td>
+<td style="text-align: right;">1.54</td>
+<td style="text-align: right;">2.40</td>
+<td style="text-align: right;">3.37</td>
+<td style="text-align: right;">1.79</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Finances</td>
+<td style="text-align: right;">0.89</td>
+<td style="text-align: right;">0.04</td>
+<td style="text-align: right;">0.03</td>
+<td style="text-align: right;">1.70</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Insurance</td>
+<td style="text-align: right;">1.71</td>
+<td style="text-align: right;">0.94</td>
+<td style="text-align: right;">0.87</td>
+<td style="text-align: right;">1.68</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Repairs</td>
+<td style="text-align: right;">2.92</td>
+<td style="text-align: right;">0.95</td>
+<td style="text-align: right;">21.92</td>
+<td style="text-align: right;">2.28</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Holidays</td>
+<td style="text-align: right;">2.83</td>
+<td style="text-align: right;">1.10</td>
+<td style="text-align: right;">1.23</td>
+<td style="text-align: right;">12.45</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<blockquote class="blockquote">
+<p>SCA is just the singular value decomposition of the standardized residuals. How to perform this analysis will be explained in the next post, together with a thorough discussion of the implications that the results of the analysis have.</p>
+</blockquote>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/amsabatini\.netlify\.app");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<script src="https://utteranc.es/client.js" repo="angelosabatini/blog.comments" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+
+<div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

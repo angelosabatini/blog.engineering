@@ -2,6 +2,7 @@
   {
     "listing": "/blog.html",
     "items": [
+      "/posts/correspondence_analysis_1/index.html",
       "/posts/audio_features/index.html",
       "/posts/numerical_simulation/index.html",
       "/posts/significant_figures/index.html",
@@ -17,6 +18,7 @@
   {
     "listing": "/archive.html",
     "items": [
+      "/posts/correspondence_analysis_1/index.html",
       "/posts/audio_features/index.html",
       "/posts/numerical_simulation/index.html",
       "/posts/significant_figures/index.html",
