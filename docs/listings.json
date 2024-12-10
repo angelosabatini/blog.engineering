@@ -2,6 +2,7 @@
   {
     "listing": "/blog.html",
     "items": [
+      "/posts/correspondence_analysis_2/index.html",
       "/posts/correspondence_analysis_1/index.html",
       "/posts/audio_features/index.html",
       "/posts/numerical_simulation/index.html",
@@ -18,6 +19,7 @@
   {
     "listing": "/archive.html",
     "items": [
+      "/posts/correspondence_analysis_2/index.html",
       "/posts/correspondence_analysis_1/index.html",
       "/posts/audio_features/index.html",
       "/posts/numerical_simulation/index.html",

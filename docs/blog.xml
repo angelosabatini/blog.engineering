@@ -10,7 +10,1053 @@
 <atom:link href="https://amsabatini.netlify.app/blog.xml" rel="self" type="application/rss+xml"/>
 <description>This the personal blog of Angelo Maria Sabatini</description>
 <generator>quarto-1.5.52</generator>
-<lastBuildDate>Sun, 08 Dec 2024 23:00:00 GMT</lastBuildDate>
+<lastBuildDate>Mon, 09 Dec 2024 23:00:00 GMT</lastBuildDate>
+<item>
+  <title>Correspondence analysis: Part II</title>
+  <dc:creator>Angelo Maria Sabatini</dc:creator>
+  <link>https://amsabatini.netlify.app/posts/correspondence_analysis_2/</link>
+  <description><![CDATA[ 
+
+
+
+
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>In this post, we will briefly discuss an example of how Simple Correspondence Analysis (SCA) can be performed using the R programming language. Several functions from different packages are available in the R software for computing SCA. No matter what package we decide to use for the analysis (in this post, we will use the package FactoMineR), the package factoextra is great for producing ggplot2-based elegant visualizations of analysis results. A couple of other packages, namely gplots and corrplot, will also be used.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Libraries </span></span>
+<span id="cb1-2"></span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse)</span>
+<span id="cb1-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(gplots)</span>
+<span id="cb1-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(corrplot)</span>
+<span id="cb1-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(FactoMineR)</span>
+<span id="cb1-7"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(factoextra)</span>
+<span id="cb1-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(kableExtra)</span></code></pre></div>
+</details>
+</div>
+</section>
+<section id="exemplary-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="exemplary-dataset">Exemplary dataset</h2>
+<p><code>housetasks</code>, available in the package factoextra, is a data frame that contains the frequency of execution of 13 house tasks performed by the couple in four different ways: a) the wife only; b) alternatively; c) the husband only; d) jointly.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data</span>(housetasks)</span>
+<span id="cb2-2">housetasks <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb2-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">kable</span>(</span>
+<span id="cb2-4">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">align =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rrrr"</span>,</span>
+<span id="cb2-5">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">col.names =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Wife"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Alternating"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Husband"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Jointly"</span>),</span>
+<span id="cb2-6">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">caption =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"House tasks contingency table"</span>,</span>
+<span id="cb2-7">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb2-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">kable_classic</span>()</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="lightable-classic caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>House tasks contingency table</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th"></th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Wife</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Alternating</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Husband</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Jointly</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Laundry</td>
+<td style="text-align: right;">156</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Main_meal</td>
+<td style="text-align: right;">124</td>
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Dinner</td>
+<td style="text-align: right;">77</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">13</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Breakfeast</td>
+<td style="text-align: right;">82</td>
+<td style="text-align: right;">36</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Tidying</td>
+<td style="text-align: right;">53</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">57</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Dishes</td>
+<td style="text-align: right;">32</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">53</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Shopping</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Official</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">46</td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">15</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Driving</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">51</td>
+<td style="text-align: right;">75</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Finances</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">66</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Insurance</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">53</td>
+<td style="text-align: right;">77</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Repairs</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">160</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Holidays</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">153</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Convert the data frame to a table</span></span>
+<span id="cb3-2">dt <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.table</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.matrix</span>(housetasks))</span>
+<span id="cb3-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Graph</span></span>
+<span id="cb3-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">balloonplot</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">t</span>(dt), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">main =</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"House tasks contingency table"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xlab =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ylab =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">""</span>,</span>
+<span id="cb3-5">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">show.margins =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://amsabatini.netlify.app/posts/correspondence_analysis_2/index_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="implementation" class="level2">
+<h2 class="anchored" data-anchor-id="implementation">Implementation</h2>
+<p>The function <code>CA()</code> from the package FactoMineR is used. It performs the Singular Value Decomposition of the standardized residuals, see my previous post <a href="https://amsabatini.netlify.app/posts/correspondence_analysis_1/">here</a>. The first step of the analysis was done there in order to evaluate whether there was a significant dependency between the rows and columns using the chi-square statistic.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1">res.ca <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">CA</span>(housetasks, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">graph =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span>
+<span id="cb4-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(res.ca)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>**Results of the Correspondence Analysis (CA)**
+The row variable has  13  categories; the column variable has 4 categories
+The chi square of independence between the two variables is equal to 1944.456 (p-value =  0 ).
+*The results are available in the following objects:
+
+   name              description                   
+1  "$eig"            "eigenvalues"                 
+2  "$col"            "results for the columns"     
+3  "$col$coord"      "coord. for the columns"      
+4  "$col$cos2"       "cos2 for the columns"        
+5  "$col$contrib"    "contributions of the columns"
+6  "$row"            "results for the rows"        
+7  "$row$coord"      "coord. for the rows"         
+8  "$row$cos2"       "cos2 for the rows"           
+9  "$row$contrib"    "contributions of the rows"   
+10 "$call"           "summary called parameters"   
+11 "$call$marge.col" "weights of the columns"      
+12 "$call$marge.row" "weights of the rows"         </code></pre>
+</div>
+</div>
+</section>
+<section id="visualization-and-interpretation" class="level2">
+<h2 class="anchored" data-anchor-id="visualization-and-interpretation">Visualization and interpretation</h2>
+<p>The following functions available the factoextra package can be used to help in the SCA interpretation and visualization:</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="lightable-classic caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<caption>Functions from FactoMineR package for SCA</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Function name</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">get_eigenvalue()</td>
+<td style="text-align: left;">Extract the eigenvalues/variances retained by each dimension (axis)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">fviz_eig()</td>
+<td style="text-align: left;">Visualize the eigenvalues</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">fviz_screeplot()</td>
+<td style="text-align: left;">Scree plot</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">get_ca_row()</td>
+<td style="text-align: left;">Extract the results for rows</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">get_ca_col()</td>
+<td style="text-align: left;">Extract the results for columns</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">fviz_ca_row()</td>
+<td style="text-align: left;">Visualize the results for rows</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">fviz_ca_col()</td>
+<td style="text-align: left;">Visualize the results for columns</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">fviz_ca_cos2()</td>
+<td style="text-align: left;">Cos2 of rows on selected axes</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">fviz_ca_biplot()</td>
+<td style="text-align: left;">Make a biplot of rows and columns</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<section id="eigenvaluesvariance" class="level3">
+<h3 class="anchored" data-anchor-id="eigenvaluesvariance">Eigenvalues/variance</h3>
+<p>Eigenvalues correspond to the amount of information retained by each axis. Dimensions are ordered from largest to smallest and reported with the amount of variance each of them <em>explains</em> in the solution. Dimension 1 (Dim.1) explains the most variance in the solution, followed by dimension 2 (Dim.2) and so on. The cumulative percentage explained is obtained by adding the successive proportions of variance explained. For instance, 48.69% plus 39.91% equals 88.6%, and so forth. Therefore, about 88.6% of the variance is explained by the first two dimensions.</p>
+<p>Eigenvalues can be used to determine the number of axes to retain. There is no “rule of thumb” to choose the number of dimensions to keep for the data interpretation. It depends on the research question and the need of the researcher. For example, if 80% of the total variation explained is believed satisfactory for the purpose of the analysis, then the number of dimensions necessary to achieve that goal will be considered. Generally, a good dimension reduction is achieved with the first few dimensions accounting for a large proportion of the variation. In the example in this post, the first two axes explain 88.6% of the variation.</p>
+<p>An alternative method to determine the number of dimensions is to look at a Scree Plot, which is the plot of eigenvalues/variances ordered from largest to smallest. The number of components is determined at the point, beyond which the remaining eigenvalues are all relatively small and of comparable size.</p>
+<p>In the example in this post, the house tasks contingency table contains 13 rows and 4 columns. If the data were random, the expected value of the eigenvalue for each axis would be 1/(nrow(housetasks)-1) (rows), and 1/(ncol(housetasks)-1) (columns). Any axis contributing more than the maximum of these two percentages, namely <img src="https://latex.codecogs.com/png.latex?33.33%5C%25"> in the example here, should be considered as important and included in the final solution.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1">eig.val <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">get_eigenvalue</span>(res.ca)</span>
+<span id="cb6-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(eig.val, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)</span></code></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>      eigenvalue variance.percent cumulative.variance.percent
+Dim.1       0.54            48.69                       48.69
+Dim.2       0.45            39.91                       88.60
+Dim.3       0.13            11.40                      100.00</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1">v <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">max</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">nrow</span>(housetasks)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>), <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ncol</span>(housetasks)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)))<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span></span>
+<span id="cb8-2"></span>
+<span id="cb8-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fviz_screeplot</span>(res.ca, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">addlabels =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ylim =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">50</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> </span>
+<span id="cb8-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_hline</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">yintercept =</span> v, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">linetype =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>)</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://amsabatini.netlify.app/posts/correspondence_analysis_2/index_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>According to the graph above, only Dim.1 and Dim.2 should be used in the solution. Dim.3 explains only 11.4% of the total variation, which is well below the stated threshold at 33.33%, hence it can be discarded. Dim.1 and Dim.2 explain approximately 48.7% and 39.9% of the total variation, respectively. This corresponds to a cumulative total of 88.6% of total variation retained by them.</p>
+</section>
+<section id="biplot" class="level3">
+<h3 class="anchored" data-anchor-id="biplot">Biplot</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># repel = TRUE to avoid text overlapping</span></span>
+<span id="cb9-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fviz_ca_biplot</span>(res.ca, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">repel =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://amsabatini.netlify.app/posts/correspondence_analysis_2/index_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The graph above is called symmetric plot, or biplot. The biplot is helpful to show global patterns existing within the data. Rows are represented by blue points and columns by red triangles. The distance between any pair of row points, or any pair of column points, gives a measure of their similarity (or dissimilarity). Row (column) points with similar profile are close in the biplot.</p>
+<p>The biplot represents the row and column profiles simultaneously in a common space. It is worth stress that:</p>
+<ul>
+<li><em>the distance between any row and column items is not meaningful</em></li>
+<li><em>only the distance between row points or the distance between column points can be interpreted</em>.</li>
+</ul>
+<p>In order to interpret the distance between column <em>and</em> row points, the column (row) profiles must be presented in row (column) space. The resulting type of map is called asymmetric biplot; it is not discussed in this post.</p>
+</section>
+<section id="graph-of-row-variables" class="level3">
+<h3 class="anchored" data-anchor-id="graph-of-row-variables">Graph of row variables</h3>
+<p>The function <code>get_ca_row()</code> is used to extract the results for row points. This function returns a list containing the coordinates, the squared cosine (cos2), the contribution and the inertia of row points:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1">row <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">get_ca_row</span>(res.ca)</span>
+<span id="cb10-2">row</span></code></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Correspondence Analysis - Results for rows
+ ===================================================
+  Name       Description                
+1 "$coord"   "Coordinates for the rows" 
+2 "$cos2"    "Cos2 for the rows"        
+3 "$contrib" "contributions of the rows"
+4 "$inertia" "Inertia of the rows"      </code></pre>
+</div>
+</div>
+<p>The components of the get_ca_row() function can be used in the plot of rows as follows:</p>
+<ul>
+<li><code>row$coord</code>: coordinates of each row point in each dimension (1, 2 and 3).</li>
+<li><code>row$cos2</code>: quality of representation of rows.</li>
+<li><code>var$contrib</code>: contribution of rows (in %) to the definition of the dimensions.</li>
+</ul>
+<p><strong>Coordinates of row points</strong></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fviz_ca_row</span>(res.ca, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">col.row =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"blue"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">shape.row =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">16</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">repel =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://amsabatini.netlify.app/posts/correspondence_analysis_2/index_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The plot above shows the relationships between row points:</p>
+<ul>
+<li>Rows with a similar profile are grouped together.</li>
+<li>Negatively correlated rows are positioned on opposite sides of the plot origin.</li>
+<li>The distance between row points and the origin measures the quality of the row points on the scatter plot. The higher the distance, the better the quality.</li>
+</ul>
+<p><strong>Quality of representation of rows</strong></p>
+<p>I recall that the quality of representation of the rows on the biplot is called the squared cosine (cos2) or the squared correlation. The cos2 measures the degree of association between rows and a particular axis. The values of the cos2 range in the interval between 0 and 1. The sum of the cos2 for rows on all the CA dimensions is equal to one. The quality of representation of a row in <img src="https://latex.codecogs.com/png.latex?n"> dimensions is simply the sum of the squared cosine of that row over the <img src="https://latex.codecogs.com/png.latex?n"> dimensions. If a row item is well represented by two dimensions, the sum of the cos2 should be close to one. For some of the row items, more than 2 dimensions may be required to perfectly represent the data.</p>
+<p>It is possible to color row points by their cos2 values using the argument <code>col.row = "cos2"</code> in <code>fviz_ca_row()</code>. This produces a color gradient, which can be customized using the argument gradient.cols. For instance, <code>gradient.cols = c("white", "blue", "red")</code> means that:</p>
+<ul>
+<li>variables with low cos2 values will be colored in “white”</li>
+<li>variables with mid cos2 values will be colored in “blue”</li>
+<li>variables with high cos2 values will be colored in “red”</li>
+</ul>
+<p>The row variables with the larger value of cos2, contribute the most to the definition of the dimensions. Rows that contribute the most to the retained dimensions, i.e., Dim.1 and Dim.2, are the most important in the process of variance explanation. Rows that do not contribute much to the retained dimensions or that contribute to the last dimensions, i.e., Dim.3, are less important.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Color by cos2 values</span></span>
+<span id="cb13-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fviz_ca_row</span>(res.ca, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">col.row =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"cos2"</span>,</span>
+<span id="cb13-3">             <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">gradient.cols =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#00AFBB"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#E7B800"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#FC4E07"</span>), </span>
+<span id="cb13-4">             <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">repel =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://amsabatini.netlify.app/posts/correspondence_analysis_2/index_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Cos2 of rows on Dim.1 and Dim.2</span></span>
+<span id="cb14-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fviz_cos2</span>(res.ca, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">choice =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"row"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axes =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://amsabatini.netlify.app/posts/correspondence_analysis_2/index_files/figure-html/unnamed-chunk-9-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The function <code>fviz_contrib()</code> can be used to draw a bar plot of row contributions. The red dashed line on the graph below indicates the expected average value, if the contributions were uniform.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Contributions of rows to dimension 1</span></span>
+<span id="cb15-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fviz_contrib</span>(res.ca, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">choice =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"row"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axes =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">top =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://amsabatini.netlify.app/posts/correspondence_analysis_2/index_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Contributions of rows to dimension 2</span></span>
+<span id="cb16-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fviz_contrib</span>(res.ca, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">choice =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"row"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axes =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">top =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://amsabatini.netlify.app/posts/correspondence_analysis_2/index_files/figure-html/unnamed-chunk-10-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Total contribution to dimension 1 and 2</span></span>
+<span id="cb17-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fviz_contrib</span>(res.ca, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">choice =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"row"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axes =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">top =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://amsabatini.netlify.app/posts/correspondence_analysis_2/index_files/figure-html/unnamed-chunk-10-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>It can be seen that:</p>
+<ul>
+<li>The row items “Repairs”, “Laundry”, “Main_meal” and “Driving” are the most important in the definition of the first dimension.</li>
+<li>The row items “Holidays” and “Repairs” contribute the most to the dimension 2.</li>
+<li>The most important row points can be highlighted on the biplot, as explained above.</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fviz_ca_row</span>(res.ca, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">col.row =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"contrib"</span>,</span>
+<span id="cb18-2">             <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">gradient.cols =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#00AFBB"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#E7B800"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#FC4E07"</span>), </span>
+<span id="cb18-3">             <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">repel =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://amsabatini.netlify.app/posts/correspondence_analysis_2/index_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The scatter plot gives an idea of what pole of the retained dimensions the row categories are contributing to. The row categories “Repair” and “Driving” have an important contribution to the positive pole of the first dimension, while the categories “Laundry” and “Main_meal” have an important contribution to the negative pole of the first dimension, and so forth. In other words, Dim.1 is mainly defined by the opposition of “Repair” and “Driving” (positive pole), and “Laundry” and “Main_meal” (negative pole).</p>
+</section>
+<section id="graph-of-column-variables" class="level3">
+<h3 class="anchored" data-anchor-id="graph-of-column-variables">Graph of column variables</h3>
+<p>The function <code>get_ca_col()</code> is used to extract the results for column variables. This function returns a list containing the coordinates, the squared cosine (cos2), the contribution and the inertia of column variables:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1">col <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">get_ca_col</span>(res.ca)</span>
+<span id="cb19-2">col</span></code></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Correspondence Analysis - Results for columns
+ ===================================================
+  Name       Description                   
+1 "$coord"   "Coordinates for the columns" 
+2 "$cos2"    "Cos2 for the columns"        
+3 "$contrib" "contributions of the columns"
+4 "$inertia" "Inertia of the columns"      </code></pre>
+</div>
+</div>
+<p>The components of the <code>get_ca_col()</code> function can be used in the plot of columns as follows:</p>
+<ul>
+<li><code>col$coord</code>: coordinates of each column point in each dimension (1, 2 and 3).</li>
+<li><code>col$cos2</code>: quality of representation of columns</li>
+<li><code>var$contrib</code>: contribution of columns (in %) to the definition of the dimensions.</li>
+</ul>
+<p><strong>Coordinates of column points</strong></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fviz_ca_col</span>(res.ca, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">col.col =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">shape.col =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">17</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">repel =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://amsabatini.netlify.app/posts/correspondence_analysis_2/index_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The plot above shows the relationships between column points:</p>
+<ul>
+<li>Columns with a similar profile are grouped together.</li>
+<li>Negatively correlated columns are positioned on opposite sides of the plot origin.</li>
+<li>The distance between column points and the origin measures the quality of the column points on the scatter polot. The higher the distance, the better the quality.</li>
+</ul>
+<p><strong>Quality of representation of columns</strong></p>
+<p>I recall that the quality of representation of the columns on the biplot is called the squared cosine (cos2) or the squared correlation. The cos2 measures the degree of association between columns and a particular axis. The values of the cos2 range in the interval between 0 and 1. The sum of the cos2 for columns on all the CA dimensions is equal to one. The quality of representation of a column in <img src="https://latex.codecogs.com/png.latex?n"> dimensions is simply the sum of the squared cosine of that column over the <img src="https://latex.codecogs.com/png.latex?n"> dimensions. If a column item is well represented by two dimensions, the sum of the cos2 should be close to one. For some of the column items, more than 2 dimensions may be required to perfectly represent the data.</p>
+<p>It is possible to color column points by their cos2 values using the argument <code>col.col = "cos2"</code> in <code>fviz_ca_col()</code>. This produces a color gradient, which can be customized using the argument gradient.cols. For instance, <code>gradient.cols = c("white", "blue", "red")</code> means that:</p>
+<ul>
+<li>variables with low cos2 values will be colored in “white”</li>
+<li>variables with mid cos2 values will be colored in “blue”</li>
+<li>variables with high cos2 values will be colored in “red”</li>
+</ul>
+<p>The column variables with the larger value of cos2, contribute the most to the definition of the dimensions. Columns that contribute the most to the retained dimensions, i.e., Dim.1 and Dim.2, are the most important in the process of variance explanation. Columns that do not contribute much to the retained dimensions or that contribute to the last dimensions, i.e., Dim.3, are less important.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb22" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Color by cos2 values</span></span>
+<span id="cb22-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fviz_ca_col</span>(res.ca, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">col.col =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"cos2"</span>,</span>
+<span id="cb22-3">             <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">gradient.cols =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#00AFBB"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#E7B800"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#FC4E07"</span>), </span>
+<span id="cb22-4">             <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">repel =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://amsabatini.netlify.app/posts/correspondence_analysis_2/index_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb23" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Cos2 of rows on Dim.1 and Dim.2</span></span>
+<span id="cb23-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fviz_cos2</span>(res.ca, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">choice =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"col"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axes =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://amsabatini.netlify.app/posts/correspondence_analysis_2/index_files/figure-html/unnamed-chunk-14-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The function <code>fviz_contrib()</code> can be used to draw a bar plot of column contributions. The red dashed line on the graph below indicates the expected average value, if the contributions were uniform.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb24" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Contributions of columns to dimension 1</span></span>
+<span id="cb24-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fviz_contrib</span>(res.ca, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">choice =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"col"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axes =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">top =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://amsabatini.netlify.app/posts/correspondence_analysis_2/index_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Contributions of colums to dimension 2</span></span>
+<span id="cb25-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fviz_contrib</span>(res.ca, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">choice =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"col"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axes =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">top =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://amsabatini.netlify.app/posts/correspondence_analysis_2/index_files/figure-html/unnamed-chunk-15-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb26" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Total contribution to dimension 1 and 2</span></span>
+<span id="cb26-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fviz_contrib</span>(res.ca, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">choice =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"col"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">axes =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">top =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://amsabatini.netlify.app/posts/correspondence_analysis_2/index_files/figure-html/unnamed-chunk-15-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>It can be seen that only the column item “Alternating” is not very well displayed on the first two dimensions. The position of this item must be interpreted with caution in the space formed by Dim.1 and Dim.2.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb27" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fviz_ca_col</span>(res.ca, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">col.col =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"contrib"</span>,</span>
+<span id="cb27-2">             <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">gradient.cols =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#00AFBB"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#E7B800"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"#FC4E07"</span>), </span>
+<span id="cb27-3">             <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">repel =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://amsabatini.netlify.app/posts/correspondence_analysis_2/index_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="symmetric-biplot" class="level3">
+<h3 class="anchored" data-anchor-id="symmetric-biplot">Symmetric biplot</h3>
+<p>As mentioned above, the standard plot of SCAs is a symmetric biplot, in which both rows (blue points) and columns (red triangles) are represented in the same space using the principal coordinates. These coordinates represent the row and column profiles. In this case, only the distance between row points or the distance between column points can be interpreted.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb28" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fviz_ca_biplot</span>(res.ca, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">repel =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://amsabatini.netlify.app/posts/correspondence_analysis_2/index_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<blockquote class="blockquote">
+<p>The series of two posts I have compiled so far concerning SCA just scratched the surface of their fascinating, and challenging, world. A lot more should be said to achieve a serious and meaningful interpretation of the results they can offer to the analyst. Maybe, in the future, I will continue the series with additional contributions. Up to now, that’s it.</p>
+</blockquote>
+
+
+</section>
+</section>
+
+ ]]></description>
+  <category>multivariate statistics</category>
+  <guid>https://amsabatini.netlify.app/posts/correspondence_analysis_2/</guid>
+  <pubDate>Mon, 09 Dec 2024 23:00:00 GMT</pubDate>
+  <media:content url="https://amsabatini.netlify.app/posts/correspondence_analysis_2/cover.png" medium="image" type="image/png" height="102" width="144"/>
+</item>
 <item>
   <title>Correspondence analysis: Part I</title>
   <dc:creator>Angelo Maria Sabatini</dc:creator>
