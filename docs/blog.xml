@@ -3851,7 +3851,7 @@ font-style: inherit;">kable_classic</span>()</span></code></pre></div>
 </div>
 </div>
 <blockquote class="blockquote">
-<p>SCA is just the singular value decomposition of the standardized residuals. How to perform this analysis will be explained in the next post, together with a thorough discussion of the implications that the results of the analysis have.</p>
+<p>SCA is just the singular value decomposition of the standardized residuals. How to perform this analysis using the R programming software will be explained in a future post (<a href="https://amsabatini.netlify.app/posts/correspondence_analysis_2">here</a>), together with some discussion of the implications that the results of the analysis may have.</p>
 </blockquote>
 
 
