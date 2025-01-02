@@ -7,10 +7,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Angelo Maria Sabatini">
-<meta name="dcterms.date" content="2024-04-22">
-<meta name="description" content="In this post, I briefly discuss the random incidence phenomenon, using the classical example of a person arriving at a bus stop at a random time, and waiting for the arrival of the next bus.">
+<meta name="dcterms.date" content="2025-01-02">
+<meta name="description" content="The hunspell package is a high-performance stemmer, tokenizer, and spell checker for R. LibreOffice, OpenOffice, Mozilla Firefox, Google Chrome, Mac OS-X, InDesign, Opera, RStudio and many others use this spell checker library, with support being provided for several languages, including Italian. Hunspell uses a special dictionary format that defines which characters, words and conjugations are valid in the specified language. In this post I will illustrate how to use the spell checker.">
 
-<title>Random incidence – Angelo Maria Sabatini</title>
+<title>Spell checking using hunspell – Angelo Maria Sabatini</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -22,6 +22,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -98,36 +132,9 @@ cookieconsent.run({
 });
 </script> 
   
+<script src="../../site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="../../site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 <link rel="stylesheet" href="../../styles.css">
 </head>
@@ -178,23 +185,33 @@ window.Quarto = {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#spell-checking" id="toc-spell-checking" class="nav-link active" data-scroll-target="#spell-checking">Spell checking</a>
+  <ul class="collapse">
+  <li><a href="#check-individual-words" id="toc-check-individual-words" class="nav-link" data-scroll-target="#check-individual-words">Check individual words</a></li>
+  </ul></li>
+  <li><a href="#an-example" id="toc-an-example" class="nav-link" data-scroll-target="#an-example">An example</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Random incidence</h1>
+<h1 class="title">Spell checking using hunspell</h1>
   <div class="quarto-categories">
-    <div class="quarto-category">probability</div>
+    <div class="quarto-category">text mining</div>
   </div>
   </div>
 
 <div>
   <div class="description">
-    In this post, I briefly discuss the random incidence phenomenon, using the classical example of a person arriving at a bus stop at a random time, and waiting for the arrival of the next bus.
+    The hunspell package is a high-performance stemmer, tokenizer, and spell checker for R. LibreOffice, OpenOffice, Mozilla Firefox, Google Chrome, Mac OS-X, InDesign, Opera, RStudio and many others use this spell checker library, with support being provided for several languages, including Italian. Hunspell uses a special dictionary format that defines which characters, words and conjugations are valid in the specified language. In this post I will illustrate how to use the spell checker.
   </div>
 </div>
 
@@ -211,7 +228,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">April 22, 2024</p>
+      <p class="date">January 2, 2025</p>
     </div>
   </div>
   
@@ -223,151 +240,195 @@ window.Quarto = {
 </header>
 
 
-<p>Consider the situation when the continuous time axis of our observations is partitioned into a sequence of interarrival intervals. With the term <em>arrival</em>, we designate the occurrence of everything we are interested to observe, for instance, a particle emitted from radioactive material and captured by a radiation counter, a message reaching its destination queue, maybe the bus that we are waiting for at the bus stop. Usually, probabilistic models that attempt to describe these different type of arrivals share the same assumption: namely the interarrival times (i.e., the times between successive arrivals) are modeled as independent random variables. For instance, the continuous-time Poisson process (hopefully, this is not the right model to predict the next bus arrival!) is the case where the interarrival times are modeled as independent identically exponentially distributed random variables.</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
+<section id="spell-checking" class="level2">
+<h2 class="anchored" data-anchor-id="spell-checking">Spell checking</h2>
+<p>Spell checking text consists of the following steps:</p>
+<ul>
+<li>Parse a document by extracting (tokenizing) words that we want to check</li>
+<li>Analyze each word by breaking it down in its root (stemming) and conjugation affix</li>
+<li>Lookup in a dictionary if the word+affix combination if valid for the stated language</li>
+<li>(optional) For incorrect words, suggest corrections by finding similar (correct) words in the dictionary</li>
+</ul>
+<section id="check-individual-words" class="level3">
+<h3 class="anchored" data-anchor-id="check-individual-words">Check individual words</h3>
+<p>Let us suppose that the text to be spell checked is composed of a char array, with each element of the array being a single word expressed in the specified language (Italian, here). A custom dictionary can be set in the <code>dict</code> parameter when functions hunspell_* are invoked.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(hunspell)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># check individual words</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>words   <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"amore"</span>, <span class="st">"ammore"</span>, <span class="st">"prof"</span>, <span class="st">"professsore"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>correct <span class="ot">&lt;-</span> <span class="fu">hunspell_check</span>(words, <span class="at">dict =</span> <span class="fu">dictionary</span>(<span class="st">"it_IT"</span>))</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(correct)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  TRUE FALSE  TRUE FALSE</code></pre>
 </div>
-<div class="callout-title-container flex-fill">
-Exponential distribution
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># incorrect words</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>incorrect.words <span class="ot">&lt;-</span> words[<span class="sc">!</span>correct]</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># find suggestions for incorrect words</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>suggested.words <span class="ot">&lt;-</span> <span class="fu">hunspell_suggest</span>(incorrect.words, <span class="at">dict =</span> <span class="fu">dictionary</span>(<span class="st">"it_IT"</span>))</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>suggested.words <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">lapply</span>(suggested.words, <span class="cf">function</span>(x) x[<span class="dv">1</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</div>
-<div class="callout-body-container callout-body">
-<p>A continuous random variable <span class="math inline">\(X\)</span> is said to be exponential, or exponentially distributed with parameter <span class="math inline">\(\lambda\)</span>, when its cumulative distribution function (CDF) is written</p>
-<p><span class="math display">\[
-F_X(x)=\text{Pr}(X\leq x)=1-e^{-\lambda x},\;x\geq0
-\]</span></p>
-<p>The probability density function (PDF) is then given by:</p>
-<p><span class="math display">\[
-p_X(x)=\frac{d}{dx}F_X(x)=\lambda\,e^{-\lambda x},\;x\geq0
-\]</span></p>
-<p>The mean value, the mean square value and the variance of <span class="math inline">\(X\)</span> are:</p>
-<p><span class="math display">\[
-\left\{
-\begin{split}
-E[X]&amp;=\int_0^{\infty}xp_X(x)\,dx=\frac{1}{\lambda}\\
-E[X^2]&amp;=\int_0^{\infty}x^2p_X(x)\,dx=\frac{2}{\lambda^2}\\
-\text{Var}(X)&amp;=E[X^2]-E[X]^2=\frac{1}{\lambda^2}
-\end{split}
-\right.
-\]</span></p>
-<p>Integration by parts can be used to calculate the two expectations <span class="math inline">\(E[X]\)</span> and <span class="math inline">\(E[X^2]\)</span>.</p>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Poisson process
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Consider a sequence of independent exponential random variables <span class="math inline">\(T_1,T_2,T_3\cdots,\)</span> with common parameter <span class="math inline">\(\lambda\)</span>, and let these stand for the interarrival times. The arrivals are then recorded at times <span class="math inline">\(T_1,T_1+T_2,T_1+T_2+T_3,\cdots\)</span> and so forth, to define a continuous-time Poisson process.</p>
-<p>A Poisson process is endowed with the following important properties:</p>
-<ol type="1">
-<li><p><strong>Independence of non-overlapping sets of times</strong>. This is a direct consequence of the assumed independence of the interarrival times.</p></li>
-<li><p><strong>Fresh-start property</strong>. The part of the Poisson process that starts at any particular time <span class="math inline">\(t&gt;0\)</span> is a probabilistic replica of the Poisson process starting at time 0, and is independent of the part of the process prior to time <span class="math inline">\(t\)</span>. This can be seen as a special case of point 1.</p></li>
-<li><p><strong>Memoryless interarrival time distribution</strong>. If <span class="math inline">\(T\)</span> is the time of the first arrival and if we know that <span class="math inline">\(T&gt;t\)</span>, then the remaining time <span class="math inline">\(T−t\)</span> is exponentially distributed, with the same parameter <span class="math inline">\(\lambda\)</span>:</p></li>
-</ol>
-<p><span class="math display">\[
-\begin{split}
-\text{Pr}(T&gt;t+s\,\vert\,T&gt;t)&amp;=\frac{\text{Pr}(T&gt;t+s,T&gt;t)}{\text{Pr}(T&gt;t)}\\
-&amp;=\frac{\text{Pr}(T&gt;t+s)}{\text{Pr}(T&gt;t)}=\frac{1-F_T(t+s)}{1-F_T(t)}\\
-&amp;=\frac{e^{-\lambda(t+s)}}{e^{-\lambda t}}=e^{-\lambda s}=\text{Pr}(T&gt;s)
-\end{split}
-\]</span></p>
-<p>Properties 2.-3. can be rephrased saying that the ones whose life is modeled by an exponential distribution, well they should remain <em>forever young</em>: no matter how long they have lived so far, the remaining time to their death is predicted as if they are just born!</p>
+<p>Note that the outcome of the function <code>hunspell_suggest()</code> is a list. An array of corrected words can then be constructed for the corresponding misspelled words. Clearly, some words are not the best choice, and the first word is usually the best alternative. The quality of data can be improved by careful exploration of the list.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table quarto-disable-processing="true" class="table table-condensed table-bordered" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>Spell checking text</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> word </th>
+   <th style="text-align:left;"> best alternative </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> ammore </td>
+   <td style="text-align:left;"> amore </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> professsore </td>
+   <td style="text-align:left;"> professore </td>
+  </tr>
+</tbody>
+</table>
+
 </div>
 </div>
-<p>The term <strong>random incidence</strong> denotes the arrival of an observer at an arbitrary time <span class="math inline">\(t^*\)</span> into a <em>gap</em> between two consecutive arrivals in an arrival-type process that is not necessarily described by a Poisson model, <a href="#fig-fig1" class="quarto-xref">Figure&nbsp;1</a>.</p>
-<div id="fig-fig1" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="random_incidence.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="450">
+</section>
+</section>
+<section id="an-example" class="level2">
+<h2 class="anchored" data-anchor-id="an-example">An example</h2>
+<p>Let us suppose that we want to analyze the lyrics of the song titled “Il mio canto libero” (<a href="https://genius.com/Lucio-battisti-il-mio-canto-libero-lyrics">here</a>). One single occurrence of the words “emozioni”, “nuda” and “pianto” was intentionally misspelled, namely, “emozzioni”, “nudda”, “painto” were transcripted, respectively.</p>
+<p>To get the list of words used in the lyrics, I first split the text into individual words. To do so, I use <code>unnest_tokens()</code> from the tidytext package.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringi)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidytext)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># data upload</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>lyrics <span class="ot">&lt;-</span> <span class="fu">stri_read_lines</span>(<span class="st">"Il mio canto libero.txt"</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>df_pre <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">text =</span> lyrics) <span class="sc">%&gt;%</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">id =</span> <span class="fu">row_number</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, text)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># tokenization</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>tokenized_text_pre <span class="ot">&lt;-</span> df_pre <span class="sc">%&gt;%</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_tokens</span>(<span class="at">output =</span> word, <span class="at">token =</span> <span class="st">"words"</span>, <span class="at">input =</span> text) <span class="sc">%&gt;%</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(word, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co"># check spelling</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>correct <span class="ot">&lt;-</span> <span class="fu">hunspell_check</span>(tokenized_text_pre<span class="sc">$</span>word, <span class="at">dict =</span> <span class="fu">dictionary</span>(<span class="st">"it_IT"</span>))</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co"># incorrect words</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>incorrect.words <span class="ot">&lt;-</span> tokenized_text_pre<span class="sc">$</span>word[<span class="sc">!</span>correct]</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co"># find suggestions for incorrect words</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>suggested.words <span class="ot">&lt;-</span> <span class="fu">hunspell_suggest</span>(incorrect.words, <span class="at">dict =</span> <span class="fu">dictionary</span>(<span class="st">"it_IT"</span>))</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>suggested.words <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">lapply</span>(suggested.words, <span class="cf">function</span>(x) x[<span class="dv">1</span>]))</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co"># list of incorrect and suggested words</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>word.list <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">cbind</span>(<span class="at">word =</span> incorrect.words, <span class="st">`</span><span class="at">best alternative</span><span class="st">`</span> <span class="ot">=</span> suggested.words))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: Illustration of the random incidence phenomenon.
-</figcaption>
-</figure>
+<div class="cell">
+<div class="cell-output-display">
+<table quarto-disable-processing="true" class="table table-condensed table-bordered" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>Spell checking text - 'Il mio canto libero'</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> word </th>
+   <th style="text-align:left;"> best alternative </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> emozzioni </td>
+   <td style="text-align:left;"> emozioni </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> nudda </td>
+   <td style="text-align:left;"> nuda </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> painto </td>
+   <td style="text-align:left;"> pianto </td>
+  </tr>
+</tbody>
+</table>
+
 </div>
-<p>We are not saying that <span class="math inline">\(t^*\)</span> is random; in this regard, perhaps, using the term random incidence may appear misleading. However, the interval between the time of the previous arrival <span class="math inline">\(t_p\)</span> and <span class="math inline">\(t^*\)</span>, and the interval between <span class="math inline">\(t^*\)</span> and the time of the next arrival <span class="math inline">\(t_n\)</span> are random. All we need to state to start our discussion is to assume that the observer enters the arrival-type process in a situation when a previous arrival has surely occurred: probabilistically, the gap <span class="math inline">\(t_n-t_p\)</span> is then a well-defined quantity.</p>
-<p>Suppose that we know the probability law of the interarrival times <span class="math inline">\(Y\)</span>. Let us denote by <span class="math inline">\(W\)</span> the random variable that describes the duration of the gap entered by random incidence, <span class="math inline">\(W=T_n-T_p\)</span>. Finally, we denote by <span class="math inline">\(T\)</span> the random variable that describes the waiting time for the next arrival from when the gap is entered by random incidence, <span class="math inline">\(T=T_n-T^*\)</span>.</p>
-<p>It is argued that the probability that <span class="math inline">\(W\)</span> assumes a value between <span class="math inline">\(w\)</span> and <span class="math inline">\(w+dw\)</span> is proportional to both the the duration of the gap <span class="math inline">\(w\)</span> and the relative frequency of occurrence of such gaps <span class="math inline">\(p_Y(w)dw\)</span>:</p>
-<p><span class="math display">\[
-\text{Pr}(w\leq W\leq w+dw)=p_W(w)dw\propto w\,p_Y(w)dw
-\]</span></p>
-<p>Therefore:</p>
-<p><span id="eq-eq1"><span class="math display">\[
-p_W(w)=\frac{w\,p_Y(w)}{E[Y]}
-\tag{1}\]</span></span></p>
-<p>where the constant of proportionality is calculated to enforce the constraint of normalization for the PDF <span class="math inline">\(p_W(w)\)</span> of <span class="math inline">\(W\)</span> (its integral from 0 to infinity must be 1).</p>
-<p>Now, given that a gap of length <span class="math inline">\(w\)</span> is entered by random incidence, we are equally likely to be anywhere within the gap. More precisely, <em>given</em> <span class="math inline">\(w\)</span>, the time until the next arrival <span class="math inline">\(T\)</span> has a uniform PDF:</p>
-<p><span id="eq-eq2"><span class="math display">\[
-p_{T\vert W}(t\,\vert\,w)=\frac{1}{w},\;0\leq t\leq w
-\tag{2}\]</span></span></p>
-<p>where <span class="math inline">\(p_{T\vert W}(t\,\vert\,w)\)</span> is the conditional PDF of <span class="math inline">\(T\)</span> given <span class="math inline">\(W\)</span>. Using <a href="#eq-eq1" class="quarto-xref">Equation&nbsp;1</a>, <a href="#eq-eq2" class="quarto-xref">Equation&nbsp;2</a> the joint PDF <span class="math inline">\(p_{TW}(t,w)\)</span> can be written:</p>
-<p><span class="math display">\[
-p_{TW}(t,w)=p_{T\vert W}(t\,\vert\,w)\,p_W(w)=\frac{p_Y(w)}{E[Y]},\;0\leq t\leq w&lt;\infty
-\]</span></p>
-<p>Finally, the marginal PDF <span class="math inline">\(p_T(t)\)</span> of the waiting time for the next arrival from when the gap is entered by random incidence can be formed simply by <em>integrating out</em> <span class="math inline">\(W\)</span>:</p>
-<p><span id="eq-eq3"><span class="math display">\[
-\boxed{p_T(t)=\int_{t}^{\infty}\frac{p_Y(w)}{E[Y]}dw=\frac{1-F_Y(t)}{E[Y]},\;t\geq0}
-\tag{3}\]</span></span></p>
-<div id="exm-exm1" class="theorem example">
-<p><span class="theorem-title"><strong>Example 1</strong></span> Consider a bus passenger arriving at a bus stop. The probabilistic law of the bus headways <span class="math inline">\(F_Y(y)\)</span> will determine the probability law for the waiting time until the next bus arrives, <span class="math inline">\(p_T(t)\)</span> via <a href="#eq-eq3" class="quarto-xref">Equation&nbsp;3</a>, if we ignore interactions between successive buses and assume that the arrivals are identically distributed and independent.</p>
-<p>Suppose that buses maintain perfect headways, being always spaced <span class="math inline">\(T_0\)</span> minutes apart:</p>
-<p><span class="math display">\[
-F_Y(y)=\left\{\begin{split}0&amp;\quad y&lt;T_0\\1&amp;\quad y\geq T_0\end{split}\right.\rightarrow p_Y(y)=\delta(y-T_0)\rightarrow E[Y]=T_0
-\]</span></p>
-<p>where the PDF is expressed in terms of a delta function located at time <span class="math inline">\(T_0\)</span>. The PDF of <span class="math inline">\(T\)</span> can be written:</p>
-<p><span class="math display">\[
-p_T(t)=\left\{\begin{split}&amp;\frac{1}{T_0}&amp;\quad 0\leq t\leq T_0\\&amp;0&amp;\quad t&gt;T_0\end{split}\right.\rightarrow E[T]=\frac{T_0}{2}
-\]</span></p>
-<p>As expected intuitively, the time until the next arrival, <em>given random incidence</em>, is uniformly distributed between <span class="math inline">\(0\)</span> and <span class="math inline">\(T_0\)</span>, with mean value <span class="math inline">\(E[T]=T_0/2\)</span>: if <span class="math inline">\(T_0=60\)</span> min the average waiting time is 30 min.</p>
-<p>Now, suppose that the bus headways are on the hour, and fifteen minutes after the hour. Thus, the interarrival times alternate between 15 and 45 minutes. If the bus passenger shows up at the bus stop at any time uniformly distributed within a hour, she/he has to wait for an average time of 15/2 min (with probability 1/4) and 45/2 min (with probability 3/4):</p>
-<p><span class="math display">\[
-E[T]=\frac{15}{2}\cdot\frac{1}{4}+\frac{45}{2}\cdot\frac{3}{4}=18.75\;\text{min}
-\]</span></p>
-<p>More formally:</p>
-<p><span class="math display">\[
-F_Y(y)=\left\{\begin{split}0&amp;\quad0\leq y&lt;15\\1/2&amp;\quad15\leq y&lt;45\\1&amp;\quad y\geq45\end{split}\right.\rightarrow E[Y]=30\;\text{min}
-\]</span></p>
-<p>Using <a href="#eq-eq3" class="quarto-xref">Equation&nbsp;3</a>:</p>
-<p><span class="math display">\[
-p_T(t)=\left\{\begin{split}1/30&amp;\quad0\leq t&lt;15\\1/60&amp;\quad15\leq t&lt;45\\0&amp;\quad t\geq45\end{split}\right.\rightarrow E[T]=18.75\,\text{min}
-\]</span></p>
-<p>On average, the bus passenger has to wait longer than it might be expected taking into account <span class="math inline">\(E[Y]\)</span> only, namely <span class="math inline">\(E[Y]/2=15\)</span> min.</p>
-<blockquote class="blockquote">
-<p>This is because an observer who arrives at an arbitrary time, the bus passenger in this example, is more likely to fall in a large rather than a small interarrival interval: large interarrival intervals tend therefore to determine longer waiting times!</p>
-</blockquote>
 </div>
-<div id="exm-exm2" class="theorem example">
-<p><span class="theorem-title"><strong>Example 2</strong></span> Consider the (unrealistic) case that the bus headways are Poissonian. What does this mean? Basically, we state that the interarrival times are modeled by independent exponentially distributed random variables with rate <span class="math inline">\(\lambda\)</span> (the rate denotes the number of arrivals per unit time):</p>
-<p><span class="math display">\[
-F_Y(y)=1-e^{-\lambda t},\;t\geq 0\rightarrow p_Y(y)=\frac{F_Y(y)}{dy}=\lambda e^{-\lambda t},\;t\geq0\rightarrow E[Y]=1/\lambda
-\]</span></p>
-<p>Using <a href="#eq-eq3" class="quarto-xref">Equation&nbsp;3</a>:</p>
-<p><span class="math display">\[
-p_T(t)=\lambda e^{-\lambda t},\;t\geq0
-\]</span></p>
-<p>Hence <span class="math inline">\(T\)</span> is exponentially distributed with rate <span class="math inline">\(\lambda\)</span>. The average time of waiting is <span class="math inline">\(E[T]=1/\lambda\)</span>. No matter when the event occurred, the observer who arrives at an arbitrary time <span class="math inline">\(t^*\)</span> (the bus passenger in this example) sees the Poisson process to start fresh at time <span class="math inline">\(t^*\)</span>, <a href="#fig-fig1" class="quarto-xref">Figure&nbsp;1</a>. It is worth noting that, according to the properties of independence, start-fresh and memorylessness stated above, we can run a Poisson process either forwards or backwards in time, without any modification in its properties. Hence, not only <span class="math inline">\(T_n-T^*\)</span>, but also <span class="math inline">\(T^*-T_p\)</span> is exponentially distributed with parameter <span class="math inline">\(\lambda\)</span>. Moreover, <span class="math inline">\(T_n-T^*\)</span> and <span class="math inline">\(T_n-T^*\)</span> are independent. We have therefore established that the gap <span class="math inline">\(W\)</span> entered by random incidence is the sum of two independent exponential random variables with parameter <span class="math inline">\(\lambda\)</span> and mean value <span class="math inline">\(2/\lambda\)</span>. More formally, using <a href="#eq-eq1" class="quarto-xref">Equation&nbsp;1</a> we get:</p>
-<p><span class="math display">\[
-p_W(w)=\lambda w\,e^{-\lambda w},\;w\geq0
-\]</span></p>
-<p>We recall that the random variable <span class="math inline">\(X\)</span> Erlang of order <span class="math inline">\(k\)</span> has PDF:</p>
-<p><span class="math display">\[
-p(x)=\frac{\lambda^kx^{k-1}e^{-\lambda x}}{(k-1)!}
-\]</span></p>
-<p>In conclusion, the gap duration is a random variable Erlang of order 2.</p>
-<blockquote class="blockquote">
-<p>In a similar fashion to <a href="#exm-exm1" class="quarto-xref">Example&nbsp;1</a>, when landing into a Poisson process at an arbitrary time, we are more likely to fall in a large interarrival interval; therefore, the length of what we perceive as a <em>typical</em> interarrival interval is greater than it is in reality.</p>
-</blockquote>
+<p>The misspelled words in the song lyrics can be replaced with the suggested alternative using the code below.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>incorrect.whole.words <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">b"</span>, word.list<span class="sc">$</span>word, <span class="st">"</span><span class="sc">\\</span><span class="st">b"</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>lyrics <span class="ot">&lt;-</span> <span class="fu">stri_replace_all_regex</span>(lyrics, incorrect.whole.words, suggested.words, </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">vectorize_all =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The count of the words that were misspelled is correctly updated after spell checking and replacement.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table quarto-disable-processing="true" class="table table-condensed table-bordered" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>Before spell checking</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> word </th>
+   <th style="text-align:right;"> n </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> emozioni </td>
+   <td style="text-align:right;"> 1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> emozzioni </td>
+   <td style="text-align:right;"> 1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> nuda </td>
+   <td style="text-align:right;"> 1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> nudda </td>
+   <td style="text-align:right;"> 1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> painto </td>
+   <td style="text-align:right;"> 1 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+<div class="cell-output-display">
+<table quarto-disable-processing="true" class="table table-condensed table-bordered" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>After spell checking</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> word </th>
+   <th style="text-align:right;"> n </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> emozioni </td>
+   <td style="text-align:right;"> 2 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> nuda </td>
+   <td style="text-align:right;"> 2 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> pianto </td>
+   <td style="text-align:right;"> 1 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
 </div>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

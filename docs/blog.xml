@@ -9,8 +9,415 @@
 <link>https://amsabatini.netlify.app/blog.html</link>
 <atom:link href="https://amsabatini.netlify.app/blog.xml" rel="self" type="application/rss+xml"/>
 <description>This the personal blog of Angelo Maria Sabatini</description>
-<generator>quarto-1.5.52</generator>
-<lastBuildDate>Mon, 09 Dec 2024 23:00:00 GMT</lastBuildDate>
+<generator>quarto-1.6.39</generator>
+<lastBuildDate>Wed, 01 Jan 2025 23:00:00 GMT</lastBuildDate>
+<item>
+  <title>Spell checking using hunspell</title>
+  <dc:creator>Angelo Maria Sabatini</dc:creator>
+  <link>https://amsabatini.netlify.app/posts/spell_checking/</link>
+  <description><![CDATA[ 
+
+
+
+
+<section id="spell-checking" class="level2">
+<h2 class="anchored" data-anchor-id="spell-checking">Spell checking</h2>
+<p>Spell checking text consists of the following steps:</p>
+<ul>
+<li>Parse a document by extracting (tokenizing) words that we want to check</li>
+<li>Analyze each word by breaking it down in its root (stemming) and conjugation affix</li>
+<li>Lookup in a dictionary if the word+affix combination if valid for the stated language</li>
+<li>(optional) For incorrect words, suggest corrections by finding similar (correct) words in the dictionary</li>
+</ul>
+<section id="check-individual-words" class="level3">
+<h3 class="anchored" data-anchor-id="check-individual-words">Check individual words</h3>
+<p>Let us suppose that the text to be spell checked is composed of a char array, with each element of the array being a single word expressed in the specified language (Italian, here). A custom dictionary can be set in the <code>dict</code> parameter when functions hunspell_* are invoked.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(hunspell)</span>
+<span id="cb1-2"></span>
+<span id="cb1-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># check individual words</span></span>
+<span id="cb1-4">words   <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"amore"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ammore"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"prof"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"professsore"</span>)</span>
+<span id="cb1-5">correct <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">hunspell_check</span>(words, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dict =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">dictionary</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"it_IT"</span>))</span>
+<span id="cb1-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(correct)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  TRUE FALSE  TRUE FALSE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># incorrect words</span></span>
+<span id="cb3-2">incorrect.words <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> words[<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span>correct]</span>
+<span id="cb3-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># find suggestions for incorrect words</span></span>
+<span id="cb3-4">suggested.words <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">hunspell_suggest</span>(incorrect.words, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dict =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">dictionary</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"it_IT"</span>))</span>
+<span id="cb3-5">suggested.words <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unlist</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">lapply</span>(suggested.words, <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(x) x[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]))</span></code></pre></div>
+</div>
+<p>Note that the outcome of the function <code>hunspell_suggest()</code> is a list. An array of corrected words can then be constructed for the corresponding misspelled words. Clearly, some words are not the best choice, and the first word is usually the best alternative. The quality of data can be improved by careful exploration of the list.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table quarto-disable-processing="true" class="table table-condensed table-bordered" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>Spell checking text</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> word </th>
+   <th style="text-align:left;"> best alternative </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> ammore </td>
+   <td style="text-align:left;"> amore </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> professsore </td>
+   <td style="text-align:left;"> professore </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</section>
+</section>
+<section id="an-example" class="level2">
+<h2 class="anchored" data-anchor-id="an-example">An example</h2>
+<p>Let us suppose that we want to analyze the lyrics of the song titled “Il mio canto libero” (<a href="https://genius.com/Lucio-battisti-il-mio-canto-libero-lyrics">here</a>). One single occurrence of the words “emozioni”, “nuda” and “pianto” was intentionally misspelled, namely, “emozzioni”, “nudda”, “painto” were transcripted, respectively.</p>
+<p>To get the list of words used in the lyrics, I first split the text into individual words. To do so, I use <code>unnest_tokens()</code> from the tidytext package.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse)</span>
+<span id="cb4-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(stringi)</span>
+<span id="cb4-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidytext)</span>
+<span id="cb4-4"></span>
+<span id="cb4-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># data upload</span></span>
+<span id="cb4-6">lyrics <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">stri_read_lines</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Il mio canto libero.txt"</span>)</span>
+<span id="cb4-7">df_pre <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">text =</span> lyrics) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb4-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">id =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">row_number</span>()) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb4-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(id, text)</span>
+<span id="cb4-10"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># tokenization</span></span>
+<span id="cb4-11">tokenized_text_pre <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> df_pre <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb4-12">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unnest_tokens</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">output =</span> word, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">token =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"words"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">input =</span> text) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb4-13">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">count</span>(word, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sort =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span>
+<span id="cb4-14"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># check spelling</span></span>
+<span id="cb4-15">correct <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">hunspell_check</span>(tokenized_text_pre<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>word, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dict =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">dictionary</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"it_IT"</span>))</span>
+<span id="cb4-16"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># incorrect words</span></span>
+<span id="cb4-17">incorrect.words <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> tokenized_text_pre<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>word[<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">!</span>correct]</span>
+<span id="cb4-18"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># find suggestions for incorrect words</span></span>
+<span id="cb4-19">suggested.words <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">hunspell_suggest</span>(incorrect.words, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dict =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">dictionary</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"it_IT"</span>))</span>
+<span id="cb4-20">suggested.words <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unlist</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">lapply</span>(suggested.words, <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(x) x[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]))</span>
+<span id="cb4-21"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># list of incorrect and suggested words</span></span>
+<span id="cb4-22">word.list <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.data.frame</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cbind</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">word =</span> incorrect.words, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">best alternative</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span> <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> suggested.words))</span></code></pre></div>
+</details>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<table quarto-disable-processing="true" class="table table-condensed table-bordered" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>Spell checking text - 'Il mio canto libero'</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> word </th>
+   <th style="text-align:left;"> best alternative </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> emozzioni </td>
+   <td style="text-align:left;"> emozioni </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> nudda </td>
+   <td style="text-align:left;"> nuda </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> painto </td>
+   <td style="text-align:left;"> pianto </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<p>The misspelled words in the song lyrics can be replaced with the suggested alternative using the code below.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1">incorrect.whole.words <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">b"</span>, word.list<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>word, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">b"</span>)</span>
+<span id="cb5-2">lyrics <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">stri_replace_all_regex</span>(lyrics, incorrect.whole.words, suggested.words, </span>
+<span id="cb5-3">                                 <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">vectorize_all =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span></code></pre></div>
+</details>
+</div>
+<p>The count of the words that were misspelled is correctly updated after spell checking and replacement.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table quarto-disable-processing="true" class="table table-condensed table-bordered" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>Before spell checking</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> word </th>
+   <th style="text-align:right;"> n </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> emozioni </td>
+   <td style="text-align:right;"> 1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> emozzioni </td>
+   <td style="text-align:right;"> 1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> nuda </td>
+   <td style="text-align:right;"> 1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> nudda </td>
+   <td style="text-align:right;"> 1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> painto </td>
+   <td style="text-align:right;"> 1 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+<div class="cell-output-display">
+<table quarto-disable-processing="true" class="table table-condensed table-bordered" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>After spell checking</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> word </th>
+   <th style="text-align:right;"> n </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> emozioni </td>
+   <td style="text-align:right;"> 2 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> nuda </td>
+   <td style="text-align:right;"> 2 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> pianto </td>
+   <td style="text-align:right;"> 1 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+
+
+</section>
+
+ ]]></description>
+  <category>text mining</category>
+  <guid>https://amsabatini.netlify.app/posts/spell_checking/</guid>
+  <pubDate>Wed, 01 Jan 2025 23:00:00 GMT</pubDate>
+  <media:content url="https://amsabatini.netlify.app/posts/spell_checking" medium="image"/>
+</item>
 <item>
   <title>Correspondence analysis: Part II</title>
   <dc:creator>Angelo Maria Sabatini</dc:creator>
@@ -5328,7 +5735,7 @@ Figure&nbsp;1: Time series to be tested for stationarity. On the left, the natur
 </div>
 </div>
 </div>
-<p>The function <code>ur.df()</code> from the <code>urca</code> package performs the ADF test, with three types of models and related tests, named “none” (i.e., Equation&nbsp;1-Equation&nbsp;2), “drift” (i.e., Equation&nbsp;3-Equation&nbsp;4) and “trend” (Equation&nbsp;5-Equation&nbsp;6). The argument <code>selectlags</code> in <code>ur.df()</code> allows to perform automatic selection of the lag structure according to a predefined criterion, as shown in the following code block.</p>
+<p>The function <code>ur.df()</code> from the <code>urca</code> package performs the ADF test, with three types of models and related tests, named “none” (i.e., Equation&nbsp;12), “drift” (i.e., Equation&nbsp;34) and “trend” (Equation&nbsp;56). The argument <code>selectlags</code> in <code>ur.df()</code> allows to perform automatic selection of the lag structure according to a predefined criterion, as shown in the following code block.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -6180,7 +6587,7 @@ Univariate and bivariate random variables
 </section>
 <section id="concentration-ellipse" class="level2">
 <h2 class="anchored" data-anchor-id="concentration-ellipse">Concentration ellipse</h2>
-<p>Equation&nbsp;8 is the equation of the <img src="https://latex.codecogs.com/png.latex?95%5C%25"> prediction ellipse for a bivariate normal distribution, whose sample mean value and sample covariance matrix are calculated from a large-size dataset. The ellipse is also called the <strong>concentration ellipse</strong>. Using Equation&nbsp;5 the area <img src="https://latex.codecogs.com/png.latex?A=V_2"> of the concentration ellipse can be computed from Equation&nbsp;2-Equation&nbsp;3 when <img src="https://latex.codecogs.com/png.latex?n"> is large as follows:</p>
+<p>Equation&nbsp;8 is the equation of the <img src="https://latex.codecogs.com/png.latex?95%5C%25"> prediction ellipse for a bivariate normal distribution, whose sample mean value and sample covariance matrix are calculated from a large-size dataset. The ellipse is also called the <strong>concentration ellipse</strong>. Using Equation&nbsp;5 the area <img src="https://latex.codecogs.com/png.latex?A=V_2"> of the concentration ellipse can be computed from Equation&nbsp;23 when <img src="https://latex.codecogs.com/png.latex?n"> is large as follows:</p>
 <p><span id="eq-eq9"><img src="https://latex.codecogs.com/png.latex?%0A%5Cboxed%7BA=%5Cpi%5Csqrt%7B%5Cdet(%5CSigma)%7D%5C,%5Cchi%5E2_%7B0.95,2%7D%7D%0A%5Ctag%7B9%7D"></span></p>
 <div id="exm-exm1" class="theorem example">
 <p><span class="theorem-title"><strong>Example 1 (Simulation)</strong></span> The dataset is composed of 1000 points simulated from a bivariate normal distribution with mean value and covariance matrix:</p>

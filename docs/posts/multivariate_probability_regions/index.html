@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.5.52">
+<meta name="generator" content="quarto-1.6.39">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -94,10 +94,10 @@ div.csl-indent {
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-79108a0fc1995748cbd19a5b0e3e3e7c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -367,7 +367,7 @@ F_{0.95,1,n-1}=t_{0.975,n-1}^2
 </section>
 <section id="concentration-ellipse" class="level2">
 <h2 class="anchored" data-anchor-id="concentration-ellipse">Concentration ellipse</h2>
-<p><a href="#eq-eq5" class="quarto-xref">Equation&nbsp;8</a> is the equation of the <span class="math inline">\(95\%\)</span> prediction ellipse for a bivariate normal distribution, whose sample mean value and sample covariance matrix are calculated from a large-size dataset. The ellipse is also called the <strong>concentration ellipse</strong>. Using <a href="#eq-eq8" class="quarto-xref">Equation&nbsp;5</a> the area <span class="math inline">\(A=V_2\)</span> of the concentration ellipse can be computed from <a href="#eq-eq7" class="quarto-xref">Equation&nbsp;2</a>-<a href="#eq-eq6" class="quarto-xref">Equation&nbsp;3</a> when <span class="math inline">\(n\)</span> is large as follows:</p>
+<p><a href="#eq-eq5" class="quarto-xref">Equation&nbsp;8</a> is the equation of the <span class="math inline">\(95\%\)</span> prediction ellipse for a bivariate normal distribution, whose sample mean value and sample covariance matrix are calculated from a large-size dataset. The ellipse is also called the <strong>concentration ellipse</strong>. Using <a href="#eq-eq8" class="quarto-xref">Equation&nbsp;5</a> the area <span class="math inline">\(A=V_2\)</span> of the concentration ellipse can be computed from <a href="#eq-eq7" class="quarto-xref">Equation&nbsp;2</a><a href="#eq-eq6" class="quarto-xref">3</a> when <span class="math inline">\(n\)</span> is large as follows:</p>
 <p><span id="eq-eq9"><span class="math display">\[
 \boxed{A=\pi\sqrt{\det(\Sigma)}\,\chi^2_{0.95,2}}
 \tag{9}\]</span></span></p>
@@ -627,8 +627,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   });
   clipboard.on('success', onCopySuccess);
   if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-    // For code content inside modals, clipBoardJS needs to be initialized with a container option
-    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
     const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
       text: getTextToCopy,
       container: window.document.getElementById('quarto-embedded-source-code-modal')
@@ -739,7 +737,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       if (window.Quarto?.typesetMath) {
         window.Quarto.typesetMath(note);
       }
-      // TODO in 1.5, we should make sure this works without a callout special case
       if (note.classList.contains("callout")) {
         return note.outerHTML;
       } else {
