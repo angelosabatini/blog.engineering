@@ -10,7 +10,143 @@
 <atom:link href="https://amsabatini.netlify.app/blog.xml" rel="self" type="application/rss+xml"/>
 <description>This the personal blog of Angelo Maria Sabatini</description>
 <generator>quarto-1.6.39</generator>
-<lastBuildDate>Wed, 01 Jan 2025 23:00:00 GMT</lastBuildDate>
+<lastBuildDate>Wed, 15 Jan 2025 23:00:00 GMT</lastBuildDate>
+<item>
+  <title>Frequency spectrum of a sine-wave tone burst</title>
+  <dc:creator>Angelo Maria Sabatini</dc:creator>
+  <link>https://amsabatini.netlify.app/posts/tone_burst/</link>
+  <description><![CDATA[ 
+
+
+
+
+<section id="sine-wave-tone-burst" class="level2">
+<h2 class="anchored" data-anchor-id="sine-wave-tone-burst">Sine-wave tone burst</h2>
+<p>A sine-wave tone burst signal is shown in Figure&nbsp;1.</p>
+<div id="fig-fig1" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/tone_burst/fig_tone_burst.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="350">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Sine-wave tone burst of two cycles on, four cycles off.
+</figcaption>
+</figure>
+</div>
+<p>It is formed by “turning on and off” (gating) a sinusoidal signal (<a href="https://www.ietlabs.com/pdf/GR_Appnote/IN-105%20Frequency%20Spectrum%20of%20a%20Tone%20Burst.pdf">here</a>). The sinusoidal signal, with fundamental period <img src="https://latex.codecogs.com/png.latex?T_b"> (frequency: <img src="https://latex.codecogs.com/png.latex?f_b%20=%201/T_b">) and initial phase <img src="https://latex.codecogs.com/png.latex?%5Ctheta_b">, is assumed here to have unit amplitude:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Ax_b(t)=%5Csin%5Cleft(2%5Cpi%5Cdfrac%7Bt%7D%7BT_b%7D+%5Ctheta_b%5Cright)%0A"></p>
+<p>Gating amounts to multiply it by <img src="https://latex.codecogs.com/png.latex?x_p(t)">, which can be described as the time-delayed rectangular function <img src="https://latex.codecogs.com/png.latex?%5Ctext%7Brect%7D(t/T_g)">, periodized by the fundamental period <img src="https://latex.codecogs.com/png.latex?T_r">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Ax_p(t)=%5Csum_%7Bn=-%5Cinfty%7D%5E%7B+%5Cinfty%7D%5Ctext%7Brect%7D%5Cleft(%5Cdfrac%7Bt-%5Ctau_r-nT_r%7D%7BT_g%7D%5Cright)%0A"></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?%5Ctau_r"> is the time-shift of the rectangular function before submitting it to periodization. Henceforth, we assume that <img src="https://latex.codecogs.com/png.latex?T_r%3ET_b">, and a multiple integer of full cycles of <img src="https://latex.codecogs.com/png.latex?x_b(t)"> is captured in either the time interval <img src="https://latex.codecogs.com/png.latex?T_g"> or the time interval <img src="https://latex.codecogs.com/png.latex?T_r">: in Figure&nbsp;1, <img src="https://latex.codecogs.com/png.latex?T_g=2T_b"> (<img src="https://latex.codecogs.com/png.latex?N=2">) and <img src="https://latex.codecogs.com/png.latex?T_r=6T_b"> (<img src="https://latex.codecogs.com/png.latex?M=4">, hence <img src="https://latex.codecogs.com/png.latex?N+M=6">).</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Rectangular function
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The rectangular function (also known as the rect function, gate function) is defined as:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Ctext%7Brect%7D%5Cleft(%5Cdfrac%7Bt%7D%7BT%7D%5Cright)=%5Cleft%5C%7B%0A%5Cbegin%7Balign%7D%0A1,&amp;%5Cquad%5Cvert%20t%5Cvert%5Cleq%20T/2%5C%5C%0A1/2,&amp;%5Cquad%20t=T/2%5C%5C%0A0,&amp;%5Cquad%20t%3ET/2%0A%5Cend%7Balign%7D%0A%5Cright.%0A"></p>
+<p>The Continuous Time Fourier Transform of the rectangular function <img src="https://latex.codecogs.com/png.latex?%5Ctext%7Brect(t/T)%7D"> is:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AX(f)=T%5C,%5Ctext%7Bsinc%7D(fT)%0A"></p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Sinc function
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In digital signal processing and information theory, the <strong>sinc function</strong> is commonly defined for <img src="https://latex.codecogs.com/png.latex?x%5Cneq0"> by</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Ctext%7Bsinc%7D(x)=%5Cdfrac%7B%5Csin(%5Cpi%20x)%7D%7B%5Cpi%20x%7D%0A"></p>
+</div>
+</div>
+<p>The duty-ratio factor is defined as the ratio of time the tone is ON compared to the total time when it is either ON or OFF, namely <img src="https://latex.codecogs.com/png.latex?D=N/(N+M)=N/L">. The duty-ratio factor approaches 0 for widely spaced, narrow bursts or 1 for closely spaced, wide bursts: when <img src="https://latex.codecogs.com/png.latex?D=1">, <img src="https://latex.codecogs.com/png.latex?x_r(t)=1"> and <img src="https://latex.codecogs.com/png.latex?x(t)=x_b(t)"> (pure sine-wave).</p>
+<p>When the duty-ratio factor is a rational number, the sine-wave tone burst <img src="https://latex.codecogs.com/png.latex?x(t)"> can be modeled as the product of two periodical signals, namely <img src="https://latex.codecogs.com/png.latex?x_b(t)"> (with period <img src="https://latex.codecogs.com/png.latex?T_b">) and <img src="https://latex.codecogs.com/png.latex?x_r(t)"> (with period <img src="https://latex.codecogs.com/png.latex?T_r">):</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Ax(t)=x_r(t)%5Ccdot%20x_b(t)%0A"></p>
+<p>The fundamental period of <img src="https://latex.codecogs.com/png.latex?x(t)"> is <img src="https://latex.codecogs.com/png.latex?T=T_r">. We can appropriately choose the phase shift <img src="https://latex.codecogs.com/png.latex?%5Ctheta_b"> and the time delay <img src="https://latex.codecogs.com/png.latex?%5Ctau_r"> so as to yield a signal <img src="https://latex.codecogs.com/png.latex?x(t)"> without discontinuities and further endowed with odd symmetry (e.g., <img src="https://latex.codecogs.com/png.latex?%5Ctheta_b=0">, <img src="https://latex.codecogs.com/png.latex?%5Ctau_r=0">). Under these conditions, <img src="https://latex.codecogs.com/png.latex?x(t)"> can be written:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Ax(t)=%5Cleft%5C%7B%0A%5Cbegin%7Balign%7D%0A%5Csin%5Cleft(2%5Cpi%5Cdfrac%7Bt%7D%7BT_b%7D%5Cright),&amp;%5Cquad%5Cvert%20t%5Cvert%5Cleq%20T_g/2%5C%5C%0A0,&amp;%5Cquad%5Ctext%7Belsewhere%7D%0A%5Cend%7Balign%7D%0A%5Cright.%0A"></p>
+</section>
+<section id="fourier-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="fourier-analysis">Fourier analysis</h2>
+<p>The Fourier series of <img src="https://latex.codecogs.com/png.latex?x(t)"> is defined as a trigonometric series of the form:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Ax(t)=A_0+%5Csum_%7Bn=1%7D%5E%7B+%5Cinfty%7DA_n%5Ccos%5Cleft(2%5Cpi%20%5Cdfrac%7Bn%7D%7BT_r%7Dt%5Cright)+%5Csum_%7Bi=1%7D%5E%7B+%5Cinfty%7DB_n%5Csin%5Cleft(2%5Cpi%20%5Cdfrac%7Bn%7D%7BT_r%7Dt%5Cright)%0A"></p>
+<p>where the Fourier series coefficients are defined by the integrals:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cleft%5C%7B%0A%5Cbegin%7Balign%7D%0AA_0&amp;=%5Cdfrac%7B1%7D%7BT_r%7D%5Cint_%7B-T_%7Br%7D/2%7D%5E%7BT_%7Br%7D/2%7Dx(t)%5C,dt%5C%5C%0AA_n&amp;=%5Cdfrac%7B2%7D%7BT_r%7D%5Cint_%7B-T_%7Br%7D/2%7D%5E%7BT_%7Br%7D/2%7Dx(t)%5Ccos%5Cleft(2%5Cpi%5Cdfrac%7Bnt%7D%7BT_r%7D%5Cright)%5C,dt%5C%5C%0AB_n&amp;=%5Cdfrac%7B2%7D%7BT_r%7D%5Cint_%7B-T_%7Br%7D/2%7D%5E%7BT_%7Br%7D/2%7Dx(t)%5Csin%5Cleft(2%5Cpi%5Cdfrac%7Bnt%7D%7BT_r%7D%5Cright)%5C,dt%0A%5Cend%7Balign%7D%0A%5Cright.%0A"></p>
+<p>Since <img src="https://latex.codecogs.com/png.latex?x(t)"> is odd-symmetric, <img src="https://latex.codecogs.com/png.latex?A_0"> is null (i.e., the sine-wave tone burst has no DC component) and <img src="https://latex.codecogs.com/png.latex?A_n=0,n=1,%5Ccdots,+%5Cinfty">. The harmonic coefficients <img src="https://latex.codecogs.com/png.latex?B_n"> are given by:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AB_n=%5Cdfrac%7B4%7D%7BT_r%7D%5Cint_0%5E%7BT_g/2%7D%5Csin%5Cleft(2%5Cpi%5Cdfrac%7Bt%7D%7BT_b%7D%5Cright)%5Csin%5Cleft(2%5Cpi%5Cdfrac%7Bnt%7D%7BT_r%7D%5Cright)dt%0A"></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?T_r=LT_b"> (<img src="https://latex.codecogs.com/png.latex?L=N+M">) and <img src="https://latex.codecogs.com/png.latex?T_g=N%20T_b">. To make the notation lighter, <img src="https://latex.codecogs.com/png.latex?T_b=T"> in the following. The spectrum of the sine-wave tone burst requires the calculation of the Fourier integrals:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AB_n=%5Cdfrac%7B4%7D%7BLT%7D%5Cint_%7B0%7D%5E%7BN%20T/2%7D%5Csin%5Cleft(%5Cdfrac%7B2%5Cpi%7D%7BT%7Dt%5Cright)%5Csin%5Cleft(%5Cdfrac%7B2%5Cpi%7D%7BT%7D%5Cdfrac%7Bn%7D%7BL%7Dt%5Cright)dt%0A"></p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Werner formulas
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The Werner formulas are the trigonometric product formulas:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Balign%7D%0A2%5Csin%5Calpha%5Ccos%5Cbeta&amp;=%5Csin(%5Calpha-%5Cbeta)+%5Csin(%5Calpha+%5Cbeta)%5C%5C%0A2%5Ccos%5Calpha%5Ccos%5Cbeta&amp;=%5Ccos(%5Calpha-%5Cbeta)+%5Ccos(%5Calpha+%5Cbeta)%5C%5C%0A2%5Ccos%5Calpha%5Csin%5Cbeta&amp;=%5Csin(%5Calpha+%5Cbeta)-%5Csin(%5Calpha-%5Cbeta)%5C%5C%0A2%5Csin%5Calpha%5Csin%5Cbeta&amp;=%5Ccos(%5Calpha-%5Cbeta)-%5Ccos(%5Calpha+%5Cbeta)%0A%5Cend%7Balign%7D%0A"></p>
+</div>
+</div>
+<p>Applying the Werner formulas, the integrand can be written:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Csin%5Cleft(%5Cdfrac%7B2%5Cpi%7D%7BT%7Dt%5Cright)%5Csin%5Cleft(%5Cdfrac%7B2%5Cpi%7D%7BT%7D%5Cdfrac%7Bn%7D%7BL%7Dt%5Cright)=%5Cdfrac%7B1%7D%7B2%7D%5Cleft%5B%5Ccos%5Cleft(%5Cdfrac%7B2%5Cpi%7D%7BT%7D%5Cleft(1-%5Cdfrac%7Bn%7D%7BL%7D%5Cright)t%5Cright)-%5Ccos%5Cleft(%5Cdfrac%7B2%5Cpi%7D%7BT%7D%5Cleft(1+%5Cdfrac%7Bn%7D%7BL%7D%5Cright)t%5Cright)%5Cright%5D%0A"></p>
+<p>Therefore:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Balign%7D%0AB_n%20&amp;=%20%5Cdfrac%7B2%7D%7BLT%7D%5Cdfrac%7B1%7D%7B%5Cdfrac%7B2%5Cpi%7D%7BT%7D%5Cleft(1-%5Cdfrac%7Bn%7D%7BL%7D%5Cright)%7D%5Csin%5Cleft(%5Cdfrac%7B2%5Cpi%7D%7BT%7D%5Cleft(1-%5Cdfrac%7Bn%7D%7BL%7D%5Cright)t%5Cright)%5Cbiggr%5Cvert_0%5E%7BNT/2%7D%5C%5C%0A&amp;-%5Cdfrac%7B2%7D%7BLT%7D%5Cdfrac%7B1%7D%7B%5Cdfrac%7B2%5Cpi%7D%7BT%7D%5Cleft(1+%5Cdfrac%7Bn%7D%7BL%7D%5Cright)%7D%5Csin%5Cleft(%5Cdfrac%7B2%5Cpi%7D%7BT%7D%5Cleft(1+%5Cdfrac%7Bn%7D%7BL%7D%5Cright)t%5Cright)%5Cbiggr%5Cvert_0%5E%7BNT/2%7D%0A%5Cend%7Balign%7D%0A"></p>
+<p>and</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Balign%7D%0AB_n%20&amp;=%20%5Cdfrac%7B2%7D%7B%5Cpi%20L%7D%5Cdfrac%7B1%7D%7B%5Cleft(1-%5Cdfrac%7Bn%7D%7BL%7D%5Cright)%7D%5Csin%5Cleft(%5Cpi%20N%5Cleft(1-%5Cdfrac%7Bn%7D%7BL%7D%5Cright)%5Cright)-%5Cdfrac%7B2%7D%7B%5Cpi%20L%7D%5Cdfrac%7B1%7D%7B%5Cleft(1+%5Cdfrac%7Bn%7D%7BL%7D%5Cright)%7D%5Csin%5Cleft(%5Cpi%20N%5Cleft(1+%5Cdfrac%7Bn%7D%7BL%7D%5Cright)%5Cright)%5C%5C%0A&amp;=%5Cdfrac%7BN%7D%7BL%7D%5Cleft%5B%5Ctext%7Bsinc%7D%5Cleft(N%5Cleft(1-%5Cdfrac%7Bn%7D%7BL%7D%5Cright)%5Cright)-%5Ctext%7Bsinc%7D%5Cleft(N%5Cleft(1+%5Cdfrac%7Bn%7D%7BL%7D%5Cright)%5Cright)%5Cright%5D%0A%5Cend%7Balign%7D%0A"></p>
+<p>Using the duty-ratio factor, we have:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AB_n=D%5Cleft%5B%5Ctext%7Bsinc%7D(D(L-n))-%5Ctext%7Bsinc%7D(D(L+n))%5Cright%5D%0A"></p>
+<p>When <img src="https://latex.codecogs.com/png.latex?D=1"> (i.e., <img src="https://latex.codecogs.com/png.latex?x_r(t)=1">), we get <img src="https://latex.codecogs.com/png.latex?B_n%20=%200"> for all <img src="https://latex.codecogs.com/png.latex?n">, but <img src="https://latex.codecogs.com/png.latex?B_L=1">. Recall that the <img src="https://latex.codecogs.com/png.latex?L">th harmonic component in the spectrum of <img src="https://latex.codecogs.com/png.latex?x(t)"> corresponds to the fundamental frequency of the sine-wave, <img src="https://latex.codecogs.com/png.latex?f_b"> - as noted above, if <img src="https://latex.codecogs.com/png.latex?x_r(t)=1">, then <img src="https://latex.codecogs.com/png.latex?x(t)=x_b(t)">. For any value of <img src="https://latex.codecogs.com/png.latex?D"> different from 1, the maximum value of <img src="https://latex.codecogs.com/png.latex?B_n">, <img src="https://latex.codecogs.com/png.latex?B_%7B%5Ctext%7Bmax%7D%7D=D"> still occurs when <img src="https://latex.codecogs.com/png.latex?n=L">, however other lines are present in the spectrum. These lines are at the (analog) frequencies <img src="https://latex.codecogs.com/png.latex?f_n=f_b+(n-L)f_r">.</p>
+</section>
+<section id="examples" class="level2">
+<h2 class="anchored" data-anchor-id="examples">Examples</h2>
+<p>A sine-wave tone burst with duty-ratio factor <img src="https://latex.codecogs.com/png.latex?D=0.25"> (<img src="https://latex.codecogs.com/png.latex?f_b=3%5C,%5Ctext%7BHz%7D,f_r=0.25%5C,%5Ctext%7BHz%7D,T_b=1%5C,%5Ctext%7Bs%7D">) was simulated in MATLAB. The sampling frequency chosen for the simulation was <img src="https://latex.codecogs.com/png.latex?f_s=80%5C,%5Ctext%7BHz%7D">. The Fast Fourier Transform (FFT) algorithm was applied for spectrum computation. The guidelines discussed in one previous post of mine (<a href="https://amsabatini.netlify.app/posts/resolution/">here</a>) were followed to prevent spectral leakage and amplitude ambiguity. Superimposed on the values computed by the FFT (solid black points) is the envelope obtained by interpolating the discrete spectrum <img src="https://latex.codecogs.com/png.latex?B_n"> (see above), Figure&nbsp;2.</p>
+<div id="fig-fig2" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/tone_burst/fig_spectrum.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="400">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: The main part of the envelope of the spectrum of a sine-wave tone burst at 3 Hz.
+</figcaption>
+</figure>
+</div>
+<p>The MATLAB code was run again in a scenario where the frequency of the sine wave moved up to <img src="https://latex.codecogs.com/png.latex?f_b=60%5C,%5Ctext%7BHz%7D">, with a corresponding adjustment of the sampling frequency (<img src="https://latex.codecogs.com/png.latex?f_s=800%5C,%5Ctext%7BHz%7D">). The results of the FFT-based spectrum analysis are reported in Figure&nbsp;3.</p>
+<div id="fig-fig3" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fig3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/tone_burst/fig_spectrum_1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="400">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: The main part of the envelope of the spectrum of a sine-wave tone burst at 60 Hz.
+</figcaption>
+</figure>
+</div>
+<p>The FFT-based spectrum can be also interpreted as the outcome of the following cascaded frequency-domain signal-processing operations:</p>
+<ul>
+<li><p><em>frequency sampling</em> the spectrum <img src="https://latex.codecogs.com/png.latex?T_g%5C,%5Ctext%7Bsinc%7D(f%5C,T_g)"> - this is explained by the time periodization of the rectangular function <img src="https://latex.codecogs.com/png.latex?%5Ctext%7Brect%7D(t/T_g)"> with period <img src="https://latex.codecogs.com/png.latex?T_r">.</p></li>
+<li><p><em>frequency shifting</em> the frequency-sampled spectrum - this is explained by the amplitude modulation impressed on the periodized rectangular function when the latter is multiplied by the sine wave at frequency <img src="https://latex.codecogs.com/png.latex?f_b">.</p></li>
+</ul>
+
+
+</section>
+
+ ]]></description>
+  <category>signal processing</category>
+  <guid>https://amsabatini.netlify.app/posts/tone_burst/</guid>
+  <pubDate>Wed, 15 Jan 2025 23:00:00 GMT</pubDate>
+  <media:content url="https://amsabatini.netlify.app/posts/tone_burst/fig_spectrum.png" medium="image" type="image/png" height="108" width="144"/>
+</item>
 <item>
   <title>Spell checking using hunspell</title>
   <dc:creator>Angelo Maria Sabatini</dc:creator>

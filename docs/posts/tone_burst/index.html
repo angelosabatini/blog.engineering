@@ -6,8 +6,11 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Angelo Maria Sabatini">
+<meta name="dcterms.date" content="2025-01-16">
+<meta name="description" content="In this post, I discuss the spectral properties of a well-known test signal, namely the sine-wave tone burst. The underlying theory is reviewed to explain the pattern of spectral lines that are produced when a sinusoidal signal at a given frequency is turned ‘on and off’ at a slower pace. Examples are presented to show the agreement between theoretical predictions and results of the FFT-based spectrum analysis.">
 
-<title>Archive – Angelo Maria Sabatini</title>
+<title>Frequency spectrum of a sine-wave tone burst – Angelo Maria Sabatini</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,26 +26,24 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-listing/list.min.js"></script>
-<script src="site_libs/quarto-listing/quarto-listing.js"></script>
-<script src="site_libs/cookie-consent/cookie-consent.js"></script>
-<link href="site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
-<script src="site_libs/quarto-html/quarto.js"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-79108a0fc1995748cbd19a5b0e3e3e7c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-79108a0fc1995748cbd19a5b0e3e3e7c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -70,35 +71,6 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
-
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
-
-    const options = {
-      valueNames: ['listing-date','listing-title',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
 <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-G7T7XXSXKG"></script>
 
 <script type="text/plain" cookie-consent="tracking">
@@ -157,7 +129,7 @@ window.Quarto = {
 };
 </script>
 
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="../../styles.css">
 </head>
 
 <body class="nav-fixed">
@@ -167,7 +139,7 @@ window.Quarto = {
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Angelo Maria Sabatini</span>
     </a>
   </div>
@@ -178,11 +150,11 @@ window.Quarto = {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./blog.html"> 
+    <a class="nav-link" href="../../blog.html"> 
 <span class="menu-text">Blog</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./archive.html" aria-current="page"> 
+    <a class="nav-link" href="../../archive.html"> 
 <span class="menu-text">Archive</span></a>
   </li>  
   <li class="nav-item compact">
@@ -191,7 +163,7 @@ window.Quarto = {
 <span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="./blog.xml"> <i class="bi bi-rss" role="img">
+    <a class="nav-link" href="../../blog.xml"> <i class="bi bi-rss" role="img">
 </i> 
 <span class="menu-text"></span></a>
   </li>  
@@ -203,23 +175,53 @@ window.Quarto = {
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#sine-wave-tone-burst" id="toc-sine-wave-tone-burst" class="nav-link active" data-scroll-target="#sine-wave-tone-burst">Sine-wave tone burst</a></li>
+  <li><a href="#fourier-analysis" id="toc-fourier-analysis" class="nav-link" data-scroll-target="#fourier-analysis">Fourier analysis</a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  </ul>
+</nav>
+    </div>
 <!-- main -->
-<main class="content column-page" id="quarto-document-content">
+<main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Archive</h1>
+<h1 class="title">Frequency spectrum of a sine-wave tone burst</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">signal processing</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    In this post, I discuss the spectral properties of a well-known test signal, namely the sine-wave tone burst. The underlying theory is reviewed to explain the pattern of spectral lines that are produced when a sinusoidal signal at a given frequency is turned ‘on and off’ at a slower pace. Examples are presented to show the agreement between theoretical predictions and results of the FFT-based spectrum analysis.
+  </div>
 </div>
 
 
+<div class="quarto-title-meta">
 
-<div class="quarto-title-meta column-page">
-
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Angelo Maria Sabatini </p>
+          </div>
+  </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 16, 2025</p>
+    </div>
+  </div>
   
     
   </div>
@@ -229,255 +231,188 @@ window.Quarto = {
 </header>
 
 
+<section id="sine-wave-tone-burst" class="level2">
+<h2 class="anchored" data-anchor-id="sine-wave-tone-burst">Sine-wave tone burst</h2>
+<p>A sine-wave tone burst signal is shown in <a href="#fig-fig1" class="quarto-xref">Figure&nbsp;1</a>.</p>
+<div id="fig-fig1" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="fig_tone_burst.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="350">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Sine-wave tone burst of two cycles on, four cycles off.
+</figcaption>
+</figure>
+</div>
+<p>It is formed by “turning on and off” (gating) a sinusoidal signal (<a href="https://www.ietlabs.com/pdf/GR_Appnote/IN-105%20Frequency%20Spectrum%20of%20a%20Tone%20Burst.pdf">here</a>). The sinusoidal signal, with fundamental period <span class="math inline">\(T_b\)</span> (frequency: <span class="math inline">\(f_b = 1/T_b\)</span>) and initial phase <span class="math inline">\(\theta_b\)</span>, is assumed here to have unit amplitude:</p>
+<p><span class="math display">\[
+x_b(t)=\sin\left(2\pi\dfrac{t}{T_b}+\theta_b\right)
+\]</span></p>
+<p>Gating amounts to multiply it by <span class="math inline">\(x_p(t)\)</span>, which can be described as the time-delayed rectangular function <span class="math inline">\(\text{rect}(t/T_g)\)</span>, periodized by the fundamental period <span class="math inline">\(T_r\)</span>:</p>
+<p><span class="math display">\[
+x_p(t)=\sum_{n=-\infty}^{+\infty}\text{rect}\left(\dfrac{t-\tau_r-nT_r}{T_g}\right)
+\]</span></p>
+<p>where <span class="math inline">\(\tau_r\)</span> is the time-shift of the rectangular function before submitting it to periodization. Henceforth, we assume that <span class="math inline">\(T_r&gt;T_b\)</span>, and a multiple integer of full cycles of <span class="math inline">\(x_b(t)\)</span> is captured in either the time interval <span class="math inline">\(T_g\)</span> or the time interval <span class="math inline">\(T_r\)</span>: in <a href="#fig-fig1" class="quarto-xref">Figure&nbsp;1</a>, <span class="math inline">\(T_g=2T_b\)</span> (<span class="math inline">\(N=2\)</span>) and <span class="math inline">\(T_r=6T_b\)</span> (<span class="math inline">\(M=4\)</span>, hence <span class="math inline">\(N+M=6\)</span>).</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Rectangular function
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The rectangular function (also known as the rect function, gate function) is defined as:</p>
+<p><span class="math display">\[
+\text{rect}\left(\dfrac{t}{T}\right)=\left\{
+\begin{align}
+1,&amp;\quad\vert t\vert\leq T/2\\
+1/2,&amp;\quad t=T/2\\
+0,&amp;\quad t&gt;T/2
+\end{align}
+\right.
+\]</span></p>
+<p>The Continuous Time Fourier Transform of the rectangular function <span class="math inline">\(\text{rect(t/T)}\)</span> is:</p>
+<p><span class="math display">\[
+X(f)=T\,\text{sinc}(fT)
+\]</span></p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Sinc function
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In digital signal processing and information theory, the <strong>sinc function</strong> is commonly defined for <span class="math inline">\(x\neq0\)</span> by</p>
+<p><span class="math display">\[
+\text{sinc}(x)=\dfrac{\sin(\pi x)}{\pi x}
+\]</span></p>
+</div>
+</div>
+<p>The duty-ratio factor is defined as the ratio of time the tone is ON compared to the total time when it is either ON or OFF, namely <span class="math inline">\(D=N/(N+M)=N/L\)</span>. The duty-ratio factor approaches 0 for widely spaced, narrow bursts or 1 for closely spaced, wide bursts: when <span class="math inline">\(D=1\)</span>, <span class="math inline">\(x_r(t)=1\)</span> and <span class="math inline">\(x(t)=x_b(t)\)</span> (pure sine-wave).</p>
+<p>When the duty-ratio factor is a rational number, the sine-wave tone burst <span class="math inline">\(x(t)\)</span> can be modeled as the product of two periodical signals, namely <span class="math inline">\(x_b(t)\)</span> (with period <span class="math inline">\(T_b\)</span>) and <span class="math inline">\(x_r(t)\)</span> (with period <span class="math inline">\(T_r\)</span>):</p>
+<p><span class="math display">\[
+x(t)=x_r(t)\cdot x_b(t)
+\]</span></p>
+<p>The fundamental period of <span class="math inline">\(x(t)\)</span> is <span class="math inline">\(T=T_r\)</span>. We can appropriately choose the phase shift <span class="math inline">\(\theta_b\)</span> and the time delay <span class="math inline">\(\tau_r\)</span> so as to yield a signal <span class="math inline">\(x(t)\)</span> without discontinuities and further endowed with odd symmetry (e.g., <span class="math inline">\(\theta_b=0\)</span>, <span class="math inline">\(\tau_r=0\)</span>). Under these conditions, <span class="math inline">\(x(t)\)</span> can be written:</p>
+<p><span class="math display">\[
+x(t)=\left\{
+\begin{align}
+\sin\left(2\pi\dfrac{t}{T_b}\right),&amp;\quad\vert t\vert\leq T_g/2\\
+0,&amp;\quad\text{elsewhere}
+\end{align}
+\right.
+\]</span></p>
+</section>
+<section id="fourier-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="fourier-analysis">Fourier analysis</h2>
+<p>The Fourier series of <span class="math inline">\(x(t)\)</span> is defined as a trigonometric series of the form:</p>
+<p><span class="math display">\[
+x(t)=A_0+\sum_{n=1}^{+\infty}A_n\cos\left(2\pi \dfrac{n}{T_r}t\right)+\sum_{i=1}^{+\infty}B_n\sin\left(2\pi \dfrac{n}{T_r}t\right)
+\]</span></p>
+<p>where the Fourier series coefficients are defined by the integrals:</p>
+<p><span class="math display">\[
+\left\{
+\begin{align}
+A_0&amp;=\dfrac{1}{T_r}\int_{-T_{r}/2}^{T_{r}/2}x(t)\,dt\\
+A_n&amp;=\dfrac{2}{T_r}\int_{-T_{r}/2}^{T_{r}/2}x(t)\cos\left(2\pi\dfrac{nt}{T_r}\right)\,dt\\
+B_n&amp;=\dfrac{2}{T_r}\int_{-T_{r}/2}^{T_{r}/2}x(t)\sin\left(2\pi\dfrac{nt}{T_r}\right)\,dt
+\end{align}
+\right.
+\]</span></p>
+<p>Since <span class="math inline">\(x(t)\)</span> is odd-symmetric, <span class="math inline">\(A_0\)</span> is null (i.e., the sine-wave tone burst has no DC component) and <span class="math inline">\(A_n=0,n=1,\cdots,+\infty\)</span>. The harmonic coefficients <span class="math inline">\(B_n\)</span> are given by:</p>
+<p><span class="math display">\[
+B_n=\dfrac{4}{T_r}\int_0^{T_g/2}\sin\left(2\pi\dfrac{t}{T_b}\right)\sin\left(2\pi\dfrac{nt}{T_r}\right)dt
+\]</span></p>
+<p>where <span class="math inline">\(T_r=LT_b\)</span> (<span class="math inline">\(L=N+M\)</span>) and <span class="math inline">\(T_g=N T_b\)</span>. To make the notation lighter, <span class="math inline">\(T_b=T\)</span> in the following. The spectrum of the sine-wave tone burst requires the calculation of the Fourier integrals:</p>
+<p><span class="math display">\[
+B_n=\dfrac{4}{LT}\int_{0}^{N T/2}\sin\left(\dfrac{2\pi}{T}t\right)\sin\left(\dfrac{2\pi}{T}\dfrac{n}{L}t\right)dt
+\]</span></p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Werner formulas
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The Werner formulas are the trigonometric product formulas:</p>
+<p><span class="math display">\[
+\begin{align}
+2\sin\alpha\cos\beta&amp;=\sin(\alpha-\beta)+\sin(\alpha+\beta)\\
+2\cos\alpha\cos\beta&amp;=\cos(\alpha-\beta)+\cos(\alpha+\beta)\\
+2\cos\alpha\sin\beta&amp;=\sin(\alpha+\beta)-\sin(\alpha-\beta)\\
+2\sin\alpha\sin\beta&amp;=\cos(\alpha-\beta)-\cos(\alpha+\beta)
+\end{align}
+\]</span></p>
+</div>
+</div>
+<p>Applying the Werner formulas, the integrand can be written:</p>
+<p><span class="math display">\[
+\sin\left(\dfrac{2\pi}{T}t\right)\sin\left(\dfrac{2\pi}{T}\dfrac{n}{L}t\right)=\dfrac{1}{2}\left[\cos\left(\dfrac{2\pi}{T}\left(1-\dfrac{n}{L}\right)t\right)-\cos\left(\dfrac{2\pi}{T}\left(1+\dfrac{n}{L}\right)t\right)\right]
+\]</span></p>
+<p>Therefore:</p>
+<p><span class="math display">\[
+\begin{align}
+B_n &amp;= \dfrac{2}{LT}\dfrac{1}{\dfrac{2\pi}{T}\left(1-\dfrac{n}{L}\right)}\sin\left(\dfrac{2\pi}{T}\left(1-\dfrac{n}{L}\right)t\right)\biggr\vert_0^{NT/2}\\
+&amp;-\dfrac{2}{LT}\dfrac{1}{\dfrac{2\pi}{T}\left(1+\dfrac{n}{L}\right)}\sin\left(\dfrac{2\pi}{T}\left(1+\dfrac{n}{L}\right)t\right)\biggr\vert_0^{NT/2}
+\end{align}
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+\begin{align}
+B_n &amp;= \dfrac{2}{\pi L}\dfrac{1}{\left(1-\dfrac{n}{L}\right)}\sin\left(\pi N\left(1-\dfrac{n}{L}\right)\right)-\dfrac{2}{\pi L}\dfrac{1}{\left(1+\dfrac{n}{L}\right)}\sin\left(\pi N\left(1+\dfrac{n}{L}\right)\right)\\
+&amp;=\dfrac{N}{L}\left[\text{sinc}\left(N\left(1-\dfrac{n}{L}\right)\right)-\text{sinc}\left(N\left(1+\dfrac{n}{L}\right)\right)\right]
+\end{align}
+\]</span></p>
+<p>Using the duty-ratio factor, we have:</p>
+<p><span class="math display">\[
+B_n=D\left[\text{sinc}(D(L-n))-\text{sinc}(D(L+n))\right]
+\]</span></p>
+<p>When <span class="math inline">\(D=1\)</span> (i.e., <span class="math inline">\(x_r(t)=1\)</span>), we get <span class="math inline">\(B_n = 0\)</span> for all <span class="math inline">\(n\)</span>, but <span class="math inline">\(B_L=1\)</span>. Recall that the <span class="math inline">\(L\)</span>th harmonic component in the spectrum of <span class="math inline">\(x(t)\)</span> corresponds to the fundamental frequency of the sine-wave, <span class="math inline">\(f_b\)</span> - as noted above, if <span class="math inline">\(x_r(t)=1\)</span>, then <span class="math inline">\(x(t)=x_b(t)\)</span>. For any value of <span class="math inline">\(D\)</span> different from 1, the maximum value of <span class="math inline">\(B_n\)</span>, <span class="math inline">\(B_{\text{max}}=D\)</span> still occurs when <span class="math inline">\(n=L\)</span>, however other lines are present in the spectrum. These lines are at the (analog) frequencies <span class="math inline">\(f_n=f_b+(n-L)f_r\)</span>.</p>
+</section>
+<section id="examples" class="level2">
+<h2 class="anchored" data-anchor-id="examples">Examples</h2>
+<p>A sine-wave tone burst with duty-ratio factor <span class="math inline">\(D=0.25\)</span> (<span class="math inline">\(f_b=3\,\text{Hz},f_r=0.25\,\text{Hz},T_b=1\,\text{s}\)</span>) was simulated in MATLAB. The sampling frequency chosen for the simulation was <span class="math inline">\(f_s=80\,\text{Hz}\)</span>. The Fast Fourier Transform (FFT) algorithm was applied for spectrum computation. The guidelines discussed in one previous post of mine (<a href="https://amsabatini.netlify.app/posts/resolution/">here</a>) were followed to prevent spectral leakage and amplitude ambiguity. Superimposed on the values computed by the FFT (solid black points) is the envelope obtained by interpolating the discrete spectrum <span class="math inline">\(B_n\)</span> (see above), <a href="#fig-fig2" class="quarto-xref">Figure&nbsp;2</a>.</p>
+<div id="fig-fig2" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="fig_spectrum.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="400">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: The main part of the envelope of the spectrum of a sine-wave tone burst at 3 Hz.
+</figcaption>
+</figure>
+</div>
+<p>The MATLAB code was run again in a scenario where the frequency of the sine wave moved up to <span class="math inline">\(f_b=60\,\text{Hz}\)</span>, with a corresponding adjustment of the sampling frequency (<span class="math inline">\(f_s=800\,\text{Hz}\)</span>). The results of the FFT-based spectrum analysis are reported in <a href="#fig-fig3" class="quarto-xref">Figure&nbsp;3</a>.</p>
+<div id="fig-fig3" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fig3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="fig_spectrum_1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="400">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: The main part of the envelope of the spectrum of a sine-wave tone burst at 60 Hz.
+</figcaption>
+</figure>
+</div>
+<p>The FFT-based spectrum can be also interpreted as the outcome of the following cascaded frequency-domain signal-processing operations:</p>
+<ul>
+<li><p><em>frequency sampling</em> the spectrum <span class="math inline">\(T_g\,\text{sinc}(f\,T_g)\)</span> - this is explained by the time periodization of the rectangular function <span class="math inline">\(\text{rect}(t/T_g)\)</span> with period <span class="math inline">\(T_r\)</span>.</p></li>
+<li><p><em>frequency shifting</em> the frequency-sampled spectrum - this is explained by the amplitude modulation impressed on the periodized rectangular function when the latter is multiplied by the sine wave at frequency <span class="math inline">\(f_b\)</span>.</p></li>
+</ul>
 
 
+</section>
 
-
-<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
-<div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="c2lnbmFsJTIwcHJvY2Vzc2luZw==" data-listing-date-sort="1736982000000" data-listing-file-modified-sort="1737061597752" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="894">
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/tone_burst/index.html" class="no-external">Frequency spectrum of a sine-wave tone burst</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/tone_burst/index.html" class="no-external"></a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/tone_burst/index.html" class="no-external">
-<div class="listing-date">
-Jan 16, 2025
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="1" data-categories="dGV4dCUyMG1pbmluZw==" data-listing-date-sort="1735772400000" data-listing-file-modified-sort="1735827782299" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="663">
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/spell_checking/index.html" class="no-external">Spell checking using hunspell</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/spell_checking/index.html" class="no-external"></a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/spell_checking/index.html" class="no-external">
-<div class="listing-date">
-Jan 2, 2025
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="2" data-categories="bXVsdGl2YXJpYXRlJTIwc3RhdGlzdGljcw==" data-listing-date-sort="1733785200000" data-listing-file-modified-sort="1737050633338" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="13" data-listing-word-count-sort="2508">
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/correspondence_analysis_2/index.html" class="no-external">Correspondence analysis: Part II</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/correspondence_analysis_2/index.html" class="no-external"></a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/correspondence_analysis_2/index.html" class="no-external">
-<div class="listing-date">
-Dec 10, 2024
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="3" data-categories="bXVsdGl2YXJpYXRlJTIwc3RhdGlzdGljcw==" data-listing-date-sort="1733698800000" data-listing-file-modified-sort="1733821587941" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="16" data-listing-word-count-sort="3017">
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/correspondence_analysis_1/index.html" class="no-external">Correspondence analysis: Part I</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/correspondence_analysis_1/index.html" class="no-external"></a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/correspondence_analysis_1/index.html" class="no-external">
-<div class="listing-date">
-Dec 9, 2024
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="4" data-categories="ZGF0YSUyMG1pbmluZw==" data-listing-date-sort="1731366000000" data-listing-file-modified-sort="1735827830090" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="10" data-listing-word-count-sort="1968">
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/audio_features/index.html" class="no-external">Audio features for free</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/audio_features/index.html" class="no-external"></a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/audio_features/index.html" class="no-external">
-<div class="listing-date">
-Nov 12, 2024
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="5" data-categories="c3RvY2hhc3RpYyUyMGNhbGN1bHVz" data-listing-date-sort="1717624800000" data-listing-file-modified-sort="1717669768929" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="10" data-listing-word-count-sort="1828">
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/numerical_simulation/index.html" class="no-external">Numerical simulation for stochastic differential equations</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/numerical_simulation/index.html" class="no-external"></a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/numerical_simulation/index.html" class="no-external">
-<div class="listing-date">
-Jun 6, 2024
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="6" data-categories="bWVhc3VyZW1lbnQ=" data-listing-date-sort="1715637600000" data-listing-file-modified-sort="1731428186068" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="11" data-listing-word-count-sort="2080">
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/significant_figures/index.html" class="no-external">Significant figures</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/significant_figures/index.html" class="no-external"></a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/significant_figures/index.html" class="no-external">
-<div class="listing-date">
-May 14, 2024
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="7" data-categories="dGltZSUyMHNlcmllcw==" data-listing-date-sort="1715551200000" data-listing-file-modified-sort="1731409922301" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="10" data-listing-word-count-sort="1803">
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/dickey_fuller/index.html" class="no-external">Augmented Dickey-Fuller test</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/dickey_fuller/index.html" class="no-external"></a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/dickey_fuller/index.html" class="no-external">
-<div class="listing-date">
-May 13, 2024
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="8" data-categories="cHJvYmFiaWxpdHk=" data-listing-date-sort="1714860000000" data-listing-file-modified-sort="1727760160572" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="7" data-listing-word-count-sort="1369">
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/gambler/index.html" class="no-external">Gambler’s ruin</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/gambler/index.html" class="no-external"></a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/gambler/index.html" class="no-external">
-<div class="listing-date">
-May 5, 2024
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="9" data-categories="c3RhdGlzdGljcw==" data-listing-date-sort="1714600800000" data-listing-file-modified-sort="1714804672920" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="9" data-listing-word-count-sort="1638">
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/multivariate_probability_regions/index.html" class="no-external">Multivariate probability regions</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/multivariate_probability_regions/index.html" class="no-external"></a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/multivariate_probability_regions/index.html" class="no-external">
-<div class="listing-date">
-May 2, 2024
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="10" data-categories="c3RhdGlzdGljcw==" data-listing-date-sort="1714168800000" data-listing-file-modified-sort="1714804497459" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="10" data-listing-word-count-sort="1830">
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/probability_estimation/index.html" class="no-external">Confidence intervals for proportions</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/probability_estimation/index.html" class="no-external"></a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/probability_estimation/index.html" class="no-external">
-<div class="listing-date">
-Apr 27, 2024
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="11" data-categories="cHJvYmFiaWxpdHk=" data-listing-date-sort="1713909600000" data-listing-file-modified-sort="1714771642551" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="7" data-listing-word-count-sort="1283">
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/combinatorics/index.html" class="no-external">Pills of combinatorics</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/combinatorics/index.html" class="no-external"></a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/combinatorics/index.html" class="no-external">
-<div class="listing-date">
-Apr 24, 2024
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="12" data-categories="cHJvYmFiaWxpdHk=" data-listing-date-sort="1713736800000" data-listing-file-modified-sort="1714804192381" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="7" data-listing-word-count-sort="1256">
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/random_incidence/index.html" class="no-external">Random incidence</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/random_incidence/index.html" class="no-external"></a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/random_incidence/index.html" class="no-external">
-<div class="listing-date">
-Apr 22, 2024
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="13" data-categories="c2lnbmFsJTIwcHJvY2Vzc2luZw==" data-listing-date-sort="1712959200000" data-listing-file-modified-sort="1731428186113" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1489">
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/resolution/index.html" class="no-external">Frequency resolution of spectral analysis</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/resolution/index.html" class="no-external"></a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/resolution/index.html" class="no-external">
-<div class="listing-date">
-Apr 13, 2024
-</div>
-</a>
-</div>
-</div>
-</div>
-<div class="listing-no-matching d-none">
-No matching items
-</div>
-</div></main> <!-- /main -->
+</main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -894,6 +829,8 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
+</script>
+<script src="https://utteranc.es/client.js" repo="angelosabatini/blog.comments" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
 </script>
 </div> <!-- /content -->
 <footer class="footer">

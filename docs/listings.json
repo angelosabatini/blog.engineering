@@ -2,6 +2,7 @@
   {
     "listing": "/blog.html",
     "items": [
+      "/posts/tone_burst/index.html",
       "/posts/spell_checking/index.html",
       "/posts/correspondence_analysis_2/index.html",
       "/posts/correspondence_analysis_1/index.html",
@@ -20,6 +21,7 @@
   {
     "listing": "/archive.html",
     "items": [
+      "/posts/tone_burst/index.html",
       "/posts/spell_checking/index.html",
       "/posts/correspondence_analysis_2/index.html",
       "/posts/correspondence_analysis_1/index.html",
