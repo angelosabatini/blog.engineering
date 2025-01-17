@@ -273,7 +273,7 @@ Rectangular function
 \end{align}
 \right.
 \]</span></p>
-<p>The Continuous Time Fourier Transform of the rectangular function <span class="math inline">\(\text{rect(t/T)}\)</span> is:</p>
+<p>The Continuous Time Fourier Transform of the rectangular function <span class="math inline">\(\text{rect}(t/T)\)</span> is:</p>
 <p><span class="math display">\[
 X(f)=T\,\text{sinc}(fT)
 \]</span></p>
@@ -300,9 +300,9 @@ Sinc function
 <p><span class="math display">\[
 x(t)=x_r(t)\cdot x_b(t)
 \]</span></p>
-<p>The fundamental period of <span class="math inline">\(x(t)\)</span> is <span class="math inline">\(T=T_r\)</span>. We can appropriately choose the phase shift <span class="math inline">\(\theta_b\)</span> and the time delay <span class="math inline">\(\tau_r\)</span> so as to yield a signal <span class="math inline">\(x(t)\)</span> without discontinuities and further endowed with odd symmetry (e.g., <span class="math inline">\(\theta_b=0\)</span>, <span class="math inline">\(\tau_r=0\)</span>). Under these conditions, <span class="math inline">\(x(t)\)</span> can be written:</p>
+<p>The fundamental period of <span class="math inline">\(x(t)\)</span> is <span class="math inline">\(T=T_r\)</span>. We can appropriately choose the phase shift <span class="math inline">\(\theta_b\)</span> and the time delay <span class="math inline">\(\tau_r\)</span> so as to yield a signal <span class="math inline">\(x(t)\)</span> without discontinuities and further endowed with odd symmetry (e.g., <span class="math inline">\(\theta_b=0\)</span>, <span class="math inline">\(\tau_r=0\)</span>). Under these conditions, <span class="math inline">\(x(t)\)</span> can be regarded as composed by infinitely many replicas (with period <span class="math inline">\(T_r\)</span>) of the time-limited signal <span class="math inline">\(x_p(t)\)</span>:</p>
 <p><span class="math display">\[
-x(t)=\left\{
+x_p(t)=\left\{
 \begin{align}
 \sin\left(2\pi\dfrac{t}{T_b}\right),&amp;\quad\vert t\vert\leq T_g/2\\
 0,&amp;\quad\text{elsewhere}
