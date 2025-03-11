@@ -9,8 +9,813 @@
 <link>https://amsabatini.netlify.app/blog.html</link>
 <atom:link href="https://amsabatini.netlify.app/blog.xml" rel="self" type="application/rss+xml"/>
 <description>This the personal blog of Angelo Maria Sabatini</description>
-<generator>quarto-1.6.39</generator>
-<lastBuildDate>Wed, 15 Jan 2025 23:00:00 GMT</lastBuildDate>
+<generator>quarto-1.6.40</generator>
+<lastBuildDate>Mon, 10 Mar 2025 23:00:00 GMT</lastBuildDate>
+<item>
+  <title>Using Long Short Term Memory (LSTM) in R for time series forecasting</title>
+  <dc:creator>Angelo Maria Sabatini</dc:creator>
+  <link>https://amsabatini.netlify.app/posts/lstm/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>Long Short Term Memory (LSTM) networks are special kind of Recurrent Neural Networks (RNNs). LSTM networks can be used for time series forecasting, because of their ability to capture and learn the long-term dependencies, such as trends or patterns persisting over time, that are frequently exhibited by time series. In particular, LSTM networks can retain such information on long term behavior of time series much better than ordinary RNNs can do.</p>
+<p>Figure&nbsp;1 shows the cell of an ordinary RNN, <img src="https://latex.codecogs.com/png.latex?A">, which outputs a value <img src="https://latex.codecogs.com/png.latex?h_t"> in response to the input <img src="https://latex.codecogs.com/png.latex?x_t">.</p>
+<div id="fig-fig1" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/lstm/RNN_cell_1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="134">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Cell of an ordinary RNN.
+</figcaption>
+</figure>
+</div>
+<p>Since the cell has a loop into it, information is allowed to persist through multiple steps of the network. An RNN can be thought as multiple copies of this cell, each copy passing a message to the next one, as shown in Figure&nbsp;2. It is exactly this ability to retain information over multiple steps of the network that provides an RNN with the ability, in principle, to learn long-term dependencies of the input sequence.</p>
+<div id="fig-fig2" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/lstm/RNN_cell_2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: An unrolled RNN.
+</figcaption>
+</figure>
+</div>
+<p>LSTM are, in this regard, just a special kind of RNN, with much better capabilities to learn the long-term dependencies, compared with an ordinary RNN. Figure&nbsp;3 shows that each repeating cell in an LSTM has four neural network layers (sigmoid <img src="https://latex.codecogs.com/png.latex?%5Csigma"> and hyperbolic tangent <img src="https://latex.codecogs.com/png.latex?%5Ctext%7Btanh%7D">). In this figure each line carries a vector, from the output of one node to the input of others. Pointwise operations of multiplication and addition coexist with the learned neural network layers.</p>
+<div id="fig-fig3" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fig3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/lstm/LSTM_cell.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="720">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Cell of an LSTM network.
+</figcaption>
+</figure>
+</div>
+<p>The cell state is the horizontal line at the top of the diagram. The flow of information along the cell state is controlled by the neural network layers, which learn which information to pass and which information to forget through a number of gates:</p>
+<ul>
+<li>The <strong>forget gate</strong> decides what information to discard from the cell state:</li>
+</ul>
+<p><img src="https://latex.codecogs.com/png.latex?%0Af_t=%5Csigma%5Cleft%5Bw_f%5Ccdot(h_%7Bt-1%7D,x_t)+b_f%5Cright%5D%0A"></p>
+<ul>
+<li>The <strong>input gate</strong> decides what new information to store in the cell state:</li>
+</ul>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cleft%5C%7B%0A%5Cbegin%7Balign%7D%0Ai_t&amp;=%5Csigma%5Cleft%5Bw_i%5Ccdot(h_%7Bt-1%7D,x_t)+b_i%5Cright%5D%5C%5C%0A%5Ctilde%7Bc%7D_t&amp;=%5Ctanh%5Cleft%5Bw_c%5Ccdot(h_%7Bt-1%7D,x_t)+b_c%5Cright%5D%0A%5Cend%7Balign%7D%0A%5Cright.%0A"></p>
+<ul>
+<li>The <strong>cell state update</strong> is based on the following equations:</li>
+</ul>
+<p><img src="https://latex.codecogs.com/png.latex?%0Ac_t=f_t%5Ccdot%20c_%7Bt-1%7D+i_t%5Ccdot%20%5Ctilde%7Bc%7D_t%0A"></p>
+<ul>
+<li>The <strong>output gate</strong> computes the output <img src="https://latex.codecogs.com/png.latex?h_t"> based on the updated cell state <img src="https://latex.codecogs.com/png.latex?c_t">.</li>
+</ul>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cleft%5C%7B%0A%5Cbegin%7Balign%7D%0Ao_t&amp;=%5Csigma%5Cleft%5Bw_o%5Ccdot(h_%7Bt-1%7D,x_t)+b_o%5Cright%5D%5C%5C%0Ah_t&amp;=o_t%5Ccdot%20%5Ctanh(%7Bc_t%7D)%0A%5Cend%7Balign%7D%0A%5Cright.%0A"></p>
+<p>It is worth noting that the structure of the LSTM cell indicated in Figure&nbsp;3 is just one of many variants that have been proposed in the literature.</p>
+<section id="load-the-libraries-and-the-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="load-the-libraries-and-the-dataset">Load the libraries and the dataset</h2>
+<p>For demonstration purposes, the historical end-of-day stock price data <img src="https://latex.codecogs.com/png.latex?p_t"> for Apple Inc.&nbsp;are considered (period: 01/01/2022-06/31/2024). The <code>quantmod</code> package in R can be used to download this data from Yahoo Finance.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse)</span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(quantmod)</span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(keras)</span>
+<span id="cb1-4"></span>
+<span id="cb1-5">tensorflow<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set_random_seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1234</span>)</span>
+<span id="cb1-6"></span>
+<span id="cb1-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define the stock symbol for Apple Inc. and specifiy the date range</span></span>
+<span id="cb1-8">stock_symbol <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"AAPL"</span></span>
+<span id="cb1-9">start_date   <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.Date</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2021-12-31"</span>)</span>
+<span id="cb1-10">end_date     <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.Date</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"2024-06-30"</span>)</span>
+<span id="cb1-11"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Download data from Yahoo Finance using quantmod</span></span>
+<span id="cb1-12"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">getSymbols</span>(stock_symbol, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">src =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"yahoo"</span>, </span>
+<span id="cb1-13">           <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">from =</span> start_date, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">to =</span> end_date) <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">-&gt;</span> a</span>
+<span id="cb1-14"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Set data as dataframe</span></span>
+<span id="cb1-15">apple_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">date =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.Date</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">index</span>(AAPL)), </span>
+<span id="cb1-16">                         <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">close =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.numeric</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">Cl</span>(AAPL)))</span>
+<span id="cb1-17"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Compute log-returns from end-of-day stock price, adjusting for date</span></span>
+<span id="cb1-18">log_return <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">diff</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">log</span>(apple_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>close))</span>
+<span id="cb1-19">date <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> apple_data <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb1-20">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pull</span>(date)</span>
+<span id="cb1-21">date <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> date[<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]</span>
+<span id="cb1-22">apple_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">date =</span> date, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">log_return =</span> log_return)</span></code></pre></div>
+</details>
+</div>
+</section>
+<section id="data-preparation" class="level2">
+<h2 class="anchored" data-anchor-id="data-preparation">Data preparation</h2>
+<section id="transform-data-to-stationary" class="level3">
+<h3 class="anchored" data-anchor-id="transform-data-to-stationary">Transform data to stationary</h3>
+<p>Usually, this is done by getting the difference between two consecutive values in the series. This transformation, commonly known as <em>differencing</em>, is considered in traditional time series models, such as ARIMA and GARCH. For a short discussion about non-stationarity in time series and statistical tests that can be used to detect whether a time series is stationary or not, see my previous post (<a href="https://amsabatini.netlify.app/posts/dickey_fuller/">here</a>). There are different approaches in the literature regarding whether LSTM networks can be applied to stationary or non-stationary time series (<a href="https://medium.com/@robinaiqbal/using-r-to-compare-the-applicability-of-long-short-term-memory-lstm-models-for-stock-prices-and-7a9b72250a95">here</a>). For the example discussed in this post, I decided to analyze the <strong>log-returns</strong> <img src="https://latex.codecogs.com/png.latex?z_t"> of the end-of-day stock prices:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Az_t=%5Clog%5Cleft(%5Cdfrac%7Bp_t%7D%7Bp_%7Bt-1%7D%7D%5Cright)=%5Clog(p_t)-%5Clog(p_%7Bt-1%7D)%0A"></p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-fig4" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fig4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/lstm/index_files/figure-html/fig-fig4-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Log-returns of end-of-day stock price.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The time series of log-returns plotted in Figure&nbsp;4 is to be regarded as being stationary.</p>
+</section>
+<section id="data-normalization" class="level3">
+<h3 class="anchored" data-anchor-id="data-normalization">Data normalization</h3>
+<p>For better learning, LSTM needs normalized data, i.e., data that are centered by the mean and scaled by the standard deviation. This step can be implemented using the <code>scale()</code> function of base R; the function <code>get_scaling_factors()</code> stores the scaling factors used for data normalization. When the original data scale needs to be restored at the time of making predictions, the function <code>reverse_data()</code> can be used.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">get_scaling_factors <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(data) {</span>
+<span id="cb2-2">  out <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mean =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(data), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sd =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sd</span>(data))</span>
+<span id="cb2-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">return</span>(out)</span>
+<span id="cb2-4">}</span>
+<span id="cb2-5"></span>
+<span id="cb2-6">reverse_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(data, scaling_factors) {</span>
+<span id="cb2-7">  temp <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> (data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>scaling_factors[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>]) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> scaling_factors[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]</span>
+<span id="cb2-8">  out <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.matrix</span>(temp)</span>
+<span id="cb2-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">return</span>(out)</span>
+<span id="cb2-10">}</span>
+<span id="cb2-11"></span>
+<span id="cb2-12"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Data processing using differencing with diff() and normalization with scale() </span></span>
+<span id="cb2-13">scaling_factors <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">get_scaling_factors</span>(apple_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>log_return)</span>
+<span id="cb2-14">log_return      <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">scale</span>(apple_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>log_return)</span>
+<span id="cb2-15">log_return      <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(log_return)</span></code></pre></div>
+</details>
+</div>
+</section>
+<section id="split-dataset-in-training-and-testing-sets" class="level3">
+<h3 class="anchored" data-anchor-id="split-dataset-in-training-and-testing-sets">Split dataset in training and testing sets</h3>
+<p>LSTM works in a supervised learning mode, with a predictor <img src="https://latex.codecogs.com/png.latex?%5Ctextbf%7BX%7D"> and a target variable <img src="https://latex.codecogs.com/png.latex?Y">. The time series needs therefore to be transformed by lagging the series, so as to have the values at times <img src="https://latex.codecogs.com/png.latex?(t%E2%88%92k),k=1,%5Ccdots,L"> as the input and the value at time <img src="https://latex.codecogs.com/png.latex?t"> as the ouput, for a <img src="https://latex.codecogs.com/png.latex?L">-step lagged dataset: <img src="https://latex.codecogs.com/png.latex?%5Ctextbf%7BX%7D_t=%5Bx_%7Bt-L%7D,x_%7Bt-L+1%7D,%5Ccdots,x_%7Bt-1%7D%5D"> and <img src="https://latex.codecogs.com/png.latex?Y_t=x_t">. Here, I choose <img src="https://latex.codecogs.com/png.latex?L=7">. Moreover, unlike in most analysis where training and testing data sets are randomly sampled, with time series data the order of the observations does matter. The following code splits the first 80% of the series as training set and the remaining 20% as testing set.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define the train and test split</span></span>
+<span id="cb3-2">split_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(series, lag) {</span>
+<span id="cb3-3">    lag <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> lag<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span></span>
+<span id="cb3-4">    data_raw <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.matrix</span>(series) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># convert to matrix (series is a data frame)</span></span>
+<span id="cb3-5">    data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">array</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dim =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, lag, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ncol</span>(data_raw)))</span>
+<span id="cb3-6">    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Create all possible sequences of length lag</span></span>
+<span id="cb3-7">    <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">for</span> (i <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">in</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">nrow</span>(data_raw)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>lag)) {</span>
+<span id="cb3-8">        data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rbind</span>(data, data_raw[i<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span>(i<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span>lag<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">-1</span>), ])</span>
+<span id="cb3-9">    }</span>
+<span id="cb3-10">    train_set_size <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">round</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.8</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">nrow</span>(data))</span>
+<span id="cb3-11">    test_set_size  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">nrow</span>(data)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>train_set_size</span>
+<span id="cb3-12">    x_train <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> data[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span>train_set_size, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span>(lag<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">-1</span>)]</span>
+<span id="cb3-13">    y_train <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> data[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span>train_set_size, lag]</span>
+<span id="cb3-14">    x_test <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> data[(train_set_size<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">nrow</span>(data), <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span>(lag<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">-1</span>)]</span>
+<span id="cb3-15">    y_test <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> data[(train_set_size<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">nrow</span>(data), lag]</span>
+<span id="cb3-16">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">return</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x_train =</span> x_train, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y_train =</span> y_train,</span>
+<span id="cb3-17">                <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x_test =</span> x_test, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y_test =</span> y_test))</span>
+<span id="cb3-18">}</span>
+<span id="cb3-19"></span>
+<span id="cb3-20"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Divide data into train and test</span></span>
+<span id="cb3-21">lag <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span> <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Choose sequence length</span></span>
+<span id="cb3-22">split_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">split_data</span>(log_return, lag)</span>
+<span id="cb3-23">x_train <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> split_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>x_train</span>
+<span id="cb3-24">y_train <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> split_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>y_train</span>
+<span id="cb3-25">x_test <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> split_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>x_test</span>
+<span id="cb3-26">y_test <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> split_data<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>y_test</span>
+<span id="cb3-27">n_train <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">dim</span>(x_train)[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]</span>
+<span id="cb3-28">n_test <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">dim</span>(x_test)[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]</span></code></pre></div>
+</details>
+</div>
+</section>
+</section>
+<section id="model-construction" class="level2">
+<h2 class="anchored" data-anchor-id="model-construction">Model construction</h2>
+<p>It is important to consider that the input to every LSTM layer must be three-dimensional. The three dimensions of the input are:</p>
+<ul>
+<li><p><strong>Samples</strong> This dimension indicates how many samples are included in each batch; in this example, we have 494 samples for the training data and 123 for the testing data.</p></li>
+<li><p><strong>Time Steps</strong> This dimension indicates how many points of observation are included in each sample; in this example, we have 7 points.</p></li>
+<li><p><strong>Features</strong> This dimension indicates how many features are in each observation at each time step; for a univariate case, like in this example, we have just one feature.</p></li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1">input_dim <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span></span>
+<span id="cb4-2"></span>
+<span id="cb4-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Reshape the training and test data to have a 3D array</span></span>
+<span id="cb4-4">x_train <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">array_reshape</span>(x_train, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(n_train, lag, input_dim))</span>
+<span id="cb4-5">x_test  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">array_reshape</span>(x_test, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(n_test, lag, input_dim))</span></code></pre></div>
+</details>
+</div>
+<section id="define-the-model" class="level3">
+<h3 class="anchored" data-anchor-id="define-the-model">Define the model</h3>
+<p>A sequential model is defined using <code>keras_model_sequential()</code>:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Decide structure</span></span>
+<span id="cb5-2">hidden_dim <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">32</span></span>
+<span id="cb5-3">num_layers <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span></span>
+<span id="cb5-4">output_dim <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span></span>
+<span id="cb5-5"></span>
+<span id="cb5-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define the LSTM model using Keras</span></span>
+<span id="cb5-7">model <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">keras_model_sequential</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb5-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">layer_lstm</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> hidden_dim, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">return_sequences =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>, </span>
+<span id="cb5-9">             <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">input_shape =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(lag, input_dim)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb5-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">layer_lstm</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> hidden_dim) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb5-11">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">layer_dense</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> output_dim) </span>
+<span id="cb5-12">model</span></code></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model: "sequential"
+________________________________________________________________________________
+ Layer (type)                       Output Shape                    Param #     
+================================================================================
+ lstm_1 (LSTM)                      (None, 7, 32)                   4352        
+ lstm (LSTM)                        (None, 32)                      8320        
+ dense (Dense)                      (None, 1)                       33          
+================================================================================
+Total params: 12705 (49.63 KB)
+Trainable params: 12705 (49.63 KB)
+Non-trainable params: 0 (0.00 Byte)
+________________________________________________________________________________</code></pre>
+</div>
+</div>
+<p>The LSTM input layer is defined by the <code>input_shape</code> argument on the first hidden layer, which takes a tuple of two values that define the number of time steps and features.</p>
+</section>
+<section id="compile-and-fit-the-model" class="level3">
+<h3 class="anchored" data-anchor-id="compile-and-fit-the-model">Compile and fit the model</h3>
+<p>The model is compiled in-place using <code>compile()</code>, which specifies the loss function (mean squared error) and the optimizer (Adam), with learning rate assigned over each update. The model is then fit using the training data and validated on the testing data. The training history is stored in the <code>history</code> object.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">num_epochs <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">125</span></span>
+<span id="cb7-2">batch      <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">16</span></span>
+<span id="cb7-3"></span>
+<span id="cb7-4">model <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb7-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">compile</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">loss =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mean_squared_error"</span>, </span>
+<span id="cb7-6">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">optimizer =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">optimizer_adam</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">learning_rate =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.01</span>))</span>
+<span id="cb7-7"></span>
+<span id="cb7-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Train the model on the training data</span></span>
+<span id="cb7-9">history <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> model <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fit</span>(x_train, y_train, </span>
+<span id="cb7-10">                         <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">epochs =</span> num_epochs, </span>
+<span id="cb7-11">                         <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">batch_size =</span> batch, </span>
+<span id="cb7-12">                         <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">validation_data =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(x_test, y_test),</span>
+<span id="cb7-13">                         <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">verbose =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>,</span>
+<span id="cb7-14">                         <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">shuffle =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span></code></pre></div>
+</details>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-fig5" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fig5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/lstm/index_files/figure-html/fig-fig5-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Loss over the number of epochs.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The loss over the training epochs is shown in Figure&nbsp;5. The validation mean squared error is 1.2078.</p>
+</section>
+<section id="extract-predictions" class="level3">
+<h3 class="anchored" data-anchor-id="extract-predictions">Extract predictions</h3>
+<p>Figure&nbsp;6 shows the results of the forecasting exercise using LSTM.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Extract predictions from the estimated model</span></span>
+<span id="cb8-2">y_train_pred <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> model <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">predict</span>(x_train, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">verbose =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span>
+<span id="cb8-3">y_test_pred  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> model <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">predict</span>(x_test, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">verbose =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span>
+<span id="cb8-4"></span>
+<span id="cb8-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Rescale the predictions and original values</span></span>
+<span id="cb8-6">y_train_pred_orig <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">reverse_data</span>(y_train_pred, scaling_factors)</span>
+<span id="cb8-7">y_train_orig      <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">reverse_data</span>(y_train, scaling_factors)</span>
+<span id="cb8-8">y_test_pred_orig  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">reverse_data</span>(y_test_pred, scaling_factors)</span>
+<span id="cb8-9">y_test_orig       <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">reverse_data</span>(y_test, scaling_factors)</span>
+<span id="cb8-10"></span>
+<span id="cb8-11"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Shift the predicted values to start from where the training data predictions end</span></span>
+<span id="cb8-12">y_test_pred_orig_shifted <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rep</span>(<span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NA</span>, n_train), y_test_pred_orig[, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>])</span>
+<span id="cb8-13">y_train_pred_orig        <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(y_train_pred_orig, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rep</span>(<span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NA</span>, n_test))</span></code></pre></div>
+</details>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-fig6" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fig6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/lstm/index_files/figure-html/fig-fig6-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: LSTM predictions.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+
+
+</section>
+</section>
+
+ ]]></description>
+  <category>time series</category>
+  <guid>https://amsabatini.netlify.app/posts/lstm/</guid>
+  <pubDate>Mon, 10 Mar 2025 23:00:00 GMT</pubDate>
+  <media:content url="https://amsabatini.netlify.app/posts/lstm/RNN_cell_2.png" medium="image" type="image/png" height="50" width="144"/>
+</item>
 <item>
   <title>Frequency spectrum of a sine-wave tone burst</title>
   <dc:creator>Angelo Maria Sabatini</dc:creator>
