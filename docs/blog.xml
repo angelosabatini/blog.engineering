@@ -10,7 +10,873 @@
 <atom:link href="https://amsabatini.netlify.app/blog.xml" rel="self" type="application/rss+xml"/>
 <description>This the personal blog of Angelo Maria Sabatini</description>
 <generator>quarto-1.6.40</generator>
-<lastBuildDate>Mon, 10 Mar 2025 23:00:00 GMT</lastBuildDate>
+<lastBuildDate>Mon, 21 Apr 2025 22:00:00 GMT</lastBuildDate>
+<item>
+  <title>Unleashing the power of Apple Silicon for R: Parallel processing on M1/M2</title>
+  <dc:creator>Angelo Maria Sabatini</dc:creator>
+  <link>https://amsabatini.netlify.app/posts/parallel_processing/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>Parallel computation is a big deal in machine learning (ML), especially when working with large datasets, complex models (like deep neural networks), or intensive tasks like hyperparameter tuning. Parallel computation refers to executing multiple calculations or processes simultaneously.</p>
+<p>In ML, this helps speed up training and inference by utilizing multiple processing units (CPU cores, GPUs, TPUs, clusters). For my (small) projects in ML, I run everything on a single-CPU machine, an M2 MacBook Air, and write my code in R. Calculations can be excruciatingly slow; however, many tasks are also considered <em>embarrassingly parallel</em>. For example, models created during resampling are independent of each other and can be fit simultaneously without issue. Right now I’m running everything sequentially, but I want to switch to parallel processing to speed things up. In this post, I will review popular methods that are available in R <em>to go parallel</em> with MacBooks equipped with M1 and M2 chips.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Apple M1 and M2 Macs: A quick overview
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Apple’s M1 and M2 chips are custom-designed ARM-based processors that mark Apple’s move away from Intel. These chips power Macs and iPads, offering significant boosts in performance and efficiency.</p>
+<p>M1 Chip (2020):</p>
+<p><em>First Apple Silicon chip.</em> 5nm process, 8-core CPU (4 performance + 4 efficiency), up to 8-core GPU. * Unified memory architecture (up to 16GB). * High performance per watt; fanless in MacBook Air. * Found in MacBook Air, MacBook Pro 13”, Mac Mini, and iMac 24”.</p>
+<p>M2 Chip (2022):</p>
+<ul>
+<li>Second-generation chip.</li>
+<li>Improved 5nm design, up to 18% faster CPU and 35% faster GPU than M1.</li>
+<li>Supports up to 24 GB of unified memory.</li>
+<li>Enhanced media engine and ProRes acceleration.</li>
+<li>Used in updated MacBook Air, MacBook Pro 13”, and newer Macs.</li>
+</ul>
+</div>
+</div>
+<p>For computations conducted on a single computer, the number of possible worker processes is determined by the parallel package:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># The number of physical cores in the hardware:</span></span>
+<span id="cb1-2">parallel<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">detectCores</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">logical =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)<span class="er" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">)</span></span>
+<span id="cb1-3"></span>
+<span id="cb1-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># The number of possible independent processes that can </span></span>
+<span id="cb1-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># be simultaneously used:  </span></span>
+<span id="cb1-6">parallel<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">detectCores</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">logical =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span></code></pre></div>
+</div>
+<p>My MacBook Air has:</p>
+<ul>
+<li>4 Performance Cores (P-cores)</li>
+<li>4 Efficiency Cores (E-cores)</li>
+</ul>
+<p>When training models, especially with resampling (like cross-validation, bootstrapping), I want consistency and high throughput, which is best achieved on the performance cores. So:</p>
+<ul>
+<li>Choosing 4 cores ensures only the P-cores are used</li>
+<li>Avoids overloading the system, leaving E-cores and other system resources free for background tasks or RStudio</li>
+</ul>
+<p>Using all 8 logical cores (4P + 4E) can lead to inconsistent performance, because efficiency cores are slower and not ideal for heavy computational tasks.</p>
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
+<p>R supports three popular parallel processing methods that work well on M1/M2 MacBooks. Programming hints on how to set up/activate and deactivate/reset each of the three methods are provided in the table below.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Method</strong></th>
+<th><strong>Setup / Activate</strong></th>
+<th><strong>Deactivate / Reset</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>doParallel</strong></td>
+<td><code>library(doParallel)</code> <br> <code>cl &lt;- makeCluster(4)</code> <br> <code>registerDoParallel(cl)</code></td>
+<td><code>stopCluster(cl)</code></td>
+</tr>
+<tr class="even">
+<td><strong>doMC</strong></td>
+<td><code>library(doMC)</code> <br> <code>registerDoMC(cores = 4)</code></td>
+<td><code>registerDoSEQ()</code></td>
+</tr>
+<tr class="odd">
+<td><strong>furrr + future</strong></td>
+<td><code>library(furrr)</code> <br> <code>library(future)</code> <br> <code>plan(multisession, workers = 4)</code></td>
+<td><code>plan(sequential)</code></td>
+</tr>
+</tbody>
+</table>
+<p>The table below summarizes the key pros and cons of each method.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Method</strong></th>
+<th><strong>Pros</strong></th>
+<th><strong>Cons</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>doParallel</strong></td>
+<td>✅ Cross-platform (Mac/Linux/Windows) <br> ✅ Works with <code>foreach</code>, <code>caret</code>, <code>tidymodels</code></td>
+<td>❌ Verbose setup <br> ❌ Full R sessions increase memory</td>
+</tr>
+<tr class="even">
+<td><strong>doMC</strong></td>
+<td>✅ Simple &amp; fast on macOS <br> ✅ Lightweight (uses forked processes)</td>
+<td>❌ Not Windows-compatible <br> ❌ Not safe for GUI/Shiny apps</td>
+</tr>
+<tr class="odd">
+<td><strong>furrr + future</strong></td>
+<td>✅ Clean tidyverse integration <br> ✅ Works with <code>future_map()</code> <br> ✅ Scales to cloud</td>
+<td>❌ More overhead <br> ❌ Full R sessions</td>
+</tr>
+</tbody>
+</table>
+<div id="exm-exm1" class="theorem example">
+<p><span class="theorem-title"><strong>Example 1 (The Ames housing dataset)</strong></span> The Ames housing dataset is a well-known real estate dataset used for regression modeling, especially as an improved alternative to the Boston Housing dataset. It contains detailed information about residential homes in Ames, Iowa, sold between 2006 and 2010 (<a href="https://www.tmwr.org">here</a>).</p>
+<p>Here’s a clean and minimal setup to load the essential libraries for working with the Ames Housing dataset using a tidymodels regression workflow.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Data handling and wrangling</span></span>
+<span id="cb2-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse)</span>
+<span id="cb2-3"></span>
+<span id="cb2-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># For the Ames Housing dataset</span></span>
+<span id="cb2-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(modeldata)</span>
+<span id="cb2-6"></span>
+<span id="cb2-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Modeling and resampling</span></span>
+<span id="cb2-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidymodels)</span>
+<span id="cb2-9"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tidymodels_prefer</span>()</span></code></pre></div>
+</details>
+</div>
+<p>The dataset can be loaded easily in R using the modeldata package.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data</span>(ames, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">package =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"modeldata"</span>)</span>
+<span id="cb3-2">ames <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> ames <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Sale_Price =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">log10</span>(Sale_Price))</span></code></pre></div>
+</details>
+</div>
+<p>Suppose a regression model is to be fit to the pre-logged sale prices (Sale_Price). In this post, we will focus on a small subset of the predictors available in the Ames housing dataset:</p>
+<ul>
+<li>The neighborhood-(qualitative): physical locations within Ames city limits</li>
+<li>The gross above-grade-living area-(continuous): the standard measure for determining the amount of space in residential properties)</li>
+<li>The year built (Year_Built)-(discrete): original construction date</li>
+<li>The type of building (Bldg_Type)-(nominal): type of dwelling</li>
+</ul>
+<p>I set up my regression modeling using tidymodels, including:</p>
+<ul>
+<li>Data splitting</li>
+<li>Recipe for preprocessing</li>
+<li>Model specification</li>
+<li>Workflow combining recipe + model</li>
+</ul>
+<p>My workflow fits together with v-fold cross-validation in the tidymodels framework. Using the <code>strata = Sale_Price</code> argument in <code>initial_split()</code> or <code>vfold_cv()</code>, I use stratified sampling, which helps ensure that the distribution of the response variable (<code>Sale_Price</code>) remains balanced across splits.</p>
+<p>The recipe defines the preprocessing steps applied to the dataset before modeling, via <code>step_*()</code> functions without immediately executing them; it is only a specification of what should be done.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">502</span>)</span>
+<span id="cb4-2">ames_split <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">initial_split</span>(ames, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">prop =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.80</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">strata =</span> Sale_Price) </span>
+<span id="cb4-3">ames_train <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">training</span>(ames_split)</span>
+<span id="cb4-4">ames_test  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">testing</span>(ames_split)</span>
+<span id="cb4-5"></span>
+<span id="cb4-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1004</span>)</span>
+<span id="cb4-7">ames_folds <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">vfold_cv</span>(ames_train, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">v =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">strata =</span> Sale_Price) </span>
+<span id="cb4-8"></span>
+<span id="cb4-9">ames_rec <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> </span>
+<span id="cb4-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">recipe</span>(Sale_Price <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> Neighborhood <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> Gr_Liv_Area <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> Year_Built <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> Bldg_Type,</span>
+<span id="cb4-11">         <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> ames_train) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb4-12">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">step_log</span>(Gr_Liv_Area, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> </span>
+<span id="cb4-13">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">step_dummy</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">all_nominal_predictors</span>())</span></code></pre></div>
+</details>
+</div>
+<p>I fit a random forest model to the training set using the ranger engine, which uses the ranger package for fast computation. Random forests are very powerful — they can learn complex patterns in the data with high accuracy. One big advantage is that they don’t need much preprocessing, so they’re easy to use. The tradeoff is that they can be slower to train, especially on large datasets.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1">rf_model <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rand_forest</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">trees =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> </span>
+<span id="cb5-2">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set_engine</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ranger"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> </span>
+<span id="cb5-3">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set_mode</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"regression"</span>)</span>
+<span id="cb5-4"></span>
+<span id="cb5-5">rf_wflow <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">workflow</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> </span>
+<span id="cb5-6">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">add_recipe</span>(ames_rec) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> </span>
+<span id="cb5-7">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">add_model</span>(rf_model)</span></code></pre></div>
+</details>
+</div>
+<p>The <code>control_resamples()</code> function is used to customize how results are saved during cross-validation. <code>save_pred = TRUE</code> saves the predictions from each fold, so we can analyze or plot them later; <code>save_workflow = TRUE</code> saves the workflow used in each fold, which is helpful if we want to inspect the model or preprocessing steps afterward.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1">keep_pred <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">control_resamples</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">save_pred =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">save_workflow =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span></code></pre></div>
+</details>
+</div>
+<p><strong>Sequential approach</strong></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1003</span>) </span>
+<span id="cb7-2"></span>
+<span id="cb7-3">start_time <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">Sys.time</span>() </span>
+<span id="cb7-4"></span>
+<span id="cb7-5">rf_res <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> rf_wflow <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> </span>
+<span id="cb7-6">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fit_resamples</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">resamples =</span> ames_folds, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">control =</span> keep_pred) </span>
+<span id="cb7-7"></span>
+<span id="cb7-8">end_time <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">Sys.time</span>() </span>
+<span id="cb7-9"></span>
+<span id="cb7-10">metrics <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">collect_metrics</span>(rf_res) </span>
+<span id="cb7-11">performance <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>()</span>
+<span id="cb7-12">performance[[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> metrics <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb7-13">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(.metric <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%in%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rmse"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rsq"</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb7-14">               <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pull</span>(mean)</span>
+<span id="cb7-15"></span>
+<span id="cb7-16">duration <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>()</span>
+<span id="cb7-17">x <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> end_time<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>start_time</span>
+<span id="cb7-18">duration[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.numeric</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">regmatches</span>(x,<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">regexpr</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">d*</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">.?</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">d+"</span>,x)))</span></code></pre></div>
+</details>
+</div>
+<p><strong>Approach using doParallel</strong></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(doParallel) </span>
+<span id="cb8-2"></span>
+<span id="cb8-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1003</span>) </span>
+<span id="cb8-4"></span>
+<span id="cb8-5">cl <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">makeCluster</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>) </span>
+<span id="cb8-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">registerDoParallel</span>(cl) </span>
+<span id="cb8-7"></span>
+<span id="cb8-8">start_time <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">Sys.time</span>() </span>
+<span id="cb8-9">rf_res <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> rf_wflow <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> </span>
+<span id="cb8-10">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fit_resamples</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">resamples =</span> ames_folds, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">control =</span> keep_pred) </span>
+<span id="cb8-11">end_time <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">Sys.time</span>()</span>
+<span id="cb8-12"></span>
+<span id="cb8-13"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">stopCluster</span>(cl)</span>
+<span id="cb8-14"></span>
+<span id="cb8-15">metrics <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">collect_metrics</span>(rf_res)  </span>
+<span id="cb8-16">performance[[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>]] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> metrics <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb8-17">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(.metric <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%in%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rmse"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rsq"</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb8-18">               <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pull</span>(mean)</span>
+<span id="cb8-19"></span>
+<span id="cb8-20">x <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> end_time <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> start_time</span>
+<span id="cb8-21">duration[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.numeric</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">regmatches</span>(x,<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">regexpr</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">d*</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">.?</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">d+"</span>,x)))</span></code></pre></div>
+</details>
+</div>
+<p><strong>Approach using doMC</strong></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1003</span>) </span>
+<span id="cb9-2"></span>
+<span id="cb9-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(doMC) </span>
+<span id="cb9-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">registerDoMC</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">cores =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>) </span>
+<span id="cb9-5"></span>
+<span id="cb9-6">start_time <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">Sys.time</span>() </span>
+<span id="cb9-7"></span>
+<span id="cb9-8">rf_res <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> rf_wflow <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> </span>
+<span id="cb9-9">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fit_resamples</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">resamples =</span> ames_folds, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">control =</span> keep_pred) </span>
+<span id="cb9-10"></span>
+<span id="cb9-11">end_time <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">Sys.time</span>()</span>
+<span id="cb9-12"></span>
+<span id="cb9-13"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">registerDoSEQ</span>()</span>
+<span id="cb9-14"></span>
+<span id="cb9-15">metrics <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">collect_metrics</span>(rf_res)  </span>
+<span id="cb9-16">performance[[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>]] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> metrics <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb9-17">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(.metric <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%in%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rmse"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rsq"</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb9-18">               <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pull</span>(mean)</span>
+<span id="cb9-19"></span>
+<span id="cb9-20">x <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> end_time <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> start_time</span>
+<span id="cb9-21">duration[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.numeric</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">regmatches</span>(x,<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">regexpr</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">d*</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">.?</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">d+"</span>,x)))</span></code></pre></div>
+</details>
+</div>
+<p><strong>Approach using furrr + future</strong></p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(furrr) </span>
+<span id="cb10-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(future) </span>
+<span id="cb10-3"></span>
+<span id="cb10-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1003</span>) </span>
+<span id="cb10-5"></span>
+<span id="cb10-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plan</span>(multisession, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">workers =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>) </span>
+<span id="cb10-7"></span>
+<span id="cb10-8">start_time <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">Sys.time</span>() </span>
+<span id="cb10-9"></span>
+<span id="cb10-10">rf_res <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> rf_wflow <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> </span>
+<span id="cb10-11">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fit_resamples</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">resamples =</span> ames_folds, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">control =</span> keep_pred) </span>
+<span id="cb10-12"></span>
+<span id="cb10-13">end_time <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">Sys.time</span>()</span>
+<span id="cb10-14"></span>
+<span id="cb10-15"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plan</span>(sequential)</span>
+<span id="cb10-16"></span>
+<span id="cb10-17">metrics <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">collect_metrics</span>(rf_res)  </span>
+<span id="cb10-18">performance[[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>]] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> metrics <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb10-19">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(.metric <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%in%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rmse"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"rsq"</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb10-20">               <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pull</span>(mean)</span>
+<span id="cb10-21"></span>
+<span id="cb10-22">x <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> end_time <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> start_time</span>
+<span id="cb10-23">duration[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.numeric</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">regmatches</span>(x,<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">regexpr</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">d*</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">.?</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">d+"</span>,x)))</span></code></pre></div>
+</details>
+</div>
+<p><strong>Comparative analysis</strong></p>
+<p>Training time (in seconds) for each method is shown below.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table quarto-disable-processing="true" class="table table-condensed table-bordered" style="font-size: 16px; width: auto !important; margin-left: auto; margin-right: auto;">
+<caption style="font-size: initial !important;">Timing results</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Method </th>
+   <th style="text-align:right;"> Time, s </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> doMC </td>
+   <td style="text-align:right;"> 4.83 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> doParallel </td>
+   <td style="text-align:right;"> 7.10 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> purrr + future </td>
+   <td style="text-align:right;"> 10.26 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> sequential </td>
+   <td style="text-align:right;"> 13.37 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="recommended-core-use-on-m1m2-macs" class="level2">
+<h2 class="anchored" data-anchor-id="recommended-core-use-on-m1m2-macs">Recommended core use on M1/M2 Macs</h2>
+<blockquote class="blockquote">
+<p>Use <strong>4 cores</strong> to target the <strong>performance cores</strong> only. This choice offers a good balance between performance and system responsiveness.</p>
+</blockquote>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<ul>
+<li>Use <code>doMC</code> for lightweight, fast, Mac-only workflows.</li>
+<li>Use <code>doParallel</code> if you need Windows compatibility or more control.</li>
+<li>Use <code>furrr + future</code> for a modern, tidyverse-friendly setup and future scalability.</li>
+</ul>
+<p><a href="https://www.flaticon.com/free-icons/parallel" title="parallel icons">Parallel icons created by juicy_fish - Flaticon</a></p>
+
+
+</section>
+
+ ]]></description>
+  <category>machine learning</category>
+  <guid>https://amsabatini.netlify.app/posts/parallel_processing/</guid>
+  <pubDate>Mon, 21 Apr 2025 22:00:00 GMT</pubDate>
+  <media:content url="https://amsabatini.netlify.app/posts/parallel_processing/processing.png" medium="image" type="image/png" height="144" width="144"/>
+</item>
 <item>
   <title>Using Long Short Term Memory (LSTM) in R for time series forecasting</title>
   <dc:creator>Angelo Maria Sabatini</dc:creator>
@@ -583,14 +1449,14 @@ font-style: inherit;">layer_lstm</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">units =</span> hidden_dim, <span class="at" style="color: #657422;
 background-color: null;
-font-style: inherit;">return_sequences =</span> <span class="cn" style="color: #8f5902;
-background-color: null;
-font-style: inherit;">TRUE</span>, </span>
-<span id="cb5-9">             <span class="at" style="color: #657422;
-background-color: null;
 font-style: inherit;">input_shape =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">c</span>(lag, input_dim)) <span class="sc" style="color: #5E5E5E;
+font-style: inherit;">c</span>(lag, input_dim), </span>
+<span id="cb5-9">             <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">return_sequences =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">%&gt;%</span></span>
 <span id="cb5-10">  <span class="fu" style="color: #4758AB;
@@ -805,6 +1671,7 @@ Figure&nbsp;6: LSTM predictions.
 </div>
 </div>
 </div>
+<p><a href="https://www.flaticon.com/free-icons/forecasting" title="forecasting icons">Forecasting icons created by zero_wing - Flaticon</a></p>
 
 
 </section>
@@ -814,7 +1681,7 @@ Figure&nbsp;6: LSTM predictions.
   <category>time series</category>
   <guid>https://amsabatini.netlify.app/posts/lstm/</guid>
   <pubDate>Mon, 10 Mar 2025 23:00:00 GMT</pubDate>
-  <media:content url="https://amsabatini.netlify.app/posts/lstm/RNN_cell_2.png" medium="image" type="image/png" height="50" width="144"/>
+  <media:content url="https://amsabatini.netlify.app/posts/lstm/forecast-analytics.png" medium="image" type="image/png" height="144" width="144"/>
 </item>
 <item>
   <title>Frequency spectrum of a sine-wave tone burst</title>
