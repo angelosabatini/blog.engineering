@@ -14,7 +14,7 @@
 <item>
   <title>Supercharge Deep Learning in R with a hybrid R–Colab workflow</title>
   <dc:creator>Angelo Maria Sabatini</dc:creator>
-  <link>https://amsabatini.netlify.app/posts/parallel_processing_colab/</link>
+  <link>https://amsabatini.netlify.app/posts/parallel_processing_GPU/</link>
   <description><![CDATA[ 
 
 
@@ -65,7 +65,15 @@ font-style: inherit;">'/content/drive'</span>)</span></code></pre></div>
 </div>
 <p>The user is then prompted to authorize access to her/his Google account. Once mounted, the Drive will be available at:</p>
 <div class="cell">
-<pre class="pyhton cell-code"><code>/content/drive/MyDrive/</code></pre>
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span>content<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span>drive<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span>MyDrive<span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span></span></code></pre></div>
 </div>
 <p>The user can now read from and write to any project folder shared via Google Drive.</p>
 </div>
@@ -591,7 +599,7 @@ font-style: inherit;">"R-based DNN confusion matrix for the MNIST dataset"</span
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://amsabatini.netlify.app/posts/parallel_processing_colab/index_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://amsabatini.netlify.app/posts/parallel_processing_GPU/index_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -710,7 +718,7 @@ font-style: inherit;">"Python-based DNN confusion matrix for the MNIST dataset"<
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="https://amsabatini.netlify.app/posts/parallel_processing_colab/index_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://amsabatini.netlify.app/posts/parallel_processing_GPU/index_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -752,20 +760,20 @@ font-style: inherit;">"colab_duration.txt"</span>))</span></code></pre></div>
   <tr>
    <td style="text-align:left;"> R-based </td>
    <td style="text-align:right;"> 10 </td>
-   <td style="text-align:right;"> 0.973 </td>
-   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 0.972 </td>
+   <td style="text-align:right;"> 5 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> R-based </td>
    <td style="text-align:right;"> 50 </td>
    <td style="text-align:right;"> 0.977 </td>
-   <td style="text-align:right;"> 20 </td>
+   <td style="text-align:right;"> 26 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> R-based </td>
    <td style="text-align:right;"> 100 </td>
-   <td style="text-align:right;"> 0.980 </td>
-   <td style="text-align:right;"> 43 </td>
+   <td style="text-align:right;"> 0.979 </td>
+   <td style="text-align:right;"> 54 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Python-based </td>
@@ -1164,9 +1172,9 @@ font-style: inherit;">"</span>, confusion_matrix(y_test, pred_labels))</span></c
 
  ]]></description>
   <category>machine learning</category>
-  <guid>https://amsabatini.netlify.app/posts/parallel_processing_colab/</guid>
+  <guid>https://amsabatini.netlify.app/posts/parallel_processing_GPU/</guid>
   <pubDate>Tue, 22 Apr 2025 22:00:00 GMT</pubDate>
-  <media:content url="https://amsabatini.netlify.app/posts/parallel_processing_colab/processing.png" medium="image" type="image/png" height="144" width="144"/>
+  <media:content url="https://amsabatini.netlify.app/posts/parallel_processing_GPU/processing.png" medium="image" type="image/png" height="144" width="144"/>
 </item>
 <item>
   <title>Unleashing the power of Apple Silicon for R: Parallel processing on M1/M2</title>
