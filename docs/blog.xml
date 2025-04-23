@@ -10,7 +10,1164 @@
 <atom:link href="https://amsabatini.netlify.app/blog.xml" rel="self" type="application/rss+xml"/>
 <description>This the personal blog of Angelo Maria Sabatini</description>
 <generator>quarto-1.6.40</generator>
-<lastBuildDate>Mon, 21 Apr 2025 22:00:00 GMT</lastBuildDate>
+<lastBuildDate>Tue, 22 Apr 2025 22:00:00 GMT</lastBuildDate>
+<item>
+  <title>Supercharge Deep Learning in R with a hybrid R–Colab workflow</title>
+  <dc:creator>Angelo Maria Sabatini</dc:creator>
+  <link>https://amsabatini.netlify.app/posts/parallel_processing_colab/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>Exploring deep learning in R with the Keras and tensorflow packages reveals an intuitive and powerful interface. With just a few lines of R code, deep neural networks can be built, trained, and evaluated for tasks such as image recognition, time series forecasting, or natural language processing—all while maintaining the efficiency and flexibility of a tidyverse-powered workflow.</p>
+<p>But here’s the catch: training deep learning models on a typical laptop or single-CPU machine can be painfully slow. GPUs are built to handle the massive parallelism required for deep learning, but most R users don’t have one sitting idle in their local setup.</p>
+<p>Enter Google Colab—a free, cloud-based environment that provides access to powerful NVIDIA GPUs, without the need for installation or cost. It offers the experience of renting a high-performance machine for deep learning, directly from a browser. For many R users, this opens up a new realm of possibilities, enabling models that would take hours to train on a local machine to run in mere minutes.</p>
+<p>But there’s one little twist: Colab speaks Python. The environment is built for the Python ecosystem, especially tools like TensorFlow, PyTorch, and Keras—all in their native Python form.</p>
+<p>This doesn’t mean R users are excluded. Instead, it offers an opportunity to combine the strengths of both environments. All data preparation, exploration, and evaluation can be done in R using tools like dplyr, ggplot2, and yardstick, while the deep learning model training can be delegated to Colab. Colab serves as an outsourced training assistant—working seamlessly in Python.</p>
+<p>This hybrid approach requires some initial setup, but once established, it becomes smooth, scalable, and remarkably efficient. R can be used for data wrangling, visualization, and model evaluation—leveraging the power of the tidyverse. When it’s time to train the model, the heavy lifting can be offloaded to Colab, with its GPU handling the computations. The two environments—R and Python—communicate through shared files, ensuring a flexible, fast, and efficient workflow.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Google Colab
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Google Colab (short for Colaboratory) is a free, cloud-based platform designed for executing Python code with minimal setup. It provides access to high-performance hardware accelerators, including GPUs and TPUs, making it especially valuable for deep learning tasks that would otherwise be time-consuming on a standard CPU.</p>
+<p>Although Colab is Python-native, it can be seamlessly integrated into an R-based workflow. Data preprocessing, visualization, and evaluation can remain in R, while model training is delegated to Colab, leveraging its GPU capabilities. This hybrid approach combines the strengths of both environments—tidyverse-friendly development and accelerated training performance.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Connecting Google Colab to Google Drive
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Google Colab offers a powerful, cloud-based environment with access to free GPU acceleration. However, Colab notebooks run in a temporary virtual machine, meaning any files saved during a session are lost when the session ends.</p>
+<p>To support reproducibility and a hybrid R–Python workflow, it’s essential to connect Colab to Google Drive. This enables persistent storage, shared access to data and model outputs, and smooth integration between Colab and local R projects.</p>
+<p>In order to connect the following code is added at the top of the Colab notebook:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> google.colab <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> drive</span>
+<span id="cb1-2">drive.mount(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'/content/drive'</span>)</span></code></pre></div>
+</div>
+<p>The user is then prompted to authorize access to her/his Google account. Once mounted, the Drive will be available at:</p>
+<div class="cell">
+<pre class="pyhton cell-code"><code>/content/drive/MyDrive/</code></pre>
+</div>
+<p>The user can now read from and write to any project folder shared via Google Drive.</p>
+</div>
+</div>
+<section id="full-mnist-classification-pipeline-in-r" class="level2">
+<h2 class="anchored" data-anchor-id="full-mnist-classification-pipeline-in-r">Full MNIST Classification Pipeline in R</h2>
+<p>The MNIST (Modified National Institute of Standards and Technology) dataset is a widely used benchmark for testing machine learning algorithms, particularly in the field of deep learning. It consists of 70,000 handwritten digit images, each labeled with the corresponding digit (0-9). The images are 28x28 pixels in grayscale, making them a relatively simple task for modern machine learning models, though still an effective tool for evaluating model performance.</p>
+<p>The following R code snippet presents the entire pipeline for the MNIST classification task using Keras for deep learning. This pipeline includes:</p>
+<ul>
+<li><strong>Data Preparation</strong>: Loading and preprocessing the MNIST dataset, including normalization and reshaping of image data to fit the model.</li>
+<li><strong>Model Definition</strong>: Constructing a deep neural network (DNN) using Keras, with layers for dense processing, dropout regularization, and softmax output.</li>
+<li><strong>Model Training</strong>: Compiling and fitting the model to the training data, while using a validation split for model evaluation.</li>
+<li><strong>Performance Evaluation</strong>: Timing the training process and calculating the overall duration.</li>
+<li><strong>Exporting Data</strong>: Saving both the training and test datasets, as well as predictions, for further analysis or use in external systems.</li>
+</ul>
+<p>The implementation also ensures reproducibility by setting a fixed random seed across the entire workflow, and leverages the tidyverse for data manipulation and visualization, alongside the Keras library for deep learning.</p>
+<p>This pipeline provides a streamlined approach to model development, training, and evaluation while integrating seamlessly with Python-based environments (such as Google Colab) for GPU-accelerated training.</p>
+<p><strong>Minimal setup</strong></p>
+<p>This section outlines the essential libraries for the project and specifies the base directory path at which Google Drive is mounted, enabling file access within both R and Colab-based Python environments.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tensorflow)</span>
+<span id="cb3-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(keras)</span>
+<span id="cb3-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(reticulate)</span>
+<span id="cb3-4"></span>
+<span id="cb3-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse)</span>
+<span id="cb3-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(yardstick)</span>
+<span id="cb3-7"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(readr)</span>
+<span id="cb3-8"></span>
+<span id="cb3-9"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define Google Drive base path</span></span>
+<span id="cb3-10">gdrive_base <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"~/Library/CloudStorage/GoogleDrive-&lt;your-mail&gt;@gmail.com/My Drive/&lt;your-project-folder&gt;"</span></span></code></pre></div>
+</details>
+</div>
+<p><strong>Load and preprocess the MNIST dataset</strong></p>
+<p>The dataset is reshaped to match the input requirements of a fully connected (dense) neural network architecture. Additionally, class labels are one-hot encoded to facilitate categorical classification during model training.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1">mnist <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">dataset_mnist</span>()</span>
+<span id="cb4-2"></span>
+<span id="cb4-3">x_train <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> mnist<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>train<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>x <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">255</span></span>
+<span id="cb4-4">x_test  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> mnist<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>test<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>x <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">255</span></span>
+<span id="cb4-5">y_train <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> mnist<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>train<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>y</span>
+<span id="cb4-6">y_test  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> mnist<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>test<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>y</span>
+<span id="cb4-7"></span>
+<span id="cb4-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Reshape for dense model (flatten 28x28 images)</span></span>
+<span id="cb4-9">x_train <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">array_reshape</span>(x_train, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">nrow</span>(x_train), <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">784</span>))</span>
+<span id="cb4-10">x_test  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">array_reshape</span>(x_test, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">nrow</span>(x_test), <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">784</span>))</span>
+<span id="cb4-11"></span>
+<span id="cb4-12"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># One-hot encode labels</span></span>
+<span id="cb4-13">y_train_cat <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">to_categorical</span>(y_train, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span>
+<span id="cb4-14">y_test_cat  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">to_categorical</span>(y_test, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span></code></pre></div>
+</details>
+</div>
+<p><strong>Define model</strong></p>
+<p>The model is defined using the Keras API as a sequential architecture composed of fully connected layers. Following its construction, the model is compiled by specifying the loss function, optimization algorithm, and evaluation metrics, thereby preparing it for training.</p>
+<p>Dropout is used to help the model generalize better and avoid overfitting. During training, it randomly turns off a portion of the neurons in the network. This forces the model to learn more robust features instead of relying too heavily on any one part of the network.</p>
+<p><code>tf$keras$optimizers$legacy$Adam()</code> is used to maintain the original behavior of the Adam optimizer, which can be especially valuable on M1/M2 MacBook architectures where newer versions might encounter compatibility issues. Newer versions changed how optimizers work, so the legacy version ensures compatibility with older code and stable training results.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1">model <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">keras_model_sequential</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(</span>
+<span id="cb5-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">layer_dense</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">128</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">activation =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"relu"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">input_shape =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">784</span>),</span>
+<span id="cb5-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">layer_dropout</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">rate =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.4</span>),</span>
+<span id="cb5-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">layer_dense</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">64</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">activation =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"relu"</span>),</span>
+<span id="cb5-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">layer_dropout</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">rate =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>),</span>
+<span id="cb5-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">layer_dense</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">units =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">activation =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"softmax"</span>)</span>
+<span id="cb5-7">))</span>
+<span id="cb5-8"></span>
+<span id="cb5-9">model <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">compile</span>(</span>
+<span id="cb5-10">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">loss =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"categorical_crossentropy"</span>,</span>
+<span id="cb5-11">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">optimizer =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"adam"</span>, <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#tf$keras$optimizers$legacy$Adam(),</span></span>
+<span id="cb5-12">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">metrics =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"accuracy"</span></span>
+<span id="cb5-13">)</span></code></pre></div>
+</details>
+</div>
+<p><strong>Training and time the training</strong></p>
+<p>Setting a seed ensures reproducibility of training results, while timing the training process helps assess the efficiency of the model’s learning and optimization.</p>
+<p>The validation split refers to the portion of the training data set aside during training to evaluate model performance on unseen data, helping to detect overfitting (and tune hyperparameters, though not considered in this post).</p>
+<p>The number of epochs is set to 10. For the purposes of this post, I will not address whether the training process adequately accounts for the issue of overfitting and generalization.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Set seed for reproducibility across R, TensorFlow, NumPy</span></span>
+<span id="cb6-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">123</span>)</span>
+<span id="cb6-3">tensorflow<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set_random_seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">123</span>)</span>
+<span id="cb6-4"></span>
+<span id="cb6-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Time the training</span></span>
+<span id="cb6-6">start_time <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">Sys.time</span>()</span>
+<span id="cb6-7"></span>
+<span id="cb6-8">model <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fit</span>(</span>
+<span id="cb6-9">  x_train, y_train_cat,</span>
+<span id="cb6-10">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">epochs =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>,</span>
+<span id="cb6-11">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">batch_size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">256</span>,</span>
+<span id="cb6-12">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">validation_split =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>,</span>
+<span id="cb6-13">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">verbose =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span></span>
+<span id="cb6-14">)</span>
+<span id="cb6-15"></span>
+<span id="cb6-16">end_time <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">Sys.time</span>()</span>
+<span id="cb6-17"></span>
+<span id="cb6-18">duration <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>()</span>
+<span id="cb6-19">x <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> end_time<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>start_time</span>
+<span id="cb6-20">duration[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.numeric</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">regmatches</span>(x,<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">regexpr</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">d*</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">.?</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">d+"</span>,x)))</span></code></pre></div>
+</details>
+</div>
+<p><strong>Export training and testing sets to Drive</strong></p>
+<p>The training and testing sets saved to Drive will be used later in a Colab notebook for GPU-based training of the same model defined in Keras above.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Convert data to data frames with labels</span></span>
+<span id="cb7-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">colnames</span>(x_train) <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"pixel_"</span>, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq_len</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ncol</span>(x_train)))</span>
+<span id="cb7-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">colnames</span>(x_test)  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">paste0</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"pixel_"</span>, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq_len</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ncol</span>(x_test)))</span>
+<span id="cb7-4"></span>
+<span id="cb7-5">train_df <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_tibble</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cbind</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> y_train, x_train))</span>
+<span id="cb7-6">test_df  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as_tibble</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cbind</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> y_test, x_test))</span>
+<span id="cb7-7"></span>
+<span id="cb7-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">write_csv</span>(train_df, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">file.path</span>(gdrive_base, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mnist_train.csv"</span>))</span>
+<span id="cb7-9"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">write_csv</span>(test_df, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">file.path</span>(gdrive_base, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"mnist_test.csv"</span>))</span></code></pre></div>
+</details>
+</div>
+<p><strong>Predict in R and export</strong></p>
+<p>After making predictions in R, we can export the results and visualize the confusion matrix to evaluate the model’s performance. We also compute and export the accuracy, along with the training time, to track the model’s efficiency.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Only needed if you want to compare R vs Colab predictions.</span></span>
+<span id="cb8-2"></span>
+<span id="cb8-3">preds_r <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> model <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">predict</span>(x_test, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">verbose =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">k_argmax</span>()</span>
+<span id="cb8-4">preds_df <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tibble</span>(</span>
+<span id="cb8-5">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">actual =</span> y_test,</span>
+<span id="cb8-6">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">predicted =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.array</span>(preds_r)</span>
+<span id="cb8-7">)</span>
+<span id="cb8-8"></span>
+<span id="cb8-9"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Convert to factors</span></span>
+<span id="cb8-10">preds_df <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> preds_df <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb8-11">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(</span>
+<span id="cb8-12">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">actual =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">factor</span>(actual),</span>
+<span id="cb8-13">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">predicted =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">factor</span>(predicted, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">levels =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">levels</span>(actual))</span>
+<span id="cb8-14">  )</span>
+<span id="cb8-15"></span>
+<span id="cb8-16">acc <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>()</span>
+<span id="cb8-17">acc[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">accuracy</span>(preds_df, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">truth =</span> actual, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">estimate =</span> predicted)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>.estimate</span>
+<span id="cb8-18"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">conf_mat</span>(preds_df, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">truth =</span> actual, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">estimate =</span> predicted) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> </span>
+<span id="cb8-19">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">autoplot</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">type =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"heatmap"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-20">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggtitle</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"R-based DNN confusion matrix for the MNIST dataset"</span>)</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://amsabatini.netlify.app/posts/parallel_processing_colab/index_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">write_csv</span>(preds_df, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">file.path</span>(gdrive_base, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"predictions_r.csv"</span>))</span></code></pre></div>
+</details>
+</div>
+<p><strong>(Later) Compare with Colab predictions</strong></p>
+<p>The predictions made in R can be compared with those generated in Colab to assess the consistency and performance of the model across different environments.</p>
+<ol type="1">
+<li>Open the notebook in <a href="colab.research.google.com">Google Colab</a>.</li>
+<li>At the top menu bar, click “Runtime”</li>
+<li>Select “Change runtime type”</li>
+<li>In the “Hardware accelerator” dropdown menu, choose:</li>
+</ol>
+<ul>
+<li>GPU to enable GPU support</li>
+<li>TPU if you want to experiment with TPU acceleration (more advanced)</li>
+<li>None to use CPU only</li>
+</ul>
+<ol start="5" type="1">
+<li>Click “Save”</li>
+<li>Colab will restart the kernel and launch an environment with the selected hardware.</li>
+</ol>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># After Colab finishes and saves 'predictions_colab.csv':</span></span>
+<span id="cb10-2">preds_colab <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">read_csv</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">file.path</span>(gdrive_base, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"predictions_colab.csv"</span>))</span>
+<span id="cb10-3"></span>
+<span id="cb10-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Convert to factors</span></span>
+<span id="cb10-5">preds_colab <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> preds_colab <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb10-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(</span>
+<span id="cb10-7">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">actual =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">factor</span>(actual),</span>
+<span id="cb10-8">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">predicted =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">factor</span>(predicted, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">levels =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">levels</span>(actual))</span>
+<span id="cb10-9">  )</span>
+<span id="cb10-10"></span>
+<span id="cb10-11">acc[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">accuracy</span>(preds_colab, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">truth =</span> actual, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">estimate =</span> predicted)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>.estimate</span>
+<span id="cb10-12"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">conf_mat</span>(preds_colab, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">truth =</span> actual, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">estimate =</span> predicted) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> </span>
+<span id="cb10-13">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">autoplot</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">type =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"heatmap"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb10-14">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggtitle</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Python-based DNN confusion matrix for the MNIST dataset"</span>)</span></code></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="https://amsabatini.netlify.app/posts/parallel_processing_colab/index_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Optionally print Colab training time (if saved)</span></span>
+<span id="cb11-2">duration[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>] <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">read_lines</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">file.path</span>(gdrive_base, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"colab_duration.txt"</span>))</span></code></pre></div>
+</details>
+</div>
+<p><strong>Comparative analysis</strong></p>
+<p>After running the model for 10 epochs—with all other elements of the pipeline held constant—I repeated the classification task using the DNN trained for 50 and 100 epochs. The results, in terms of accuracy and training time, are presented in the table below. Although not strictly necessary — or even correct — I used three decimal places to highlight subtle differences in accuracy observed in the experiments. Moreover, I chose to round the training time to the nearest integer.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table quarto-disable-processing="true" class="table table-condensed table-bordered" style="font-size: 16px; width: auto !important; margin-left: auto; margin-right: auto;">
+<caption style="font-size: initial !important;">Comparative analysis</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Method </th>
+   <th style="text-align:right;"> Epoch </th>
+   <th style="text-align:right;"> Accuracy, % </th>
+   <th style="text-align:right;"> Time, s </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> R-based </td>
+   <td style="text-align:right;"> 10 </td>
+   <td style="text-align:right;"> 0.973 </td>
+   <td style="text-align:right;"> 4 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> R-based </td>
+   <td style="text-align:right;"> 50 </td>
+   <td style="text-align:right;"> 0.977 </td>
+   <td style="text-align:right;"> 20 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> R-based </td>
+   <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0.980 </td>
+   <td style="text-align:right;"> 43 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Python-based </td>
+   <td style="text-align:right;"> 10 </td>
+   <td style="text-align:right;"> 0.974 </td>
+   <td style="text-align:right;"> 33 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Python-based </td>
+   <td style="text-align:right;"> 50 </td>
+   <td style="text-align:right;"> 0.979 </td>
+   <td style="text-align:right;"> 72 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Python-based </td>
+   <td style="text-align:right;"> 100 </td>
+   <td style="text-align:right;"> 0.979 </td>
+   <td style="text-align:right;"> 128 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<p>Even with matching seeds, data splits, architectures, and all the same training settings in R and Python, small differences in accuracy still appeared (compare the confusion matrices above). These are likely due to subtle differences in weight initialization, batch shuffling, and dropout masking between the two frameworks. Such variations are common in deep learning and typically don’t affect overall performance trends.</p>
+<p><strong>Why MacBook CPUs (M1/M2) can beat Colab GPUs for MNIST</strong></p>
+<ul>
+<li><p><em>Model + Dataset are too small for GPU to shine</em>: MNIST has only 60,000 grayscale 28×28 images, and the DNN models used here have a relatively limited number of parameters to learn (109386). With only 100k parameters, each training step is very fast on modern CPUs and the overhead of using a GPU — loading the data, launching kernels, moving data around — starts to outweigh the benefits of parallelism.</p></li>
+<li><p><em>Apple Silicon (M1/M2) is extremely optimized</em>: M1/M2 chips have Unified Memory (RAM + GPU share memory), fast memory access, and dedicated matrix multiplication engines (AMX). TensorFlow and PyTorch now have native Metal backends or use Accelerate.framework under the hood on macOS, enabling them to be blazingly fast even without explicit GPU use.</p></li>
+<li><p><em>Colab GPUs aren’t top-tier GPUs</em>: Colab’s free tier provides K80 or T4 GPUs, which are relatively old or mid-tier and often shared among users. Their performance can fluctuate depending on server load, whereas a MacBook runs everything locally without such interruptions.</p></li>
+<li><p><em>Overhead on the GPU pipeline</em>: the GPU has to load the data, transfer it to GPU memory, perform the computation, and then transfer the results back. This overhead adds latency unless the batch size and model complexity are large enough to justify the transfer.</p></li>
+</ul>
+</section>
+<section id="mnist-classification-training-in-python" class="level2">
+<h2 class="anchored" data-anchor-id="mnist-classification-training-in-python">MNIST Classification Training in Python</h2>
+<p>In the snippet below, I present an example of a *.ipynb notebook that facilitates the sharing of input and output files with a local R project via a Google Drive synced folder.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Mount Google Drive</span></span>
+<span id="cb12-2"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> google.colab <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> drive</span>
+<span id="cb12-3">drive.mount(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'/content/drive'</span>)</span>
+<span id="cb12-4"></span>
+<span id="cb12-5"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Imports</span></span>
+<span id="cb12-6"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> pandas <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> pd</span>
+<span id="cb12-7"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> numpy <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> np</span>
+<span id="cb12-8"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> tensorflow <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> tf</span>
+<span id="cb12-9"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> tensorflow <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> keras</span>
+<span id="cb12-10"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> tensorflow.keras.models <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> Sequential</span>
+<span id="cb12-11"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> tensorflow.keras.layers <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> Dense, Dropout</span>
+<span id="cb12-12"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> tensorflow.keras.utils <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> to_categorical</span>
+<span id="cb12-13"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">from</span> sklearn.metrics <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> accuracy_score, confusion_matrix</span>
+<span id="cb12-14"><span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">import</span> time</span>
+<span id="cb12-15"></span>
+<span id="cb12-16"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Set seed</span></span>
+<span id="cb12-17">np.random.seed(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">123</span>)</span>
+<span id="cb12-18">tf.random.set_seed(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">123</span>)</span>
+<span id="cb12-19"></span>
+<span id="cb12-20"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Load training and testing data from Drive</span></span>
+<span id="cb12-21">gdrive_path <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"/content/drive/MyDrive/parallel_processing_colab/data"</span></span>
+<span id="cb12-22">train_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.read_csv(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>gdrive_path<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">/mnist_train.csv"</span>)</span>
+<span id="cb12-23">test_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.read_csv(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>gdrive_path<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">/mnist_test.csv"</span>)</span>
+<span id="cb12-24"></span>
+<span id="cb12-25">x_train <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> train_df.drop(columns <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"label"</span>]).values.astype(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"float32"</span>)</span>
+<span id="cb12-26">y_train <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> to_categorical(train_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"label"</span>].values, num_classes <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>)</span>
+<span id="cb12-27"></span>
+<span id="cb12-28">x_test <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> test_df.drop(columns <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"label"</span>]).values.astype(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"float32"</span>)</span>
+<span id="cb12-29">y_test <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> test_df[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"label"</span>].values</span>
+<span id="cb12-30"></span>
+<span id="cb12-31"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define the same model as in R</span></span>
+<span id="cb12-32">model <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> Sequential([</span>
+<span id="cb12-33">    Dense(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">128</span>, activation <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'relu'</span>, input_shape <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> (<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">784</span>, )),</span>
+<span id="cb12-34">    Dropout(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.4</span>),</span>
+<span id="cb12-35">    Dense(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">64</span>, activation <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'relu'</span>),</span>
+<span id="cb12-36">    Dropout(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>),</span>
+<span id="cb12-37">    Dense(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>, activation <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'softmax'</span>)</span>
+<span id="cb12-38">])</span>
+<span id="cb12-39"></span>
+<span id="cb12-40">model.<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">compile</span>(</span>
+<span id="cb12-41">    loss <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'categorical_crossentropy'</span>,</span>
+<span id="cb12-42">    optimizer <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"adam"</span>,</span>
+<span id="cb12-43">    metrics <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> [<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'accuracy'</span>]</span>
+<span id="cb12-44">)</span>
+<span id="cb12-45"></span>
+<span id="cb12-46"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Time the training</span></span>
+<span id="cb12-47">start <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> time.time()</span>
+<span id="cb12-48"></span>
+<span id="cb12-49">model.fit(</span>
+<span id="cb12-50">    x_train, y_train,</span>
+<span id="cb12-51">    epochs <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>,</span>
+<span id="cb12-52">    batch_size <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">128</span>,</span>
+<span id="cb12-53">    validation_split <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>,</span>
+<span id="cb12-54">    verbose <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span></span>
+<span id="cb12-55">)</span>
+<span id="cb12-56"></span>
+<span id="cb12-57">end <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> time.time()</span>
+<span id="cb12-58">duration <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> end <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> start</span>
+<span id="cb12-59"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Training time (seconds):"</span>, duration)</span>
+<span id="cb12-60"></span>
+<span id="cb12-61"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Save Colab training time to Google Drive</span></span>
+<span id="cb12-62"><span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">with</span> <span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">open</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'/content/drive/MyDrive/parallel_processing_colab/data/colab_duration.txt'</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">'w'</span>) <span class="im" style="color: #00769E;
+background-color: null;
+font-style: inherit;">as</span> f:</span>
+<span id="cb12-63">    f.write(<span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">str</span>(duration))</span>
+<span id="cb12-64">    </span>
+<span id="cb12-65"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Predict on test set and export predictions</span></span>
+<span id="cb12-66">preds <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> model.predict(x_test)</span>
+<span id="cb12-67">pred_labels <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> np.argmax(preds, axis <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span>
+<span id="cb12-68"></span>
+<span id="cb12-69"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Save predictions to Drive</span></span>
+<span id="cb12-70">preds_df <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> pd.DataFrame({</span>
+<span id="cb12-71">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"actual"</span>: y_test,</span>
+<span id="cb12-72">    <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"predicted"</span>: pred_labels</span>
+<span id="cb12-73">})</span>
+<span id="cb12-74">preds_df.to_csv(<span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">f"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">{</span>gdrive_path<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">}</span><span class="ss" style="color: #20794D;
+background-color: null;
+font-style: inherit;">/predictions_colab.csv"</span>, index <span class="op" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">=</span> <span class="va" style="color: #111111;
+background-color: null;
+font-style: inherit;">False</span>)</span>
+<span id="cb12-75"></span>
+<span id="cb12-76"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Evaluate metrics (optional here)</span></span>
+<span id="cb12-77"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Accuracy:"</span>, accuracy_score(y_test, pred_labels))</span>
+<span id="cb12-78"><span class="bu" style="color: null;
+background-color: null;
+font-style: inherit;">print</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Confusion matrix:</span><span class="ch" style="color: #20794D;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span>, confusion_matrix(y_test, pred_labels))</span></code></pre></div>
+</details>
+</div>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>When working with deep learning tasks, timing considerations between R and Python (especially in Colab) can significantly impact performance.</p>
+<ol type="1">
+<li><em>Hardware acceleration</em></li>
+</ol>
+<ul>
+<li>R: limited GPU support unless utilizing packages like tensorflow, often relying on the CPU for training, leading to longer processing times for complex models.</li>
+<li>Python (Colab): seamless GPU support accelerates training dramatically, reducing training times from hours to minutes.</li>
+</ul>
+<ol start="2" type="1">
+<li><em>Execution times</em></li>
+</ol>
+<ul>
+<li>R: training on a CPU can be slow for deep learning tasks. Execution time can be measured using system.time().</li>
+<li>Python (Colab): with GPU enabled, training times are drastically reduced. Timing can be monitored using Python’s time module.</li>
+</ul>
+<ol start="3" type="1">
+<li><em>Colab overheads</em></li>
+</ol>
+<ul>
+<li>Initialization time: setting up Colab (mounting Drive, loading data, GPU setup) adds some overhead, especially when starting a new session.</li>
+<li>Session limitations: free GPU access has time limits and potential disconnects, requiring reinitialization.</li>
+<li>File access delays: reading and writing to Google Drive in Colab can slow down the workflow compared to local file systems.</li>
+<li>Cold start for GPU: initializing GPU resources adds delay when starting a session.</li>
+</ul>
+<ol start="4" type="1">
+<li><p><em>Hybrid workflow</em>: a hybrid R-Python workflow maximizes the strengths of both ecosystems. R handles data preprocessing, feature engineering, evaluation, and visualization, while Python in Colab handles heavy-duty model training with GPU support. This combination offers a flexible and efficient solution, especially for large models and datasets.</p></li>
+<li><p><em>Total execution time</em>: while Colab’s GPU accelerates training, overheads like initialization and session limitations can add to the overall time. For simpler models or smaller datasets, running everything locally may be more efficient, but for larger models, the speedup from Colab’s GPU outweighs the overheads.</p></li>
+</ol>
+<p>What I’ve shown here is how to leverage Colab’s GPU support for deep learning while staying within the comfort of R, taking full advantage of the tidyverse ecosystem for analysis and visualization. In a future post, I’ll circle back to this topic—probably with a hands-on example using LSTM for time series forecasting, where Colab’s GPU support will really get a chance to shine compared to single-CPU runs.</p>
+<blockquote class="blockquote">
+<p>In summary, the hybrid R + Python approach offers a balance of computational power (via Colab’s GPUs) and flexibility (using R for preprocessing and evaluation), though the Colab overheads should be considered when designing the workflow.</p>
+</blockquote>
+<p><a href="https://www.flaticon.com/free-icons/parallel" title="parallel icons">Parallel icons created by juicy_fish - Flaticon</a></p>
+
+
+</section>
+
+ ]]></description>
+  <category>machine learning</category>
+  <guid>https://amsabatini.netlify.app/posts/parallel_processing_colab/</guid>
+  <pubDate>Tue, 22 Apr 2025 22:00:00 GMT</pubDate>
+  <media:content url="https://amsabatini.netlify.app/posts/parallel_processing_colab/processing.png" medium="image" type="image/png" height="144" width="144"/>
+</item>
 <item>
   <title>Unleashing the power of Apple Silicon for R: Parallel processing on M1/M2</title>
   <dc:creator>Angelo Maria Sabatini</dc:creator>

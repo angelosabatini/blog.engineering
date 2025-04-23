@@ -2,6 +2,7 @@
   {
     "listing": "/blog.html",
     "items": [
+      "/posts/parallel_processing_colab/index.html",
       "/posts/parallel_processing/index.html",
       "/posts/lstm/index.html",
       "/posts/tone_burst/index.html",
@@ -23,6 +24,7 @@
   {
     "listing": "/archive.html",
     "items": [
+      "/posts/parallel_processing_colab/index.html",
       "/posts/parallel_processing/index.html",
       "/posts/lstm/index.html",
       "/posts/tone_burst/index.html",
