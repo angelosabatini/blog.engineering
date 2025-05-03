@@ -590,8 +590,8 @@ Normality and sample size
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate data</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">100</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rnorm</span>(n, <span class="fl">2.5</span>, <span class="fl">1.2</span>), <span class="fu">rnorm</span>(n, <span class="fl">3.5</span>, <span class="fl">1.2</span>))</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rnorm</span>(n, <span class="fl">2.5</span>, <span class="fl">1.2</span>), <span class="fu">rnorm</span>(n, <span class="fl">3.5</span>, <span class="fl">1.2</span>))</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rnorm</span>(n, <span class="fl">2.5</span>, <span class="dv">1</span>), <span class="fu">rnorm</span>(n, <span class="fl">3.75</span>, <span class="dv">1</span>))</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rnorm</span>(n, <span class="fl">2.5</span>, <span class="dv">1</span>), <span class="fu">rnorm</span>(n, <span class="fl">3.75</span>, <span class="dv">1</span>))</span>
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>class <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">0</span>, n), <span class="fu">rep</span>(<span class="dv">1</span>, n)), <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">"1"</span>))</span>
 <span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>df_ml <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">x1 =</span> x1, <span class="at">x2 =</span> x2, <span class="at">class =</span> class)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -750,15 +750,15 @@ Table&nbsp;1: Summary of classification metrics at threshold 0.5 for training an
 <tbody>
   <tr>
    <td style="text-align:left;"> Train </td>
-   <td style="text-align:right;"> 0.687 </td>
-   <td style="text-align:right;"> 0.747 </td>
-   <td style="text-align:right;"> 0.627 </td>
+   <td style="text-align:right;"> 0.76 </td>
+   <td style="text-align:right;"> 0.787 </td>
+   <td style="text-align:right;"> 0.733 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Test </td>
-   <td style="text-align:right;"> 0.660 </td>
-   <td style="text-align:right;"> 0.600 </td>
-   <td style="text-align:right;"> 0.720 </td>
+   <td style="text-align:right;"> 0.74 </td>
+   <td style="text-align:right;"> 0.680 </td>
+   <td style="text-align:right;"> 0.800 </td>
   </tr>
 </tbody>
 </table>

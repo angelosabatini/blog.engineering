@@ -505,15 +505,15 @@ font-style: inherit;">c</span>(<span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">rnorm</span>(n, <span class="fl" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">2.5</span>, <span class="fl" style="color: #AD0000;
+font-style: inherit;">2.5</span>, <span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">1.2</span>), <span class="fu" style="color: #4758AB;
+font-style: inherit;">1</span>), <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">rnorm</span>(n, <span class="fl" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">3.5</span>, <span class="fl" style="color: #AD0000;
+font-style: inherit;">3.75</span>, <span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">1.2</span>))</span>
+font-style: inherit;">1</span>))</span>
 <span id="cb10-5">x2 <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
@@ -522,15 +522,15 @@ font-style: inherit;">c</span>(<span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">rnorm</span>(n, <span class="fl" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">2.5</span>, <span class="fl" style="color: #AD0000;
+font-style: inherit;">2.5</span>, <span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">1.2</span>), <span class="fu" style="color: #4758AB;
+font-style: inherit;">1</span>), <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">rnorm</span>(n, <span class="fl" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">3.5</span>, <span class="fl" style="color: #AD0000;
+font-style: inherit;">3.75</span>, <span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">1.2</span>))</span>
+font-style: inherit;">1</span>))</span>
 <span id="cb10-6">class <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
@@ -993,15 +993,15 @@ Table&nbsp;1: Summary of classification metrics at threshold 0.5 for training an
 <tbody>
   <tr>
    <td style="text-align:left;"> Train </td>
-   <td style="text-align:right;"> 0.687 </td>
-   <td style="text-align:right;"> 0.747 </td>
-   <td style="text-align:right;"> 0.627 </td>
+   <td style="text-align:right;"> 0.76 </td>
+   <td style="text-align:right;"> 0.787 </td>
+   <td style="text-align:right;"> 0.733 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Test </td>
-   <td style="text-align:right;"> 0.660 </td>
-   <td style="text-align:right;"> 0.600 </td>
-   <td style="text-align:right;"> 0.720 </td>
+   <td style="text-align:right;"> 0.74 </td>
+   <td style="text-align:right;"> 0.680 </td>
+   <td style="text-align:right;"> 0.800 </td>
   </tr>
 </tbody>
 </table>
