@@ -10,7 +10,1034 @@
 <atom:link href="https://amsabatini.netlify.app/blog.xml" rel="self" type="application/rss+xml"/>
 <description>This the personal blog of Angelo Maria Sabatini</description>
 <generator>quarto-1.6.40</generator>
-<lastBuildDate>Tue, 22 Apr 2025 22:00:00 GMT</lastBuildDate>
+<lastBuildDate>Fri, 02 May 2025 22:00:00 GMT</lastBuildDate>
+<item>
+  <title>Statistics and Machine Learning: A shared landscape</title>
+  <dc:creator>Angelo Maria Sabatini</dc:creator>
+  <link>https://amsabatini.netlify.app/posts/statistics_vs_ML/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>One of the most important similarities between statistics and machine learning (ML) is that both rely heavily on models. While this connection is sometimes overlooked, it forms the backbone of how we organize and analyze data. Regardless of the number and type of variables involved—whether explanatory or response variables, continuous or categorical—statistical modeling remains at the core of the process. Whether our goal is to predict outcomes, uncover relationships, or assess differences, modeling gives structure and meaning to the patterns we observe. ML, too, builds on this idea of modeling, but with a slightly different emphasis. Here, the focus is often more explicitly on defining a mathematical mapping between inputs and outputs—a modeling aspect that tends to be more immediately visible than in traditional statistical practice.</p>
+<p>Several practical factors make a full overlap between the two approaches less straightforward. One is the sheer difference in the size of datasets: classical statistical analyses often rely on relatively small samples, especially in fields such as medicine or social sciences. ML, by contrast, tends to operate in contexts where large datasets are available—or at least assumed. Another difference lies in the typical workflow: in ML, it is standard practice to split data into training, validation, and testing sets, managing the trade-off between fitting well and generalizing. This concern, central to ML, is less explicitly present in traditional statistical workflows.</p>
+<p>Despite these differences, statistics and ML increasingly share common objectives and approaches: building models that capture meaningful patterns while balancing complexity against generalization.(For readers unfamiliar with some of the technical terms, a brief summary is provided in the Key Concepts sections below.)</p>
+<section id="what-is-a-statistical-model" class="level2">
+<h2 class="anchored" data-anchor-id="what-is-a-statistical-model">What is a statistical model?</h2>
+<p>In classical statistics — for example, for methods introduced early in the training of sophomore students, such as simple linear regression and ANOVA (ANalysis Of VAriance) — the model is typically written in a very structured form. Let us suppose that <img src="https://latex.codecogs.com/png.latex?Y"> is the response variable (outcome) and <img src="https://latex.codecogs.com/png.latex?X_1,X_2,%5Ccdots,X_m"> are explanatory variables (predictors), collected into the vector <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BX%7D">; the model is the equation that we suppose relate together the predictors to the outcome, for any of a number <img src="https://latex.codecogs.com/png.latex?n"> of observational units, with an important element noticed in the formulation of the model-the random error term, <img src="https://latex.codecogs.com/png.latex?%5Cvarepsilon">:</p>
+<p><span id="eq-model-general"><img src="https://latex.codecogs.com/png.latex?%0AY_%7Bi%7D=f(%5Cmathbf%7BX%7D_i;%5Ctheta)+%5Cvarepsilon_i,%5Cquad%20i=1,...,n%0A%5Ctag%7B1%7D"></span></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?%5Ctheta"> are the parameters to be estimated. This decomposition highlights two essential ideas:</p>
+<ul>
+<li>There is an underlying systematic component (<img src="https://latex.codecogs.com/png.latex?f(%5Cmathbf%7BX%7D_i;%5Ctheta)">),</li>
+<li>Plus an error component (<img src="https://latex.codecogs.com/png.latex?%5Cvarepsilon_i">), which captures variability not explained by the model.</li>
+</ul>
+<p>The classical statistical inferential procedures—whether hypothesis testing or interval estimation—are fundamentally designed around the behavior of this error term. It is also important to realize that we can never observe the error term, but we can infer its behavior from the analysis of the model residual — the difference between observed and predicted values.</p>
+<p>In classical parametric inference, crucial assumptions are made about the behavior of the error terms <img src="https://latex.codecogs.com/png.latex?%5Cvarepsilon_i"> in the general model Equation&nbsp;1.</p>
+<p>To ensure analytical tractability and valid inference, it is common to summarize these assumptions using the acronym LINE — Linearity, Independence, Normality, and Equality of variance:</p>
+<ol type="1">
+<li><p><strong>Linearity</strong>: The model is linear in the parameters <img src="https://latex.codecogs.com/png.latex?%5Ctheta">; that is, the expected value of the outcome variable <img src="https://latex.codecogs.com/png.latex?Y"> can be expressed as a linear combination of the parameters, possibly through transformations of the predictors <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BX%7D">.</p></li>
+<li><p><strong>Independence</strong>: The error terms are independent across observations. In particular, for time series data, consecutive errors are assumed to be uncorrelated. In cross-sectional data, failure of independence often reflects issues in experimental design, such as inadequate random assignment or hidden confounding. Detecting such problems can be challenging and typically requires careful planning at the data collection stage.</p></li>
+<li><p><strong>Normality</strong>: The error terms are normally distributed with mean zero.</p></li>
+<li><p><strong>Equality of variance (Homoscedasticity)</strong>: The error terms have constant variance across the range of the predictors.</p></li>
+</ol>
+<p>These assumptions provide the theoretical foundation for estimating parameters, constructing confidence intervals, and performing hypothesis tests in a coherent analytical framework. Understanding how residuals behave is not only crucial in classical inference, but also serves as a bridge toward modern predictive approaches, as discussed in the note below.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Residuals and ML">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Residuals and ML
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The concept of residuals — as discrepancies between observed outcomes and model predictions — remains central in ML as well. Although the term “residual” is less frequently emphasized explicitly, the analysis of prediction errors underpins critical tasks such as model evaluation, hyperparameter tuning, and post-hoc diagnostics across supervised learning workflows.</p>
+<p>Understanding residuals provides a natural bridge between classical inferential thinking and modern predictive modeling practices.</p>
+</div>
+</div>
+<p>This careful structure is what allows classical statistics to calibrate confidence intervals, compute p-values, and estimate statistical power, all based on theoretically derived sampling distributions. However, when these assumptions are violated, the inferential reliability may break down — often in unpredictable ways. Modern approaches like <strong>bootstrap resampling</strong> offer alternatives that reduce dependency on strong theoretical assumptions, and interestingly, align closely with resampling strategies widely used in ML (such as cross-validation for hyperparameter tuning). In a sense, bootstrapping can be seen as a bridge: a classical method moving closer to the data-driven, flexible spirit that characterizes much of modern ML practice.</p>
+</section>
+<section id="key-concepts" class="level2">
+<h2 class="anchored" data-anchor-id="key-concepts">Key Concepts</h2>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Statistics-Based Key Concepts
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><p><strong>Estimator</strong>: A function of sample data used to infer the value of an unknown population parameter. Estimators form the basis for constructing confidence intervals and conducting hypothesis tests.</p></li>
+<li><p><strong>Sampling Distribution</strong>: The probability distribution of an estimator over many hypothetical repeated samples from the same population.</p></li>
+<li><p><strong>Confidence Interval</strong>: An estimated range, derived from an estimator, that likely contains the true value of the population parameter with a given level of confidence.</p></li>
+<li><p><strong>p-value</strong>: The probability, under the null hypothesis, of obtaining a test statistic at least as extreme as the one observed.</p></li>
+<li><p><strong>Statistical Power</strong>: The probability that a statistical test correctly rejects the null hypothesis when the alternative hypothesis is true.</p></li>
+<li><p><strong>Type I Error</strong>: Incorrectly rejecting a true null hypothesis (false positive).</p></li>
+<li><p><strong>Type II Error</strong>: Failing to reject a false null hypothesis (false negative).</p></li>
+<li><p><strong>Residual</strong>: The difference between the observed value and the corresponding predicted value from a statistical model. Residuals are empirical proxies for the unobservable error terms, enabling diagnostic analyses of model fit and assumptions.</p></li>
+<li><p><strong>Degrees of Freedom</strong>: The number of independent values in a calculation that are free to vary. In statistical inference, degrees of freedom determine the shape of sampling distributions (e.g., t or F) and reflect the amount of information available to estimate variability.</p></li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+ML-based key concepts
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><p><strong>Confusion Matrix</strong>: a table showing true positives, false positives, true negatives, and false negatives.</p></li>
+<li><p><strong>ROC Curve</strong>: a plot of true positive rate vs false positive rate across different thresholds.</p></li>
+<li><p><strong>ROC AUC</strong>: a single-number summary of a model’s discrimination ability across thresholds.</p></li>
+<li><p><strong>Operating Point (Threshold Selection)</strong>: the decision threshold balancing false positives and false negatives, based on context.</p></li>
+<li><p><strong>Class Imbalance</strong>: a condition where the categories in the outcome variable are unequally represented. It can lead to biased models, misleading performance metrics, and poor generalization — especially when one class dominates. Common remedies include resampling, weighting, and using metrics like ROC AUC instead of raw accuracy.</p></li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Advanced key concepts
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><p><strong>Cross-Entropy Loss</strong>: measures the dissimilarity between predicted probabilities and true labels.</p></li>
+<li><p><strong>Regularization</strong>: techniques (e.g., L1, L2) to prevent overfitting by penalizing model complexity.</p></li>
+<li><p><strong>Gradient Descent</strong>: an optimization method for minimizing loss functions.</p></li>
+<li><p><strong>Overfitting and Underfitting</strong>: learning too much noise (overfitting) or missing the signal (underfitting).</p></li>
+</ul>
+</div>
+</div>
+</section>
+<section id="from-hypothesis-testing-to-predictive-modeling" class="level2">
+<h2 class="anchored" data-anchor-id="from-hypothesis-testing-to-predictive-modeling">From Hypothesis Testing to Predictive Modeling</h2>
+<p>Let us now illustrate the modeling perspective starting with a classical example: the independent-samples t-test. First, the neded libraries are uploaded.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Load required libraries</span></span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse)</span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidymodels)</span>
+<span id="cb1-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(ggplot2)</span>
+<span id="cb1-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(broom)</span>
+<span id="cb1-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(kableExtra)</span>
+<span id="cb1-7"></span>
+<span id="cb1-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Enforce the setting of full_width in calling kable_styling()</span></span>
+<span id="cb1-9"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">options</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">knitr.table.html.attr =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"quarto-disable-processing = true"</span>)</span>
+<span id="cb1-10"></span>
+<span id="cb1-11"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Customize the text tables for consistency using HTML formatting</span></span>
+<span id="cb1-12">my_kable_styling <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(dat, caption, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">digits =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">font_size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">14</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">format =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"html"</span>) {</span>
+<span id="cb1-13">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">kable</span>(dat, format, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">escape =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">caption =</span> caption, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">digits =</span> digits) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb1-14">    <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">kable_styling</span>(</span>
+<span id="cb1-15">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">bootstrap_options =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"condensed"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bordered"</span>),</span>
+<span id="cb1-16">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">font_size =</span> font_size,</span>
+<span id="cb1-17">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"center"</span>,</span>
+<span id="cb1-18">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">full_width =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span></span>
+<span id="cb1-19">    )</span>
+<span id="cb1-20">}</span></code></pre></div>
+</details>
+</div>
+<section id="simulating-data-for-classical-inference" class="level3">
+<h3 class="anchored" data-anchor-id="simulating-data-for-classical-inference">Simulating Data for Classical Inference</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Simulate two groups with slightly different means</span></span>
+<span id="cb2-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">123</span>)</span>
+<span id="cb2-3">group1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rnorm</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">64</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mean =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5.0</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sd =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.0</span>)</span>
+<span id="cb2-4">group2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rnorm</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">64</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mean =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5.5</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sd =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.0</span>)</span>
+<span id="cb2-5"></span>
+<span id="cb2-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Combine data into a single data frame</span></span>
+<span id="cb2-7">df <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(</span>
+<span id="cb2-8">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">group =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">factor</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rep</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"A"</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">64</span>), <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rep</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"B"</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">64</span>))),</span>
+<span id="cb2-9">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">outcome =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(group1, group2)</span>
+<span id="cb2-10">)</span></code></pre></div>
+</div>
+<p>We simulate two groups, randomly drawn from two normally distributed populations, with means <img src="https://latex.codecogs.com/png.latex?%5Cmu_A%20=%205.0"> and <img src="https://latex.codecogs.com/png.latex?%5Cmu_B%20=%205.5">, and standard deviations <img src="https://latex.codecogs.com/png.latex?%5Csigma_A%20=%20%5Csigma_B%20=%201.0">. Each group contains <img src="https://latex.codecogs.com/png.latex?n%20=%2015"> observations. In the spirit of a real experiment, the population parameters are unknown — the only information we have comes from the observed data. Our inferential task is to test whether a difference exists between the group means, under the standard null and alternative hypotheses:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AH_0:%20%5Cmu_A%20=%20%5Cmu_B%20%5Cquad%5Cquad%20H_1:%20%5Cmu_A%20%5Cne%20%5Cmu_B%0A"></p>
+<p>In this example, we simulate 64 observations per group — a total of 128 — to achieve 80% statistical power for detecting a medium effect size (<img src="https://latex.codecogs.com/png.latex?d%20=%200.5">) with a two-sided t-test at the conventional 5% significance level. This decision is not arbitrary: in a well-planned experiment, the sample size should be defined <em>before</em> data collection, based on desired sensitivity and acceptable error rates. Surprisingly, many experimental studies — including those carried out in applied scientific fields such as engineering — skip this crucial planning step, treating sample size as an afterthought rather than a design parameter.</p>
+<p>This consideration can be visualized by examining how statistical power varies with the sample size and the effect size. The plot in Figure&nbsp;1 shows the power curves for three typical values of Cohen’s effect size (<img src="https://latex.codecogs.com/png.latex?d%20=%200.2">, <img src="https://latex.codecogs.com/png.latex?0.5">, <img src="https://latex.codecogs.com/png.latex?0.8">), representing small, medium, and large effects. The dashed line marks the conventional threshold of 80% power.</p>
+<p>As the plot shows, detecting a medium effect with 80% reliability requires at least 64 observations <em>per group</em>. Informal rules of thumb such as “30 is enough” may drastically underestimate the sample size needed for meaningful results.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-power-curve" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-power-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/statistics_vs_ML/power_curve_ttest.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:80.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-power-curve-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Power curves for two-sample t-tests at significance level (= 0.05), across three common effect sizes ((d = 0.2), (0.5), (0.8)). The dashed horizontal line marks the conventional 80% power threshold, often adopted as a design goal. The plot shows how detecting even a moderate effect requires at least 64 observations <em>per group</em> — far more than suggested by popular heuristics.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="performing-a-t-test-and-fitting-a-regression-model" class="level3">
+<h3 class="anchored" data-anchor-id="performing-a-t-test-and-fitting-a-regression-model">Performing a t-test and Fitting a Regression Model</h3>
+<p>In the snippet below, we perform a t-test and fit a regression model on the <em>same</em> simulated dataset. The outputs are produced by different functions but convey equivalent statistical information — all centered on testing whether the two group means differ.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Analysis code</summary>
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Perform an independent-samples t-test</span></span>
+<span id="cb3-2">t_test_res <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">t.test</span>(outcome <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> group, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> df, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">var.equal =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span>
+<span id="cb3-3"></span>
+<span id="cb3-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Fit a linear model with group as a predictor</span></span>
+<span id="cb3-5">lm_model <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">lm</span>(outcome <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> group, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> df)</span>
+<span id="cb3-6"></span>
+<span id="cb3-7"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Apply ANOVA to the linear model</span></span>
+<span id="cb3-8">anova_res <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">anova</span>(lm_model)</span></code></pre></div>
+</details>
+</div>
+</section>
+<section id="display-results" class="level3">
+<h3 class="anchored" data-anchor-id="display-results">Display results</h3>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+→ t-test
+──────────────</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Two Sample t-test
+
+data:  outcome by group
+t = -2.8597, df = 126, p-value = 0.004964
+alternative hypothesis: true difference in means between group A and group B is not equal to 0
+95 percent confidence interval:
+ -0.7629029 -0.1388665
+sample estimates:
+mean in group A mean in group B 
+       5.038478        5.489362 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+→ ANOVA
+──────────────</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Response: outcome
+           Df  Sum Sq Mean Sq F value   Pr(&gt;F)   
+group       1   6.506  6.5055  8.1781 0.004964 **
+Residuals 126 100.231  0.7955                    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+→ Linear Model (summary)
+──────────────</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = outcome ~ group, data = df)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-2.29853 -0.59548 -0.05597  0.53407  2.19797 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   5.0385     0.1115   45.19  &lt; 2e-16 ***
+groupB        0.4509     0.1577    2.86  0.00496 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.8919 on 126 degrees of freedom
+Multiple R-squared:  0.06095,   Adjusted R-squared:  0.0535 
+F-statistic: 8.178 on 1 and 126 DF,  p-value: 0.004964</code></pre>
+</div>
+</div>
+<p>How should we interpret these numbers? The goal of our analysis was to assess whether the two groups differ in their mean outcome. Both the t-test and the regression model provide consistent answers to this question.</p>
+<p>In the regression output, the coefficient <code>groupB = 0.4509</code> represents the estimated difference in means between the two groups. The associated p-value (0.00496) indicates that this difference is statistically significant at the conventional 5% level — strong evidence against the null hypothesis <img src="https://latex.codecogs.com/png.latex?(H_0:%5Cmu_A=%5Cmu_B)">.</p>
+<p>The F-statistic from the ANOVA table (8.178) confirms this result, and it is numerically equal to the square of the t-statistic from the regression output <img src="https://latex.codecogs.com/png.latex?(F=t%5E2)">, as expected when comparing two groups using a linear model.</p>
+<p>The residual standard error (0.8919) provides an estimate of the variability within groups, and the degrees of freedom (126) reflect that all available data were used for estimation. This is typical in classical inference, where no data is held out for validation — in contrast with machine learning practice.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="🎯 Interpretation">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+🎯 Interpretation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>As expected, the t-statistic and the p-value from the t-test correspond exactly to the t-statistic and p-value for the group coefficient in the regression model.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="t, F and the language of models">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+t, F and the language of models
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Although <code>t.test()</code> and <code>lm()</code> appear to be different tools, they both test the same hypothesis — that the group means differ. The t-statistic for the group coefficient in the regression is identical to the one returned by the t-test. Furthermore, the <code>anova()</code> function applied to the linear model produces an F-statistic equal to the square of the t-statistic: <img src="https://latex.codecogs.com/png.latex?(F%20=%20t%5E2)">. Different outputs, same logic.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Normality and sample size">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Normality and sample size
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The values of the t and F statistics shown in the tables are derived from the Student’s t and Fisher’s F distributions, respectively. These distributions — and the reliability of the associated inference — rely on the assumption that residuals follow a normal distribution.</p>
+<p>This assumption is especially critical when sample sizes are small. As sample size increases, the central limit theorem ensures that the sampling distribution of the test statistic becomes approximately normal, even if the underlying data are not. With 64 observations per group, the inference is considered robust to moderate departures from normality.</p>
+</div>
+</div>
+<p>The p-value expresses the degree of statistical surprise associated with the observed value of the test statistic — under the assumption that the null hypothesis is true. In other words, it quantifies how incompatible the data are with what would be expected from the sampling distribution under the null. Paradoxically, in statistical practice we often look for surprise: the lower the p-value, the more tempted we are to conclude that <strong>the null hypothesis may not hold</strong>.</p>
+<p>The degrees of freedom associated with a statistical model offer a practical indication of its vulnerability to overfitting. Since they increase with the amount of data and decrease with the number of parameters estimated, a low number of degrees of freedom is a warning signal: the model may be too complex relative to the information available. In traditional statistical practice, this aspect is often underappreciated — yet it plays a critical role in determining the stability and generalizability of inferential results.</p>
+<p>This example shows how seemingly different statistical tools — a t-test, a linear model, and an ANOVA — all converge toward the same conclusion, using distinct but mathematically connected representations. What may appear at first as separate techniques are, in fact, different expressions of the same modeling logic.</p>
+<p>It is also worth noting that, in this classical setting, all available observations — 64 per group, for a total of 128 — are used entirely for model estimation. No data is reserved for model validation. All degrees of freedom are “spent” in fitting and inference, with no external check on how well the model might generalize to new data. This design choice — to use all data for estimation — is rooted in the assumptions and goals of classical inference. In contrast, machine learning workflows routinely reserve part of the data for validation, tuning, and performance assessment.</p>
+</section>
+</section>
+<section id="from-inference-to-prediction-a-first-machine-learning-example" class="level2">
+<h2 class="anchored" data-anchor-id="from-inference-to-prediction-a-first-machine-learning-example">From Inference to Prediction: A First Machine Learning Example</h2>
+<p>We now shift from inference to prediction. In supervised machine learning, model validation is built into the workflow — often using separate training and testing sets — to evaluate how well the model generalizes.</p>
+<p>Before diving deeper, it’s worth highlighting that although machine learning is often associated with “algorithms,” the core idea remains modeling. Algorithms are tools to find models — representations of patterns in the data — much as in statistics. The shift lies in the greater flexibility and adaptability expected of models built via machine learning.</p>
+<p>Let’s now construct a simple classification example using simulated data. To keep the comparison with the previous example meaningful, we simulate two equally sized groups — 64 observations each — and generate two continuous predictors for classification. As with the t-test setting, the balanced design is not strictly necessary, but it remains highly advisable. Severe class imbalance can distort statistical inference and degrade the performance of classifiers, especially when probabilistic calibration is involved.</p>
+<p>Wherever possible, experimental design should strive for balanced or near-balanced group sizes. In statistical inference, imbalance may reduce the precision of estimates or distort p-values. In machine learning, it can lead to biased classifiers, especially when the outcome classes are highly skewed. While techniques exist to handle imbalance (such as weighting or resampling), it is good experimental practice to minimize it at the design stage whenever possible.</p>
+<section id="simulating-data-for-binary-classification" class="level3">
+<h3 class="anchored" data-anchor-id="simulating-data-for-binary-classification">Simulating Data for Binary Classification</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Simulate data</span></span>
+<span id="cb10-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">123</span>)</span>
+<span id="cb10-3">n <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span></span>
+<span id="cb10-4">x1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rnorm</span>(n, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2.5</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.2</span>), <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rnorm</span>(n, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3.5</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.2</span>))</span>
+<span id="cb10-5">x2 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rnorm</span>(n, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2.5</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.2</span>), <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rnorm</span>(n, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3.5</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.2</span>))</span>
+<span id="cb10-6">class <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">factor</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rep</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, n), <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rep</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, n)), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">levels =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"0"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"1"</span>))</span>
+<span id="cb10-7"></span>
+<span id="cb10-8">df_ml <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tibble</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x1 =</span> x1, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x2 =</span> x2, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">class =</span> class)</span></code></pre></div>
+</div>
+<p>The two classes are linearly separable, by design — each group was generated from a distinct bivariate Gaussian distribution, Figure&nbsp;2. This separation facilitates learning and allows us to explore classification behavior in a clean, controlled setting.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-bivariate-dataset" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bivariate-dataset-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/statistics_vs_ML/index_files/figure-html/fig-bivariate-dataset-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:80.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bivariate-dataset-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Simulated dataset with two linearly separable classes, used to illustrate binary classification.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="fitting-a-logistic-regression-model" class="level3">
+<h3 class="anchored" data-anchor-id="fitting-a-logistic-regression-model">Fitting a Logistic Regression Model</h3>
+<p>Although the name might suggest otherwise, logistic regression is not a method for modeling continuous outcomes. It is, in fact, one of the simplest and most widely used algorithms for <strong>binary classification</strong>. Given its solid statistical foundations, efficiency, and interpretability, logistic regression often serves as a reliable first choice in many applied machine learning workflows.</p>
+<p>Despite being called a “regression” model, logistic regression is designed for classification tasks. Its goal is not to predict a numeric outcome, but rather to estimate the <strong>probability that each observation belongs to a given class</strong> — typically class 1. The model learns a relationship between the features and this probability, and a threshold (usually 0.5) is then applied to assign class labels.</p>
+<p>Here we use the <a href="https://www.tidymodels.org/"><code>tidymodels</code></a> framework to fit the model. Tidymodels provides a unified and expressive syntax for specifying, training, and evaluating models in R, following the tidyverse principles.</p>
+<p>To keep the example simple but realistic, we perform a basic train/test split before fitting the model. This reflects a fundamental aspect of the ML workflow: models are expected to generalize to new, unseen data. In contrast to traditional statistical modeling — where inference is often based on the full dataset, with uncertainty captured via confidence intervals or p-values — machine learning emphasizes predictive performance on held-out data.</p>
+<p>Since logistic regression has no tunable hyperparameters, and our example involves just two features, we do not perform cross-validation or model tuning. A single split suffices to illustrate the predictive logic.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Split and annotate</span></span>
+<span id="cb11-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">123</span>)</span>
+<span id="cb11-3">split <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">initial_split</span>(df_ml, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">prop =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.75</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">strata =</span> class)</span>
+<span id="cb11-4">train_df <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">training</span>(split) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">set =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Train"</span>)</span>
+<span id="cb11-5">test_df  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">testing</span>(split)  <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">set =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Test"</span>)</span>
+<span id="cb11-6"></span>
+<span id="cb11-7">df_all   <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">bind_rows</span>(train_df, test_df)</span>
+<span id="cb11-8"></span>
+<span id="cb11-9"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Fit logistic regression on training set</span></span>
+<span id="cb11-10">model_ml <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">logistic_reg</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb11-11">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set_engine</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"glm"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb11-12">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">fit</span>(class <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> x1 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> x2, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> train_df)</span></code></pre></div>
+</details>
+</div>
+</section>
+<section id="visualizing-the-decision-boundary" class="level3">
+<h3 class="anchored" data-anchor-id="visualizing-the-decision-boundary">Visualizing the Decision Boundary</h3>
+<p>In classical statistical testing, the choice of an operational point is often driven by conventions: a significance level of 0.05 and a power of 0.80 are typically adopted without extensive reflection. In ML, however, this decision is more explicitly tied to the ROC curve. The model provides estimated probabilities, and it is up to the practitioner — in consultation with stakeholders — to choose a classification threshold that reflects real-world priorities: minimizing false positives, false negatives, or some balanced trade-off. In the example discussed here, the boundary decision is plotted as a line over the point distributions of the two classes, as shown in Figure&nbsp;3.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-bivariate-decision" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bivariate-decision-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/statistics_vs_ML/index_files/figure-html/fig-bivariate-decision-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bivariate-decision-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Decision boundary produced by a logistic regression classifier fitted on the training set (circles). Points in the test set are shown as triangles. Class 0 and Class 1 are represented in blue and red, respectively. The model learns to separate the two classes by estimating a probability of class membership and applying a threshold (here, 0.5). This visualization helps assess how well the model generalizes, especially when overlaid on unseen test data.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="evaluating-performance-roc-curve-and-auc" class="level3">
+<h3 class="anchored" data-anchor-id="evaluating-performance-roc-curve-and-auc">Evaluating Performance: ROC Curve and AUC</h3>
+<p>We now evaluate model performance using the ROC curve, introduced earlier in the <em>ML-based key concepts</em> callout.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Predict and evaluate</span></span>
+<span id="cb12-2">test_df <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> test_df <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb12-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">bind_cols</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">predict</span>(model_ml, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">new_data =</span> test_df, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">type =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"prob"</span>))</span>
+<span id="cb12-4"></span>
+<span id="cb12-5">roc_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">roc_curve</span>(test_df, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">truth =</span> class, .pred_0)</span>
+<span id="cb12-6">auc_val  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">roc_auc</span>(test_df, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">truth =</span> class, .pred_0)</span>
+<span id="cb12-7"></span>
+<span id="cb12-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Predict on training set (add probabilities + class prediction)</span></span>
+<span id="cb12-9">train_df <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> train_df <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb12-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">bind_cols</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">predict</span>(model_ml, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">new_data =</span> ., <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">type =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"prob"</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb12-11">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">pred_class =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">if_else</span>(.pred_1 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"1"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"0"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">factor</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">levels =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"0"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"1"</span>)))</span>
+<span id="cb12-12"></span>
+<span id="cb12-13"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Ensure predicted class exists on test set</span></span>
+<span id="cb12-14">test_df <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> test_df <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb12-15">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">pred_class =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">if_else</span>(.pred_1 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;=</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"1"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"0"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">factor</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">levels =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"0"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"1"</span>)))</span></code></pre></div>
+</details>
+</div>
+<p>This curve, shown in Figure&nbsp;4, summarizes the trade-off between sensitivity and specificity across all possible thresholds, and provides a basis for threshold-independent comparison between classifiers.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-roc" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-roc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/statistics_vs_ML/index_files/figure-html/fig-roc-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-roc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: ROC curve for the logistic regression model, evaluated on the test set. The curve shows how sensitivity (true positive rate) and specificity (1 - false positive rate) evolve as the decision threshold varies. This version reproduces the staircase structure typical of ROC curves, using a step plot with cleaned and ordered data. The dashed line represents chance-level performance. The area under the curve (AUC) summarizes overall discriminative ability.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The ROC curve provides a global view of model discrimination across all possible thresholds, but model decisions are ultimately made at specific thresholds. This is where the confusion matrix (Figure&nbsp;5) and the classification metrics table come into play: they reveal how a fixed cutoff — here 0.5 — translates into concrete outcomes in terms of correct and incorrect predictions. Such threshold-dependent evaluations are essential when aligning models with real-world decision-making contexts.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-confmat" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-confmat-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/statistics_vs_ML/index_files/figure-html/fig-confmat-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-confmat-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Confusion matrix for the logistic regression model on the test set (threshold = 0.5). The matrix summarizes the number of correct and incorrect predictions, broken down by actual and predicted class. It highlights how model decisions play out at a specific threshold, complementing the global view offered by the ROC curve.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>To complement the confusion matrix, we report key performance metrics in Table&nbsp;1. These include accuracy, sensitivity (recall for the positive class), and specificity (true negative rate), computed separately on the training and test sets.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Compute each metric separately, then combine</span></span>
+<span id="cb13-2">metrics_train <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tibble</span>(</span>
+<span id="cb13-3">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">set =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Train"</span>,</span>
+<span id="cb13-4">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">accuracy =</span> yardstick<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">accuracy</span>(train_df, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">truth =</span> class, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">estimate =</span> pred_class) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pull</span>(.estimate),</span>
+<span id="cb13-5">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sensitivity =</span> yardstick<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sens</span>(train_df, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">truth =</span> class, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">estimate =</span> pred_class) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pull</span>(.estimate),</span>
+<span id="cb13-6">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">specificity =</span> yardstick<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">spec</span>(train_df, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">truth =</span> class, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">estimate =</span> pred_class) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pull</span>(.estimate)</span>
+<span id="cb13-7">)</span>
+<span id="cb13-8"></span>
+<span id="cb13-9">metrics_test <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tibble</span>(</span>
+<span id="cb13-10">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">set =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Test"</span>,</span>
+<span id="cb13-11">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">accuracy =</span> yardstick<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">accuracy</span>(test_df, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">truth =</span> class, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">estimate =</span> pred_class) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pull</span>(.estimate),</span>
+<span id="cb13-12">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sensitivity =</span> yardstick<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sens</span>(test_df, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">truth =</span> class, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">estimate =</span> pred_class) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pull</span>(.estimate),</span>
+<span id="cb13-13">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">specificity =</span> yardstick<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">spec</span>(test_df, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">truth =</span> class, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">estimate =</span> pred_class) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pull</span>(.estimate)</span>
+<span id="cb13-14">)</span></code></pre></div>
+</details>
+</div>
+<p>This summary highlights how well the model generalizes and reinforces the idea that threshold selection — while often fixed by convention in statistical testing — plays a pivotal role in applied ML.</p>
+<div class="cell">
+<div id="tbl-performance-metrics" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-performance-metrics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Summary of classification metrics at threshold 0.5 for training and test sets. Reported metrics include accuracy, sensitivity (recall for class 1), and specificity (true negative rate). These help interpret model performance beyond the AUC, and illustrate how different metrics depend on the choice of decision threshold.
+</figcaption>
+<div aria-describedby="tbl-performance-metrics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table quarto-disable-processing="true" class="table table-condensed table-bordered" style="font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;">
+<caption style="font-size: initial !important;"></caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> set </th>
+   <th style="text-align:right;"> accuracy </th>
+   <th style="text-align:right;"> sensitivity </th>
+   <th style="text-align:right;"> specificity </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Train </td>
+   <td style="text-align:right;"> 0.687 </td>
+   <td style="text-align:right;"> 0.747 </td>
+   <td style="text-align:right;"> 0.627 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Test </td>
+   <td style="text-align:right;"> 0.660 </td>
+   <td style="text-align:right;"> 0.600 </td>
+   <td style="text-align:right;"> 0.720 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+</section>
+<section id="concluding-remarks" class="level2">
+<h2 class="anchored" data-anchor-id="concluding-remarks">Concluding remarks</h2>
+<p>The performance table above reveals not just how well the model generalizes from training to test data, but also highlights a deeper contrast between traditional <em>statistical inference</em> and <em>machine learning</em> practice. In classical statistics, the choice of a decision threshold — say, a significance level <img src="https://latex.codecogs.com/png.latex?%5Calpha=0.05"> — is often fixed by convention, serving as a gatekeeper for hypothesis testing. In ML, by contrast, the threshold (<img src="https://latex.codecogs.com/png.latex?0.5"> in our case) is not sacred: it can and should be <em>adapted</em> depending on context, cost, and stakeholder priorities.</p>
+<p>The ROC curve offers a <em>global view</em> of the model’s discriminative ability across all thresholds, while the confusion matrix and the table of metrics make concrete the implications of a <em>specific threshold</em>. Together, they illustrate that prediction is not just about <em>accuracy</em>. It’s about <em>decisions</em>, <em>trade-offs</em>, and the <em>flexibility to adapt</em> models to real-world needs. And that’s precisely where statistical reasoning and ML begin to meet — not in opposition, but in <em>dialogue</em>.</p>
+<p>The tension between theoretical rigor and empirical adaptability will continue to shape the evolving relationship between statistics and ML. In future explorations, we will examine how models behave when ideal conditions break down, and how different strategies — from regularization to robust modeling — attempt to meet the timeless challenge of separating signal from noise.</p>
+</section>
+<section id="further-reading" class="level2">
+<h2 class="anchored" data-anchor-id="further-reading">Further Reading</h2>
+<p>If you’d like to dig deeper into the ideas behind inference, prediction, and modern data modeling, here are some recommended readings — ranging from foundational texts to more advanced perspectives:</p>
+<p><strong><em>All of Statistics</em></strong> — Larry Wasserman (2004)<br> A concise and mathematically grounded guide to statistical reasoning, ideal for those transitioning into data science.</p>
+<p><strong><em>Statistics</em></strong> — Freedman, Pisani, Purves (2007)<br> A clear and accessible introduction to the logic and language of statistics.</p>
+<p><strong><em>Applied Predictive Modeling</em></strong> — Kuhn &amp; Johnson (2013)<br> A hands-on resource focused on practical machine learning with a statistical backbone.</p>
+<p><strong><em>Deep Learning</em></strong> — Goodfellow, Bengio, Courville (2016)<br> The reference text for deep learning, covering theory and implementation.</p>
+<p><strong><em>Computer Age Statistical Inference</em></strong> — Efron &amp; Hastie (2016)<br> A beautifully written journey through the convergence of statistics and algorithmic thinking.</p>
+
+
+</section>
+
+ ]]></description>
+  <category>statistics</category>
+  <category>machine learning</category>
+  <guid>https://amsabatini.netlify.app/posts/statistics_vs_ML/</guid>
+  <pubDate>Fri, 02 May 2025 22:00:00 GMT</pubDate>
+  <media:content url="https://amsabatini.netlify.app/posts/statistics_vs_ML/roc-thumb.png" medium="image" type="image/png" height="115" width="144"/>
+</item>
 <item>
   <title>Supercharge Deep Learning in R with a hybrid R–Colab workflow</title>
   <dc:creator>Angelo Maria Sabatini</dc:creator>
