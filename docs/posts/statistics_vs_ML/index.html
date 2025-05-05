@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Angelo Maria Sabatini">
-<meta name="dcterms.date" content="2025-05-03">
+<meta name="dcterms.date" content="2025-05-05">
 <meta name="description" content="What does it mean to shift from statistical inference to prediction? This post uses a minimal but complete example to explore the shared terrain between statistics and machine learning — from how models are trained, to how decisions are made and evaluated in real-world contexts.">
 
 <title>Statistics and Machine Learning: A shared landscape – Angelo Maria Sabatini</title>
@@ -270,7 +270,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">May 3, 2025</p>
+      <p class="date">May 5, 2025</p>
     </div>
   </div>
   
@@ -283,7 +283,7 @@ window.Quarto = {
 
 
 <p>One of the most important similarities between statistics and machine learning (ML) is that both rely heavily on models. While this connection is sometimes overlooked, it forms the backbone of how we organize and analyze data. Regardless of the number and type of variables involved—whether explanatory or response variables, continuous or categorical—statistical modeling remains at the core of the process. Whether our goal is to predict outcomes, uncover relationships, or assess differences, modeling gives structure and meaning to the patterns we observe. ML, too, builds on this idea of modeling, but with a slightly different emphasis. Here, the focus is often more explicitly on defining a mathematical mapping between inputs and outputs—a modeling aspect that tends to be more immediately visible than in traditional statistical practice.</p>
-<p>Several practical factors make a full overlap between the two approaches less straightforward. One is the sheer difference in the size of datasets: classical statistical analyses often rely on relatively small samples, especially in fields such as medicine or social sciences. ML, by contrast, tends to operate in contexts where large datasets are available—or at least assumed. Another difference lies in the typical workflow: in ML, it is standard practice to split data into training, validation, and testing sets, managing the trade-off between fitting well and generalizing. This concern, central to ML, is less explicitly present in traditional statistical workflows.</p>
+<p>Several practical factors make a full overlap between the two approaches less straightforward. One is the sheer difference in the size of datasets: classical statistical analyses often rely on relatively small samples, especially in fields such as medicine or social sciences. This distinction, however, is beginning to blur: modern applications in fields like digital health, education technology, or online behavioral studies increasingly generate larger datasets, enabling the use of ML-inspired methods even in traditionally small-sample domains. ML, by contrast, tends to operate in contexts where large datasets are available—or at least assumed. Another difference lies in the typical workflow: in ML, it is standard practice to split data into training, validation, and testing sets, managing the trade-off between fitting well and generalizing. This concern, central to ML, is less explicitly present in traditional statistical workflows.</p>
 <p>Despite these differences, statistics and ML increasingly share common objectives and approaches: building models that capture meaningful patterns while balancing complexity against generalization.(For readers unfamiliar with some of the technical terms, a brief summary is provided in the Key Concepts sections below.)</p>
 <section id="what-is-a-statistical-model" class="level2">
 <h2 class="anchored" data-anchor-id="what-is-a-statistical-model">What is a statistical model?</h2>
@@ -362,7 +362,7 @@ ML-based key concepts
 <li><p><strong>ROC Curve</strong>: a plot of true positive rate vs false positive rate across different thresholds.</p></li>
 <li><p><strong>ROC AUC</strong>: a single-number summary of a model’s discrimination ability across thresholds.</p></li>
 <li><p><strong>Operating Point (Threshold Selection)</strong>: the decision threshold balancing false positives and false negatives, based on context.</p></li>
-<li><p><strong>Class Imbalance</strong>: a condition where the categories in the outcome variable are unequally represented. It can lead to biased models, misleading performance metrics, and poor generalization — especially when one class dominates. Common remedies include resampling, weighting, and using metrics like ROC AUC instead of raw accuracy.</p></li>
+<li><p><strong>Class Imbalance</strong>: a condition where the categories in the outcome variable are unequally represented. It can lead to biased models, misleading performance metrics, and poor generalization — especially when one class dominates. Common remedies include resampling, weighting, and using metrics like ROC AUC instead of raw accuracy. Although widely addressed in ML, class imbalance also affects classical inference, where low-prevalence categories can distort p-values and test power.</p></li>
 </ul>
 </div>
 </div>
@@ -396,21 +396,7 @@ Advanced key concepts
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(broom)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Enforce the setting of full_width in calling kable_styling()</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">knitr.table.html.attr =</span> <span class="st">"quarto-disable-processing = true"</span>)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Customize the text tables for consistency using HTML formatting</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>my_kable_styling <span class="ot">&lt;-</span> <span class="cf">function</span>(dat, caption, <span class="at">digits =</span> <span class="dv">3</span>, <span class="at">font_size =</span> <span class="dv">14</span>, <span class="at">format =</span> <span class="st">"html"</span>) {</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(dat, format, <span class="at">escape =</span> <span class="cn">FALSE</span>, <span class="at">caption =</span> caption, <span class="at">digits =</span> digits) <span class="sc">%&gt;%</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">kable_styling</span>(</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"condensed"</span>, <span class="st">"bordered"</span>),</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>      <span class="at">font_size =</span> font_size,</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>      <span class="at">position =</span> <span class="st">"center"</span>,</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">full_width =</span> <span class="cn">FALSE</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <section id="simulating-data-for-classical-inference" class="level3">
@@ -427,11 +413,11 @@ Advanced key concepts
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">outcome =</span> <span class="fu">c</span>(group1, group2)</span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>We simulate two groups, randomly drawn from two normally distributed populations, with means <span class="math inline">\(\mu_A = 5.0\)</span> and <span class="math inline">\(\mu_B = 5.5\)</span>, and standard deviations <span class="math inline">\(\sigma_A = \sigma_B = 1.0\)</span>. Each group contains <span class="math inline">\(n = 15\)</span> observations. In the spirit of a real experiment, the population parameters are unknown — the only information we have comes from the observed data. Our inferential task is to test whether a difference exists between the group means, under the standard null and alternative hypotheses:</p>
+<p>We simulate two groups, randomly drawn from two normally distributed populations, with means <span class="math inline">\(\mu_A = 5.0\)</span> and <span class="math inline">\(\mu_B = 5.5\)</span>, and standard deviations <span class="math inline">\(\sigma_A = \sigma_B = 1.0\)</span>. Each group contains <span class="math inline">\(n = 64\)</span> observations. In the spirit of a real experiment, the population parameters are unknown — the only information we have comes from the observed data. Our inferential task is to test whether a difference exists between the group means, under the standard null and alternative hypotheses:</p>
 <p><span class="math display">\[
 H_0: \mu_A = \mu_B \quad\quad H_1: \mu_A \ne \mu_B
 \]</span></p>
-<p>In this example, we simulate 64 observations per group — a total of 128 — to achieve 80% statistical power for detecting a medium effect size (<span class="math inline">\(d = 0.5\)</span>) with a two-sided t-test at the conventional 5% significance level. This decision is not arbitrary: in a well-planned experiment, the sample size should be defined <em>before</em> data collection, based on desired sensitivity and acceptable error rates. Surprisingly, many experimental studies — including those carried out in applied scientific fields such as engineering — skip this crucial planning step, treating sample size as an afterthought rather than a design parameter.</p>
+<p>In this example, we simulate 64 observations per group — a total of 128 — to achieve 80% statistical power for detecting a medium effect size (<span class="math inline">\(d = 0.5\)</span>) with a two-sided t-test at the conventional 5% significance level. This decision is not arbitrary: in a well-planned experiment, the sample size should be defined <em>before</em> data collection, based on acceptable error rates, either of Type I or Type II. Surprisingly, many — even published — experimental studies skip this crucial planning step, treating sample size as an afterthought rather than a design parameter.</p>
 <p>This consideration can be visualized by examining how statistical power varies with the sample size and the effect size. The plot in <a href="#fig-power-curve" class="quarto-xref">Figure&nbsp;1</a> shows the power curves for three typical values of Cohen’s effect size (<span class="math inline">\(d = 0.2\)</span>, <span class="math inline">\(0.5\)</span>, <span class="math inline">\(0.8\)</span>), representing small, medium, and large effects. The dashed line marks the conventional threshold of 80% power.</p>
 <p>As the plot shows, detecting a medium effect with 80% reliability requires at least 64 observations <em>per group</em>. Informal rules of thumb such as “30 is enough” may drastically underestimate the sample size needed for meaningful results.</p>
 <div class="cell" data-layout-align="center">
@@ -451,7 +437,7 @@ Figure&nbsp;1: Power curves for two-sample t-tests at significance level (= 0.05
 </section>
 <section id="performing-a-t-test-and-fitting-a-regression-model" class="level3">
 <h3 class="anchored" data-anchor-id="performing-a-t-test-and-fitting-a-regression-model">Performing a t-test and Fitting a Regression Model</h3>
-<p>In the snippet below, we perform a t-test and fit a regression model on the <em>same</em> simulated dataset. The outputs are produced by different functions but convey equivalent statistical information — all centered on testing whether the two group means differ.</p>
+<p>In the snippet below, we perform a t-test and fit a regression model on the <em>same</em> simulated dataset. The outputs are produced by different functions but convey equivalent statistical information — all centered on testing whether the two group means differ. This equivalence is not accidental: it arises from how categorical variables are treated in regression models. Specifically, dummy (or indicator) coding when doing ANOVA translates group membership into a numeric predictor, allowing the regression coefficient to represent the mean difference between groups — exactly as tested by the t-test.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Analysis code</summary>
@@ -531,7 +517,7 @@ F-statistic: 8.178 on 1 and 126 DF,  p-value: 0.004964</code></pre>
 <p>How should we interpret these numbers? The goal of our analysis was to assess whether the two groups differ in their mean outcome. Both the t-test and the regression model provide consistent answers to this question.</p>
 <p>In the regression output, the coefficient <code>groupB = 0.4509</code> represents the estimated difference in means between the two groups. The associated p-value (0.00496) indicates that this difference is statistically significant at the conventional 5% level — strong evidence against the null hypothesis <span class="math inline">\((H_0:\mu_A=\mu_B)\)</span>.</p>
 <p>The F-statistic from the ANOVA table (8.178) confirms this result, and it is numerically equal to the square of the t-statistic from the regression output <span class="math inline">\((F=t^2)\)</span>, as expected when comparing two groups using a linear model.</p>
-<p>The residual standard error (0.8919) provides an estimate of the variability within groups, and the degrees of freedom (126) reflect that all available data were used for estimation. This is typical in classical inference, where no data is held out for validation — in contrast with machine learning practice.</p>
+<p>The residual standard error (0.8919) provides an estimate of the variability within groups, and the degrees of freedom (126) reflect that all available data were used for estimation. This is typical in classical inference, where no data is held out for validation — in contrast with ML practice.</p>
 <div class="callout callout-style-default callout-tip callout-titled" title="🎯 Interpretation">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -575,15 +561,15 @@ Normality and sample size
 <p>The p-value expresses the degree of statistical surprise associated with the observed value of the test statistic — under the assumption that the null hypothesis is true. In other words, it quantifies how incompatible the data are with what would be expected from the sampling distribution under the null. Paradoxically, in statistical practice we often look for surprise: the lower the p-value, the more tempted we are to conclude that <strong>the null hypothesis may not hold</strong>.</p>
 <p>The degrees of freedom associated with a statistical model offer a practical indication of its vulnerability to overfitting. Since they increase with the amount of data and decrease with the number of parameters estimated, a low number of degrees of freedom is a warning signal: the model may be too complex relative to the information available. In traditional statistical practice, this aspect is often underappreciated — yet it plays a critical role in determining the stability and generalizability of inferential results.</p>
 <p>This example shows how seemingly different statistical tools — a t-test, a linear model, and an ANOVA — all converge toward the same conclusion, using distinct but mathematically connected representations. What may appear at first as separate techniques are, in fact, different expressions of the same modeling logic.</p>
-<p>It is also worth noting that, in this classical setting, all available observations — 64 per group, for a total of 128 — are used entirely for model estimation. No data is reserved for model validation. All degrees of freedom are “spent” in fitting and inference, with no external check on how well the model might generalize to new data. This design choice — to use all data for estimation — is rooted in the assumptions and goals of classical inference. In contrast, machine learning workflows routinely reserve part of the data for validation, tuning, and performance assessment.</p>
+<p>It is also worth noting that, in this classical setting, all available observations — 64 per group, for a total of 128 — are used entirely for model estimation. No data is reserved for model validation. All degrees of freedom are “spent” in fitting and inference, with no external check on how well the model might generalize to new data. This design choice — to use all data for estimation — is rooted in the assumptions and goals of classical inference. In contrast, ML workflows routinely reserve part of the data for validation, tuning, and performance assessment.</p>
 </section>
 </section>
 <section id="from-inference-to-prediction-a-first-machine-learning-example" class="level2">
 <h2 class="anchored" data-anchor-id="from-inference-to-prediction-a-first-machine-learning-example">From Inference to Prediction: A First Machine Learning Example</h2>
-<p>We now shift from inference to prediction. In supervised machine learning, model validation is built into the workflow — often using separate training and testing sets — to evaluate how well the model generalizes.</p>
-<p>Before diving deeper, it’s worth highlighting that although machine learning is often associated with “algorithms,” the core idea remains modeling. Algorithms are tools to find models — representations of patterns in the data — much as in statistics. The shift lies in the greater flexibility and adaptability expected of models built via machine learning.</p>
+<p>We now shift from inference to prediction. In supervised ML, model validation is built into the workflow — often using separate training and testing sets — to evaluate how well the model generalizes.</p>
+<p>Before diving deeper, it’s worth highlighting that although ML is often associated with “algorithms,” the core idea remains modeling. Algorithms are tools to find models — representations of patterns in the data — much as in statistics. The shift lies in the greater flexibility and adaptability expected of models built via ML.</p>
 <p>Let’s now construct a simple classification example using simulated data. To keep the comparison with the previous example meaningful, we simulate two equally sized groups — 64 observations each — and generate two continuous predictors for classification. As with the t-test setting, the balanced design is not strictly necessary, but it remains highly advisable. Severe class imbalance can distort statistical inference and degrade the performance of classifiers, especially when probabilistic calibration is involved.</p>
-<p>Wherever possible, experimental design should strive for balanced or near-balanced group sizes. In statistical inference, imbalance may reduce the precision of estimates or distort p-values. In machine learning, it can lead to biased classifiers, especially when the outcome classes are highly skewed. While techniques exist to handle imbalance (such as weighting or resampling), it is good experimental practice to minimize it at the design stage whenever possible.</p>
+<p>Wherever possible, experimental design should strive for balanced or near-balanced group sizes. In statistical inference, imbalance may reduce the precision of estimates or distort p-values. In ML, it can lead to biased classifiers, especially when the outcome classes are highly skewed. While techniques exist to handle imbalance — such as weighting, oversampling, or downsampling, it is good experimental practice to minimize it at the design stage whenever possible.</p>
 <section id="simulating-data-for-binary-classification" class="level3">
 <h3 class="anchored" data-anchor-id="simulating-data-for-binary-classification">Simulating Data for Binary Classification</h3>
 <div class="cell">
@@ -614,14 +600,14 @@ Figure&nbsp;2: Simulated dataset with two linearly separable classes, used to il
 </section>
 <section id="fitting-a-logistic-regression-model" class="level3">
 <h3 class="anchored" data-anchor-id="fitting-a-logistic-regression-model">Fitting a Logistic Regression Model</h3>
-<p>Although the name might suggest otherwise, logistic regression is not a method for modeling continuous outcomes. It is, in fact, one of the simplest and most widely used algorithms for <strong>binary classification</strong>. Given its solid statistical foundations, efficiency, and interpretability, logistic regression often serves as a reliable first choice in many applied machine learning workflows.</p>
-<p>Despite being called a “regression” model, logistic regression is designed for classification tasks. Its goal is not to predict a numeric outcome, but rather to estimate the <strong>probability that each observation belongs to a given class</strong> — typically class 1. The model learns a relationship between the features and this probability, and a threshold (usually 0.5) is then applied to assign class labels.</p>
+<p>Although the name might suggest otherwise, logistic regression is not a method for modeling continuous outcomes. It is, in fact, one of the simplest and most widely used algorithms for <strong>binary classification</strong>. Given its solid statistical foundations, efficiency, and interpretability, logistic regression often serves as a reliable first choice in many applied ML workflows.</p>
+<p>Rather than predicting a numeric value, the model estimates the <strong>probability that each observation belongs to a given class</strong> — typically class 1. The model learns a relationship between the features and this probability, and a threshold (usually 0.5) is then applied to assign class labels.</p>
 <p>Here we use the <a href="https://www.tidymodels.org/"><code>tidymodels</code></a> framework to fit the model. Tidymodels provides a unified and expressive syntax for specifying, training, and evaluating models in R, following the tidyverse principles.</p>
-<p>To keep the example simple but realistic, we perform a basic train/test split before fitting the model. This reflects a fundamental aspect of the ML workflow: models are expected to generalize to new, unseen data. In contrast to traditional statistical modeling — where inference is often based on the full dataset, with uncertainty captured via confidence intervals or p-values — machine learning emphasizes predictive performance on held-out data.</p>
+<p>To keep the example simple but realistic, we perform a basic train/test split before fitting the model. This reflects a fundamental aspect of the ML workflow: models are expected to generalize to new, unseen data. In contrast to traditional statistical modeling — where inference is often based on the full dataset, with uncertainty captured via confidence intervals or p-values — ML emphasizes predictive performance on held-out data.</p>
 <p>Since logistic regression has no tunable hyperparameters, and our example involves just two features, we do not perform cross-validation or model tuning. A single split suffices to illustrate the predictive logic.</p>
 <div class="cell">
 <details class="code-fold">
-<summary>Code</summary>
+<summary>Analysis code</summary>
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Split and annotate</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(df_ml, <span class="at">prop =</span> <span class="fl">0.75</span>, <span class="at">strata =</span> class)</span>
