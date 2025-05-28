@@ -10,7 +10,732 @@
 <atom:link href="https://amsabatini.netlify.app/blog.xml" rel="self" type="application/rss+xml"/>
 <description>This the personal blog of Angelo Maria Sabatini</description>
 <generator>quarto-1.6.40</generator>
-<lastBuildDate>Sun, 04 May 2025 22:00:00 GMT</lastBuildDate>
+<lastBuildDate>Wed, 28 May 2025 22:00:00 GMT</lastBuildDate>
+<item>
+  <title>Backwards through the model</title>
+  <dc:creator>Angelo Maria Sabatini</dc:creator>
+  <link>https://amsabatini.netlify.app/posts/calibration/</link>
+  <description><![CDATA[ 
+
+
+
+
+<p>Calibrating a transducer means establishing a functional relationship between a physical input (e.g., pressure, temperature, force) and a measured output. In many real-world applications, however, the actual objective lies elsewhere: once the system is calibrated, the focus shifts to model inversion. Given an observed output, the task is to determine which input value could plausibly have produced it. This is precisely the challenge faced during deployment, when the transducer is integrated into an operational system.</p>
+<p>This post explores — through a simple but realistic example — the conceptual limits of direct model inversion in regression. The discussion also includes a brief note on orthogonal regression and introduces a Monte Carlo simulation strategy for addressing inverse prediction.</p>
+<section id="simulating-a-calibration-scenario" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="simulating-a-calibration-scenario">Simulating a calibration scenario</h2>
+<p>A simplified yet technically plausible calibration scenario is considered. The system under calibration is a nonlinear transducer — for instance, a sensor whose output voltage varies smoothly with a physical input quantity such as pressure or displacement. The underlying (noiseless) response function is assumed to be injective, meaning that each output corresponds to exactly one input value. In functional terms, the response curve is monotonic, ensuring that inversion remains well-defined in the absence of noise.</p>
+<p>The true input–output relationship is assumed to follow a smooth nonlinear curve, here modeled as a fourth-degree polynomial (truth model). Measurement noise is introduced by adding zero-mean Gaussian noise with standard deviation <img src="https://latex.codecogs.com/png.latex?%5Csigma"> to the target outputs.</p>
+<p>The R code below simulates 25 calibration data points from the reference model. A distinction is drawn between the transducer’s full operating range, <img src="https://latex.codecogs.com/png.latex?%5B0,12%5D">, and the actual calibration interval, <img src="https://latex.codecogs.com/png.latex?%5B1,11%5D"> — henceforth referred to as the measurement interval. This setup reflects common practice, where calibration is limited to a central portion of the device’s range. Within this interval, an operating point <img src="https://latex.codecogs.com/png.latex?x%5E*=3.5"> is selected, corresponding to a target output <img src="https://latex.codecogs.com/png.latex?y%5E*=11">. All variables are expressed in arbitrary units.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Simulate the calibration dataset</summary>
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse)</span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">123</span>)</span>
+<span id="cb1-3"></span>
+<span id="cb1-4">x_full <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">seq</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">length.out =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">25</span>)</span>
+<span id="cb1-5"></span>
+<span id="cb1-6"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Coefficients for a strictly increasing polynomial on [0, 10]</span></span>
+<span id="cb1-7">beta <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.681125</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.2</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.3</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.05</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.002</span>)</span>
+<span id="cb1-8"></span>
+<span id="cb1-9"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define the operating point ...</span></span>
+<span id="cb1-10">x_star <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3.5</span></span>
+<span id="cb1-11"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># ... the corresponding target output</span></span>
+<span id="cb1-12">y_star <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">11</span></span>
+<span id="cb1-13"></span>
+<span id="cb1-14"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Truth model function</span></span>
+<span id="cb1-15">f_true <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(x) {</span>
+<span id="cb1-16">  beta[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>] <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> beta[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>x <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> beta[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>x<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">^</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> beta[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>x<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">^</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> beta[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>]<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span>x<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">^</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span></span>
+<span id="cb1-17">}</span>
+<span id="cb1-18"></span>
+<span id="cb1-19"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># True outputs</span></span>
+<span id="cb1-20">y_true <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">f_true</span>(x_full)</span>
+<span id="cb1-21"></span>
+<span id="cb1-22">sigma <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span></span>
+<span id="cb1-23">y <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> y_true <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rnorm</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">length</span>(x_full), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">mean =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sd =</span> sigma)</span>
+<span id="cb1-24"></span>
+<span id="cb1-25"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Build full dataset</span></span>
+<span id="cb1-26">df_full <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> x_full, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> y, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y_true =</span> y_true)</span>
+<span id="cb1-27"></span>
+<span id="cb1-28"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Subset for calibration: (1, 11)</span></span>
+<span id="cb1-29">df_calib <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">subset</span>(df_full, x <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;</span> x <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">11</span>)</span></code></pre></div>
+</details>
+</div>
+<p><strong>Cautionary note</strong>: The noise added to the simulated outputs assumes constant standard deviation and Gaussian distribution — a deliberate simplification. In reality, calibration is often performed under carefully controlled laboratory conditions, which minimize thermal drift, power supply variations, and other environmental effects.</p>
+<p>Once deployed, however, the transducer is left to “breathe” — it operates in a dynamic environment, subject to factors that were effectively considered constant during calibration. As a result, the actual variability in output readings is typically greater than what the calibration model suggests.</p>
+<p>Moreover, it is not uncommon for the noise standard deviation to depend on the input value itself — for instance, in thermocouples or strain gauge sensors, measurement variability often increases with temperature or applied force due to physical nonlinearities and sensitivity drift and/or drop.</p>
+</section>
+<section id="fitting-the-calibration-model" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="fitting-the-calibration-model">Fitting the calibration model</h2>
+<p>Calibration is performed by fitting a polynomial regression model to the observed data — restricted to the measurement interval, as would typically be the case in practice to avoid excessive extrapolation at the boundaries. A fourth-degree polynomial is fitted using least squares, which coincides with the true data-generating mechanism adopted in the simulation (though in real applications, such knowledge would not be available).</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Fit a 4th-degree polynomial model</summary>
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Fit the calibration model only within (1, 11)</span></span>
+<span id="cb2-2">model_poly4 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">lm</span>(y <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">poly</span>(x, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> df_calib)</span>
+<span id="cb2-3"></span>
+<span id="cb2-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Predict over the full domain for visualization</span></span>
+<span id="cb2-5">df_full<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>y_pred <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">predict</span>(model_poly4, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">newdata =</span> df_full)</span></code></pre></div>
+</details>
+</div>
+<p>To better understand the validity range of the model, we plot the full dataset along with the fitted curve, highlighting the measurement interval.</p>
+<p>To assess the validity domain of the fitted model, the entire dataset is visualized alongside the estimated regression curve Figure&nbsp;1. The measurement interval is explicitly marked, highlighting the region where data were actually used for model fitting. Outside this interval, the model operates in extrapolation mode, relying on limited or no information — a situation in which prediction accuracy and reliability can rapidly deteriorate.</p>
+<div id="fig-1" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/calibration/fig1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:75.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: The red points represent noisy measurements, the dotted black line indicates the true model, and the solid blue line shows the fitted polynomial curve. The dashed vertical lines mark the boundaries of the measurement interval.
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="from-direct-prediction-to-inversion" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="from-direct-prediction-to-inversion">From direct prediction to inversion</h2>
+<p>Now suppose the calibrated system is to be used in the field. For a new observed target output <img src="https://latex.codecogs.com/png.latex?y%5E*">, the goal is to estimate the corresponding input <img src="https://latex.codecogs.com/png.latex?x"> under the fitted model. This task is known as <strong>inverse prediction</strong>. A common misunderstanding is to simply reverse the roles of input and output and fit a new regression model of the form <img src="https://latex.codecogs.com/png.latex?x%20%5Csim%20y">. This “reversed regression” approach, however, lacks a solid statistical foundation and yields incorrect uncertainty estimates — especially when measurement noise affects the output, not the input.</p>
+<p>In most calibration settings, the values of the input variable are assumed to be known with negligible uncertainty, while the output is subject to measurement noise. This asymmetry is foundational: classical regression assumes uncertainty in the response, not in the predictor. Swapping their roles invalidates that assumption and leads to biased estimates. The underlying statistical inconsistency is further discussed below in the context of orthogonal regression.</p>
+<p>Instead, the correct formulation requires solving the equation</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Chat%7By%7D(x)%20=%20y%5E*%0A"></p>
+<p>i.e., finding the value of <img src="https://latex.codecogs.com/png.latex?x"> for which the predicted output equals the observed measurement. In general, this equation cannot be solved in closed form for a polynomial of degree greater than two, unless specific simplifying conditions apply. However, since the fitted polynomial is strictly increasing over the full input domain <img src="https://latex.codecogs.com/png.latex?%5B0,%2012%5D">, the solution exists and is unique for any <img src="https://latex.codecogs.com/png.latex?y%5E*"> in the measurement interval, where reliable inverse predictions can thus be expected.</p>
+<p>The inversion can be carried out numerically — for example, using <code>uniroot()</code> in R, which implements the bisection method. This approach is robust and well-suited to continuous, monotonic functions like the fitted polynomial. Below, the inversion is performed for the chosen target output.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Invert the calibration model</summary>
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define the target output</span></span>
+<span id="cb3-2">y_star <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">11</span></span>
+<span id="cb3-3"></span>
+<span id="cb3-4"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define the prediction function from the model</span></span>
+<span id="cb3-5">predict_poly <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(x) {</span>
+<span id="cb3-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">predict</span>(model_poly4, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">newdata =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">data.frame</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> x))</span>
+<span id="cb3-7">}</span>
+<span id="cb3-8"></span>
+<span id="cb3-9"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Define the function to solve: f(x) = y_pred(x) - y_star</span></span>
+<span id="cb3-10">f_inversion <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(x) <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">predict_poly</span>(x) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> y_star</span>
+<span id="cb3-11"></span>
+<span id="cb3-12"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Solve numerically in the interval [1, 11] (calibration zone)</span></span>
+<span id="cb3-13">x_hat <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">uniroot</span>(f_inversion, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">lower =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">upper =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">11</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>root</span></code></pre></div>
+</details>
+</div>
+<p>An target output of 11 corresponds to an estimated input of 3.499, based on the fitted calibration model.</p>
+<div id="fig-2" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/calibration/fig2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:75.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: The fitted regression curve (blue line) is inverted numerically for the target output <img src="https://latex.codecogs.com/png.latex?y%5E*%20=%2011"> (horizontal red dashed line), yielding the corresponding estimate <img src="https://latex.codecogs.com/png.latex?%5Chat%7Bx%7D"> of the operating point (vertical dotted line). The point <img src="https://latex.codecogs.com/png.latex?(%5Chat%7Bx%7D,%20y%5E*)"> is marked on the curve to illustrate the solution.
+</figcaption>
+</figure>
+</div>
+<p>This kind of inverse prediction relies entirely on the deterministic structure of the fitted model and does not account for uncertainty. In the next section, a Monte Carlo approach will be introduced to estimate the distribution of plausible inputs given an observed output.</p>
+<p>Before proceeding, it is useful to reflect on the geometry of the problem — in particular, on the fact that ordinary least-squares regression minimizes the sum of squared vertical distances from the data points to the fitted curve. This choice is justified when the input variable is regarded as fixed and known without error, and all uncertainty is attributed to the output. When this assumption no longer holds — as is often the case in inverse usage — minimizing vertical deviations may no longer be the most appropriate strategy.</p>
+<section id="a-geometric-note-vertical-vs-orthogonal-residuals" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="a-geometric-note-vertical-vs-orthogonal-residuals">A geometric note: vertical vs orthogonal residuals</h3>
+<p>In classical regression, the output variable <img src="https://latex.codecogs.com/png.latex?y"> is modeled as random, while treating the input <img src="https://latex.codecogs.com/png.latex?x"> as fixed or measured without error — or equivalently, as a random variable with <strong>zero standard deviation</strong>. This modeling choice is what justifies minimizing the <em>vertical distance</em> between the observed <img src="https://latex.codecogs.com/png.latex?y"> values and the fitted curve <img src="https://latex.codecogs.com/png.latex?%5Chat%7By%7D(x)"> in least-squares estimation.</p>
+<p>However, when using the model in reverse — i.e., to estimate <img src="https://latex.codecogs.com/png.latex?x"> given <img src="https://latex.codecogs.com/png.latex?y"> — this assumption becomes questionable. In real-world settings, the input itself is subject to measurement uncertainty, or the roles of input and output may conceptually reverse (e.g., in calibration vs deployment).</p>
+<p>This motivates the idea of orthogonal regression, or total least squares, where the residuals are measured perpendicularly to the curve, taking into account errors in both variables.</p>
+<p>Although not implemented here, orthogonal regression serves as an important conceptual reminder: the least-squares fit is geometrically asymmetric. Direct prediction (forward use) is naturally supported; inverse prediction must be handled with care, especially in nonlinear settings like the one examined here.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Orthogonal regression in practice
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A practical method for regression with errors in both x and y is Deming regression, which minimizes the sum of squared orthogonal distances to the fitted line, assuming a known error variance ratio.</p>
+<p>While classical regression assumes the input x is known precisely — or has negligible variance — this is often not the case in calibration tasks, particularly when inputs are indirectly observed or reversed during deployment.</p>
+<p>Deming regression has two key limitations here:</p>
+<ol type="1">
+<li><p>It applies only to linear models — not to polynomials like the one used above;</p></li>
+<li><p>It requires the specification of the error variance ratio between <img src="https://latex.codecogs.com/png.latex?x"> and <img src="https://latex.codecogs.com/png.latex?y">. In practice, this ratio must be inferred from physical knowledge of the system, including the intrinsic noise of the transducer and the propagation of input uncertainty through the calibration curve.</p></li>
+</ol>
+</div>
+</div>
+<p>While orthogonal regression becomes numerically complex in nonlinear settings, the next section takes a different route — not to improve the regression fit, but to explore how output noise affects the inference of input values. The goal is to simulate, under known conditions, how a calibrated system behaves when used in reverse.</p>
+</section>
+</section>
+<section id="inverse-prediction-under-different-noise-levels" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="inverse-prediction-under-different-noise-levels">Inverse prediction under different noise levels</h2>
+<p>This section illustrates a simulation-based strategy for inverse prediction. Given a target output, the goal is to characterize the distribution of input values <img src="https://latex.codecogs.com/png.latex?x"> that could plausibly have generated it, under the assumption that the noise affecting the output is Gaussian and matches the standard deviation used during calibration.</p>
+<p>The procedure is as follows:</p>
+<ol type="1">
+<li><p>Fix a target output <img src="https://latex.codecogs.com/png.latex?y%5E*">;</p></li>
+<li><p>Generate samples of random noise <img src="https://latex.codecogs.com/png.latex?%5Cvarepsilon_i%20%5Csim%20%5Cmathcal%7BN%7D(0,%20%5Csigma%5E2)">, using the known standard deviation;</p></li>
+<li><p>For each sample, solve the perturbed equation:</p></li>
+</ol>
+<p><img src="https://latex.codecogs.com/png.latex?%0Ay(x_i)=y%5E*+%5Cvarepsilon_i%0A"></p>
+<p>using the truth model (i.e., the exact polynomial coefficients), to obtain a sample of input values consistent with the observed output.</p>
+<p>This approach provides a probabilistic reconstruction of the likely inputs that could have produced a given output under a known model with output noise. It highlights how variability in the output propagates backward through the system, inducing uncertainty in the inferred inputs.</p>
+<p>To illustrate how noise affects inverse estimation, two scenarios are compared. The first replicates the controlled conditions of the calibration process, where the noise level is low and well-characterized. The second represents a more realistic deployment setting, where the same transducer operates in a less stable environment, leading to larger variability in the output. By repeating the Monte Carlo simulation under both conditions, it becomes possible to observe how increased noise distorts the distribution of plausible input values — including shifts in bias, widening of confidence intervals, and an increase in failed inversion attempts due to extrapolation beyond the calibrated domain Figure&nbsp;3.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Compare two noise scenarios for inverse prediction</summary>
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1">n_sim <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5000</span></span>
+<span id="cb4-2"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># First scenario: sigma = 1</span></span>
+<span id="cb4-3">sigma_A <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> sigma</span>
+<span id="cb4-4">eps_A   <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rnorm</span>(n_sim, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, sigma_A)</span>
+<span id="cb4-5">x_inv_A <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sapply</span>(y_star <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> eps_A, <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(y_t) {</span>
+<span id="cb4-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tryCatch</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">uniroot</span>(<span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(x) <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">f_true</span>(x) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> y_t, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">lower =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">upper =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">11</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>root, </span>
+<span id="cb4-7">           <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">error =</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(e) <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NA_real_</span>)</span>
+<span id="cb4-8">})</span>
+<span id="cb4-9">x_emp_A  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(x_inv_A, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.rm =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span>
+<span id="cb4-10">bias_A   <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> x_emp_A <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> x_hat</span>
+<span id="cb4-11">ci_emp_A <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">quantile</span>(x_inv_A, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">probs =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.025</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.975</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.rm =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span>
+<span id="cb4-12">n_NA_A   <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(x_inv_A))</span>
+<span id="cb4-13"></span>
+<span id="cb4-14"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Second scenario: sigma = 2</span></span>
+<span id="cb4-15">sigma_B <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span></span>
+<span id="cb4-16">eps_B   <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rnorm</span>(n_sim, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, sigma_B)</span>
+<span id="cb4-17">x_inv_B <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sapply</span>(y_star <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> eps_B, <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(y_t) {</span>
+<span id="cb4-18">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tryCatch</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">uniroot</span>(<span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(x) <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">f_true</span>(x) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> y_t, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">lower =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">upper =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">11</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>root, </span>
+<span id="cb4-19">           <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">error =</span> <span class="cf" style="color: #003B4F;
+background-color: null;
+font-weight: bold;
+font-style: inherit;">function</span>(e) <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NA_real_</span>)</span>
+<span id="cb4-20">})</span>
+<span id="cb4-21">x_emp_B  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(x_inv_B, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.rm =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span>
+<span id="cb4-22">bias_B   <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> x_emp_B <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span> x_hat</span>
+<span id="cb4-23">ci_emp_B <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">quantile</span>(x_inv_B, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">probs =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.025</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.975</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.rm =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span>
+<span id="cb4-24">n_NA_B   <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">is.na</span>(x_inv_B))</span>
+<span id="cb4-25"></span>
+<span id="cb4-26">df_plot <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tibble</span>(</span>
+<span id="cb4-27">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(x_inv_A, x_inv_B),</span>
+<span id="cb4-28">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">scenario =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">factor</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rep</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Calibration (σ = 1)"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Deployment (σ = 2)"</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">each =</span> n_sim)))</span></code></pre></div>
+</details>
+</div>
+<div class="cell" data-tbl-caption="Monte Carlo simulation: distribution of input values consistent with the observed output">
+<div class="cell-output-display">
+<table quarto-disable-processing="true" class="table table-condensed table-bordered" style="font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;">
+<caption style="font-size: initial !important;">Monte Carlo simulation under two noise scenarios. The table summarizes the distribution of input values consistent with the target output. The number of failed inversions (NA) indicates the samples falling outside the measurement interval.</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Scenario </th>
+   <th style="text-align:right;"> Monte Carlo mean (x̄) </th>
+   <th style="text-align:right;"> Bias </th>
+   <th style="text-align:left;"> 95% CI (quantiles) </th>
+   <th style="text-align:right;"> Failed inversions (NA) </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> σ = 1 (calibration) </td>
+   <td style="text-align:right;"> 3.494 </td>
+   <td style="text-align:right;"> -0.005 </td>
+   <td style="text-align:left;"> [3.112, 3.837] </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> σ = 2 (deployment) </td>
+   <td style="text-align:right;"> 3.474 </td>
+   <td style="text-align:right;"> -0.024 </td>
+   <td style="text-align:left;"> [2.663, 4.136] </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Notation key
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><img src="https://latex.codecogs.com/png.latex?y%5E*">: target output to be inverted (deployment phase)</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Chat%7Bx%7D">: input estimate obtained by inverting the fitted model</p>
+<p><img src="https://latex.codecogs.com/png.latex?x_i">: individual input values sampled via Monte Carlo simulation</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cbar%7Bx%7D">: empirical mean of the Monte Carlo input distribution</p>
+<p>Bias: computed as <img src="https://latex.codecogs.com/png.latex?%5Cbar%7Bx%7D%20-%20%5Chat%7Bx%7D"></p>
+</div>
+</div>
+<div id="fig-3" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/calibration/fig3.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:75.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Monte Carlo density estimates of input values consistent with the target output under two noise conditions. Blue: calibration scenario (<img src="https://latex.codecogs.com/png.latex?%5Csigma%20=%201">). Red: deployment scenario (<img src="https://latex.codecogs.com/png.latex?%5Csigma%20=%202">). The vertical dashed line marks <img src="https://latex.codecogs.com/png.latex?%5Chat%7Bx%7D">, the input estimate obtained by inverting the fitted model. As noise increases, the density skews leftward — a consequence of the fact that sensitivity (i.e., the slope of the calibration curve) tends to increase with input value. This results in asymmetric confidence intervals, with heavier tails toward lower <img src="https://latex.codecogs.com/png.latex?x"> values.
+</figcaption>
+</figure>
+</div>
+<p>This method illustrates how even a fixed output measurement may correspond to a range of plausible inputs. The spread of this distribution depends on the noise level, the local slope of the calibration curve near <img src="https://latex.codecogs.com/png.latex?y%5E*">, and the model’s nonlinearity.</p>
+<p>In linear settings, Monte Carlo inversion recovers the classical prediction interval for <img src="https://latex.codecogs.com/png.latex?x%5E*"> derived from theory. In nonlinear cases, however, simulation becomes essential to reveal the actual shape and spread of the inverse uncertainty.</p>
+<p><strong>Key observations:</strong></p>
+<p>The peak of the simulated density typically does not align with <img src="https://latex.codecogs.com/png.latex?%5Chat%7Bx%7D">, the inverse prediction from the fitted model. This reflects a small bias introduced by the asymmetry of the transformation <img src="https://latex.codecogs.com/png.latex?x%20%5Crightarrow%20y">, which distorts symmetric output noise into skewed input uncertainty.</p>
+<p>Despite Gaussian noise on the output, the resulting distribution of plausible <img src="https://latex.codecogs.com/png.latex?x"> values is not normal. Nonlinear calibration curves map symmetric errors into asymmetric input spreads, especially in regions with varying slope or curvature.</p>
+<p>As noise increases, the inverse distribution becomes wider and increasingly left-skewed. This behavior is consistent with the increasing sensitivity of the model at higher <img src="https://latex.codecogs.com/png.latex?x"> values and results in confidence intervals that shift and become asymmetric — as clearly shown in Figure&nbsp;3. However, the use of numerical solvers like <code>uniroot()</code> comes with important caveats near the edges of the calibration domain. When the slope of the model becomes very small — as it often does at low input values — the inversion becomes ill-conditioned: small variations in output may correspond to large variations in input, or even result in multiple or no real-valued solutions. In such cases, the solver may return only one of several possible roots, typically the one closer to the lower boundary. This effect contributes to the asymmetric shape and heavy left tail of the inverse distribution shown in Figure&nbsp;3, even when the output noise itself is symmetric.</p>
+<p>A further complication arises from the fitted polynomial model used for inversion. While the interpolating polynomial approximates the calibration curve well over central regions, it tends to oscillate or flatten toward the boundaries, particularly in higher-order fits. These edge effects can amplify instability in the inverse prediction — both for numerical solvers and for lookup-table interpolation — unless the prediction range is appropriately restricted or the model complexity reduced.</p>
+</section>
+<section id="a-final-word-this-is-the-optimistic-case" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="a-final-word-this-is-the-optimistic-case">A final word: this is the optimistic case</h2>
+<p>The Monte Carlo simulations shown so far illustrate a powerful approach to inverse prediction — but under conditions that are more optimistic than most real-world applications. In particular, the numerical solver was applied to the truth model, i.e., the same polynomial function used to generate the data. This means that, although noise was present in the output, the model structure was assumed to be perfectly known and invertible. In reality, due to computational constraints at deployment time or industrial protocols that can prevent real-time inversion via numerical methods, inverse prediction is rarely implemented via numerical solvers — more often, it relies on lookup tables derived from synthetic calibration curves.</p>
+<section id="a-first-step-toward-table-based-inverse-prediction" class="level3 unnumbered">
+<h3 class="unnumbered anchored" data-anchor-id="a-first-step-toward-table-based-inverse-prediction">A first step toward table-based inverse prediction</h3>
+<p>Lookup tables link input values to their expected outputs based on the fitted model, enabling fast and resource-efficient retrieval of approximate inverses during deployment.</p>
+<p>The idea is simple:</p>
+<ul>
+<li>Step 1: Generate a synthetic grid of input values over the calibration interval;</li>
+<li>Step 2: Evaluate the fitted model on each input to obtain corresponding outputs;</li>
+<li>Step 3: Store the resulting pairs <img src="https://latex.codecogs.com/png.latex?(x_j,%20%5Chat%7By%7D_j)"> in a lookup table;</li>
+<li>Step 4: At deployment, when an output <img src="https://latex.codecogs.com/png.latex?y%5E*"> is observed, find the two closest values in the table and return the associated <img src="https://latex.codecogs.com/png.latex?%5Chat%7Bx%7D"> (possibly via linear interpolation between adjacent points). Of course, this step can work only if the table columns are strictly monotonic.</li>
+</ul>
+<p>It is worth noting that the requirement of monotonicity is shared with the numerical solver: non-monotonic regions in the model may lead to multiple valid solutions or to failed inversions when the output falls outside the achievable range. However, the problem is often more acute with lookup tables. Unlike solvers, which can dynamically refine their search and isolate a valid root, lookup tables are constrained to a discrete grid of stored values — and interpolation may become unstable or misleading near flat or turning regions of the model.</p>
+<p>This limitation highlights a trade-off between computational efficiency and robustness of inversion. It also suggests that, before deploying lookup-based inverse prediction, one should:</p>
+<ol type="1">
+<li>carefully inspect the fitted model for monotonicity;</li>
+<li>possibly restrict the input range to regions where inversion is well-defined;</li>
+<li>or simplify the model structure (e.g., reducing polynomial degree) to avoid non-monotonic behavior.</li>
+</ol>
+</section>
+</section>
+<section id="test-with-a-lookup-table-under-deployment-conditions" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="test-with-a-lookup-table-under-deployment-conditions">Test with a lookup table under deployment conditions</h2>
+<p>To evaluate inverse prediction under realistic deployment conditions, I simulate noisy output observations centered at the target output, with a standard deviation of <img src="https://latex.codecogs.com/png.latex?%5Csigma=2">.</p>
+<p>A lookup table is constructed from the fitted model, but only over a restricted interval where monotonicity has been both visually and numerically verified. This ensures that the inversion procedure remains well-defined and avoids regions where multiple or unstable solutions might occur.</p>
+<div id="fig-4" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/calibration/fig4.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:75.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Density of inverse input values obtained via a lookup table. Because of the good quality of the table in terms of monotonicity and range, the distribution closely resembles that obtained using the numerical solver in Figure&nbsp;3. No inversion failures occurred in the Monte Carlo simulation. The 95% confidence interval is <img src="https://latex.codecogs.com/png.latex?%5B2.652,%204.126%5D">, with a Monte Carlo mean <img src="https://latex.codecogs.com/png.latex?%5Cbar%7Bx%7D%20=%203.471"> and a bias of approximately <img src="https://latex.codecogs.com/png.latex?-0.028">.
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="conclusion-and-outlook" class="level2 unnumbered">
+<h2 class="unnumbered anchored" data-anchor-id="conclusion-and-outlook">Conclusion and outlook</h2>
+<p>This post has explored the challenge of inverse prediction in static calibration, highlighting the often-overlooked asymmetry of uncertainty when working backward from output to input. Using both numerical solvers and lookup tables, I showed how Monte Carlo simulation can quantify the resulting variability — even in optimistic settings where the model is perfectly known and the only uncertainty comes from measurement noise.</p>
+<p>Along the way, I emphasized that inverse prediction is more sensitive than forward prediction to model structure, output noise, and edge behavior. In particular, it should be remarked that:</p>
+<ol type="1">
+<li><p>confidence intervals become skewed and asymmetric as noise increases;</p></li>
+<li><p>the numerical solver can fail silently near the domain boundaries;</p></li>
+<li><p>lookup tables, while efficient and interpretable, require monotonicity and careful grid design.</p></li>
+</ol>
+<p>I deliberately kept the noise levels moderate and the model structure well-behaved. This allowed us to isolate key phenomena without introducing unnecessary complications. But real-world problems are rarely so kind: noise and non-monotonicity are recurring nightmares — not just in calibration, but in data-driven projects, where transducers often serve as the gateway to the information we rely on.</p>
+<p>The next post in this series will dive deeper into these complications. I’ll explore what happens when the true model structure is unknown or misestimated, when noise levels are high enough to push the inverse prediction outside the measurement interval, and when the forward function is non-monotonic. These “edge cases” pose significant risks — but also offer valuable opportunities to rethink how calibration is designed and implemented in practice.</p>
+
+
+</section>
+
+ ]]></description>
+  <category>measurement</category>
+  <category>statistics</category>
+  <guid>https://amsabatini.netlify.app/posts/calibration/</guid>
+  <pubDate>Wed, 28 May 2025 22:00:00 GMT</pubDate>
+  <media:content url="https://amsabatini.netlify.app/posts/calibration/calibration.jpg" medium="image" type="image/jpeg"/>
+</item>
 <item>
   <title>Statistics and Machine Learning: A shared landscape</title>
   <dc:creator>Angelo Maria Sabatini</dc:creator>

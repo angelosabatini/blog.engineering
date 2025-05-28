@@ -2,6 +2,7 @@
   {
     "listing": "/blog.html",
     "items": [
+      "/posts/calibration/index.html",
       "/posts/statistics_vs_ML/index.html",
       "/posts/parallel_processing_GPU/index.html",
       "/posts/parallel_processing/index.html",
@@ -25,6 +26,7 @@
   {
     "listing": "/archive.html",
     "items": [
+      "/posts/calibration/index.html",
       "/posts/statistics_vs_ML/index.html",
       "/posts/parallel_processing_GPU/index.html",
       "/posts/parallel_processing/index.html",
