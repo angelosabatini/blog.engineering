@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="">
+<meta name="author" content="Angelo Maria Sabatini">
 <meta name="dcterms.date" content="2025-06-09">
 <meta name="description" content="This post explores the computation of the stationary distribution and the autocorrelation function (ACF) in discrete-time Markov chains, focusing on two fundamental cases: a simple two-state chain and a more structured four-state chain that encodes second-order binary dependencies. Avoiding simulation-based methods, I’ll show how both analytical and numerical approaches can yield exact results for the ACF. Particular attention is given to the concept of Variance Inflation Factor (VIF) and its role in estimating the standard error of a sample proportion when autocorrelation is present.">
 
@@ -244,6 +244,12 @@ window.Quarto = {
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Angelo Maria Sabatini </p>
+          </div>
+  </div>
     
     <div>
     <div class="quarto-title-meta-heading">Published</div>
@@ -554,11 +560,11 @@ Figure&nbsp;3: Autocorrelation function for the four-state Markov chain with par
 <p><span class="math display">\[
 \text{Var}(\bar{X}_n) = \frac{\sigma^2}{n}, \quad \text{with } \sigma^2 = p(1 - p)
 \]</span></p>
-<p>and the corresponding standard error is:</p>
+<p>and the corresponding i.i.d. formula for the standard error is:</p>
 <p><span class="math display">\[
 \text{SE} = \sqrt{\dfrac{p(1-p)}{n}}
 \]</span></p>
-<p>However, when the data are generated from a dependent process such as a Markov chain (either order 1 or 2), this formula underestimates the true SE, because the observations are no longer independent.</p>
+<p>However, when the data are generated from a dependent process such as a Markov chain (either order 1 or 2), this formula underestimates or overestimates the true SE, because the observations are no longer independent.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -680,6 +686,7 @@ p_{11}&amp;= 0.12
 \right.
 \]</span></p>
 <p>where the value of <span class="math inline">\(\text{VIF}_{\text{four-state}}\)</span> is obtained from <code>compute_acf_four_state()</code>).</p>
+<p>As shown by the negative ACF at lag 1 (–0.55 for the two-state MC, –0.54 for the four-state MC), both chains tend to promote alternation rather than persistence. When computing the SE, this alternation leads to an overestimation if one naively applies the i.i.d. formula. In both cases, the <span class="math inline">\(\text{VIF}\)</span> is smaller than 1, indicating anti-correlation. Moreover, since a smaller <span class="math inline">\(\text{VIF}\)</span> implies longer memory, we can conclude that the four-state MC retains information more persistently than the two-state one, despite having the same marginal distribution.</p>
 </div>
 </div>
 <p>This example illustrates how two Markov models generating binary sequences with identical marginal distributions can nevertheless lead to different effective sample sizes, due to distinct autocorrelation structures that significantly impact inference.</p>
@@ -693,7 +700,7 @@ Tip
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>To achieve the same standard error in both settings, one would need to inflate the sample size in the more autocorrelated case by a factor approximately equal to the ratio of the corresponding <span class="math inline">\(\text{VIF}\)</span>s. In the example above, since <span class="math inline">\(\text{VIF}{\text{two-state}} = 0.290\)</span> and <span class="math inline">\(\text{VIF}{\text{four-state}} = 0.196\)</span>, the required sample size under the four-state model should be roughly 1.5 times larger to achieve the same standard error as under the two-state model.</p>
+<p>To achieve the same standard error in both settings, one would need to inflate the sample size in the less autocorrelated case by a factor approximately equal to the ratio of the corresponding <span class="math inline">\(\text{VIF}\)</span>s. In the example above, since <span class="math inline">\(\text{VIF}_{\text{two-state}} = 0.290\)</span> and <span class="math inline">\(\text{VIF}_{\text{four-state}} = 0.196\)</span>, the required sample size under the two-state model should be roughly 1.5 times larger to achieve the same standard error as under the four-state model.</p>
 </div>
 </div>
 <blockquote class="blockquote">
