@@ -89,10 +89,230 @@ Figure&nbsp;1: Illustration of PCA vs PLS-DA when class labels are assigned acro
 <li><em>The War of the Worlds</em> by H. G. Wells</li>
 <li><em>Twenty Thousand Leagues Under the Sea</em> by Jules Verne</li>
 </ul>
+<div class="cell">
+<details class="code-fold">
+<summary>upload libraries</summary>
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidyverse)   <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Core data wrangling and piping (includes dplyr, tidyr, etc.)</span></span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(ggplot2)     <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Grammar of graphics for plots (explicit, though included in tidyverse)</span></span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(MASS)        <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># For multivariate data simulation (e.g., mvrnorm)</span></span>
+<span id="cb1-4"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(tidymodels)  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Unified framework for modeling and machine learning workflows</span></span>
+<span id="cb1-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(textrecipes) <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Text preprocessing steps within tidymodels recipes</span></span>
+<span id="cb1-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(stringr)     <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Consistent string handling (regex, manipulation)</span></span>
+<span id="cb1-7"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(mixOmics)    <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Multivariate methods including sPLS-DA, PLS, PCA</span></span>
+<span id="cb1-8"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(yardstick)   <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Performance metrics and confusion matrices</span></span>
+<span id="cb1-9"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">library</span>(patchwork)   <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Combine multiple ggplot2 plots into one layout</span></span></code></pre></div>
+</details>
+</div>
 <p>Following the general strategy introduced by Silge and Robinson, each chapter of the four books in the “Great Library Heist” corpus is treated as a separate document.</p>
 <p>In author’s own words: &gt; When examining a statistical method, it can be useful to try it on a very simple case where we know the “right answer”. For example, a set of documents that definitely relate to four separate topics is collected, then topic modeling is performed to see whether the algorithm can correctly distinguish the four groups. This lets us double-check that the method is useful, and gain a sense of how and when it can go wrong.</p>
 <p>The goal of the analysis is to construct a term-document matrix based on term frequency (TF) scores, which will serve as the input for both dimensionality reduction and classification. In this classical bag-of-words approach, each document is represented as an unordered collection of words — ignoring grammar, syntax, and word order. What matters is the frequency of each term across documents.</p>
 <p>I intend to do the same with sPLS-DA. In doing so, I take inspiration from Saccenti and Tenori, who applied sPLS-DA to the stylometric analysis of the Divina Commedia.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>The Great Library Heist</summary>
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">load</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"books.rda"</span>)</span>
+<span id="cb2-2"></span>
+<span id="cb2-3">df_books <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> books <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb2-4">    </span>
+<span id="cb2-5">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Identify chaper for each book</span></span>
+<span id="cb2-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">group_by</span>(title) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb2-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">chapter =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">cumsum</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">str_detect</span>(text, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">regex</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"^chapter</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">s"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ignore_case =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)))) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb2-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ungroup</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb2-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(chapter <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb2-10">  </span>
+<span id="cb2-11">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Prepare label and document name </span></span>
+<span id="cb2-12">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">label =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">str_squish</span>(title)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb2-13">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unite</span>(document, title, chapter, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">sep =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"_"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb2-14">  </span>
+<span id="cb2-15">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># All text for each chapter, in each book, is united in a single field</span></span>
+<span id="cb2-16">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">group_by</span>(label, document) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb2-17">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summarise</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">text =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">str_c</span>(text, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">collapse =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">" "</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">.groups =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"drop"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb2-18">  </span>
+<span id="cb2-19">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Remove headings like "CHAPTER I", "CHAPTER TWENTY-ONE", etc.</span></span>
+<span id="cb2-20">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">text =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">str_remove</span>(text, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">regex</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"^CHAPTER</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">s+.*?</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">s+"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ignore_case =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>))) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb2-21"></span>
+<span id="cb2-22">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># To get chapters in order</span></span>
+<span id="cb2-23">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">chapter_num =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.integer</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">str_extract</span>(document, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\\</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">d+$"</span>))) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb2-24">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">arrange</span>(label, chapter_num) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb2-25">  dplyr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(label, document, text)</span></code></pre></div>
+</details>
+</div>
 <section id="data-preparation-and-feature-encoding" class="level3">
 <h3 class="anchored" data-anchor-id="data-preparation-and-feature-encoding">Data preparation and feature encoding</h3>
 <p>In the data preparation phase, I split the dataset into three parts:</p>
@@ -104,29 +324,238 @@ Figure&nbsp;1: Illustration of PCA vs PLS-DA when class labels are assigned acro
 <p>In the current pipeline, however, the validation set is not used. This is because I adopt internal cross-validation (<code>Mfold</code>) within the <code>tune.splsda()</code> function from the <code>mixOmics</code> package to select the optimal number of features (<code>keepX</code>) per component. The tuning procedure relies entirely on resampling the training set, rendering the explicit use of <code>val_set</code> unnecessary.</p>
 <p>The reason for keeping a separate <code>val_set</code> is flexibility: it enables external model selection (e.g., grid search or alternative tuning strategies beyond those provided by <code>mixOmics</code>). Although the validation set (<code>val_set</code>) is not used in the current analysis, it is explicitly carved out from the training data to support future extensions. To maximize the data available for model training and internal cross-validation, only 5% of the training set is reserved for <code>val_set</code>. This ensures methodological robustness while preserving as much data as possible for fitting and tuning the model via <code>tune.splsda()</code>.</p>
 <p>Feature engineering is performed using the <code>textrecipes</code> package, which allows defining a preprocessing pipeline through <code>recipe</code>. In this case, the text is tokenized, stop words are removed, the vocabulary is limited to the top 500 most frequent tokens, and a term frequency (TF) encoding is applied. This recipe is trained on the training set and then used to transform all data splits consistently, avoiding data leakage.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Train/validation/test splits with TF encoding</summary>
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">123</span>)</span>
+<span id="cb3-2"></span>
+<span id="cb3-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># First split 80% train_val vs 20% test</span></span>
+<span id="cb3-4">split_1   <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">initial_split</span>(df_books, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">prop =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.80</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">strata =</span> label)</span>
+<span id="cb3-5">train_val <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">training</span>(split_1)</span>
+<span id="cb3-6">test_set  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">testing</span>(split_1)</span>
+<span id="cb3-7"></span>
+<span id="cb3-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Second split 95% train vs 5% val (part of training)</span></span>
+<span id="cb3-9">split_2   <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">initial_split</span>(train_val, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">prop =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.95</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">strata =</span> label)</span>
+<span id="cb3-10">train_set <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">training</span>(split_2)</span>
+<span id="cb3-11">val_set   <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">testing</span>(split_2)</span>
+<span id="cb3-12"></span>
+<span id="cb3-13"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Check</span></span>
+<span id="cb3-14">df_check <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">bind_rows</span>(</span>
+<span id="cb3-15">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">train =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">count</span>(train_set, label),</span>
+<span id="cb3-16">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">validation =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">count</span>(val_set, label),</span>
+<span id="cb3-17">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">test =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">count</span>(test_set, label),</span>
+<span id="cb3-18">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">.id =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"split"</span></span>
+<span id="cb3-19">)</span>
+<span id="cb3-20">n_chapters <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(df_check<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>n)</span>
+<span id="cb3-21"></span>
+<span id="cb3-22"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Feature engineering via textrecipes::recipe</span></span>
+<span id="cb3-23">text_rec <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">recipe</span>(label <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">~</span> text, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> train_set) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb3-24">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">step_tokenize</span>(text) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb3-25">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">step_stopwords</span>(text) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb3-26">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">step_tokenfilter</span>(text, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">max_tokens =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb3-27">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">step_tf</span>(text)</span>
+<span id="cb3-28"></span>
+<span id="cb3-29"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Prep/bake the recipe</span></span>
+<span id="cb3-30">rec_prep <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">prep</span>(text_rec)</span>
+<span id="cb3-31"></span>
+<span id="cb3-32">X_train  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">bake</span>(rec_prep, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">new_data =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> dplyr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>label) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.matrix</span>()</span>
+<span id="cb3-33">y_train  <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">bake</span>(rec_prep, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">new_data =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">NULL</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pull</span>(label)</span>
+<span id="cb3-34"></span>
+<span id="cb3-35">X_test <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">bake</span>(rec_prep, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">new_data =</span> test_set) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> dplyr<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span>label) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.matrix</span>()</span>
+<span id="cb3-36">y_test <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">bake</span>(rec_prep, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">new_data =</span> test_set) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pull</span>(label)</span></code></pre></div>
+</details>
+</div>
 </section>
 <section id="model-tuning-with-adaptive-feature-selection" class="level3">
 <h3 class="anchored" data-anchor-id="model-tuning-with-adaptive-feature-selection">Model tuning with adaptive feature selection</h3>
 <p>In the <code>tune.splsda()</code> step, I explicitly include <code>max_tokens</code> (i.e., the full vocabulary size) in the grid of <code>keepX</code>. This allows the tuning procedure to consider not only sparse sPLS‑DA models, but also the special case of full PLS‑DA with no feature selection. Crucially, <code>tune.splsda()</code> returns a separate optimal <code>keepX</code> for each component, enabling each latent dimension to adaptively select the number of features most useful for class separation.</p>
 <p>Because the procedure runs efficiently, I can afford a relatively fine grid for robust comparison. A typical choice might be:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1234</span>)</span>
-<span id="cb1-2">tune_result <span class="ot" style="color: #003B4F;
+<span id="cb4-2">tune_result <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">tune.splsda</span>(</span>
-<span id="cb1-3">  X_train, y_train,</span>
-<span id="cb1-4">  <span class="at" style="color: #657422;
+<span id="cb4-3">  X_train, y_train,</span>
+<span id="cb4-4">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">ncomp =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">3</span>,</span>
-<span id="cb1-5">  <span class="at" style="color: #657422;
+<span id="cb4-5">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">test.keepX =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -149,27 +578,619 @@ background-color: null;
 font-style: inherit;">250</span>, <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">500</span>),</span>
-<span id="cb1-6">  <span class="at" style="color: #657422;
+<span id="cb4-6">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">validation =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Mfold"</span>,</span>
-<span id="cb1-7">  <span class="at" style="color: #657422;
+<span id="cb4-7">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">folds =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">5</span>,</span>
-<span id="cb1-8">  <span class="at" style="color: #657422;
+<span id="cb4-8">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">dist =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"max.dist"</span>,</span>
-<span id="cb1-9">  <span class="at" style="color: #657422;
+<span id="cb4-9">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">progressBar =</span> <span class="cn" style="color: #8f5902;
 background-color: null;
 font-style: inherit;">FALSE</span></span>
-<span id="cb1-10">)</span></code></pre></div>
+<span id="cb4-10">)</span></code></pre></div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>sPLS-DA model fit</summary>
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Tuning keepX for sPLS-DA</span></span>
+<span id="cb5-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1234</span>)</span>
+<span id="cb5-3">tune_result <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tune.splsda</span>(</span>
+<span id="cb5-4">  X_train, y_train,</span>
+<span id="cb5-5">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ncomp =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>,</span>
+<span id="cb5-6">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">test.keepX =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">25</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">50</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">75</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">125</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">150</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">200</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">250</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span>),</span>
+<span id="cb5-7">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">validation =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Mfold"</span>,</span>
+<span id="cb5-8">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">folds =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>,</span>
+<span id="cb5-9">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dist =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"max.dist"</span>,</span>
+<span id="cb5-10">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">progressBar =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span></span>
+<span id="cb5-11">)</span>
+<span id="cb5-12"></span>
+<span id="cb5-13"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Final fit with best keepX</span></span>
+<span id="cb5-14">best_keepX <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> tune_result<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>choice.keepX</span>
+<span id="cb5-15">splsda_fit <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">splsda</span>(X_train, y_train, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ncomp =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">keepX =</span> best_keepX)</span>
+<span id="cb5-16"></span>
+<span id="cb5-17"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Predict on training set</span></span>
+<span id="cb5-18">pred_train <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">predict</span>(splsda_fit, X_train, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">comp =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>)</span>
+<span id="cb5-19"></span>
+<span id="cb5-20"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Predict on test set</span></span>
+<span id="cb5-21">pred_test <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">predict</span>(splsda_fit, X_test, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">comp =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>)</span></code></pre></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Model evaluation with yardstick</summary>
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># --- 1. PREDICTIONS </span><span class="al" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">TEST</span><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"> SET</span></span>
+<span id="cb6-2"></span>
+<span id="cb6-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Tibble for accuracy calculation</span></span>
+<span id="cb6-4">df_test_proj             <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.data.frame</span>(pred_test<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>variates)</span>
+<span id="cb6-5">df_test_proj<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>.truth      <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">factor</span>(y_test)</span>
+<span id="cb6-6">df_test_proj<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>.pred_class <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">factor</span>(pred_test<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>class<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>max.dist[, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>], <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">levels =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">levels</span>(df_test_proj<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>.truth))</span>
+<span id="cb6-7"></span>
+<span id="cb6-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Accuracy calculated on the test set</span></span>
+<span id="cb6-9">acc_test <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">accuracy</span>(df_test_proj, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">truth =</span> .truth, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">estimate =</span> .pred_class)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>.estimate</span>
+<span id="cb6-10"></span>
+<span id="cb6-11"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># --- 2. PREDICTIONS TRAINING SET</span></span>
+<span id="cb6-12"></span>
+<span id="cb6-13"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Tibble for accuarcy calculation</span></span>
+<span id="cb6-14">df_train_proj <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.data.frame</span>(pred_train<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>variates)</span>
+<span id="cb6-15">df_train_proj<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>.truth <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">factor</span>(y_train)</span>
+<span id="cb6-16">df_train_proj<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>.pred_class <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">factor</span>(pred_train<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>class<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>max.dist[, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>], <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">levels =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">levels</span>(df_train_proj<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>.truth))</span>
+<span id="cb6-17"></span>
+<span id="cb6-18"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Accuracy calculated on the training set</span></span>
+<span id="cb6-19">acc_train <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">accuracy</span>(df_train_proj, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">truth =</span> .truth, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">estimate =</span> .pred_class)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>.estimate</span>
+<span id="cb6-20"></span>
+<span id="cb6-21"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># --- 3. COMPLETE METRICS TABLE</span></span>
+<span id="cb6-22"></span>
+<span id="cb6-23"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Test set</span></span>
+<span id="cb6-24">metrics_test <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">metrics</span>(df_test_proj, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">truth =</span> .truth, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">estimate =</span> .pred_class)</span>
+<span id="cb6-25"></span>
+<span id="cb6-26"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Training set</span></span>
+<span id="cb6-27">metrics_train <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">metrics</span>(df_train_proj, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">truth =</span> .truth, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">estimate =</span> .pred_class)</span>
+<span id="cb6-28"></span>
+<span id="cb6-29"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># --- 4. LATENT SPACE VISUALIZATION USING TRUE LABELS</span></span>
+<span id="cb6-30"></span>
+<span id="cb6-31">p_12 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(df_test_proj, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> dim1, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> dim2, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> .truth)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-32">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_point</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.85</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-33">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sPLS-DA: Test set projected by true labels"</span>,</span>
+<span id="cb6-34">       <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Component 1"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Component 2"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-35">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">13</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-36">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_blank</span>())</span>
+<span id="cb6-37"></span>
+<span id="cb6-38">p_13 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(df_test_proj, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> dim1, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> dim3, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> .truth)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-39">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_point</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.85</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-40">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sPLS-DA: Test set projected by true labels"</span>,</span>
+<span id="cb6-41">       <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Component 1"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Component 3"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-42">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">13</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-43">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_blank</span>())</span>
+<span id="cb6-44"></span>
+<span id="cb6-45">p_23 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(df_test_proj, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> dim2, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> dim3, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color =</span> .truth)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-46">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_point</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.85</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-47">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sPLS-DA: Test set projected by true labels"</span>,</span>
+<span id="cb6-48">       <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Component 2"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Component 3"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-49">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme_minimal</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">base_size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">13</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb6-50">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">theme</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.title =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">element_blank</span>())</span>
+<span id="cb6-51"></span>
+<span id="cb6-52"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># --- 5. IMPORTANT WORD VISUALIZATION (the visualization will be produced later using ggplot)</span></span>
+<span id="cb6-53"></span>
+<span id="cb6-54"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Component 1</span></span>
+<span id="cb6-55"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># p_1 &lt;- plotLoadings(splsda_fit,</span></span>
+<span id="cb6-56"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#                     comp = 1,</span></span>
+<span id="cb6-57"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#                     method = "mean",</span></span>
+<span id="cb6-58"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#                     contrib = "max",</span></span>
+<span id="cb6-59"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#                     ndisplay = 20,</span></span>
+<span id="cb6-60"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#                     title = "Words most contributing to Component 1")</span></span>
+<span id="cb6-61"></span>
+<span id="cb6-62"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Component 2</span></span>
+<span id="cb6-63"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># p_2 &lt;- plotLoadings(splsda_fit,</span></span>
+<span id="cb6-64"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#                     comp = 2,</span></span>
+<span id="cb6-65"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#                     method = "mean",</span></span>
+<span id="cb6-66"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#                     contrib = "max",</span></span>
+<span id="cb6-67"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#                     ndisplay = 20,</span></span>
+<span id="cb6-68"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#                     title = "Words most contributing to Component 2")</span></span>
+<span id="cb6-69"></span>
+<span id="cb6-70"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># Component 3</span></span>
+<span id="cb6-71"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># p_3 &lt;- plotLoadings(splsda_fit,</span></span>
+<span id="cb6-72"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#                     comp = 3,</span></span>
+<span id="cb6-73"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#                     method = "mean",</span></span>
+<span id="cb6-74"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#                     contrib = "max",</span></span>
+<span id="cb6-75"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#                     ndisplay = 20,</span></span>
+<span id="cb6-76"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">#                     title = "Words most contributing to Component 3")</span></span>
+<span id="cb6-77"></span>
+<span id="cb6-78"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># --- 6. CONFUSION MATRIX </span></span>
+<span id="cb6-79"></span>
+<span id="cb6-80">pred_labels <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> pred_test<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>class<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>max.dist[, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>]  </span>
+<span id="cb6-81">test_coords <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.data.frame</span>(pred_test<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>variates)</span>
+<span id="cb6-82"></span>
+<span id="cb6-83">df_test_proj <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> test_coords <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb6-84">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(</span>
+<span id="cb6-85">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">.truth =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">factor</span>(y_test),</span>
+<span id="cb6-86">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">.pred_class =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">factor</span>(pred_labels, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">levels =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">levels</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">factor</span>(y_test)))</span>
+<span id="cb6-87">  )</span>
+<span id="cb6-88"></span>
+<span id="cb6-89">confmat <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">conf_mat</span>(df_test_proj, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">truth =</span> .truth, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">estimate =</span> .pred_class)</span></code></pre></div>
+</details>
 </div>
 <p>As shown in Figure&nbsp;2, the model achieves an accuracy of 97.6% on the test set. Since the training accuracy is 97.9%, this small difference indicates that the model generalizes well, with no signs of overfitting.</p>
 <div id="fig-2" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
@@ -197,7 +1218,7 @@ Figure&nbsp;3: For each of the three components selected by sPLS-DA, the top 20 
 <p>Several of the terms highlighted by sPLS-DA (see Figure&nbsp;3) also appear among the top-ranked topic terms extracted via LDA, indicating that lexical cues effective for supervised classification often coincide with those that define unsupervised thematic structure.</p>
 <p>Quantitatively, both models perform remarkably well on the Great Library Heist dataset. The original LDA model (trained on the full corpus) misclassified only 2 out of 193 documents, despite being entirely unsupervised (accuracy: 99%). The sPLS-DA classifier, trained on just 80% of the corpus, reached 97.6% on a held-out test set. When retrained on the full corpus (with no sparsity constraint), sPLS-DA misclassified 3 documents (accuracy: 98.4%).</p>
 <blockquote class="blockquote">
-<p>This post illustrated how sparse PLS-DA — a linear, supervised method — can be used effectively for document classification. Along the way, we compared it with topic modeling via LDA, observed strong performance on real-world text data, and provided a complete, reproducible R workflow. Despite its simplicity, this approach proves to be both interpretable and surprisingly effective.</p>
+<p>This post illustrated how sparse PLS-DA — a linear, supervised method — can be used effectively for document classification. Along the way, I compared it with topic modeling via LDA, observed strong performance on real-world text data, and provided a complete, reproducible R workflow. Despite its simplicity, this approach proved to be both interpretable and surprisingly effective.</p>
 </blockquote>
 </section>
 </section>
