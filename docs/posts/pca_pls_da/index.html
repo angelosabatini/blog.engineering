@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Angelo Maria Sabatini">
+<meta name="dcterms.date" content="2025-07-07">
+<meta name="description" content="In this post, I present a short, hands-on exploration of sparse Partial Least-Squares Discriminant Analysis (sPLS-DA) applied to stylometric classification using term frequency representations. How far can a linear model go — and what can we learn from its internal structure? Starting from raw text, I construct a document-term matrix, tune a sparse linear classifier, and interpret the results through the most discriminative lexical features selected by each latent component. Along the way, I highlight the method’s interpretability, efficiency, and surprisingly strong performance in a simple but expressive text classification setting.">
+
+<title>Partial Least-Squares Discriminant Analysis for text classification: A linear model that works – Angelo Maria Sabatini</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-79108a0fc1995748cbd19a5b0e3e3e7c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-G7T7XXSXKG"></script>
+
+<script type="text/plain" cookie-consent="tracking">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-G7T7XXSXKG', { 'anonymize_ip': true});
+</script>
+
+<script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"implied",
+  "palette":"light",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":""
+  ,
+"language":"en"
+  });
+});
+</script> 
+  
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Angelo Maria Sabatini</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../blog.html"> 
+<span class="menu-text">Blog</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../archive.html"> 
+<span class="menu-text">Archive</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/angelosabatini"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../blog.xml"> <i class="bi bi-rss" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#principal-component-analysis" id="toc-principal-component-analysis" class="nav-link active" data-scroll-target="#principal-component-analysis">Principal Component Analysis</a></li>
+  <li><a href="#partial-least-squares-discriminant-analysis" id="toc-partial-least-squares-discriminant-analysis" class="nav-link" data-scroll-target="#partial-least-squares-discriminant-analysis">Partial Least-Squares Discriminant Analysis</a></li>
+  <li><a href="#the-great-library-heist" id="toc-the-great-library-heist" class="nav-link" data-scroll-target="#the-great-library-heist">The Great Library Heist</a>
+  <ul class="collapse">
+  <li><a href="#data-preparation-and-feature-encoding" id="toc-data-preparation-and-feature-encoding" class="nav-link" data-scroll-target="#data-preparation-and-feature-encoding">Data preparation and feature encoding</a></li>
+  <li><a href="#model-tuning-with-adaptive-feature-selection" id="toc-model-tuning-with-adaptive-feature-selection" class="nav-link" data-scroll-target="#model-tuning-with-adaptive-feature-selection">Model tuning with adaptive feature selection</a></li>
+  </ul></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Partial Least-Squares Discriminant Analysis for text classification: A linear model that works</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">multivariate statistics</div>
+    <div class="quarto-category">machine learning</div>
+    <div class="quarto-category">text mining</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    In this post, I present a short, hands-on exploration of sparse Partial Least-Squares Discriminant Analysis (sPLS-DA) applied to stylometric classification using term frequency representations. How far can a linear model go — and what can we learn from its internal structure? Starting from raw text, I construct a document-term matrix, tune a sparse linear classifier, and interpret the results through the most discriminative lexical features selected by each latent component. Along the way, I highlight the method’s interpretability, efficiency, and surprisingly strong performance in a simple but expressive text classification setting.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Angelo Maria Sabatini </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">July 7, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<blockquote class="blockquote">
+<p>💾 <strong>Prefer reading offline?</strong><br>
+You can <a href="index.pdf">download a PDF version of this post</a> for printing or future reference.</p>
+</blockquote>
+<p><strong>Partial Least-Squares Discriminant Analysis</strong> (PLS-DA) is a multivariate dimensionality-reduction method that has been widely used in so-called <em>omics</em> data analyses (Ruiz-Perez et al).</p>
+<p>In these contexts — such as genomics, transcriptomics, or metabolomics — datasets often consist of thousands of variables (e.g., gene expression levels or metabolite intensities) measured over a relatively small number of samples. This characteristic regime of many more features than observations presents significant challenges for classical dimensionality-reduction methods like Principal Component Analysis (PCA), which do not account for the underlying class structure of the dataset and can be easily misled by noise-dominated variability.</p>
+<p>PLS-DA addresses this issue by introducing supervision: as will be illustrated in the following, it seeks projections of the original data that are <em>maximally correlated with the known class labels</em>, rather than relying solely on overall variance to identify promising projection directions.</p>
+<p>The aim of dimensionality-reduction methods such as PCA and PLS-DA is to compute a linear transformation that projects the data into a lower-dimensional space — optimally, in the sense of minimizing some form of reconstruction or classification error, depending on the method.</p>
+<p>Let us suppose that the original data matrix <span class="math inline">\(\mathbf{X}\)</span> is composed of <span class="math inline">\(n\)</span> samples, each characterized by a feature vector with <span class="math inline">\(m\)</span> components - that is, <span class="math inline">\(\mathbf{X}\)</span> is an <span class="math inline">\(n\times m\)</span> matrix. A linear transformation is described by a matrix <span class="math inline">\(\mathbf{A}\)</span> of size <span class="math inline">\(m\times d\)</span> that <em>optimally</em> maps <span class="math inline">\(\mathbf{X}\)</span> into a set of <span class="math inline">\(n\)</span> transformed vectors in <span class="math inline">\(\mathbb{R}^d\)</span>, commonly referred to as <em>scores</em>. These scores are collected row-wise in the matrix <span class="math inline">\(\mathbf{S}\in\mathbb{R}^{n\times d}\)</span>. Given the error matrix <span class="math inline">\(\mathbf{E}\)</span> of the same size, the model being fit takes the form:</p>
+<p><span class="math display">\[
+\mathbf{S}=\mathbf{X}\mathbf{A}+\mathbf{E}
+\]</span></p>
+<p>The transformed variables, one for each observation and each axis in the projected space, are referred to as <em>principal components</em> (PC) in the context of Principal Component Analysis (PCA).</p>
+<section id="principal-component-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="principal-component-analysis">Principal Component Analysis</h2>
+<p>The PC vectors are computed by doing the eigenvector-eigenvalue analysis of the covariance matrix <span class="math inline">\(\mathbf{C}\)</span>:</p>
+<p><span class="math display">\[
+\mathbf{C} = \dfrac{1}{n - 1} \mathbf{X}^T \mathbf{C}_n \mathbf{X}
+\]</span></p>
+<p>where the centering matrix <span class="math inline">\(\mathbf{C}_n\)</span>, of size <span class="math inline">\(n \times n\)</span>, is defined as:</p>
+<p><span class="math display">\[
+\mathbf{C}_n = \mathbf{I}_n - \dfrac{1}{n} \mathbf{1}_n \mathbf{1}_n^T
+\]</span></p>
+<p>Here, <span class="math inline">\(\mathbf{I}_n\)</span> is the <span class="math inline">\(n \times n\)</span> identity matrix, and <span class="math inline">\(\mathbf{1}_n\)</span> is a column vector of ones of length <span class="math inline">\(n\)</span>. The matrix <span class="math inline">\(\mathbf{C}_n\)</span> (symmetric and idempotent) acts as a projection operator that removes the mean from each column of <span class="math inline">\(\mathbf{X}\)</span>, thereby centering the data.</p>
+<p>The <em>loading vectors</em>, denoted by <span class="math inline">\(\mathbf{d}_i\)</span>, are expressed in terms of the eigenvectors <span class="math inline">\(\mathbf{e}_i\)</span> and eigenvalues <span class="math inline">\(\lambda_i\)</span> of <span class="math inline">\(\mathbf{C}\)</span>:</p>
+<p><span class="math display">\[
+\mathbf{d}_i = \sqrt{\lambda_i}\,\mathbf{e}_i, \quad i = 1,\dots,n
+\]</span></p>
+<p>Since <span class="math inline">\(\mathbf{C}\)</span> is symmetric and positive semi-definite, its eigenvectors form an orthonormal basis and the associated eigenvalues are real and non-negative.</p>
+<p>Let us suppose that the eigenvalues are sorted in decreasing order. The first PC is then given by the first loading vector <span class="math inline">\(\mathbf{d}_1 = \sqrt{\lambda_1} \mathbf{e}_1\)</span>, which corresponds to the direction of <em>maximum variance</em> in the data. Each subsequent PC <span class="math inline">\(\mathbf{d}_2, \mathbf{d}_3, \dots\)</span> defines a new axis that is orthogonal to the previous ones and captures the largest remaining variance.</p>
+<p>The set <span class="math inline">\(\{ \mathbf{d}_1, \dots, \mathbf{d}_d \}\)</span> spans the reduced feature space onto which the data are projected.</p>
+<p>The associated score vectors are obtained by projecting the original data onto each loading vector:</p>
+<p><span class="math display">\[
+\mathbf{t}_i = \mathbf{X} \mathbf{d}_i, \quad i = 1,\dots,d
+\]</span></p>
+<p>These form the columns of the score matrix <span class="math inline">\(\mathbf{S} \in \mathbb{R}^{n \times d}\)</span>, where each row represents a transformed observation in the low-dimensional space. This is the same matrix introduced earlier in the general model formulation.</p>
+<p>PCA identifies the loading vectors <span class="math inline">\(\mathbf{d}_i\)</span> by maximizing the variance of the projected data along each component, subject to orthogonality constraints. This ensures that each PC captures the greatest possible amount of variance not already explained by previous components. Implicitly, the PCA model assumes that the residuals in <span class="math inline">\(\mathbf{E}\)</span> are uncorrelated, homoscedastic, and normally distributed — although in practice, PCA is often used as a purely geometric transformation without relying on strict distributional assumptions.</p>
+</section>
+<section id="partial-least-squares-discriminant-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="partial-least-squares-discriminant-analysis">Partial Least-Squares Discriminant Analysis</h2>
+<p>Let us suppose that the class labels for each observational unit are known. In the binary case, the labels can be collected in a column vector <span class="math inline">\(\mathbf{y} \in \mathbb{R}^{n \times 1}\)</span>; in the multiclass setting, they are typically represented by a matrix <span class="math inline">\(\mathbf{Y} \in \mathbb{R}^{n \times q}\)</span>, where <span class="math inline">\(q\)</span> is the number of distinct classes and each row is a one-hot encoded vector.</p>
+<p>As in PCA, we seek a set of <span class="math inline">\(d\)</span> latent components by projecting the original data <span class="math inline">\(\mathbf{X}\)</span> onto a lower-dimensional subspace. However, unlike PCA, PLS-DA chooses the projection directions in such a way that the <em>covariance between the projected data and the class labels</em> is maximized.</p>
+<p>The matrix of cross-covariance is defined as:</p>
+<p><span class="math display">\[
+\mathbf{C}_{XY} = \frac{1}{(n-1)^2} \mathbf{X}^\top \mathbf{C}_n \mathbf{Y} \mathbf{Y}^\top \mathbf{C}_n \mathbf{X}
+\]</span></p>
+<p>and the optimal projection direction <span class="math inline">\(\mathbf{a}_1\)</span> (the first loading vector) is found as the leading eigenvector of <span class="math inline">\(\mathbf{C}_{XY}\)</span>. This ensures that the first latent component captures as much class-discriminative information as possible in a single direction.</p>
+<p>The algorithm proceeds iteratively. Once the first loading vector <span class="math inline">\(\mathbf{a}_1\)</span> has been determined, the corresponding score vector <span class="math inline">\(\mathbf{t}_1 = \mathbf{X} \mathbf{a}_1\)</span> is computed, and a linear regression of <span class="math inline">\(\mathbf{Y}\)</span> on <span class="math inline">\(\mathbf{t}_1\)</span> is performed to obtain <span class="math inline">\(\mathbf{c}_1\)</span>, the weight vector in label space. The outer product <span class="math inline">\(\mathbf{t}_1 \mathbf{c}_1^T\)</span> yields a rank-one approximation of the class label structure.</p>
+<p>In order to extract additional components, the information already captured by the current component is removed from both <span class="math inline">\(\mathbf{X}\)</span> and <span class="math inline">\(\mathbf{Y}\)</span> through a deflation step. This is achieved by subtracting the contribution explained by <span class="math inline">\(\mathbf{t}_1\)</span>) and <span class="math inline">\(\mathbf{c}_1\)</span>, resulting in residual matrices:</p>
+<p><span class="math display">\[
+\mathbf{X}^{(1)} = \mathbf{X} - \mathbf{t}_1 \mathbf{p}_1^T, \quad
+\mathbf{Y}^{(1)} = \mathbf{Y} - \mathbf{t}_1 \mathbf{c}_1^T
+\]</span></p>
+<p>The process is then repeated on the residuals to obtain the next components. Each new latent component is orthogonal to the previous ones in <span class="math inline">\(\mathbf{T}\)</span>, and captures additional class-discriminative information, if available.</p>
+<p>Unlike PCA, PLS-DA explicitly exploits the structure of <span class="math inline">\(\mathbf{Y}\)</span> to guide dimensionality reduction, making it a supervised projection method. It is particularly well suited to settings where the number of features is large and class separation is expected to be encoded in specific linear combinations of variables. Similar to PCA, the error structure in PLS-DA follows the same assumptions — namely, centered, uncorrelated, and homoscedastic residuals — although in practice, the method is often used with minimal reference to distributional properties.</p>
+<p>PLS-DA can be further extended by introducing sparsity constraints on the loading vectors, yielding sparse PLS-DA (sPLS-DA). In this variant, only a subset of the original variables — those deemed most informative for class separation — are retained in the projection. The number of retained features per component is controlled by the parameter , and the optimization is regularized accordingly.</p>
+<p>This formulation enables both class separation and embedded feature selection, which is particularly useful in high-dimensional datasets such as omics or text.</p>
+<p>Geometrically, sPLS-DA defines a projection of the data into a low-dimensional latent space, just like PCA, but the directions are chosen to maximize class separability rather than data variance. This distinction is crucial: while PCA may preserve structure unrelated to the class labels, PLS-DA aligns the representation with the supervised task.</p>
+<p>As will become evident in the following sections, this shift in optimization criterion can make PLS-DA a powerful tool for supervised dimension reduction. However, it also introduces specific vulnerabilities — particularly in high-dimensional settings with limited sample size — where the method may overfit to noise or to accidental separability. Careful validation is therefore essential to assess the generalization performance of PLS-DA models.</p>
+<div id="exm-1" class="callout-example theorem example">
+<p><span class="theorem-title"><strong>Example 1 (PCA and PLS-DA in action)</strong></span> The geometric distinction between unsupervised and supervised dimensionality-reduction methods can be visualized in a simplified example. Suppose that all data points are drawn from a single elliptical distribution, yet class labels are assigned based on their position relative to a tilted decision boundary. In this case, the direction of maximum variance — as identified by PCA — is not informative about the class structure. In contrast, PLS-DA selects a projection direction that aligns with the known class labels, even if it corresponds to a direction of lower overall variance.</p>
+<p><a href="#fig-1" class="quarto-xref">Figure&nbsp;1</a> illustrates this contrast.</p>
+</div>
+<div id="fig-1" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Fig1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Illustration of PCA vs PLS-DA when class labels are assigned across a tilted boundary. PCA (red) follows the direction of maximum variance in the data cloud. PLS-DA (blue) aligns with the supervised class structure, even if that direction does not correspond to maximal variance.
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="the-great-library-heist" class="level2">
+<h2 class="anchored" data-anchor-id="the-great-library-heist">The Great Library Heist</h2>
+<p>To illustrate the use of dimensionality-reduction and classification techniques in text data, I consider a corpus known as the “Great Library Heist”, originally featured by Silge and Robinson in <em>Text Mining with R</em> (https://www.tidytextmining.com), where it is used to demonstrate the potential of Latent Dirichlet Allocation — one of the most common algorithms for topic modeling.</p>
+<p>Topic modeling is a method for unsupervised classification of documents, in this case applied to the chapters of four well-known English novels from Project Gutenberg:</p>
+<ul>
+<li><em>Great Expectations</em> by Charles Dickens</li>
+<li><em>Pride and Prejudice</em> by Jane Austen</li>
+<li><em>The War of the Worlds</em> by H. G. Wells</li>
+<li><em>Twenty Thousand Leagues Under the Sea</em> by Jules Verne</li>
+</ul>
+<p>Following the general strategy introduced by Silge and Robinson, each chapter of the four books in the “Great Library Heist” corpus is treated as a separate document.</p>
+<p>In author’s own words: &gt; When examining a statistical method, it can be useful to try it on a very simple case where we know the “right answer”. For example, a set of documents that definitely relate to four separate topics is collected, then topic modeling is performed to see whether the algorithm can correctly distinguish the four groups. This lets us double-check that the method is useful, and gain a sense of how and when it can go wrong.</p>
+<p>The goal of the analysis is to construct a term-document matrix based on term frequency (TF) scores, which will serve as the input for both dimensionality reduction and classification. In this classical bag-of-words approach, each document is represented as an unordered collection of words — ignoring grammar, syntax, and word order. What matters is the frequency of each term across documents.</p>
+<p>I intend to do the same with sPLS-DA. In doing so, I take inspiration from Saccenti and Tenori, who applied sPLS-DA to the stylometric analysis of the Divina Commedia.</p>
+<section id="data-preparation-and-feature-encoding" class="level3">
+<h3 class="anchored" data-anchor-id="data-preparation-and-feature-encoding">Data preparation and feature encoding</h3>
+<p>In the data preparation phase, I split the dataset into three parts:</p>
+<ul>
+<li>a training set (<code>train_set</code>), used to learn the TF vocabulary and train the model;</li>
+<li>a validation set (<code>val_set</code>), reserved for potential model selection;</li>
+<li>and a test set (<code>test_set</code>), used exclusively for out-of-sample evaluation.</li>
+</ul>
+<p>In the current pipeline, however, the validation set is not used. This is because I adopt internal cross-validation (<code>Mfold</code>) within the <code>tune.splsda()</code> function from the <code>mixOmics</code> package to select the optimal number of features (<code>keepX</code>) per component. The tuning procedure relies entirely on resampling the training set, rendering the explicit use of <code>val_set</code> unnecessary.</p>
+<p>The reason for keeping a separate <code>val_set</code> is flexibility: it enables external model selection (e.g., grid search or alternative tuning strategies beyond those provided by <code>mixOmics</code>). Although the validation set (<code>val_set</code>) is not used in the current analysis, it is explicitly carved out from the training data to support future extensions. To maximize the data available for model training and internal cross-validation, only 5% of the training set is reserved for <code>val_set</code>. This ensures methodological robustness while preserving as much data as possible for fitting and tuning the model via <code>tune.splsda()</code>.</p>
+<p>Feature engineering is performed using the <code>textrecipes</code> package, which allows defining a preprocessing pipeline through <code>recipe</code>. In this case, the text is tokenized, stop words are removed, the vocabulary is limited to the top 500 most frequent tokens, and a term frequency (TF) encoding is applied. This recipe is trained on the training set and then used to transform all data splits consistently, avoiding data leakage.</p>
+</section>
+<section id="model-tuning-with-adaptive-feature-selection" class="level3">
+<h3 class="anchored" data-anchor-id="model-tuning-with-adaptive-feature-selection">Model tuning with adaptive feature selection</h3>
+<p>In the <code>tune.splsda()</code> step, I explicitly include <code>max_tokens</code> (i.e., the full vocabulary size) in the grid of <code>keepX</code>. This allows the tuning procedure to consider not only sparse sPLS‑DA models, but also the special case of full PLS‑DA with no feature selection. Crucially, <code>tune.splsda()</code> returns a separate optimal <code>keepX</code> for each component, enabling each latent dimension to adaptively select the number of features most useful for class separation.</p>
+<p>Because the procedure runs efficiently, I can afford a relatively fine grid for robust comparison. A typical choice might be:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1234</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>tune_result <span class="ot">&lt;-</span> <span class="fu">tune.splsda</span>(</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  X_train, y_train,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">ncomp =</span> <span class="dv">3</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">test.keepX =</span> <span class="fu">c</span>(<span class="dv">25</span>, <span class="dv">50</span>, <span class="dv">75</span>, <span class="dv">100</span>, <span class="dv">125</span>, <span class="dv">150</span>, <span class="dv">200</span>, <span class="dv">250</span>, <span class="dv">500</span>),</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">validation =</span> <span class="st">"Mfold"</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">folds =</span> <span class="dv">5</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">dist =</span> <span class="st">"max.dist"</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">progressBar =</span> <span class="cn">FALSE</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>As shown in <a href="#fig-2" class="quarto-xref">Figure&nbsp;2</a>, the model achieves an accuracy of 97.6% on the test set. Since the training accuracy is 97.9%, this small difference indicates that the model generalizes well, with no signs of overfitting.</p>
+<div id="fig-2" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Fig2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Confusion matrix for the sPLS-DA classifier (ncomp = 3), evaluated on the test set. The classifier achieves near-perfect accuracy, demonstrating that TF representations of chapter-level text segments are sufficient to support robust discrimination.
+</figcaption>
+</figure>
+</div>
+<p>The tuning procedure selected <code>keepX = c(200, 200, 500)</code> as the optimal number of features to retain on each of the three components. This means that the first two components focus on relatively sparse subsets of the vocabulary (200 terms each), while the third component includes the entire trimmed vocabulary of 500 terms. This adaptive behavior reflects the role of each component in capturing residual discriminative structure: early components rely on compact feature sets, while later ones may require broader lexical support to separate harder-to-distinguish classes.</p>
+<p>Since the method assumes that classes can be linearly separated in the latent space, it becomes relatively straightforward to assign an importance score to each feature, reflecting its contribution to the separation along each component. This enables direct interpretability of the model in terms of the most discriminative words associated with each class. The function <code>plotLoadings()</code> from the <code>mixOmics</code> package conveniently extracts and visualizes these features. As shown in <a href="#fig-3" class="quarto-xref">Figure&nbsp;3</a>, the method assigns a class-specific contribution to each selected term, allowing us to interpret each component in terms of discriminative words. It is important to note that terms are not necessarily exclusive to a single novel — many occur in multiple chapters across books. The color in the barplots reflects the class (i.e., book) for which the term contributes most strongly to class separation along that component, not exclusivity of occurrence. Component 1 highlights features specific to <em>Great Expectations</em> (e.g., “pip”, “havisham’s”). Component 2 reflects opposing contributions from <em>Pride and Prejudice</em> and <em>Twenty Thousand Leagues Under the Sea</em> — with “jane”, “elizabeth”, and “darcy” linked to the former, and “captain”, “nemo”, and “nautilus” to the latter. Component 3 is almost entirely dominated by lexical signals from <em>The War of the Worlds</em> (e.g., “martians”, “martian”, “people”).</p>
+<div id="fig-3" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" data-fig-pos="H">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Fig3.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%" data-fig-pos="H">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: For each of the three components selected by sPLS-DA, the top 20 contributing terms are shown with their relative importance. The color indicates the class (i.e., book) most associated with each term’s loading.
+</figcaption>
+</figure>
+</div>
+<p>Several of the terms highlighted by sPLS-DA (see <a href="#fig-3" class="quarto-xref">Figure&nbsp;3</a>) also appear among the top-ranked topic terms extracted via LDA, indicating that lexical cues effective for supervised classification often coincide with those that define unsupervised thematic structure.</p>
+<p>Quantitatively, both models perform remarkably well on the Great Library Heist dataset. The original LDA model (trained on the full corpus) misclassified only 2 out of 193 documents, despite being entirely unsupervised (accuracy: 99%). The sPLS-DA classifier, trained on just 80% of the corpus, reached 97.6% on a held-out test set. When retrained on the full corpus (with no sparsity constraint), sPLS-DA misclassified 3 documents (accuracy: 98.4%).</p>
+<blockquote class="blockquote">
+<p>This post illustrated how sparse PLS-DA — a linear, supervised method — can be used effectively for document classification. Along the way, we compared it with topic modeling via LDA, observed strong performance on real-world text data, and provided a complete, reproducible R workflow. Despite its simplicity, this approach proves to be both interpretable and surprisingly effective.</p>
+</blockquote>
+</section>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+<p>Ruiz-Perez D, Guan H, Madhivanan P, Mathee K, and Narasimhan G, “So you think you can PLS-DA?” <em>BMC Bioinformatics</em> 2020, vol 21, (suppl 1):2.</p>
+<p>Saccenti E, Tenori L, “Stylometric investigation of Dante’s Divina Commedia by means of multivariate data analysis techniques” <em>Internat J Comput Linguistics Res</em> 2012, vol 3, n 2, pp 35-48.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/amsabatini\.netlify\.app");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<script src="https://utteranc.es/client.js" repo="angelosabatini/blog.comments" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+
+<div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

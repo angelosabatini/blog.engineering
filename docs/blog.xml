@@ -10,7 +10,213 @@
 <atom:link href="https://amsabatini.netlify.app/blog.xml" rel="self" type="application/rss+xml"/>
 <description>This the personal blog of Angelo Maria Sabatini</description>
 <generator>quarto-1.6.40</generator>
-<lastBuildDate>Sun, 08 Jun 2025 22:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sun, 06 Jul 2025 22:00:00 GMT</lastBuildDate>
+<item>
+  <title>Partial Least-Squares Discriminant Analysis for text classification: A linear model that works</title>
+  <dc:creator>Angelo Maria Sabatini</dc:creator>
+  <link>https://amsabatini.netlify.app/posts/pca_pls_da/</link>
+  <description><![CDATA[ 
+
+
+
+
+<blockquote class="blockquote">
+<p>💾 <strong>Prefer reading offline?</strong><br>
+You can <a href="index.pdf">download a PDF version of this post</a> for printing or future reference.</p>
+</blockquote>
+<p><strong>Partial Least-Squares Discriminant Analysis</strong> (PLS-DA) is a multivariate dimensionality-reduction method that has been widely used in so-called <em>omics</em> data analyses (Ruiz-Perez et al).</p>
+<p>In these contexts — such as genomics, transcriptomics, or metabolomics — datasets often consist of thousands of variables (e.g., gene expression levels or metabolite intensities) measured over a relatively small number of samples. This characteristic regime of many more features than observations presents significant challenges for classical dimensionality-reduction methods like Principal Component Analysis (PCA), which do not account for the underlying class structure of the dataset and can be easily misled by noise-dominated variability.</p>
+<p>PLS-DA addresses this issue by introducing supervision: as will be illustrated in the following, it seeks projections of the original data that are <em>maximally correlated with the known class labels</em>, rather than relying solely on overall variance to identify promising projection directions.</p>
+<p>The aim of dimensionality-reduction methods such as PCA and PLS-DA is to compute a linear transformation that projects the data into a lower-dimensional space — optimally, in the sense of minimizing some form of reconstruction or classification error, depending on the method.</p>
+<p>Let us suppose that the original data matrix <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BX%7D"> is composed of <img src="https://latex.codecogs.com/png.latex?n"> samples, each characterized by a feature vector with <img src="https://latex.codecogs.com/png.latex?m"> components - that is, <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BX%7D"> is an <img src="https://latex.codecogs.com/png.latex?n%5Ctimes%20m"> matrix. A linear transformation is described by a matrix <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BA%7D"> of size <img src="https://latex.codecogs.com/png.latex?m%5Ctimes%20d"> that <em>optimally</em> maps <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BX%7D"> into a set of <img src="https://latex.codecogs.com/png.latex?n"> transformed vectors in <img src="https://latex.codecogs.com/png.latex?%5Cmathbb%7BR%7D%5Ed">, commonly referred to as <em>scores</em>. These scores are collected row-wise in the matrix <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BS%7D%5Cin%5Cmathbb%7BR%7D%5E%7Bn%5Ctimes%20d%7D">. Given the error matrix <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BE%7D"> of the same size, the model being fit takes the form:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7BS%7D=%5Cmathbf%7BX%7D%5Cmathbf%7BA%7D+%5Cmathbf%7BE%7D%0A"></p>
+<p>The transformed variables, one for each observation and each axis in the projected space, are referred to as <em>principal components</em> (PC) in the context of Principal Component Analysis (PCA).</p>
+<section id="principal-component-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="principal-component-analysis">Principal Component Analysis</h2>
+<p>The PC vectors are computed by doing the eigenvector-eigenvalue analysis of the covariance matrix <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BC%7D">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7BC%7D%20=%20%5Cdfrac%7B1%7D%7Bn%20-%201%7D%20%5Cmathbf%7BX%7D%5ET%20%5Cmathbf%7BC%7D_n%20%5Cmathbf%7BX%7D%0A"></p>
+<p>where the centering matrix <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BC%7D_n">, of size <img src="https://latex.codecogs.com/png.latex?n%20%5Ctimes%20n">, is defined as:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7BC%7D_n%20=%20%5Cmathbf%7BI%7D_n%20-%20%5Cdfrac%7B1%7D%7Bn%7D%20%5Cmathbf%7B1%7D_n%20%5Cmathbf%7B1%7D_n%5ET%0A"></p>
+<p>Here, <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BI%7D_n"> is the <img src="https://latex.codecogs.com/png.latex?n%20%5Ctimes%20n"> identity matrix, and <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7B1%7D_n"> is a column vector of ones of length <img src="https://latex.codecogs.com/png.latex?n">. The matrix <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BC%7D_n"> (symmetric and idempotent) acts as a projection operator that removes the mean from each column of <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BX%7D">, thereby centering the data.</p>
+<p>The <em>loading vectors</em>, denoted by <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bd%7D_i">, are expressed in terms of the eigenvectors <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Be%7D_i"> and eigenvalues <img src="https://latex.codecogs.com/png.latex?%5Clambda_i"> of <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BC%7D">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7Bd%7D_i%20=%20%5Csqrt%7B%5Clambda_i%7D%5C,%5Cmathbf%7Be%7D_i,%20%5Cquad%20i%20=%201,%5Cdots,n%0A"></p>
+<p>Since <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BC%7D"> is symmetric and positive semi-definite, its eigenvectors form an orthonormal basis and the associated eigenvalues are real and non-negative.</p>
+<p>Let us suppose that the eigenvalues are sorted in decreasing order. The first PC is then given by the first loading vector <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bd%7D_1%20=%20%5Csqrt%7B%5Clambda_1%7D%20%5Cmathbf%7Be%7D_1">, which corresponds to the direction of <em>maximum variance</em> in the data. Each subsequent PC <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bd%7D_2,%20%5Cmathbf%7Bd%7D_3,%20%5Cdots"> defines a new axis that is orthogonal to the previous ones and captures the largest remaining variance.</p>
+<p>The set <img src="https://latex.codecogs.com/png.latex?%5C%7B%20%5Cmathbf%7Bd%7D_1,%20%5Cdots,%20%5Cmathbf%7Bd%7D_d%20%5C%7D"> spans the reduced feature space onto which the data are projected.</p>
+<p>The associated score vectors are obtained by projecting the original data onto each loading vector:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7Bt%7D_i%20=%20%5Cmathbf%7BX%7D%20%5Cmathbf%7Bd%7D_i,%20%5Cquad%20i%20=%201,%5Cdots,d%0A"></p>
+<p>These form the columns of the score matrix <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BS%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7Bn%20%5Ctimes%20d%7D">, where each row represents a transformed observation in the low-dimensional space. This is the same matrix introduced earlier in the general model formulation.</p>
+<p>PCA identifies the loading vectors <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bd%7D_i"> by maximizing the variance of the projected data along each component, subject to orthogonality constraints. This ensures that each PC captures the greatest possible amount of variance not already explained by previous components. Implicitly, the PCA model assumes that the residuals in <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BE%7D"> are uncorrelated, homoscedastic, and normally distributed — although in practice, PCA is often used as a purely geometric transformation without relying on strict distributional assumptions.</p>
+</section>
+<section id="partial-least-squares-discriminant-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="partial-least-squares-discriminant-analysis">Partial Least-Squares Discriminant Analysis</h2>
+<p>Let us suppose that the class labels for each observational unit are known. In the binary case, the labels can be collected in a column vector <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7By%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7Bn%20%5Ctimes%201%7D">; in the multiclass setting, they are typically represented by a matrix <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BY%7D%20%5Cin%20%5Cmathbb%7BR%7D%5E%7Bn%20%5Ctimes%20q%7D">, where <img src="https://latex.codecogs.com/png.latex?q"> is the number of distinct classes and each row is a one-hot encoded vector.</p>
+<p>As in PCA, we seek a set of <img src="https://latex.codecogs.com/png.latex?d"> latent components by projecting the original data <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BX%7D"> onto a lower-dimensional subspace. However, unlike PCA, PLS-DA chooses the projection directions in such a way that the <em>covariance between the projected data and the class labels</em> is maximized.</p>
+<p>The matrix of cross-covariance is defined as:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7BC%7D_%7BXY%7D%20=%20%5Cfrac%7B1%7D%7B(n-1)%5E2%7D%20%5Cmathbf%7BX%7D%5E%5Ctop%20%5Cmathbf%7BC%7D_n%20%5Cmathbf%7BY%7D%20%5Cmathbf%7BY%7D%5E%5Ctop%20%5Cmathbf%7BC%7D_n%20%5Cmathbf%7BX%7D%0A"></p>
+<p>and the optimal projection direction <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Ba%7D_1"> (the first loading vector) is found as the leading eigenvector of <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BC%7D_%7BXY%7D">. This ensures that the first latent component captures as much class-discriminative information as possible in a single direction.</p>
+<p>The algorithm proceeds iteratively. Once the first loading vector <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Ba%7D_1"> has been determined, the corresponding score vector <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bt%7D_1%20=%20%5Cmathbf%7BX%7D%20%5Cmathbf%7Ba%7D_1"> is computed, and a linear regression of <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BY%7D"> on <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bt%7D_1"> is performed to obtain <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bc%7D_1">, the weight vector in label space. The outer product <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bt%7D_1%20%5Cmathbf%7Bc%7D_1%5ET"> yields a rank-one approximation of the class label structure.</p>
+<p>In order to extract additional components, the information already captured by the current component is removed from both <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BX%7D"> and <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BY%7D"> through a deflation step. This is achieved by subtracting the contribution explained by <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bt%7D_1">) and <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bc%7D_1">, resulting in residual matrices:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7BX%7D%5E%7B(1)%7D%20=%20%5Cmathbf%7BX%7D%20-%20%5Cmathbf%7Bt%7D_1%20%5Cmathbf%7Bp%7D_1%5ET,%20%5Cquad%0A%5Cmathbf%7BY%7D%5E%7B(1)%7D%20=%20%5Cmathbf%7BY%7D%20-%20%5Cmathbf%7Bt%7D_1%20%5Cmathbf%7Bc%7D_1%5ET%0A"></p>
+<p>The process is then repeated on the residuals to obtain the next components. Each new latent component is orthogonal to the previous ones in <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BT%7D">, and captures additional class-discriminative information, if available.</p>
+<p>Unlike PCA, PLS-DA explicitly exploits the structure of <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BY%7D"> to guide dimensionality reduction, making it a supervised projection method. It is particularly well suited to settings where the number of features is large and class separation is expected to be encoded in specific linear combinations of variables. Similar to PCA, the error structure in PLS-DA follows the same assumptions — namely, centered, uncorrelated, and homoscedastic residuals — although in practice, the method is often used with minimal reference to distributional properties.</p>
+<p>PLS-DA can be further extended by introducing sparsity constraints on the loading vectors, yielding sparse PLS-DA (sPLS-DA). In this variant, only a subset of the original variables — those deemed most informative for class separation — are retained in the projection. The number of retained features per component is controlled by the parameter , and the optimization is regularized accordingly.</p>
+<p>This formulation enables both class separation and embedded feature selection, which is particularly useful in high-dimensional datasets such as omics or text.</p>
+<p>Geometrically, sPLS-DA defines a projection of the data into a low-dimensional latent space, just like PCA, but the directions are chosen to maximize class separability rather than data variance. This distinction is crucial: while PCA may preserve structure unrelated to the class labels, PLS-DA aligns the representation with the supervised task.</p>
+<p>As will become evident in the following sections, this shift in optimization criterion can make PLS-DA a powerful tool for supervised dimension reduction. However, it also introduces specific vulnerabilities — particularly in high-dimensional settings with limited sample size — where the method may overfit to noise or to accidental separability. Careful validation is therefore essential to assess the generalization performance of PLS-DA models.</p>
+<div id="exm-1" class="callout-example theorem example">
+<p><span class="theorem-title"><strong>Example 1 (PCA and PLS-DA in action)</strong></span> The geometric distinction between unsupervised and supervised dimensionality-reduction methods can be visualized in a simplified example. Suppose that all data points are drawn from a single elliptical distribution, yet class labels are assigned based on their position relative to a tilted decision boundary. In this case, the direction of maximum variance — as identified by PCA — is not informative about the class structure. In contrast, PLS-DA selects a projection direction that aligns with the known class labels, even if it corresponds to a direction of lower overall variance.</p>
+<p>Figure&nbsp;1 illustrates this contrast.</p>
+</div>
+<div id="fig-1" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/pca_pls_da/Fig1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Illustration of PCA vs PLS-DA when class labels are assigned across a tilted boundary. PCA (red) follows the direction of maximum variance in the data cloud. PLS-DA (blue) aligns with the supervised class structure, even if that direction does not correspond to maximal variance.
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="the-great-library-heist" class="level2">
+<h2 class="anchored" data-anchor-id="the-great-library-heist">The Great Library Heist</h2>
+<p>To illustrate the use of dimensionality-reduction and classification techniques in text data, I consider a corpus known as the “Great Library Heist”, originally featured by Silge and Robinson in <em>Text Mining with R</em> (https://www.tidytextmining.com), where it is used to demonstrate the potential of Latent Dirichlet Allocation — one of the most common algorithms for topic modeling.</p>
+<p>Topic modeling is a method for unsupervised classification of documents, in this case applied to the chapters of four well-known English novels from Project Gutenberg:</p>
+<ul>
+<li><em>Great Expectations</em> by Charles Dickens</li>
+<li><em>Pride and Prejudice</em> by Jane Austen</li>
+<li><em>The War of the Worlds</em> by H. G. Wells</li>
+<li><em>Twenty Thousand Leagues Under the Sea</em> by Jules Verne</li>
+</ul>
+<p>Following the general strategy introduced by Silge and Robinson, each chapter of the four books in the “Great Library Heist” corpus is treated as a separate document.</p>
+<p>In author’s own words: &gt; When examining a statistical method, it can be useful to try it on a very simple case where we know the “right answer”. For example, a set of documents that definitely relate to four separate topics is collected, then topic modeling is performed to see whether the algorithm can correctly distinguish the four groups. This lets us double-check that the method is useful, and gain a sense of how and when it can go wrong.</p>
+<p>The goal of the analysis is to construct a term-document matrix based on term frequency (TF) scores, which will serve as the input for both dimensionality reduction and classification. In this classical bag-of-words approach, each document is represented as an unordered collection of words — ignoring grammar, syntax, and word order. What matters is the frequency of each term across documents.</p>
+<p>I intend to do the same with sPLS-DA. In doing so, I take inspiration from Saccenti and Tenori, who applied sPLS-DA to the stylometric analysis of the Divina Commedia.</p>
+<section id="data-preparation-and-feature-encoding" class="level3">
+<h3 class="anchored" data-anchor-id="data-preparation-and-feature-encoding">Data preparation and feature encoding</h3>
+<p>In the data preparation phase, I split the dataset into three parts:</p>
+<ul>
+<li>a training set (<code>train_set</code>), used to learn the TF vocabulary and train the model;</li>
+<li>a validation set (<code>val_set</code>), reserved for potential model selection;</li>
+<li>and a test set (<code>test_set</code>), used exclusively for out-of-sample evaluation.</li>
+</ul>
+<p>In the current pipeline, however, the validation set is not used. This is because I adopt internal cross-validation (<code>Mfold</code>) within the <code>tune.splsda()</code> function from the <code>mixOmics</code> package to select the optimal number of features (<code>keepX</code>) per component. The tuning procedure relies entirely on resampling the training set, rendering the explicit use of <code>val_set</code> unnecessary.</p>
+<p>The reason for keeping a separate <code>val_set</code> is flexibility: it enables external model selection (e.g., grid search or alternative tuning strategies beyond those provided by <code>mixOmics</code>). Although the validation set (<code>val_set</code>) is not used in the current analysis, it is explicitly carved out from the training data to support future extensions. To maximize the data available for model training and internal cross-validation, only 5% of the training set is reserved for <code>val_set</code>. This ensures methodological robustness while preserving as much data as possible for fitting and tuning the model via <code>tune.splsda()</code>.</p>
+<p>Feature engineering is performed using the <code>textrecipes</code> package, which allows defining a preprocessing pipeline through <code>recipe</code>. In this case, the text is tokenized, stop words are removed, the vocabulary is limited to the top 500 most frequent tokens, and a term frequency (TF) encoding is applied. This recipe is trained on the training set and then used to transform all data splits consistently, avoiding data leakage.</p>
+</section>
+<section id="model-tuning-with-adaptive-feature-selection" class="level3">
+<h3 class="anchored" data-anchor-id="model-tuning-with-adaptive-feature-selection">Model tuning with adaptive feature selection</h3>
+<p>In the <code>tune.splsda()</code> step, I explicitly include <code>max_tokens</code> (i.e., the full vocabulary size) in the grid of <code>keepX</code>. This allows the tuning procedure to consider not only sparse sPLS‑DA models, but also the special case of full PLS‑DA with no feature selection. Crucially, <code>tune.splsda()</code> returns a separate optimal <code>keepX</code> for each component, enabling each latent dimension to adaptively select the number of features most useful for class separation.</p>
+<p>Because the procedure runs efficiently, I can afford a relatively fine grid for robust comparison. A typical choice might be:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1234</span>)</span>
+<span id="cb1-2">tune_result <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tune.splsda</span>(</span>
+<span id="cb1-3">  X_train, y_train,</span>
+<span id="cb1-4">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ncomp =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span>,</span>
+<span id="cb1-5">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">test.keepX =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">25</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">50</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">75</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">100</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">125</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">150</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">200</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">250</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">500</span>),</span>
+<span id="cb1-6">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">validation =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Mfold"</span>,</span>
+<span id="cb1-7">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">folds =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>,</span>
+<span id="cb1-8">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dist =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"max.dist"</span>,</span>
+<span id="cb1-9">  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">progressBar =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span></span>
+<span id="cb1-10">)</span></code></pre></div>
+</div>
+<p>As shown in Figure&nbsp;2, the model achieves an accuracy of 97.6% on the test set. Since the training accuracy is 97.9%, this small difference indicates that the model generalizes well, with no signs of overfitting.</p>
+<div id="fig-2" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/pca_pls_da/Fig2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Confusion matrix for the sPLS-DA classifier (ncomp = 3), evaluated on the test set. The classifier achieves near-perfect accuracy, demonstrating that TF representations of chapter-level text segments are sufficient to support robust discrimination.
+</figcaption>
+</figure>
+</div>
+<p>The tuning procedure selected <code>keepX = c(200, 200, 500)</code> as the optimal number of features to retain on each of the three components. This means that the first two components focus on relatively sparse subsets of the vocabulary (200 terms each), while the third component includes the entire trimmed vocabulary of 500 terms. This adaptive behavior reflects the role of each component in capturing residual discriminative structure: early components rely on compact feature sets, while later ones may require broader lexical support to separate harder-to-distinguish classes.</p>
+<p>Since the method assumes that classes can be linearly separated in the latent space, it becomes relatively straightforward to assign an importance score to each feature, reflecting its contribution to the separation along each component. This enables direct interpretability of the model in terms of the most discriminative words associated with each class. The function <code>plotLoadings()</code> from the <code>mixOmics</code> package conveniently extracts and visualizes these features. As shown in Figure&nbsp;3, the method assigns a class-specific contribution to each selected term, allowing us to interpret each component in terms of discriminative words. It is important to note that terms are not necessarily exclusive to a single novel — many occur in multiple chapters across books. The color in the barplots reflects the class (i.e., book) for which the term contributes most strongly to class separation along that component, not exclusivity of occurrence. Component 1 highlights features specific to <em>Great Expectations</em> (e.g., “pip”, “havisham’s”). Component 2 reflects opposing contributions from <em>Pride and Prejudice</em> and <em>Twenty Thousand Leagues Under the Sea</em> — with “jane”, “elizabeth”, and “darcy” linked to the former, and “captain”, “nemo”, and “nautilus” to the latter. Component 3 is almost entirely dominated by lexical signals from <em>The War of the Worlds</em> (e.g., “martians”, “martian”, “people”).</p>
+<div id="fig-3" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" data-fig-pos="H">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/pca_pls_da/Fig3.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%" data-fig-pos="H">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: For each of the three components selected by sPLS-DA, the top 20 contributing terms are shown with their relative importance. The color indicates the class (i.e., book) most associated with each term’s loading.
+</figcaption>
+</figure>
+</div>
+<p>Several of the terms highlighted by sPLS-DA (see Figure&nbsp;3) also appear among the top-ranked topic terms extracted via LDA, indicating that lexical cues effective for supervised classification often coincide with those that define unsupervised thematic structure.</p>
+<p>Quantitatively, both models perform remarkably well on the Great Library Heist dataset. The original LDA model (trained on the full corpus) misclassified only 2 out of 193 documents, despite being entirely unsupervised (accuracy: 99%). The sPLS-DA classifier, trained on just 80% of the corpus, reached 97.6% on a held-out test set. When retrained on the full corpus (with no sparsity constraint), sPLS-DA misclassified 3 documents (accuracy: 98.4%).</p>
+<blockquote class="blockquote">
+<p>This post illustrated how sparse PLS-DA — a linear, supervised method — can be used effectively for document classification. Along the way, we compared it with topic modeling via LDA, observed strong performance on real-world text data, and provided a complete, reproducible R workflow. Despite its simplicity, this approach proves to be both interpretable and surprisingly effective.</p>
+</blockquote>
+</section>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+<p>Ruiz-Perez D, Guan H, Madhivanan P, Mathee K, and Narasimhan G, “So you think you can PLS-DA?” <em>BMC Bioinformatics</em> 2020, vol 21, (suppl 1):2.</p>
+<p>Saccenti E, Tenori L, “Stylometric investigation of Dante’s Divina Commedia by means of multivariate data analysis techniques” <em>Internat J Comput Linguistics Res</em> 2012, vol 3, n 2, pp 35-48.</p>
+
+
+</section>
+
+ ]]></description>
+  <category>multivariate statistics</category>
+  <category>machine learning</category>
+  <category>text mining</category>
+  <guid>https://amsabatini.netlify.app/posts/pca_pls_da/</guid>
+  <pubDate>Sun, 06 Jul 2025 22:00:00 GMT</pubDate>
+  <media:content url="https://amsabatini.netlify.app/posts/pca_pls_da/Fig1.png" medium="image" type="image/png" height="144" width="144"/>
+</item>
 <item>
   <title>Why memory matters: A tale of two Markov chains</title>
   <dc:creator>Angelo Maria Sabatini</dc:creator>
@@ -13412,487 +13618,6 @@ Figure&nbsp;1: Illustration of the random incidence phenomenon.
   <guid>https://amsabatini.netlify.app/posts/random_incidence/</guid>
   <pubDate>Sun, 21 Apr 2024 22:00:00 GMT</pubDate>
   <media:content url="https://amsabatini.netlify.app/posts/random_incidence/bus.jpg" medium="image" type="image/jpeg"/>
-</item>
-<item>
-  <title>Frequency resolution of spectral analysis</title>
-  <dc:creator>Angelo Maria Sabatini</dc:creator>
-  <link>https://amsabatini.netlify.app/posts/resolution/</link>
-  <description><![CDATA[ 
-
-
-
-
-<p><strong>Frequency resolution</strong> is the size of the smallest frequency for which details in the frequency response and the spectrum can be resolved by the estimate. For example, a resolution of 0.1 Hz means that the frequency response variations at frequency intervals at or below 0.1 Hz cannot be resolved.</p>
-<p>Consider an analog band-limited signal <img src="https://latex.codecogs.com/png.latex?x(t)"> with bandwidth <img src="https://latex.codecogs.com/png.latex?B"> Hz; <img src="https://latex.codecogs.com/png.latex?x(t)"> is observed over a <strong>sample period</strong> of <img src="https://latex.codecogs.com/png.latex?T_r"> s (the length of the data record) and sampled at a <strong>sampling frequency</strong> of <img src="https://latex.codecogs.com/png.latex?f_s"> Hz (<img src="https://latex.codecogs.com/png.latex?T_s=1/f_s"> denotes the <strong>sampling interval</strong>). The total available number of samples of <img src="https://latex.codecogs.com/png.latex?x(t)"> is <img src="https://latex.codecogs.com/png.latex?N=%5Clfloor%20T_r/T_s%5Crfloor">, where <img src="https://latex.codecogs.com/png.latex?%5Clfloor%5Ccdot%5Crfloor"> denotes the floor function (or greatest integer function), namely the function that takes as input a real number <img src="https://latex.codecogs.com/png.latex?r"> and gives as output the greatest integer less than or equal to <img src="https://latex.codecogs.com/png.latex?r">.</p>
-<p>According to the Shannon-Nyquist sampling theorem, if the sampling frequency <img src="https://latex.codecogs.com/png.latex?f_s"> is chosen to be <img src="https://latex.codecogs.com/png.latex?2B">, the maximum resolvable frequency is:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0Af_%7B%5Ctext%7Bmax%7D%7D=%5Cfrac%7Bf_s%7D%7B2%7D%0A"></p>
-<p>On the other hand, the minimum resolvable frequency is inversely related to the sample period:</p>
-<p><span id="eq-eq1"><img src="https://latex.codecogs.com/png.latex?%0Af_%7B%5Ctext%7Bmin%7D%7D=%5Cfrac%7B1%7D%7BT_r%7D=%5Cfrac%7B1%7D%7BNT_s%7D%0A%5Ctag%7B1%7D"></span></p>
-<p>and hence the number of frequencies that can be resolved from <img src="https://latex.codecogs.com/png.latex?f_%7B%5Ctext%7Bmin%7D%7D"> to <img src="https://latex.codecogs.com/png.latex?f_%7B%5Ctext%7Bmax%7D%7D"> is</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AN_f=%5Cfrac%7Bf_%7B%5Ctext%7Bmax%7D%7D-f_%7B%5Ctext%7Bmin%7D%7D%7D%7B%5CDelta%20f%7D%0A"></p>
-<p>where <img src="https://latex.codecogs.com/png.latex?%5CDelta%20f"> is the frequency resolution. Since <img src="https://latex.codecogs.com/png.latex?%5CDelta%20f=f_%7B%5Ctext%7Bmin%7D%7D">, I also have:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AN_f=%5Cdfrac%7B%5Cdfrac%7Bf_s%7D%7B2%7D-%5Cdfrac%7Bf_s%7D%7BN%7D%7D%7B%5Cdfrac%7Bf_s%7D%7BN%7D%7D=%5Cfrac%7BN%7D%7B2%7D-1%0A"></p>
-<p>This implies that will be <img src="https://latex.codecogs.com/png.latex?N/2"> discrete frequencies from <img src="https://latex.codecogs.com/png.latex?0"> to <img src="https://latex.codecogs.com/png.latex?f_%7B%5Ctext%7Bmax%7D%7D">.</p>
-<p>The accurate detection of frequency components in the spectrum <img src="https://latex.codecogs.com/png.latex?X(f)"> of the signal <img src="https://latex.codecogs.com/png.latex?x(t)"> is challenged by the phenomenon known as <strong>spectral leakage</strong>, or amplitude ambiguity; it consists of ambiguous and false amplitudes occurring in the spectrum <img src="https://latex.codecogs.com/png.latex?X(f)"> whenever the sample period <img src="https://latex.codecogs.com/png.latex?T_r"> is not an integer multiple of <em>all</em> of the contributory periods in <img src="https://latex.codecogs.com/png.latex?x(t)">. That is, false or ambiguous amplitudes will occur at frequencies that are immediately adjacent to the actual frequency.</p>
-<p>For aperiodic signals, <img src="https://latex.codecogs.com/png.latex?T_r"> theoretically must be infinite. For periodic signals, <img src="https://latex.codecogs.com/png.latex?T_r"> <em>must be equal to the least common integer multiple of all the periods contained in the signal</em>. Application of the DFT (Discrete Fourier Transform) or FFT (Fast Fourier Transform) to an aperiodic signal implicitly assumes that the signal is infinite in length and formed by repeating the signal of length <img src="https://latex.codecogs.com/png.latex?T_r"> an infinite number of times. This leads to discontinuities in the amplitude that occur at each integer multiple of <img src="https://latex.codecogs.com/png.latex?T_r">. These discontinuities are step-like, which introduce false amplitudes that decrease around the main frequencies.</p>
-<p><em>All the periods contained in the signal cannot be known before the spectral analysis is performed</em>, therefore the stated condition on the sample period cannot be fulfilled; the best method to minimize the effect of spectral leakage is <strong>windowing</strong>.</p>
-<p>Herein, I just provide a brief explanation of windowing, without testing it in the examples to follow. Windowing reduces the amplitude of the discontinuities at the boundaries of each finite sequence of samples of <img src="https://latex.codecogs.com/png.latex?x(t)">. It does so by multiplying the acquired sequence by a finite-length window with an amplitude that varies smoothly and gradually toward zero at the edges. This makes the endpoints of the waveform meet and, therefore, results in a continuous waveform without sharp transitions.</p>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Can discrete-time sinusoids be non-periodic?
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>The normalized frequency <img src="https://latex.codecogs.com/png.latex?f"> in cycles per sample of a <strong>discrete-time sinusoid</strong>:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0Ax%5Bn%5D=%5Ccos(2%5Cpi%20fn)%0A"></p>
-<p>is restricted to values in the interval <img src="https://latex.codecogs.com/png.latex?-1/2%5Cleq%20f%5Cleq1/2">. This is because, for any discrete-time sinusoid with frequency <img src="https://latex.codecogs.com/png.latex?%5Cvert%20f%5Cvert%3E1/2">, an integer <img src="https://latex.codecogs.com/png.latex?m"> exists such that <img src="https://latex.codecogs.com/png.latex?f=f_0+m"> and <img src="https://latex.codecogs.com/png.latex?%5Cvert%20f_0%5Cvert%5Cleq1/2">:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Ccos%202%5Cpi%20fn=%5Ccos%5B2%5Cpi%20(f_0+m)%5C,n%5D=%5Ccos(2%5Cpi%20f_0n)+%5Ccos(2%5Cpi%20mn)=%5Ccos(2%5Cpi%20f_0n)%0A"></p>
-<p>It is worth noting that the highest rate of oscillation of discrete-time sinusoids is when, at every time instant, the output sample flips polarity with respect to the previous output sample:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0Af_0=%5Cfrac%7B1%7D%7B2%7D%5Crightarrow%5Ccos(2%5Cpi%20f_0n)=%5Ccos(%5Cpi%20n)=(-1)%5En%0A"></p>
-<p>Moreover, a discrete-time sinusoid can be periodic, i.e, characterized by patterns that exactly repeat themselves in time, if and only if its frequency can be expressed in terms of a rational number; moreover, an additive mixture of periodical discrete-time sinusoids (called here <strong>sinusoidal mixture</strong>) is periodic with period equal to the least common integer multiple of their periods.</p>
-</div>
-</div>
-<p>As outlined above, a spectrum line at frequency <img src="https://latex.codecogs.com/png.latex?f"> will be accurately represented by the DFT when <img src="https://latex.codecogs.com/png.latex?f_s%5Cgeq2f_%7B%5Ctext%7Bmax%7D%7D"> and <img src="https://latex.codecogs.com/png.latex?T_r%20=%20mT">, where <img src="https://latex.codecogs.com/png.latex?m=1,2,%5Ccdots">, and <img src="https://latex.codecogs.com/png.latex?T=1/f">. This implies that <img src="https://latex.codecogs.com/png.latex?N=mf_s/f">. If <img src="https://latex.codecogs.com/png.latex?T_r"> is not an integer multiple of <img src="https://latex.codecogs.com/png.latex?T">, leakage will occur in the DFT. This appears as amplitudes at <img src="https://latex.codecogs.com/png.latex?f"> spilling onto adjacent frequencies.</p>
-<p>As an example, consider a sinusoidal mixture with three unit-amplitude components at 2.875 Hz, 3 Hz, 3.125 Hz. The sampling frequency is set to <img src="https://latex.codecogs.com/png.latex?f_s=16"> Hz and the sample period to <img src="https://latex.codecogs.com/png.latex?T=8"> s (<img src="https://latex.codecogs.com/png.latex?N=128">): the component at 2.875 Hz is observed for 23 periods, the component at 3 Hz for 24 periods, and the component at 3.125 Hz for 25 periods. The resolution calculated according to Equation&nbsp;1 is 0.125 Hz.</p>
-<p>A chunk of code written in MATLAB (Natick, Massachusetts: The MathWorks, Inc., <a href="https://www.mathworks.com" class="uri">https://www.mathworks.com</a>) shows how to simulate the sinusoidal mixture and to perform spectral analysis.</p>
-<div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode matlab code-with-copy"><code class="sourceCode matlab"><span id="cb1-1"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">% *****************************</span></span>
-<span id="cb1-2"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">% sinusoidal mixture generation</span></span>
-<span id="cb1-3"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">% *****************************</span></span>
-<span id="cb1-4"></span>
-<span id="cb1-5"><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">fs</span> <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">16</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">;</span>   <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">% sampling frequency, Hz</span></span>
-<span id="cb1-6"><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">Ts</span> <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">/</span><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">fs</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">;</span> <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">% sampling interval, s</span></span>
-<span id="cb1-7"><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">T</span>  <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">8</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">;</span>    <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">% sample period, s</span></span>
-<span id="cb1-8"></span>
-<span id="cb1-9"><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">t</span>  <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> (<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:</span><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">Ts</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:</span><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">T</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">Ts</span>)<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">;</span> <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">% time domain, s</span></span>
-<span id="cb1-10"><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">N</span>  <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">length</span>(<span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">t</span>)<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">;</span>   <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">% number of samples</span></span>
-<span id="cb1-11"></span>
-<span id="cb1-12"><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">f1</span> <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2.9375</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">;</span>      <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">% frequency component 1, Hz</span></span>
-<span id="cb1-13"><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">f2</span> <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">;</span>           <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">% frequency component 2, Hz</span></span>
-<span id="cb1-14"><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">f3</span> <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">3.0625</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">;</span>      <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">% frequency component 3, Hz</span></span>
-<span id="cb1-15"></span>
-<span id="cb1-16"><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">x1</span> <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">cos</span>(<span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">t</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">.*</span>(<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">pi</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">f1</span>))<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">;</span> <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">% sinusoid 1</span></span>
-<span id="cb1-17"><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">x2</span> <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">cos</span>(<span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">t</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">.*</span>(<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">pi</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">f2</span>))<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">;</span> <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">% sinusoid 2</span></span>
-<span id="cb1-18"><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">x3</span> <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">cos</span>(<span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">t</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">.*</span>(<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">pi</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">f3</span>))<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">;</span> <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">% sinusoid 3</span></span>
-<span id="cb1-19"><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">X</span>  <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">x1</span> <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span> <span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">x2</span> <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span> <span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">x3</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">;</span>      <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">% sinusoidal mixture</span></span>
-<span id="cb1-20"></span>
-<span id="cb1-21"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">% ********************************************************</span></span>
-<span id="cb1-22"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">% calculation of single-side spectrum (see comments below)</span></span>
-<span id="cb1-23"><span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">% ********************************************************</span></span>
-<span id="cb1-24"></span>
-<span id="cb1-25"><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">P</span>              <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">fft</span>(<span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">X</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">,</span> <span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">N</span>)<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">;</span>         <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">% FFT calculation</span></span>
-<span id="cb1-26"><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">P2</span>             <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">abs</span>(<span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">P</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">/</span><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">N</span>)<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">;</span>          <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">% double-side spectrum, rescaled by N     </span></span>
-<span id="cb1-27"><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">P1</span>             <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">P2</span>(<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:</span><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">N</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">/</span><span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span><span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>)<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">;</span>  </span>
-<span id="cb1-28"><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">P1</span>(<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:,</span> <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:</span><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">end</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>) <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">*</span><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">P1</span>(<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:</span><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">end</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>)<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">;</span> </span>
-<span id="cb1-29"><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">Y</span>              <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> <span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">P1</span>(<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:</span><span class="kw" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">end</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>)<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">;</span>       <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">% single-side spectrum</span></span>
-<span id="cb1-30"><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">f</span>              <span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">=</span> (<span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">0</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:</span><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">N</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">/</span><span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">2</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span><span class="fl" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span>)<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">.*</span>(<span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">fs</span><span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">/</span><span class="va" style="color: #111111;
-background-color: null;
-font-style: inherit;">N</span>)<span class="op" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">;</span> <span class="co" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">% frequency domain, Hz</span></span></code></pre></div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Comments
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>The documentation in MATLAB explains the procedure to convert the N-points FFT spectrum of the signal to the single-side amplitude spectrum:</p>
-<ol type="1">
-<li><p>Because the FFT function includes a scaling factor N between the original and the transformed signals, rescale the spectrum by dividing by N.</p></li>
-<li><p>Take the complex magnitude of the FFT spectrum. The two-side amplitude spectrum P2, where the spectrum in the positive frequencies is the complex conjugate of the spectrum in the negative frequencies, has half the peak amplitudes of the time-domain signal.</p></li>
-<li><p>To convert to the single-side spectrum Y, take the first half P1 of the two-side spectrum P2 and multiply by 2. P1(1) and P1(end) are not multiplied by 2 because these amplitudes correspond to the zero and Nyquist frequencies, respectively, and they do not have the complex conjugate pairs in the negative frequencies.</p></li>
-<li><p>Define the frequency domain f for the single-side spectrum Y.</p></li>
-</ol>
-</div>
-</div>
-<p>The single-side spectrum of the sinusoidal mixture is shown in Figure&nbsp;1.</p>
-<div id="fig-fig1" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="https://amsabatini.netlify.app/posts/resolution/spectrum.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="600">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: Single-side spectrum of the sinusoidal mixture composed of three components at 2.875 Hz, 3 Hz, 3.125 Hz; sampling frequency: 16 Hz; sample period: 8 s. For the sake of visualization the frequency interval shown is limited to 2.5-3.5 Hz.
-</figcaption>
-</figure>
-</div>
-<p>Consider now the case that the three components of the sinusoidal mixture have frequencies 2.9375 Hz, 3 Hz, 3.0625 Hz. To resolve them, I would need to double the frequency resolution of the FFT, up to 0.0625 Hz, with respect to the scenario of Figure&nbsp;1. Erroneously, I double the sampling frequency. However, this expedient leaves the frequency resolution unaltered, since doubling the sample period without touching the sample period also doubles the number of samples. Moreover, the sample period is not properly chosen to avoid spectral leakage, as clearly seen in Figure&nbsp;2.</p>
-<div id="fig-fig2" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="https://amsabatini.netlify.app/posts/resolution/spectrum1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="600">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2: Single-side spectrum of the sinusoidal mixture composed of three components at 2.9375 Hz, 3 Hz, 3.0625 Hz; sampling frequency: 32 Hz; sample period: 8 s.
-</figcaption>
-</figure>
-</div>
-<p>To resolve the components of the sinusoidal mixture and avoid spectral leakage, the frequency resolution of 0.0625 Hz can be achieved by extending the time period to <img src="https://latex.codecogs.com/png.latex?T_r=16"> s, which corresponds to <img src="https://latex.codecogs.com/png.latex?N=256"> samples at the original sampling frequency <img src="https://latex.codecogs.com/png.latex?f_s=16"> Hz, see Figure&nbsp;3.</p>
-<div id="fig-fig3" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-fig3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="https://amsabatini.netlify.app/posts/resolution/spectrum2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="600">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3: Single-side spectrum of the sinusoidal mixture composed of three components at 2.9375 Hz, 3 Hz, 3.0625 Hz; sampling frequency: 16 Hz; sample period: 16 s.
-</figcaption>
-</figure>
-</div>
-<blockquote class="blockquote">
-<p>To conclude: whereas the sampling frequency sets the time resolution, the sample period occupies a central place in setting the frequency resolution when spectral analysis is performed. The sample period being the same, just increasing the sampling frequency simply increases the number of samples by the same ratio, leaving their ratio unaltered. The only means to increase the frequency resolution is to increase the sample period, trying at the same time to minimize the effects of spectral leakage.</p>
-</blockquote>
-
-
-
- ]]></description>
-  <category>signal processing</category>
-  <guid>https://amsabatini.netlify.app/posts/resolution/</guid>
-  <pubDate>Fri, 12 Apr 2024 22:00:00 GMT</pubDate>
-  <media:content url="https://amsabatini.netlify.app/posts/resolution/FFT-Time-Frequency-View.png" medium="image" type="image/png" height="101" width="144"/>
 </item>
 </channel>
 </rss>
