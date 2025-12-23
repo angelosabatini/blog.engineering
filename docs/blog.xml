@@ -8,7 +8,7 @@
 <title>Angelo Maria Sabatini</title>
 <link>https://amsabatini.netlify.app/blog.html</link>
 <atom:link href="https://amsabatini.netlify.app/blog.xml" rel="self" type="application/rss+xml"/>
-<description>This the personal blog of Angelo Maria Sabatini</description>
+<description>The personal blog of Angelo Maria Sabatini</description>
 <generator>quarto-1.6.40</generator>
 <lastBuildDate>Mon, 22 Dec 2025 23:00:00 GMT</lastBuildDate>
 <item>
@@ -1809,7 +1809,7 @@ Figure&nbsp;2: Confusion matrix for the sPLS-DA classifier (ncomp = 3), evaluate
 </div>
 <p>The tuning procedure selected <code>keepX = c(200, 200, 500)</code> as the optimal number of features to retain on each of the three components. This means that the first two components focus on relatively sparse subsets of the vocabulary (200 terms each), while the third component includes the entire trimmed vocabulary of 500 terms. This adaptive behavior reflects the role of each component in capturing residual discriminative structure: early components rely on compact feature sets, while later ones may require broader lexical support to separate harder-to-distinguish classes.</p>
 <p>Since the method assumes that classes can be linearly separated in the latent space, it becomes relatively straightforward to assign an importance score to each feature, reflecting its contribution to the separation along each component. This enables direct interpretability of the model in terms of the most discriminative words associated with each class. The function <code>plotLoadings()</code> from the <code>mixOmics</code> package conveniently extracts and visualizes these features. As shown in Figure&nbsp;3, the method assigns a class-specific contribution to each selected term, allowing us to interpret each component in terms of discriminative words. It is important to note that terms are not necessarily exclusive to a single novel — many occur in multiple chapters across books. The color in the barplots reflects the class (i.e., book) for which the term contributes most strongly to class separation along that component, not exclusivity of occurrence. Component 1 highlights features specific to <em>Great Expectations</em> (e.g., “pip”, “havisham’s”). Component 2 reflects opposing contributions from <em>Pride and Prejudice</em> and <em>Twenty Thousand Leagues Under the Sea</em> — with “jane”, “elizabeth”, and “darcy” linked to the former, and “captain”, “nemo”, and “nautilus” to the latter. Component 3 is almost entirely dominated by lexical signals from <em>The War of the Worlds</em> (e.g., “martians”, “martian”, “people”).</p>
-<div id="fig-3" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" data-fig-align="center">
+<div id="fig-3" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" data-fig-pos="H">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://amsabatini.netlify.app/posts/pca_pls_da/Fig3.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%" data-fig-pos="H">
