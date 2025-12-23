@@ -10,7 +10,611 @@
 <atom:link href="https://amsabatini.netlify.app/blog.xml" rel="self" type="application/rss+xml"/>
 <description>This the personal blog of Angelo Maria Sabatini</description>
 <generator>quarto-1.6.40</generator>
-<lastBuildDate>Sun, 06 Jul 2025 22:00:00 GMT</lastBuildDate>
+<lastBuildDate>Mon, 22 Dec 2025 23:00:00 GMT</lastBuildDate>
+<item>
+  <title>PCA, MANOVA, and the geometry of multivariate comparison</title>
+  <dc:creator>Angelo Maria Sabatini</dc:creator>
+  <link>https://amsabatini.netlify.app/posts/manova/</link>
+  <description><![CDATA[ 
+
+
+
+
+<blockquote class="blockquote">
+<p>💾 <strong>Prefer reading offline?</strong> You can <a href="manova.pdf">download a PDF version of this post</a> for printing or future reference.</p>
+</blockquote>
+<section id="why-multivariate-thinking-is-important" class="level2">
+<h2 class="anchored" data-anchor-id="why-multivariate-thinking-is-important">Why multivariate thinking is important</h2>
+<p>In many experimental settings, statistical analysis still proceeds one response variable (outcome) at a time. Group differences are assessed through a sequence of tests applied to single outcomes, implicitly assuming that each carries independent and self-contained information. This approach is widely regarded as inadequate when variables are numerous and correlated, as is often the case in empirical data drawn from natural, social, or cultural processes.</p>
+<p>Multivariate statistics addresses this limitation by shifting the focus from individual outcomes to configurations of outcomes. Rather than asking whether a single response differs across groups, the central question becomes whether groups occupy distinct regions of a multidimensional space, and how such separation relates to the variability observed within each group.</p>
+<p>From this perspective, multivariate methods are less about hypothesis testing in the narrow sense, and more about geometry. Concepts such as centroids, dispersion, and variance–covariance structure characterize the data before any formal test is performed. Understanding what a given method assesses therefore requires understanding the space in which the data are represented.</p>
+<p>This post focuses on one widely used approach to multivariate group comparison: Multivariate Analysis of Variance (MANOVA). The aim here is to clarify what the method actually measures, under which conditions it is informative, and how it can be used responsibly in exploratory analyses, either directly or after Principal Component Analysis (PCA).</p>
+</section>
+<section id="a-pedagogical-example-for-multivariate-reasoning" class="level2">
+<h2 class="anchored" data-anchor-id="a-pedagogical-example-for-multivariate-reasoning">A pedagogical example for multivariate reasoning</h2>
+<p>To ground the discussion, it is useful to start from a simple and well-understood example. The iris dataset is a canonical choice in this respect, not because it is representative of real-world complexity, but because it allows key geometric ideas to be illustrated without unnecessary distractions.</p>
+<p>The dataset consists of 150 observations from three biological species (<em>Iris setosa</em>, <em>Iris versicolor</em>, <em>Iris virginica</em>). Each observation is described by four continuous measurements: sepal length, sepal width, petal length, and petal width.</p>
+<p>While iris is often used to demonstrate classification performance, it serves a different purpose here: providing a controlled environment in which the relationship between data representation, group separation, and variability can be examined explicitly.</p>
+</section>
+<section id="principal-component-analysis-as-a-geometric-transformation" class="level2">
+<h2 class="anchored" data-anchor-id="principal-component-analysis-as-a-geometric-transformation">Principal component analysis as a geometric transformation</h2>
+<p>Principal component analysis (PCA) is often introduced as a dimensionality reduction technique. While this description is not incorrect, it can be misleading if taken at face value. Conceptually, PCA is best understood as a change of coordinates: the original variables are replaced by a new set of orthogonal axes that capture maximal variance.</p>
+<p>In the context of multivariate group comparison, PCA can play a crucial preparatory role. By projecting the data into a lower-dimensional space that preserves most of the variance, it becomes easier to visualize group structure and to reason about distances and dispersion.</p>
+<p>Importantly, PCA does not create separation between groups. Any apparent separation observed in principal component space reflects structure already present in the data. PCA merely provides a coordinate system in which that structure can be more easily inspected.</p>
+<section id="what-pca-actually-does" class="level3">
+<h3 class="anchored" data-anchor-id="what-pca-actually-does">What PCA actually does</h3>
+<p>In R, principal component analysis is commonly performed using the function <code>prcomp()</code> from the <code>stats</code> package. While its usage is straightforward, it is worth recalling what this function implicitly assumes about the data and how its output should be interpreted.</p>
+<p>First, <code>prcomp()</code> operates on a numeric matrix and expects variables to be measured on a comparable scale. When variables differ substantially in variance or units, centering and scaling are usually required. In the examples discussed here, variables are centered and scaled prior to PCA in order to prevent components from being dominated by features with larger numerical ranges.</p>
+<p>Second, <code>prcomp()</code> performs a singular value decomposition of the centered (and optionally scaled) data matrix. No distributional assumptions are made at this stage: PCA is a purely geometric transformation. Normality, when invoked later, concerns the distribution of component scores rather than the original variables.</p>
+<p>The output of <code>prcomp()</code> consists of two complementary objects: scores and loadings. These play distinct roles and are often conflated in applied work.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Scores and loadings: two sides of the same transformation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Principal component scores represent the projection of observations onto the new coordinate system defined by the principal components. They locate each observation in principal component space and are the quantities used for visualization, clustering, and group comparison.</p>
+<p>Principal component loadings, by contrast, describe how the original variables contribute to each component. They define the orientation of the new axes with respect to the original feature space.</p>
+<p>In multivariate group comparisons, scores are the primary objects of interest, as they encode the relative positions of observations. Loadings become relevant at a later stage, when the goal is to interpret the components in terms of the original variables.</p>
+</div>
+</div>
+<p>Throughout this post, scatterplots of principal components refer to plots of component scores. Such plots visualize the relative positions of observations in reduced-dimensional space and should not be interpreted as representations of variable contributions, which are instead encoded in the loadings.</p>
+</section>
+<section id="a-first-look-at-principal-component-space" class="level3">
+<h3 class="anchored" data-anchor-id="a-first-look-at-principal-component-space">A first look at principal component space</h3>
+<p>As shown in Figure&nbsp;1, the three species occupy partially overlapping yet distinct regions of principal component space.</p>
+<div class="cell" data-code-label="pca-iris">
+<div class="cell-output-display">
+<div id="fig-iris-pca-scores" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-iris-pca-scores-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/manova/index_files/figure-html/fig-iris-pca-scores-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-iris-pca-scores-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Iris dataset projected onto the first two principal components.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="explained-variance-and-dimensionality" class="level3">
+<h3 class="anchored" data-anchor-id="explained-variance-and-dimensionality">Explained variance and dimensionality</h3>
+<p>Principal components are ordered by decreasing variance. Reporting the proportion of variance explained is useful to justify why a low-dimensional projection (typically the first two components) is an informative geometric summary.</p>
+<p>In this example, the first two components capture a substantial fraction of total variability, supporting their use for visualization and for subsequent multivariate comparisons in component space.</p>
+<p>Table&nbsp;1 reports the proportion of variance explained by each component.</p>
+<div class="cell" data-code-label="iris-pca-var">
+<div id="tbl-iris-pca-var" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-code-label="iris-pca-var">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl quarto-uncaptioned" id="tbl-iris-pca-var-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1
+</figcaption>
+<div aria-describedby="tbl-iris-pca-var-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table quarto-disable-processing="true" class="table table-condensed table-bordered" style="font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;">
+<caption style="font-size: initial !important;">Explained variance and cumulative variance for the iris PCA.</caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Component </th>
+   <th style="text-align:right;"> Proportion of variance explained </th>
+   <th style="text-align:right;"> Cumulative </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> PC1 </td>
+   <td style="text-align:right;"> 0.730 </td>
+   <td style="text-align:right;"> 0.730 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> PC2 </td>
+   <td style="text-align:right;"> 0.229 </td>
+   <td style="text-align:right;"> 0.958 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> PC3 </td>
+   <td style="text-align:right;"> 0.037 </td>
+   <td style="text-align:right;"> 0.995 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> PC4 </td>
+   <td style="text-align:right;"> 0.005 </td>
+   <td style="text-align:right;"> 1.000 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>The scree plot in Figure&nbsp;2 provides an alternative view of the information reported in Table&nbsp;1.</p>
+<div class="cell" data-code-label="iris-pca-scree">
+<div class="cell-output-display">
+<div id="fig-iris-pca-scree" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-iris-pca-scree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/manova/index_files/figure-html/fig-iris-pca-scree-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-iris-pca-scree-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Scree plot showing the proportion of variance explained by each principal component.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="from-pca-to-multivariate-group-comparison" class="level3">
+<h3 class="anchored" data-anchor-id="from-pca-to-multivariate-group-comparison">From PCA to multivariate group comparison</h3>
+<p>Once the data have been projected into a low-dimensional principal component space, the next step is to assess whether groups differ in a multivariate sense. At this stage, the relevant question is no longer whether individual components differ across groups, but whether group centroids are separated relative to the variability observed within each group. This is where the MANOVA framework naturally fits in.</p>
+<p>However, before considering MANOVA in principal component space, it is useful to recall the conventional formulation of the method, as it is typically introduced in applied tutorials.</p>
+</section>
+</section>
+<section id="manova-assumptions-scope-and-interpretation" class="level2">
+<h2 class="anchored" data-anchor-id="manova-assumptions-scope-and-interpretation">MANOVA: assumptions, scope, and interpretation</h2>
+<p>Multivariate Analysis of Variance (MANOVA) extends the logic of univariate ANOVA to situations in which each observational unit is described by multiple response variables. Rather than testing group differences on individual outcomes one at a time, MANOVA evaluates whether groups differ in their multivariate location, taking into account the joint distribution of the responses.</p>
+<section id="what-manova-actually-tests" class="level3">
+<h3 class="anchored" data-anchor-id="what-manova-actually-tests">What MANOVA actually tests</h3>
+<p>At its core, MANOVA addresses a geometric question. Groups are represented by centroids in a multidimensional response space, and the method assesses whether these centroids are separated relative to the variability observed within groups.</p>
+<p>A common point of confusion arises when deciding whether a full multivariate procedure is necessary. One might reasonably ask why MANOVA should be preferred to a sequence of univariate ANOVAs, or to a single ANOVA applied to a composite or summary measure. The key distinction is that MANOVA explicitly incorporates the covariance structure among response variables. By doing so, it tests for patterns of group separation that may only emerge when variables are considered jointly, and that cannot be recovered from marginal analyses alone.</p>
+</section>
+<section id="manova-versus-univariate-anova" class="level3">
+<h3 class="anchored" data-anchor-id="manova-versus-univariate-anova">MANOVA versus univariate ANOVA</h3>
+<p>The distinction between MANOVA and univariate ANOVA is not merely technical, but conceptual. Univariate ANOVA evaluates group differences along a single response dimension at a time. Even when applied repeatedly to multiple outcomes, each test remains blind to the relationships among variables.</p>
+<p>From a geometric standpoint, univariate ANOVA assesses separation along one predefined direction in response space. Each outcome defines its own axis, and group differences are evaluated independently along those axes. This approach implicitly assumes that relevant group structure can be detected through marginal comparisons, and that correlations among responses are either negligible or irrelevant.</p>
+<p>MANOVA, by contrast, retains a genuinely multivariate perspective. Rather than focusing on individual response dimensions, it evaluates separation in the subspace jointly defined by the responses. Group differences are therefore allowed to emerge along arbitrary linear combinations of variables, not restricted to the original coordinate axes.</p>
+<p>This distinction becomes especially important when group separation is not aligned with any single response variable. In such cases, marginal tests may fail to detect meaningful structure, even when groups are clearly separated in multivariate space. MANOVA is specifically designed to capture these patterns, as it evaluates differences in location relative to the joint covariance structure of the responses.</p>
+</section>
+<section id="assumptions-and-their-practical-role" class="level3">
+<h3 class="anchored" data-anchor-id="assumptions-and-their-practical-role">Assumptions and their practical role</h3>
+<p>Like all parametric methods, MANOVA relies on a set of assumptions concerning the distributional and structural properties of the data. These include multivariate normality of the response variables within groups, homogeneity of covariance matrices across groups, and independence of observations.</p>
+<p>In practice, these assumptions are rarely met exactly. Their relevance therefore depends on the role assigned to the analysis. When MANOVA is used as a formal inferential procedure, substantial violations may compromise the validity of <img src="https://latex.codecogs.com/png.latex?p">-values and associated significance tests. In applied and exploratory settings, however, MANOVA is often employed as a descriptive and comparative tool, aimed at quantifying multivariate separation rather than at establishing strict inferential claims.</p>
+<p>From this perspective, assumptions function less as rigid prerequisites and more as diagnostics guiding interpretation. Departures from multivariate normality or covariance homogeneity do not automatically invalidate the analysis, but they do affect how results should be read and reported. Emphasis shifts from binary decisions based on <img src="https://latex.codecogs.com/png.latex?p">-values to the magnitude and structure of multivariate separation.</p>
+</section>
+<section id="choice-of-test-statistics" class="level3">
+<h3 class="anchored" data-anchor-id="choice-of-test-statistics">Choice of test statistics</h3>
+<p>Several test statistics are available within the MANOVA framework, including Wilks’ lambda, Pillai’s trace, the Hotelling–Lawley trace, and Roy’s largest root. Although these statistics are asymptotically equivalent under ideal conditions, they differ in their sensitivity to assumption violations and to specific patterns of group separation.</p>
+<p>Wilks’ lambda is perhaps the most widely reported statistic, but it is also among the most sensitive to departures from multivariate normality and to heterogeneity of covariance matrices. Roy’s largest root, by contrast, focuses exclusively on the strongest direction of separation and may overemphasize a single dominant effect.</p>
+<p>Pillai’s trace is often recommended in applied and exploratory settings because of its relative robustness to violations of assumptions, particularly when group sizes are unequal or covariance matrices differ across groups. Rather than concentrating on a single dimension of separation, Pillai’s trace aggregates evidence across all response dimensions, providing a more stable summary of multivariate effects.</p>
+<p>For this reason, when MANOVA is used primarily as a descriptive tool for assessing multivariate separation, emphasis should be placed on the overall pattern of results rather than on any single test statistic taken in isolation. Reporting Pillai’s trace alongside a clear description of the analytical context helps balance robustness and interpretability.</p>
+</section>
+<section id="post-hoc-analyses-and-interpretation" class="level3">
+<h3 class="anchored" data-anchor-id="post-hoc-analyses-and-interpretation">Post hoc analyses and interpretation</h3>
+<p>When a MANOVA indicates evidence of multivariate group separation, post hoc analyses are often performed to aid interpretation. These analyses typically involve examining group differences on individual response variables or on selected dimensions derived from the multivariate space.</p>
+<p>It is important to emphasize that post hoc tests following MANOVA do not constitute independent confirmations of group differences. Rather, they serve an explanatory role, helping to identify which dimensions of the response space contribute most strongly to the observed multivariate separation.</p>
+<p>In this sense, post hoc analyses should be interpreted descriptively rather than inferentially. Their purpose is not to re-test hypotheses already addressed by the multivariate procedure, but to provide insight into the structure of the effect detected at the multivariate level.</p>
+<p>When MANOVA is applied in exploratory settings, post hoc results are therefore best viewed as complementary summaries that facilitate interpretation, visualization, and substantive discussion. Used in this way, they enrich the multivariate analysis without overstating the evidential weight of individual comparisons.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+A conventional MANOVA workflow
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Applied tutorials often present MANOVA through a standard sequence of steps:<br>
+(i) fit an omnibus MANOVA model on the original variables (without PCA),<br>
+(ii) inspect assumptions diagnostically,<br>
+(iii) report a multivariate test statistic (often including Pillai’s trace), and<br>
+(iv) use follow-up analyses primarily for interpretation.</p>
+<p>A well-known reference implementation of this workflow, based on the iris dataset and using the package <code>rstatix</code>, is provided by <a href="https://www.datanovia.com/en/lessons/one-way-manova-in-r/#google_vignette">Datanovia</a>. The goal here is not to reproduce that tutorial, but to summarize the logic of the pipeline in a compact and reusable form.</p>
+<p>Table&nbsp;2 summarizes the assumptions typically discussed in rstatix-style MANOVA workflows, together with their practical role in applied analyses. Here, <em>n</em> denotes the number of observations per group, and <em>p</em> the number of response variables.</p>
+<div id="tbl-manova-assumptions" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-manova-assumptions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Diagnostic checks commonly discussed in rstatix-style MANOVA workflows and their practical interpretation.
+</figcaption>
+<div aria-describedby="tbl-manova-assumptions-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 23%">
+<col style="width: 23%">
+<col style="width: 23%">
+<col style="width: 29%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Aspect assessed</th>
+<th>Typical diagnostic</th>
+<th>Common tool</th>
+<th>Practical interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Sample size</td>
+<td>Check that <em>n</em> &gt; <em>p</em> per group</td>
+<td>—</td>
+<td>Small samples limit stability</td>
+</tr>
+<tr class="even">
+<td>Independence</td>
+<td>Study design</td>
+<td>—</td>
+<td>Violations invalidate inference</td>
+</tr>
+<tr class="odd">
+<td>Outliers</td>
+<td>Distance-based inspection</td>
+<td><code>identify_outliers()</code> (rstatix)</td>
+<td>Inspect, do not auto-remove</td>
+</tr>
+<tr class="even">
+<td>Normality</td>
+<td>Marginal / multivariate tests</td>
+<td><code>shapiro_test()</code>, <code>mshapiro_test()</code> (rstatix)</td>
+<td>Moderate deviations often tolerable</td>
+</tr>
+<tr class="odd">
+<td>Multicollinearity</td>
+<td>Correlation inspection</td>
+<td><code>cor_test()</code> (rstatix)</td>
+<td>Very high correlations problematic</td>
+</tr>
+<tr class="even">
+<td>Linearity</td>
+<td>Pairwise scatterplots</td>
+<td><code>GGally::ggpairs()</code></td>
+<td>Strong nonlinearities affect geometry</td>
+</tr>
+<tr class="odd">
+<td>Covariance homogeneity</td>
+<td>Box’s M test</td>
+<td><code>box_m()</code> (rstatix)</td>
+<td>Highly sensitive; interpret cautiously</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+</div>
+</div>
+<p>In line with the Datanovia example, the iris dataset shows no major pathologies with respect to most diagnostic checks. In particular, sample size, independence, normality, and linearity assumptions are reasonably satisfied. As is often the case in practice, the only notable deviation concerns homogeneity of variance–covariance matrices, a common situation in applied settings and one that reinforces the use of robust multivariate statistics such as Pillai’s trace.</p>
+</section>
+<section id="back-to-principal-component-space" class="level3">
+<h3 class="anchored" data-anchor-id="back-to-principal-component-space">Back to principal component space</h3>
+<p>The discussion above treated MANOVA in its conventional formulation, applied directly to the original response variables. This clarifies what MANOVA tests and how multivariate separation is quantified.</p>
+<p>In many applied settings, however, the original variables are numerous, correlated, or difficult to interpret individually. In such cases, it is often advantageous to work in a reduced-dimensional representation that preserves the main geometric structure of the data while simplifying interpretation. Principal component analysis re-enters here as a representational step.</p>
+<p>A natural question arises at this point: should MANOVA-style diagnostics have been assessed already when PCA was performed?</p>
+<p>The answer is largely negative. PCA, as implemented by <code>prcomp()</code>, is a purely geometric transformation based on a singular value decomposition of the data matrix. It does not rely on distributional assumptions, nor does it require normality, homogeneity of variances, or independence across groups.</p>
+<p>For these reasons, diagnostic checks discussed in MANOVA workflows are appropriately revisited after projection into principal component space, when the scores are treated as inputs to a multivariate comparison. By reducing <em>p</em> (the number of response variables) to a small set of informative principal components, this choice ensures a more favorable <em>n/p</em> ratio, thereby enhancing stability and interpretability.</p>
+</section>
+</section>
+<section id="manova-in-principal-component-space" class="level2">
+<h2 class="anchored" data-anchor-id="manova-in-principal-component-space">MANOVA in principal component space</h2>
+<p>With the conceptual and methodological groundwork in place, the combination of PCA and MANOVA can now be operationalized. In this setting, PCA defines a low-dimensional space that captures the dominant structure of the data. MANOVA is then applied to the corresponding component scores to quantify group separation within that space.</p>
+<p>Operationally, this amounts to replacing the original response variables with a selected subset of principal component scores. These scores serve as multivariate responses in the MANOVA model, while group membership remains unchanged. The logic of the test is identical to that of a conventional MANOVA; what changes is the space in which multivariate separation is assessed.</p>
+<p>This approach offers several practical advantages. By working with a reduced number of orthogonal components, the dimensionality of the response space is controlled explicitly, multicollinearity is eliminated by construction, and the ratio between the number of observations and response variables is improved. At the same time, because principal components are ordered by explained variance, the analysis can be restricted to those dimensions that capture the most informative aspects of the data.</p>
+<p>In what follows, this procedure is illustrated on the iris dataset by applying MANOVA to the first two principal component scores. This example is not intended to optimize classification or prediction, but to demonstrate how multivariate separation can be measured and interpreted once the data have been embedded in principal component space.</p>
+<section id="choosing-the-number-of-principal-components" class="level3">
+<h3 class="anchored" data-anchor-id="choosing-the-number-of-principal-components">Choosing the number of principal components</h3>
+<p>Applying MANOVA in principal component space requires an explicit decision about how many components to retain. This choice is not dictated by the MANOVA framework itself, but by considerations of representation and interpretability.</p>
+<p>In practice, the goal is not to preserve all variability in the data, but to retain those dimensions that capture the dominant structure relevant for group comparison. Components explaining only a negligible fraction of total variance are unlikely to contribute meaningfully to multivariate separation, while still increasing the dimensionality of the response space.</p>
+<p>A common and pragmatic strategy is therefore to restrict the analysis to the first few principal components, guided by explained variance and by visual inspection. In the iris dataset, the first two components account for the vast majority of total variability and already provide a clear geometric representation of group structure.</p>
+<p>For this reason, the analysis below focuses on the first two principal component scores. This keeps the response space low-dimensional, improves the <em>n/p</em> ratio, and allows multivariate separation to be interpreted directly in relation to the score plot.</p>
+</section>
+<section id="model-fitting-to-the-iris-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="model-fitting-to-the-iris-dataset">Model fitting to the iris dataset</h3>
+<p>In the iris example, the first two principal components already account for the vast majority of total variance and therefore provide a compact yet informative representation of the data geometry.</p>
+<p>The MANOVA fitted above tests whether species centroids differ in the two-dimensional space defined by PC1 and PC2, relative to the dispersion observed within each species. The result, reported in Table&nbsp;3, shows a highly significant multivariate effect according to Pillai’s trace.</p>
+<div class="cell">
+<div id="tbl-pca-manova-pillai" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-pca-manova-pillai-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: Omnibus PCA-MANOVA result (Pillai’s trace).
+</figcaption>
+<div aria-describedby="tbl-pca-manova-pillai-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table quarto-disable-processing="true" class="table table-condensed table-bordered" style="font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;">
+<caption style="font-size: initial !important;"></caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Effect </th>
+   <th style="text-align:right;"> Df </th>
+   <th style="text-align:right;"> Pillai </th>
+   <th style="text-align:right;"> approx F </th>
+   <th style="text-align:right;"> num Df </th>
+   <th style="text-align:right;"> den Df </th>
+   <th style="text-align:right;"> Pr(&gt;F) </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Species </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 1.1 </td>
+   <td style="text-align:right;"> 89.894 </td>
+   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 294 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Residuals </td>
+   <td style="text-align:right;"> 147 </td>
+   <td style="text-align:right;">  </td>
+   <td style="text-align:right;">  </td>
+   <td style="text-align:right;">  </td>
+   <td style="text-align:right;">  </td>
+   <td style="text-align:right;">  </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</figure>
+</div>
+</div>
+<div class="cell">
+<div id="tbl-pca-manova-classical-pillai" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-pca-manova-classical-pillai-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4: Omnibus conventional MANOVA result (Pillai’s trace).
+</figcaption>
+<div aria-describedby="tbl-pca-manova-classical-pillai-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table quarto-disable-processing="true" class="table table-condensed table-bordered" style="font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;">
+<caption style="font-size: initial !important;"></caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Effect </th>
+   <th style="text-align:right;"> Df </th>
+   <th style="text-align:right;"> Pillai </th>
+   <th style="text-align:right;"> approx F </th>
+   <th style="text-align:right;"> num Df </th>
+   <th style="text-align:right;"> den Df </th>
+   <th style="text-align:right;"> Pr(&gt;F) </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Species </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 1.192 </td>
+   <td style="text-align:right;"> 53.466 </td>
+   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 290 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Residuals </td>
+   <td style="text-align:right;"> 147 </td>
+   <td style="text-align:right;">  </td>
+   <td style="text-align:right;">  </td>
+   <td style="text-align:right;">  </td>
+   <td style="text-align:right;">  </td>
+   <td style="text-align:right;">  </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>It is instructive to compare the PCA-based MANOVA result with the conventional MANOVA fitted directly on the original iris measurements (Table&nbsp;4).</p>
+<p>Importantly, both analyses rely on the same underlying statistical machinery: in both cases, the model is fitted using the function <code>manova()</code>. What differs is not the test itself, but the geometry of the response space on which the test is applied.</p>
+<p>In the conventional formulation, separation is assessed in the original four-dimensional measurement space. In the PCA-based formulation, the same separation is evaluated in a two-dimensional space that preserves the dominant structure of the data. The fact that both approaches yield a strong and consistent multivariate effect supports the interpretation of PCA-based MANOVA as a faithful low-dimensional representation of multivariate group separation.</p>
+</section>
+<section id="interpreting-multivariate-separation-in-principal-component-space" class="level3">
+<h3 class="anchored" data-anchor-id="interpreting-multivariate-separation-in-principal-component-space">Interpreting multivariate separation in principal component space</h3>
+<p>The omnibus MANOVA result establishes that the three species occupy distinct regions of the two-dimensional principal component space. To interpret this separation, it is useful to examine how individual components and groups contribute to the observed multivariate effect.</p>
+<section id="contribution-of-individual-principal-components" class="level4">
+<h4 class="anchored" data-anchor-id="contribution-of-individual-principal-components">Contribution of individual principal components</h4>
+<p>Although MANOVA evaluates separation jointly across all response dimensions, separation in principal component space may be driven unevenly by different components. To make this explicit, univariate ANOVAs can be applied to the individual component scores (Table&nbsp;5 and Table&nbsp;6). These analyses are not used as independent hypothesis tests, but as descriptive tools that help locate multivariate separation within the score space.</p>
+<div class="cell">
+<div id="tbl-pc-anova-components-1" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-pc-anova-components-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5: Univariate ANOVA on PC1.
+</figcaption>
+<div aria-describedby="tbl-pc-anova-components-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table quarto-disable-processing="true" class="table table-condensed table-bordered" style="font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;">
+<caption style="font-size: initial !important;"></caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> Df </th>
+   <th style="text-align:right;"> Sum Sq </th>
+   <th style="text-align:right;"> Mean Sq </th>
+   <th style="text-align:right;"> F value </th>
+   <th style="text-align:right;"> Pr(&gt;F) </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Species </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 406.424 </td>
+   <td style="text-align:right;"> 203.212 </td>
+   <td style="text-align:right;"> 1050.631 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Residuals </td>
+   <td style="text-align:right;"> 147 </td>
+   <td style="text-align:right;"> 28.433 </td>
+   <td style="text-align:right;"> 0.193 </td>
+   <td style="text-align:right;">  </td>
+   <td style="text-align:right;">  </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</figure>
+</div>
+</div>
+<div class="cell">
+<div id="tbl-pc-anova-components-2" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-pc-anova-components-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;6: Univariate ANOVA on PC2.
+</figcaption>
+<div aria-describedby="tbl-pc-anova-components-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table quarto-disable-processing="true" class="table table-condensed table-bordered" style="font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;">
+<caption style="font-size: initial !important;"></caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:right;"> Df </th>
+   <th style="text-align:right;"> Sum Sq </th>
+   <th style="text-align:right;"> Mean Sq </th>
+   <th style="text-align:right;"> F value </th>
+   <th style="text-align:right;"> Pr(&gt;F) </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Species </td>
+   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 22.569 </td>
+   <td style="text-align:right;"> 11.285 </td>
+   <td style="text-align:right;"> 14.6 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Residuals </td>
+   <td style="text-align:right;"> 147 </td>
+   <td style="text-align:right;"> 113.621 </td>
+   <td style="text-align:right;"> 0.773 </td>
+   <td style="text-align:right;">  </td>
+   <td style="text-align:right;">  </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>As expected from the geometry of the score plot in Figure&nbsp;1, separation along the first principal component accounts for a substantial portion of the group differences. The second component, while explaining a smaller fraction of total variance, contributes to separating <em>versicolor</em> and <em>virginica</em>, illustrating that dimensions with lower variance can still play a meaningful role in discrimination.</p>
+</section>
+<section id="which-groups-drive-multivariate-separation" class="level4">
+<h4 class="anchored" data-anchor-id="which-groups-drive-multivariate-separation">Which groups drive multivariate separation?</h4>
+<p>Further insight can be gained by examining the relative positions of group centroids in principal component space (Table&nbsp;7).</p>
+<div class="cell">
+<div id="tbl-centroids" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-centroids-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;7: Centroids in PC space.
+</figcaption>
+<div aria-describedby="tbl-centroids-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table quarto-disable-processing="true" class="table table-condensed table-bordered" style="font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;">
+<caption style="font-size: initial !important;"></caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> Species </th>
+   <th style="text-align:right;"> PC1 </th>
+   <th style="text-align:right;"> PC2 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> setosa </td>
+   <td style="text-align:right;"> -2.217 </td>
+   <td style="text-align:right;"> -0.288 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> versicolor </td>
+   <td style="text-align:right;"> 0.495 </td>
+   <td style="text-align:right;"> 0.548 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> virginica </td>
+   <td style="text-align:right;"> 1.723 </td>
+   <td style="text-align:right;"> -0.260 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+<section id="loadings-versus-discrimination" class="level4">
+<h4 class="anchored" data-anchor-id="loadings-versus-discrimination">Loadings versus discrimination</h4>
+<p>A natural question at this stage is whether principal component loadings could be used to assess “what matters” for group separation. Loadings, however, describe how the original variables contribute to defining each principal axis. They do not quantify how strongly groups differ along that axis.</p>
+<p>In other words, loadings quantify variance, not discrimination. To measure how important a given component is for group separation, one must examine the distribution of scores across groups.</p>
+<p>To illustrate this point in the simplest possible setting, consider PC1 alone. Once attention is restricted to a single component, the multivariate problem reduces to a univariate one, where effect sizes such as <img src="https://latex.codecogs.com/png.latex?%5Ceta%5E2">, summarize how much variance in PC1 is explained by group membership.</p>
+<p>Finally, univariate <img src="https://latex.codecogs.com/png.latex?%5Ceta%5E2"> values quantify how strongly each raw variable is associated with group membership when considered in isolation (Table&nbsp;8). These values are not additive and should not be normalized into a decomposition of multivariate separation, but they provide a useful descriptive ranking of marginal discriminatory strength.</p>
+<div class="cell">
+<div id="tbl-eta-squared" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-eta-squared-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;8: Univariate eta-squared (η²) for the association between Species and each raw iris measurement. Values are reported per variable (not additive) and are used here as a descriptive ranking of marginal discriminatory strength.
+</figcaption>
+<div aria-describedby="tbl-eta-squared-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table quarto-disable-processing="true" class="table table-condensed table-bordered" style="font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;">
+<caption style="font-size: initial !important;"></caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;"> variable </th>
+   <th style="text-align:right;"> η² </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Petal length </td>
+   <td style="text-align:right;"> 0.94 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Petal width </td>
+   <td style="text-align:right;"> 0.93 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Sepal length </td>
+   <td style="text-align:right;"> 0.62 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Sepal width </td>
+   <td style="text-align:right;"> 0.40 </td>
+  </tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="conclusions" class="level2">
+<h2 class="anchored" data-anchor-id="conclusions">Conclusions</h2>
+<p>This post argued that PCA and MANOVA address complementary stages of the same analytical problem. PCA defines a low-dimensional geometric representation in which multivariate structure becomes visible, while MANOVA quantifies group separation by comparing between-group and within-group variability within that space.</p>
+<p>Using the iris dataset as a pedagogical example, the analysis showed that applying MANOVA in principal component space does not alter the underlying statistical machinery—the model is still fitted via <code>manova()</code>—but changes the geometry on which separation is assessed. In this sense, PCA-based MANOVA should not be viewed as a different test, but as the same test applied to a different, and often more interpretable, representation of the data. Seen in this light, PCA and MANOVA are best understood not as a sequence of techniques, but as complementary tools for reasoning geometrically about multivariate structure.</p>
+<p>A central conceptual distinction was emphasized throughout: <em>principal component loadings explain variance</em>, whereas <em>group discrimination must be assessed on the distribution of scores across groups</em>. Confusing these two roles leads to common misinterpretations, particularly when PCA is used as a preparatory step for group comparison.</p>
+<p>More broadly, the discussion highlighted the value of multivariate methods as tools for geometric reasoning rather than as mere extensions of univariate testing. By shifting attention from individual variables to configurations, centroids, and dispersion, PCA and MANOVA encourage a more structural understanding of group differences.</p>
+<p>A natural next step is to revisit the same geometric questions using distance-based approaches, leading to Permutational MANOVA (PERMANOVA). This extension replaces model-based assumptions with permutation-based inference, offering a complementary perspective on multivariate separation that can be explored in a follow-up post.</p>
+
+
+</section>
+
+ ]]></description>
+  <category>multivariate statistics</category>
+  <guid>https://amsabatini.netlify.app/posts/manova/</guid>
+  <pubDate>Mon, 22 Dec 2025 23:00:00 GMT</pubDate>
+  <media:content url="https://amsabatini.netlify.app/posts/manova/iris.png" medium="image" type="image/png" height="144" width="144"/>
+</item>
 <item>
   <title>Partial Least-Squares Discriminant Analysis for text classification: A linear model that works</title>
   <dc:creator>Angelo Maria Sabatini</dc:creator>
@@ -1205,7 +1809,7 @@ Figure&nbsp;2: Confusion matrix for the sPLS-DA classifier (ncomp = 3), evaluate
 </div>
 <p>The tuning procedure selected <code>keepX = c(200, 200, 500)</code> as the optimal number of features to retain on each of the three components. This means that the first two components focus on relatively sparse subsets of the vocabulary (200 terms each), while the third component includes the entire trimmed vocabulary of 500 terms. This adaptive behavior reflects the role of each component in capturing residual discriminative structure: early components rely on compact feature sets, while later ones may require broader lexical support to separate harder-to-distinguish classes.</p>
 <p>Since the method assumes that classes can be linearly separated in the latent space, it becomes relatively straightforward to assign an importance score to each feature, reflecting its contribution to the separation along each component. This enables direct interpretability of the model in terms of the most discriminative words associated with each class. The function <code>plotLoadings()</code> from the <code>mixOmics</code> package conveniently extracts and visualizes these features. As shown in Figure&nbsp;3, the method assigns a class-specific contribution to each selected term, allowing us to interpret each component in terms of discriminative words. It is important to note that terms are not necessarily exclusive to a single novel — many occur in multiple chapters across books. The color in the barplots reflects the class (i.e., book) for which the term contributes most strongly to class separation along that component, not exclusivity of occurrence. Component 1 highlights features specific to <em>Great Expectations</em> (e.g., “pip”, “havisham’s”). Component 2 reflects opposing contributions from <em>Pride and Prejudice</em> and <em>Twenty Thousand Leagues Under the Sea</em> — with “jane”, “elizabeth”, and “darcy” linked to the former, and “captain”, “nemo”, and “nautilus” to the latter. Component 3 is almost entirely dominated by lexical signals from <em>The War of the Worlds</em> (e.g., “martians”, “martian”, “people”).</p>
-<div id="fig-3" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" data-fig-pos="H">
+<div id="fig-3" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" data-fig-align="center">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://amsabatini.netlify.app/posts/pca_pls_da/Fig3.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%" data-fig-pos="H">
@@ -14524,121 +15128,6 @@ Figure&nbsp;2: Coverage curves for the binomial distribution with <img src="http
   <guid>https://amsabatini.netlify.app/posts/combinatorics/</guid>
   <pubDate>Tue, 23 Apr 2024 22:00:00 GMT</pubDate>
   <media:content url="https://amsabatini.netlify.app/posts/combinatorics/combinatorics.jpeg" medium="image" type="image/jpeg"/>
-</item>
-<item>
-  <title>Random incidence</title>
-  <dc:creator>Angelo Maria Sabatini</dc:creator>
-  <link>https://amsabatini.netlify.app/posts/random_incidence/</link>
-  <description><![CDATA[ 
-
-
-
-
-<p>Consider the situation when the continuous time axis of our observations is partitioned into a sequence of interarrival intervals. With the term <em>arrival</em>, we designate the occurrence of everything we are interested to observe, for instance, a particle emitted from radioactive material and captured by a radiation counter, a message reaching its destination queue, maybe the bus that we are waiting for at the bus stop. Usually, probabilistic models that attempt to describe these different type of arrivals share the same assumption: namely the interarrival times (i.e., the times between successive arrivals) are modeled as independent random variables. For instance, the continuous-time Poisson process (hopefully, this is not the right model to predict the next bus arrival!) is the case where the interarrival times are modeled as independent identically exponentially distributed random variables.</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Exponential distribution
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>A continuous random variable <img src="https://latex.codecogs.com/png.latex?X"> is said to be exponential, or exponentially distributed with parameter <img src="https://latex.codecogs.com/png.latex?%5Clambda">, when its cumulative distribution function (CDF) is written</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AF_X(x)=%5Ctext%7BPr%7D(X%5Cleq%20x)=1-e%5E%7B-%5Clambda%20x%7D,%5C;x%5Cgeq0%0A"></p>
-<p>The probability density function (PDF) is then given by:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0Ap_X(x)=%5Cfrac%7Bd%7D%7Bdx%7DF_X(x)=%5Clambda%5C,e%5E%7B-%5Clambda%20x%7D,%5C;x%5Cgeq0%0A"></p>
-<p>The mean value, the mean square value and the variance of <img src="https://latex.codecogs.com/png.latex?X"> are:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7D%0AE%5BX%5D&amp;=%5Cint_0%5E%7B%5Cinfty%7Dxp_X(x)%5C,dx=%5Cfrac%7B1%7D%7B%5Clambda%7D%5C%5C%0AE%5BX%5E2%5D&amp;=%5Cint_0%5E%7B%5Cinfty%7Dx%5E2p_X(x)%5C,dx=%5Cfrac%7B2%7D%7B%5Clambda%5E2%7D%5C%5C%0A%5Ctext%7BVar%7D(X)&amp;=E%5BX%5E2%5D-E%5BX%5D%5E2=%5Cfrac%7B1%7D%7B%5Clambda%5E2%7D%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A"></p>
-<p>Integration by parts can be used to calculate the two expectations <img src="https://latex.codecogs.com/png.latex?E%5BX%5D"> and <img src="https://latex.codecogs.com/png.latex?E%5BX%5E2%5D">.</p>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Poisson process
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Consider a sequence of independent exponential random variables <img src="https://latex.codecogs.com/png.latex?T_1,T_2,T_3%5Ccdots,"> with common parameter <img src="https://latex.codecogs.com/png.latex?%5Clambda">, and let these stand for the interarrival times. The arrivals are then recorded at times <img src="https://latex.codecogs.com/png.latex?T_1,T_1+T_2,T_1+T_2+T_3,%5Ccdots"> and so forth, to define a continuous-time Poisson process.</p>
-<p>A Poisson process is endowed with the following important properties:</p>
-<ol type="1">
-<li><p><strong>Independence of non-overlapping sets of times</strong>. This is a direct consequence of the assumed independence of the interarrival times.</p></li>
-<li><p><strong>Fresh-start property</strong>. The part of the Poisson process that starts at any particular time <img src="https://latex.codecogs.com/png.latex?t%3E0"> is a probabilistic replica of the Poisson process starting at time 0, and is independent of the part of the process prior to time <img src="https://latex.codecogs.com/png.latex?t">. This can be seen as a special case of point 1.</p></li>
-<li><p><strong>Memoryless interarrival time distribution</strong>. If <img src="https://latex.codecogs.com/png.latex?T"> is the time of the first arrival and if we know that <img src="https://latex.codecogs.com/png.latex?T%3Et">, then the remaining time <img src="https://latex.codecogs.com/png.latex?T%E2%88%92t"> is exponentially distributed, with the same parameter <img src="https://latex.codecogs.com/png.latex?%5Clambda">:</p></li>
-</ol>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0A%5Ctext%7BPr%7D(T%3Et+s%5C,%5Cvert%5C,T%3Et)&amp;=%5Cfrac%7B%5Ctext%7BPr%7D(T%3Et+s,T%3Et)%7D%7B%5Ctext%7BPr%7D(T%3Et)%7D%5C%5C%0A&amp;=%5Cfrac%7B%5Ctext%7BPr%7D(T%3Et+s)%7D%7B%5Ctext%7BPr%7D(T%3Et)%7D=%5Cfrac%7B1-F_T(t+s)%7D%7B1-F_T(t)%7D%5C%5C%0A&amp;=%5Cfrac%7Be%5E%7B-%5Clambda(t+s)%7D%7D%7Be%5E%7B-%5Clambda%20t%7D%7D=e%5E%7B-%5Clambda%20s%7D=%5Ctext%7BPr%7D(T%3Es)%0A%5Cend%7Bsplit%7D%0A"></p>
-<p>Properties 2.-3. can be rephrased saying that the ones whose life is modeled by an exponential distribution, well they should remain <em>forever young</em>: no matter how long they have lived so far, the remaining time to their death is predicted as if they are just born!</p>
-</div>
-</div>
-<p>The term <strong>random incidence</strong> denotes the arrival of an observer at an arbitrary time <img src="https://latex.codecogs.com/png.latex?t%5E*"> into a <em>gap</em> between two consecutive arrivals in an arrival-type process that is not necessarily described by a Poisson model, Figure&nbsp;1.</p>
-<div id="fig-fig1" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="https://amsabatini.netlify.app/posts/random_incidence/random_incidence.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="450">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: Illustration of the random incidence phenomenon.
-</figcaption>
-</figure>
-</div>
-<p>We are not saying that <img src="https://latex.codecogs.com/png.latex?t%5E*"> is random; in this regard, perhaps, using the term random incidence may appear misleading. However, the interval between the time of the previous arrival <img src="https://latex.codecogs.com/png.latex?t_p"> and <img src="https://latex.codecogs.com/png.latex?t%5E*">, and the interval between <img src="https://latex.codecogs.com/png.latex?t%5E*"> and the time of the next arrival <img src="https://latex.codecogs.com/png.latex?t_n"> are random. All we need to state to start our discussion is to assume that the observer enters the arrival-type process in a situation when a previous arrival has surely occurred: probabilistically, the gap <img src="https://latex.codecogs.com/png.latex?t_n-t_p"> is then a well-defined quantity.</p>
-<p>Suppose that we know the probability law of the interarrival times <img src="https://latex.codecogs.com/png.latex?Y">. Let us denote by <img src="https://latex.codecogs.com/png.latex?W"> the random variable that describes the duration of the gap entered by random incidence, <img src="https://latex.codecogs.com/png.latex?W=T_n-T_p">. Finally, we denote by <img src="https://latex.codecogs.com/png.latex?T"> the random variable that describes the waiting time for the next arrival from when the gap is entered by random incidence, <img src="https://latex.codecogs.com/png.latex?T=T_n-T%5E*">.</p>
-<p>It is argued that the probability that <img src="https://latex.codecogs.com/png.latex?W"> assumes a value between <img src="https://latex.codecogs.com/png.latex?w"> and <img src="https://latex.codecogs.com/png.latex?w+dw"> is proportional to both the the duration of the gap <img src="https://latex.codecogs.com/png.latex?w"> and the relative frequency of occurrence of such gaps <img src="https://latex.codecogs.com/png.latex?p_Y(w)dw">:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Ctext%7BPr%7D(w%5Cleq%20W%5Cleq%20w+dw)=p_W(w)dw%5Cpropto%20w%5C,p_Y(w)dw%0A"></p>
-<p>Therefore:</p>
-<p><span id="eq-eq1"><img src="https://latex.codecogs.com/png.latex?%0Ap_W(w)=%5Cfrac%7Bw%5C,p_Y(w)%7D%7BE%5BY%5D%7D%0A%5Ctag%7B1%7D"></span></p>
-<p>where the constant of proportionality is calculated to enforce the constraint of normalization for the PDF <img src="https://latex.codecogs.com/png.latex?p_W(w)"> of <img src="https://latex.codecogs.com/png.latex?W"> (its integral from 0 to infinity must be 1).</p>
-<p>Now, given that a gap of length <img src="https://latex.codecogs.com/png.latex?w"> is entered by random incidence, we are equally likely to be anywhere within the gap. More precisely, <em>given</em> <img src="https://latex.codecogs.com/png.latex?w">, the time until the next arrival <img src="https://latex.codecogs.com/png.latex?T"> has a uniform PDF:</p>
-<p><span id="eq-eq2"><img src="https://latex.codecogs.com/png.latex?%0Ap_%7BT%5Cvert%20W%7D(t%5C,%5Cvert%5C,w)=%5Cfrac%7B1%7D%7Bw%7D,%5C;0%5Cleq%20t%5Cleq%20w%0A%5Ctag%7B2%7D"></span></p>
-<p>where <img src="https://latex.codecogs.com/png.latex?p_%7BT%5Cvert%20W%7D(t%5C,%5Cvert%5C,w)"> is the conditional PDF of <img src="https://latex.codecogs.com/png.latex?T"> given <img src="https://latex.codecogs.com/png.latex?W">. Using Equation&nbsp;1, Equation&nbsp;2 the joint PDF <img src="https://latex.codecogs.com/png.latex?p_%7BTW%7D(t,w)"> can be written:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0Ap_%7BTW%7D(t,w)=p_%7BT%5Cvert%20W%7D(t%5C,%5Cvert%5C,w)%5C,p_W(w)=%5Cfrac%7Bp_Y(w)%7D%7BE%5BY%5D%7D,%5C;0%5Cleq%20t%5Cleq%20w%3C%5Cinfty%0A"></p>
-<p>Finally, the marginal PDF <img src="https://latex.codecogs.com/png.latex?p_T(t)"> of the waiting time for the next arrival from when the gap is entered by random incidence can be formed simply by <em>integrating out</em> <img src="https://latex.codecogs.com/png.latex?W">:</p>
-<p><span id="eq-eq3"><img src="https://latex.codecogs.com/png.latex?%0A%5Cboxed%7Bp_T(t)=%5Cint_%7Bt%7D%5E%7B%5Cinfty%7D%5Cfrac%7Bp_Y(w)%7D%7BE%5BY%5D%7Ddw=%5Cfrac%7B1-F_Y(t)%7D%7BE%5BY%5D%7D,%5C;t%5Cgeq0%7D%0A%5Ctag%7B3%7D"></span></p>
-<div id="exm-exm1" class="theorem example">
-<p><span class="theorem-title"><strong>Example 1</strong></span> Consider a bus passenger arriving at a bus stop. The probabilistic law of the bus headways <img src="https://latex.codecogs.com/png.latex?F_Y(y)"> will determine the probability law for the waiting time until the next bus arrives, <img src="https://latex.codecogs.com/png.latex?p_T(t)"> via Equation&nbsp;3, if we ignore interactions between successive buses and assume that the arrivals are identically distributed and independent.</p>
-<p>Suppose that buses maintain perfect headways, being always spaced <img src="https://latex.codecogs.com/png.latex?T_0"> minutes apart:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AF_Y(y)=%5Cleft%5C%7B%5Cbegin%7Bsplit%7D0&amp;%5Cquad%20y%3CT_0%5C%5C1&amp;%5Cquad%20y%5Cgeq%20T_0%5Cend%7Bsplit%7D%5Cright.%5Crightarrow%20p_Y(y)=%5Cdelta(y-T_0)%5Crightarrow%20E%5BY%5D=T_0%0A"></p>
-<p>where the PDF is expressed in terms of a delta function located at time <img src="https://latex.codecogs.com/png.latex?T_0">. The PDF of <img src="https://latex.codecogs.com/png.latex?T"> can be written:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0Ap_T(t)=%5Cleft%5C%7B%5Cbegin%7Bsplit%7D&amp;%5Cfrac%7B1%7D%7BT_0%7D&amp;%5Cquad%200%5Cleq%20t%5Cleq%20T_0%5C%5C&amp;0&amp;%5Cquad%20t%3ET_0%5Cend%7Bsplit%7D%5Cright.%5Crightarrow%20E%5BT%5D=%5Cfrac%7BT_0%7D%7B2%7D%0A"></p>
-<p>As expected intuitively, the time until the next arrival, <em>given random incidence</em>, is uniformly distributed between <img src="https://latex.codecogs.com/png.latex?0"> and <img src="https://latex.codecogs.com/png.latex?T_0">, with mean value <img src="https://latex.codecogs.com/png.latex?E%5BT%5D=T_0/2">: if <img src="https://latex.codecogs.com/png.latex?T_0=60"> min the average waiting time is 30 min.</p>
-<p>Now, suppose that the bus headways are on the hour, and fifteen minutes after the hour. Thus, the interarrival times alternate between 15 and 45 minutes. If the bus passenger shows up at the bus stop at any time uniformly distributed within a hour, she/he has to wait for an average time of 15/2 min (with probability 1/4) and 45/2 min (with probability 3/4):</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AE%5BT%5D=%5Cfrac%7B15%7D%7B2%7D%5Ccdot%5Cfrac%7B1%7D%7B4%7D+%5Cfrac%7B45%7D%7B2%7D%5Ccdot%5Cfrac%7B3%7D%7B4%7D=18.75%5C;%5Ctext%7Bmin%7D%0A"></p>
-<p>More formally:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AF_Y(y)=%5Cleft%5C%7B%5Cbegin%7Bsplit%7D0&amp;%5Cquad0%5Cleq%20y%3C15%5C%5C1/2&amp;%5Cquad15%5Cleq%20y%3C45%5C%5C1&amp;%5Cquad%20y%5Cgeq45%5Cend%7Bsplit%7D%5Cright.%5Crightarrow%20E%5BY%5D=30%5C;%5Ctext%7Bmin%7D%0A"></p>
-<p>Using Equation&nbsp;3:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0Ap_T(t)=%5Cleft%5C%7B%5Cbegin%7Bsplit%7D1/30&amp;%5Cquad0%5Cleq%20t%3C15%5C%5C1/60&amp;%5Cquad15%5Cleq%20t%3C45%5C%5C0&amp;%5Cquad%20t%5Cgeq45%5Cend%7Bsplit%7D%5Cright.%5Crightarrow%20E%5BT%5D=18.75%5C,%5Ctext%7Bmin%7D%0A"></p>
-<p>On average, the bus passenger has to wait longer than it might be expected taking into account <img src="https://latex.codecogs.com/png.latex?E%5BY%5D"> only, namely <img src="https://latex.codecogs.com/png.latex?E%5BY%5D/2=15"> min.</p>
-<blockquote class="blockquote">
-<p>This is because an observer who arrives at an arbitrary time, the bus passenger in this example, is more likely to fall in a large rather than a small interarrival interval: large interarrival intervals tend therefore to determine longer waiting times!</p>
-</blockquote>
-</div>
-<div id="exm-exm2" class="theorem example">
-<p><span class="theorem-title"><strong>Example 2</strong></span> Consider the (unrealistic) case that the bus headways are Poissonian. What does this mean? Basically, we state that the interarrival times are modeled by independent exponentially distributed random variables with rate <img src="https://latex.codecogs.com/png.latex?%5Clambda"> (the rate denotes the number of arrivals per unit time):</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AF_Y(y)=1-e%5E%7B-%5Clambda%20t%7D,%5C;t%5Cgeq%200%5Crightarrow%20p_Y(y)=%5Cfrac%7BF_Y(y)%7D%7Bdy%7D=%5Clambda%20e%5E%7B-%5Clambda%20t%7D,%5C;t%5Cgeq0%5Crightarrow%20E%5BY%5D=1/%5Clambda%0A"></p>
-<p>Using Equation&nbsp;3:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0Ap_T(t)=%5Clambda%20e%5E%7B-%5Clambda%20t%7D,%5C;t%5Cgeq0%0A"></p>
-<p>Hence <img src="https://latex.codecogs.com/png.latex?T"> is exponentially distributed with rate <img src="https://latex.codecogs.com/png.latex?%5Clambda">. The average time of waiting is <img src="https://latex.codecogs.com/png.latex?E%5BT%5D=1/%5Clambda">. No matter when the event occurred, the observer who arrives at an arbitrary time <img src="https://latex.codecogs.com/png.latex?t%5E*"> (the bus passenger in this example) sees the Poisson process to start fresh at time <img src="https://latex.codecogs.com/png.latex?t%5E*">, Figure&nbsp;1. It is worth noting that, according to the properties of independence, start-fresh and memorylessness stated above, we can run a Poisson process either forwards or backwards in time, without any modification in its properties. Hence, not only <img src="https://latex.codecogs.com/png.latex?T_n-T%5E*">, but also <img src="https://latex.codecogs.com/png.latex?T%5E*-T_p"> is exponentially distributed with parameter <img src="https://latex.codecogs.com/png.latex?%5Clambda">. Moreover, <img src="https://latex.codecogs.com/png.latex?T_n-T%5E*"> and <img src="https://latex.codecogs.com/png.latex?T_n-T%5E*"> are independent. We have therefore established that the gap <img src="https://latex.codecogs.com/png.latex?W"> entered by random incidence is the sum of two independent exponential random variables with parameter <img src="https://latex.codecogs.com/png.latex?%5Clambda"> and mean value <img src="https://latex.codecogs.com/png.latex?2/%5Clambda">. More formally, using Equation&nbsp;1 we get:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0Ap_W(w)=%5Clambda%20w%5C,e%5E%7B-%5Clambda%20w%7D,%5C;w%5Cgeq0%0A"></p>
-<p>We recall that the random variable <img src="https://latex.codecogs.com/png.latex?X"> Erlang of order <img src="https://latex.codecogs.com/png.latex?k"> has PDF:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0Ap(x)=%5Cfrac%7B%5Clambda%5Ekx%5E%7Bk-1%7De%5E%7B-%5Clambda%20x%7D%7D%7B(k-1)!%7D%0A"></p>
-<p>In conclusion, the gap duration is a random variable Erlang of order 2.</p>
-<blockquote class="blockquote">
-<p>In a similar fashion to Example&nbsp;1, when landing into a Poisson process at an arbitrary time, we are more likely to fall in a large interarrival interval; therefore, the length of what we perceive as a <em>typical</em> interarrival interval is greater than it is in reality.</p>
-</blockquote>
-</div>
-
-
-
- ]]></description>
-  <category>probability</category>
-  <guid>https://amsabatini.netlify.app/posts/random_incidence/</guid>
-  <pubDate>Sun, 21 Apr 2024 22:00:00 GMT</pubDate>
-  <media:content url="https://amsabatini.netlify.app/posts/random_incidence/bus.jpg" medium="image" type="image/jpeg"/>
 </item>
 </channel>
 </rss>
