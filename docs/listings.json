@@ -2,6 +2,7 @@
   {
     "listing": "/blog.html",
     "items": [
+      "/posts/stochastic_model/index.html",
       "/posts/manova/index.html",
       "/posts/pca_pls_da/index.html",
       "/posts/markov_chain_acf/index.html",
@@ -29,6 +30,7 @@
   {
     "listing": "/archive.html",
     "items": [
+      "/posts/stochastic_model/index.html",
       "/posts/manova/index.html",
       "/posts/pca_pls_da/index.html",
       "/posts/markov_chain_acf/index.html",

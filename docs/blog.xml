@@ -10,7 +10,189 @@
 <atom:link href="https://amsabatini.netlify.app/blog.xml" rel="self" type="application/rss+xml"/>
 <description>The personal blog of Angelo Maria Sabatini</description>
 <generator>quarto-1.6.40</generator>
-<lastBuildDate>Mon, 22 Dec 2025 23:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sun, 01 Feb 2026 23:00:00 GMT</lastBuildDate>
+<item>
+  <title>Discretizing motion under stochastic acceleration</title>
+  <dc:creator>Angelo Maria Sabatini</dc:creator>
+  <link>https://amsabatini.netlify.app/posts/stochastic_model/</link>
+  <description><![CDATA[ 
+
+
+
+
+<blockquote class="blockquote">
+<p>💾 <strong>Prefer reading offline?</strong> You can <a href="stochastic_model.pdf">download a PDF version of this post</a> for printing or future reference.</p>
+</blockquote>
+<section id="problem-statement" class="level2">
+<h2 class="anchored" data-anchor-id="problem-statement">Problem statement</h2>
+<p>Consider the simplest possible problem in Newtonian kinematics: the motion of a point along a straight line. Its position, velocity and acceleration are denoted by <img src="https://latex.codecogs.com/png.latex?x(t),%20v(t)"> and <img src="https://latex.codecogs.com/png.latex?a(t)">, respectively. The equations of motion are elementary:</p>
+<p><span id="eq-eq1"><img src="https://latex.codecogs.com/png.latex?%0A%5Cleft%5C%7B%0A%5Cbegin%7Balign%7D%0A%5Cdot%7Bx%7D(t)&amp;=v(t)%5C%5C%0A%5Cddot%7Bx%7D(t)&amp;=%5Cdot%7Bv%7D(t)=a(t)%0A%5Cend%7Balign%7D%0A%5Cright.%0A%5Ctag%7B1%7D"></span></p>
+<p>Here and throughout the post, the dot notation denotes differentiation with respect to time.</p>
+<p>If the acceleration is known as a deterministic function of time, the solution is trivial: integrate once to obtain the velocity, and integrate again to obtain the position, starting from known initial conditions.</p>
+<p>In many practical problems, however, acceleration is unknown. Examples abound:</p>
+<ul>
+<li>a vehicle subject to unpredictable maneuvers,</li>
+<li>a moving object affected by small, unmodeled disturbances,</li>
+<li>a target whose motion can only be described approximately.</li>
+</ul>
+<p>In all these cases, acceleration must be modeled, rather than specified explicitly. This raises the apparently simple question of how the acceleration should be represented.</p>
+<p>At first sight, the answer seems obvious: treat acceleration as a stochastic process, that is, specify the statistical rules governing its time evolution. More precisely, acceleration can often be described as the superposition of deterministic and stochastic components. For instance, a known nominal motion—such as constant velocity or constant acceleration—may be affected by unpredictable perturbations. In this post, the focus is on the stochastic component alone, in order to isolate and understand its effect on the statistical properties of position (and velocity).</p>
+<p>Even when the equations of motion are trivial, the modeling choices for the input <img src="https://latex.codecogs.com/png.latex?a(t)"> have profound consequences — especially when we recall that, while the motion of the point naturally occurs in continuous time, in practice we study it in discrete-time:</p>
+<ul>
+<li>measurement data are sampled,</li>
+<li>tracking algorithms operate on sequences rather than continuous trajectories,</li>
+<li>computer simulations are run with a fixed time step.</li>
+</ul>
+<p>When the input to the system is deterministic, this passage is straightforward. However, when the input is stochastic, the transition from continuous time to discrete time can become surprisingly subtle.</p>
+<p>This post is about understanding what it really means to discretize Equation&nbsp;1 when <img src="https://latex.codecogs.com/png.latex?a(t)"> is modeled as a stochastic process. The goal of this post is to show that, while the physical problem is simple, the associated modeling choices are not trivial.</p>
+</section>
+<section id="the-motion-model" class="level2">
+<h2 class="anchored" data-anchor-id="the-motion-model">The motion model</h2>
+<p>Before introducing any stochastic description, it is useful to clarify what is given and what is unknown in the motion model itself.</p>
+<p>The kinematic structure of the problem is completely known. The relationships between position, velocity, and acceleration are fixed by Newtonian kinematics, as shown in Equation&nbsp;1. From a systems point of view, <img src="https://latex.codecogs.com/png.latex?a(t)"> is not treated as a state variable, but as an external input to an otherwise deterministic system.</p>
+<p>Because velocity and position are obtained by integrating acceleration, any assumption made on the acceleration propagates through the system. Small differences in how acceleration is modeled can result in large differences in the statistical properties of position and velocity, once the model is discretized.</p>
+<p>The state of the system described by Equation&nbsp;1 is defined as:</p>
+<p><span id="eq-eq2"><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7Bx%7D(t)%20%5Ctriangleq%20%5Cbegin%7Bbmatrix%7D%20x(t)%20%5C%5C%20v(t)%20%5Cend%7Bbmatrix%7D%0A%5Ctag%7B2%7D"></span></p>
+<p>The continuous-time kinematic model is:</p>
+<p><span id="eq-eq3"><img src="https://latex.codecogs.com/png.latex?%0A%5Cdot%7B%5Cmathbf%7Bx%7D%7D(t)%20=%20A%5C,%5Cmathbf%7Bx%7D(t)%20+%20B%5C,a(t)%0A%5Ctag%7B3%7D"></span></p>
+<p>with:</p>
+<p><span id="eq-eq4"><img src="https://latex.codecogs.com/png.latex?%0AA=%5Cbegin%7Bbmatrix%7D0&amp;1%5C%5C0&amp;0%5Cend%7Bbmatrix%7D,%5C;%0AB=%5Cbegin%7Bbmatrix%7D0%5C%5C1%5Cend%7Bbmatrix%7D%0A%5Ctag%7B4%7D"></span></p>
+<p>Consider sampling the motion at times <img src="https://latex.codecogs.com/png.latex?t_k%20=%20kT">, with sampling interval <img src="https://latex.codecogs.com/png.latex?T">. For any input <img src="https://latex.codecogs.com/png.latex?a(t)"> (deterministic or stochastic), the exact solution at the sampling instants <img src="https://latex.codecogs.com/png.latex?t_k=kT"> is:</p>
+<p><span id="eq-eq5"><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7Bx%7D_%7Bk+1%7D%20=%20e%5E%7BAT%7D%5C,%5Cmathbf%7Bx%7D_k%20+%20%5Cmathbf%7Bu%7D_k,%0A%5Ctag%7B5%7D"></span></p>
+<p>where the state transition matrix is</p>
+<p><span id="eq-eq6"><img src="https://latex.codecogs.com/png.latex?%0Ae%5E%7BAT%7D%20=%20%5Cbegin%7Bbmatrix%7D%0A1%20&amp;%20T%5C%5C%0A0%20&amp;%201%0A%5Cend%7Bbmatrix%7D%0A%5Ctag%7B6%7D"></span></p>
+<p>and the input vector <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bu%7D_k"> can be written:</p>
+<p><span id="eq-eq7"><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7Bu%7D_k%20=%20%5Cint_%7B0%7D%5E%7BT%7D%20e%5E%7BA(T-%5Ctau)%7D%5C,B%5C,a(t_k+%5Ctau)%5C,d%5Ctau%0A%5Ctag%7B7%7D"></span></p>
+<p>This is a standard result in systems theory: discretization affects the deterministic state transition through the matrix exponential <img src="https://latex.codecogs.com/png.latex?e%5E%7BAT%7D">, while the input contributes through an integral that “accumulates” its effect over the sampling interval.</p>
+<p>It is worth noting that the discrete-time representation in Equation&nbsp;5, with <img src="https://latex.codecogs.com/png.latex?e%5E%7BAT%7D"> as in Equation&nbsp;6 and <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bu%7D_k"> as in Equation&nbsp;7, is exact at the sampling times <img src="https://latex.codecogs.com/png.latex?kT"> and holds regardless of how acceleration is modeled. What is still unspecified is the statistical characterization of <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bu%7D_k">, which depends entirely on the modeling assumptions made for <img src="https://latex.codecogs.com/png.latex?a(t)">.</p>
+<p>Different assumptions on the time evolution of acceleration (for instance, whether it is memoryless or correlated) lead to different statistical properties of <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bu%7D_k">, and therefore to different statistical properties of the state <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bx%7D_k"> at the sampling times. In particular, the position component <img src="https://latex.codecogs.com/png.latex?x_k"> is obtained by integrating acceleration twice (via velocity). As a result, the statistical behavior of position is highly sensitive to how acceleration is modeled. In many applications, position is the central quantity of interest: we care about predicting where the point will be, often more than how fast it will be moving.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+A note on the input integral and its interpretation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The term <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bu%7D_k"> collects the effect of acceleration over the sampling interval. The integral in Equation&nbsp;7 can be understood in the most basic sense: as a Riemann integral of a time-varying input. To give this integral a concrete meaning, it is sufficient to assume that the acceleration process is locally piecewise constant. More precisely, we assume that <img src="https://latex.codecogs.com/png.latex?a(t)"> is constant over each subinterval of an arbitrary partition of the integration interval <img src="https://latex.codecogs.com/png.latex?(0,T)">. This assumption is made with respect to the integration variable and does not impose any restriction tied to the sampling interval <img src="https://latex.codecogs.com/png.latex?T">.</p>
+<p>At this level, <img src="https://latex.codecogs.com/png.latex?T"> plays no special role beyond defining the limits of integration. There is no implicit connection with sampling theory in the sense of Shannon, nor with any bandwidth limitation on <img src="https://latex.codecogs.com/png.latex?a(t)">. The piecewise-constant assumption should therefore be interpreted as a minimal modeling device that allows the effect of acceleration over a finite time interval to be accumulated through integration.</p>
+</div>
+</div>
+</section>
+<section id="the-discrete-time-input-covariance-q_d" class="level2">
+<h2 class="anchored" data-anchor-id="the-discrete-time-input-covariance-q_d">The discrete-time input covariance <img src="https://latex.codecogs.com/png.latex?Q_d"></h2>
+<p>A specific stochastic model is now introduced: acceleration <img src="https://latex.codecogs.com/png.latex?a(t)"> is regarded as a wide-sense stationary stochastic process with zero mean, <img src="https://latex.codecogs.com/png.latex?%5Cmathbb%7BE%7D%5Ba(t)%5D=0">, and autocorrelation function:</p>
+<p><span id="eq-eq8"><img src="https://latex.codecogs.com/png.latex?%0AR_a(%5Ctau)%20%5C;%5Ctriangleq%5C;%20%5Cmathbb%7BE%7D%5C!%5Cleft%5Ba(t)%5C,a(t+%5Ctau)%5Cright%5D%0A%5Ctag%7B8%7D"></span></p>
+<p>In the constant-velocity kinematic model, a zero-mean acceleration describes random deviations around a nominal constant velocity, with no preferred direction of motion.</p>
+<p>The covariance matrix of <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bu%7D_k"> is defined as</p>
+<p><span id="eq-eq9"><img src="https://latex.codecogs.com/png.latex?%0AQ_d%5C;%5Ctriangleq%5C;%5Cmathrm%7BCov%7D(%5Cmathbf%7Bu%7D_k)%0A%20%20%20%20%20%20%20%20%20%20%20%5C;=%5C;%5Cmathbb%7BE%7D%5C!%5Cleft%5B%5Cmathbf%7Bu%7D_k%5C,%5Cmathbf%7Bu%7D_k%5E%5Ctop%5Cright%5D%0A%5Ctag%7B9%7D"></span></p>
+<p>where the last equality requires that <img src="https://latex.codecogs.com/png.latex?%5Cmathbb%7BE%7D%5B%5Cmathbf%7Bu%7D_k%5D=%5Cmathbf%7B0%7D"> (this follows from the linearity of both the expectation operator and the integral).</p>
+<p>Substituting the expression for <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bu%7D_k"> in Equation&nbsp;7 into Equation&nbsp;9 yields:</p>
+<p><span id="eq-eq10"><img src="https://latex.codecogs.com/png.latex?%0AQ_d%20=%20%5Cint_0%5ET%20%5C!%5C!%5Cint_0%5ET%0Ae%5E%7BA(T-%5Ctau)%7D%5C,B%5C;%0A%5Cmathbb%7BE%7D%5C!%5Cleft%5Ba(t_k+%5Ctau)%5C,a(t_k+s)%5Cright%5D%5C;%0AB%5E%5Ctop%20e%5E%7BA%5E%5Ctop(T-s)%7D%5C,%20d%5Ctau%5C,ds.%0A%5Ctag%7B10%7D"></span></p>
+<p>Under the stationarity assumption, the expectation depends only on <img src="https://latex.codecogs.com/png.latex?%5Ctau-s">, and we obtain:</p>
+<p><span id="eq-eq11"><img src="https://latex.codecogs.com/png.latex?%0AQ_d%20=%20%5Cint_0%5ET%20%5C!%5C!%5Cint_0%5ET%0Ae%5E%7BA(T-%5Ctau)%7D%5C,B%5C;%0AR_a(%5Ctau-s)%5C;%0AB%5E%5Ctop%20e%5E%7BA%5E%5Ctop(T-s)%7D%5C,%20d%5Ctau%5C,ds.%0A%5Ctag%7B11%7D"></span></p>
+<p>This expression makes the central point explicit: the discrete-time covariance <img src="https://latex.codecogs.com/png.latex?Q_d"> is determined by the autocorrelation structure of acceleration over the sampling interval.</p>
+<p>For the one-dimensional constant-velocity kinematic model, with <img src="https://latex.codecogs.com/png.latex?B"> and <img src="https://latex.codecogs.com/png.latex?e%5E%7BAT%7D"> as in Equation&nbsp;4 and Equation&nbsp;6 respectively, we can write:</p>
+<p><span id="eq-eq12"><img src="https://latex.codecogs.com/png.latex?%0Ae%5E%7BA(T-%5Ctau)%7D%5C,B%20=%20%5Cbegin%7Bbmatrix%7D%20T-%5Ctau%5C%5C%201%20%5Cend%7Bbmatrix%7D%0A%5Ctag%7B12%7D"></span></p>
+<p>As a result, the discrete-time covariance matrix can be written explicitly as</p>
+<p><span id="eq-eq13"><img src="https://latex.codecogs.com/png.latex?%0AQ_d%20=%20%5Cint_0%5ET%5C!%5C!%5Cint_0%5ET%20%5Cbegin%7Bbmatrix%7D%20T-%5Ctau%5C%5C%201%20%5Cend%7Bbmatrix%7D%0AR_a(%5Ctau-s)%0A%5Cbegin%7Bbmatrix%7D%20T-s%20&amp;%201%20%5Cend%7Bbmatrix%7D%20%5C,d%5Ctau%5C,ds%0A%5Ctag%7B13%7D"></span></p>
+<p>Written component-wise, this expression highlights how each entry of <img src="https://latex.codecogs.com/png.latex?Q_d"> is obtained by weighting the autocorrelation function of acceleration with deterministic kernels:</p>
+<p><span id="eq-eq14"><img src="https://latex.codecogs.com/png.latex?%0AQ_d%20=%0A%5Cbegin%7Bbmatrix%7D%0A%5Cdisplaystyle%20%5Cint_0%5ET%5C!%5C!%5Cint_0%5ET%20(T-%5Ctau)(T-s)%5C,R_a(%5Ctau-s)%5C,d%5Ctau%5C,ds%0A&amp;%0A%5Cdisplaystyle%20%5Cint_0%5ET%5C!%5C!%5Cint_0%5ET%20(T-%5Ctau)%5C,R_a(%5Ctau-s)%5C,d%5Ctau%5C,ds%0A%5C%5C%5B0.6em%5D%0A%5Cdisplaystyle%20%5Cint_0%5ET%5C!%5C!%5Cint_0%5ET%20(T-s)%5C,R_a(%5Ctau-s)%5C,d%5Ctau%5C,ds%0A&amp;%0A%5Cdisplaystyle%20%5Cint_0%5ET%5C!%5C!%5Cint_0%5ET%20R_a(%5Ctau-s)%5C,d%5Ctau%5C,ds%0A%5Cend%7Bbmatrix%7D%0A%5Ctag%7B14%7D"></span></p>
+<p>At this point, no assumption has yet been made on the specific form of <img src="https://latex.codecogs.com/png.latex?R_a(%5Ccdot)">. The structure of <img src="https://latex.codecogs.com/png.latex?Q_d"> is entirely determined by the kinematics; the autocorrelation function of acceleration determines its numerical values.</p>
+</section>
+<section id="white-noise-acceleration-as-a-limiting-model" class="level2">
+<h2 class="anchored" data-anchor-id="white-noise-acceleration-as-a-limiting-model">White noise acceleration as a limiting model</h2>
+<p>We now consider a specific, and widely used, stochastic model for acceleration: <em>white noise acceleration</em>. Formally, acceleration is modeled as a zero-mean stochastic process with autocorrelation</p>
+<p><span id="eq-eq15"><img src="https://latex.codecogs.com/png.latex?%0AR_a(%5Ctau)%20=%20q%5C,%5Cdelta(%5Ctau)%0A%5Ctag%7B15%7D"></span></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?%5Cdelta(%5Ccdot)"> denotes the Dirac delta and the noise strength <img src="https://latex.codecogs.com/png.latex?q"> is a constant. This expression should not be interpreted literally as a function: white noise does not exist as a time function in the usual sense. Rather, it is a mathematical idealization that captures the idea of rapidly varying, uncorrelated fluctuations. What matters for our purposes is that the autocorrelation is impulsive, and that all second-order properties of the process are encoded in the single parameter <img src="https://latex.codecogs.com/png.latex?q">.</p>
+<p>The parameter <img src="https://latex.codecogs.com/png.latex?q"> has a clear physical dimension. Acceleration has units of length over time squared, <img src="https://latex.codecogs.com/png.latex?%5Ba%5D%20=%20%5Cmathrm%7BL%7D/%5Cmathrm%7BT%7D%5E2">, the Dirac delta has units of inverse time, and the autocorrelation has units <img src="https://latex.codecogs.com/png.latex?%5Cmathrm%7BL%7D%5E2/%5Cmathrm%7BT%7D%5E4">.</p>
+<p>It follows that <img src="https://latex.codecogs.com/png.latex?%5Bq%5D%20=%20%5Cmathrm%7BL%7D%5E2/%5Cmathrm%7BT%7D%5E3."> This dimensional analysis is important: the parameter <img src="https://latex.codecogs.com/png.latex?q"> quantifies how much variance is injected <em>per unit time</em> into the acceleration process; in other words, <img src="https://latex.codecogs.com/png.latex?q"> represents the (constant) power spectral density (PSD) of the white noise acceleration.</p>
+<p>Substituting Equation&nbsp;15 into Equation&nbsp;14, each double integral defining <img src="https://latex.codecogs.com/png.latex?Q_d"> collapses to a single integral:</p>
+<p><span id="eq-eq16"><img src="https://latex.codecogs.com/png.latex?%0AQ_d%0A=%0Aq%20%5Cint_0%5ET%0A%5Cbegin%7Bbmatrix%7D%0A(T-%5Ctau)%5E2%20&amp;%20T-%5Ctau%5C%5C%0AT-%5Ctau%20&amp;%201%0A%5Cend%7Bbmatrix%7D%0A%5C,d%5Ctau.%0A%5Ctag%7B16%7D"></span></p>
+<p>Evaluating the integral yields the well-known result:</p>
+<p><span id="eq-eq17"><img src="https://latex.codecogs.com/png.latex?%0AQ_d%20=%0Aq%5Cbegin%7Bbmatrix%7D%0AT%5E3/3%20&amp;%20T%5E2/2%20%5C%5C%0AT%5E2/2%20&amp;%20T%0A%5Cend%7Bbmatrix%7D.%0A%5Ctag%7B17%7D"></span></p>
+<p>This matrix summarizes, in discrete time, the cumulative effect of continuous-time white acceleration over one sampling interval.</p>
+<p>It is worth stressing that the discrete-time covariance <img src="https://latex.codecogs.com/png.latex?Q_d"> depends not only on the noise PSD, but also explicitly on the sampling interval <img src="https://latex.codecogs.com/png.latex?T">. Changing <img src="https://latex.codecogs.com/png.latex?T"> without recomputing <img src="https://latex.codecogs.com/png.latex?Q_d"> therefore amounts to changing the underlying model, not merely its numerical implementation.</p>
+<section id="on-simulation-and-sample-paths" class="level3">
+<h3 class="anchored" data-anchor-id="on-simulation-and-sample-paths">On simulation and sample paths</h3>
+<p>Although white noise acceleration is a convenient analytical model, it cannot be simulated directly as a time function. To generate consistent sample paths, one must work with a time-integrated process. In practice, this amounts to simulating independent increments whose variance scales with the time step, in the same spirit as the construction of the Wiener process. These increments are assumed to be Gaussian, and position and velocity trajectories are obtained by integrating them, rather than by sampling acceleration itself. Strictly speaking, the Gaussian assumption is not essential, but it provides a convenient and widely used framework; more generally, a normal joint distribution for position and velocity may arise as a limiting approximation via the central limit theorem.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Generating correlated increments via a linear transformation
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In the discrete-time model Equation&nbsp;5, the random vector <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bu%7D_k"> represents the integrated effect of acceleration over one sampling interval. It is a two-dimensional Gaussian vector, with zero mean and covariance <img src="https://latex.codecogs.com/png.latex?Q_d">.</p>
+<p>A convenient way to generate <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bu%7D_k"> is to start from a vector of independent standard Gaussian variables, <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bz%7D_k%20%5Csim%20%5Cmathcal%7BN%7D(%5Cmathbf%7B0%7D,%20I)">, and apply the linear transformation</p>
+<p><span id="eq-eq18"><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7Bu%7D_k%20=%20L%5C,%5Cmathbf%7Bz%7D_k,%0A%5Cqquad%0AQ_d%20=%20L%5C,L%5E%5Ctop.%0A%5Ctag%7B18%7D"></span></p>
+<p>This construction makes the role of the transformation explicit: the matrix <img src="https://latex.codecogs.com/png.latex?L"> introduces both the correct scaling and the correlation structure between the components of <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bu%7D_k">. In practice, <img src="https://latex.codecogs.com/png.latex?L"> can be obtained via a Cholesky factorization of <img src="https://latex.codecogs.com/png.latex?Q_d">, but the key idea is the linear mapping from independent to correlated random variables. In the example discussed in this post, the matrix <img src="https://latex.codecogs.com/png.latex?L"> can be written as follows: <span id="eq-eq19"><img src="https://latex.codecogs.com/png.latex?%0AL%20=%20%5Csqrt%7Bq%5C,T%7D%0A%5Cbegin%7Bbmatrix%7D%20%5Cdfrac%7BT%7D%7B2%5Csqrt%7B3%7D%7D%20&amp;%20%5Cdfrac%7BT%7D%7B2%7D%20%5C%5C%200%20&amp;%201%20%5Cend%7Bbmatrix%7D%0A%5Ctag%7B19%7D"></span></p>
+</div>
+</div>
+</section>
+<section id="a-conceptual-remark-on-dimensions-and-modeling" class="level3">
+<h3 class="anchored" data-anchor-id="a-conceptual-remark-on-dimensions-and-modeling">A conceptual remark on dimensions and modeling</h3>
+<p>It is worth pausing for a moment to reflect on what has just happened.</p>
+<p>We started in continuous time with a system driven by an acceleration input, whose physical dimension is <img src="https://latex.codecogs.com/png.latex?%5B%5Cmathrm%7BL%7D%5C,%5Cmathrm%7BT%7D%5E%7B-2%7D%5D">. After discretization, we end up with a two-dimensional input (<img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bu%7D%5C_k">) whose components have dimensions <img src="https://latex.codecogs.com/png.latex?%5B%5Cmathrm%7BL%7D%5D"> and <img src="https://latex.codecogs.com/png.latex?%5B%5Cmathrm%7BL%7D%5C,%5Cmathrm%7BT%7D%5E%7B-1%7D%5D">, corresponding to increments of position and velocity.</p>
+<p>This is not a contradiction, but a direct consequence of integration over time. In the discrete-time model, the input no longer represents an instantaneous physical quantity, but the cumulative effect of acceleration over a finite interval.</p>
+<p>What is particularly noteworthy is that these two components are correlated. They are statistically “glued together” through the covariance matrix <img src="https://latex.codecogs.com/png.latex?Q_d">, which encodes how uncertainty injected through acceleration propagates jointly into position and velocity during a single time step.</p>
+<p>In this sense, discretization transforms a scalar continuous-time acceleration input into a vector-valued discrete-time input with coupled components and nontrivial physical units. Understanding this transformation is essential to avoid misinterpreting the role of process noise in discrete-time motion models.</p>
+</section>
+<section id="a-final-remark-on-the-role-of-the-sampling-interval" class="level3">
+<h3 class="anchored" data-anchor-id="a-final-remark-on-the-role-of-the-sampling-interval">A final remark on the role of the sampling interval</h3>
+<p>A final comment concerns the role of the sampling interval <img src="https://latex.codecogs.com/png.latex?T">. In the present context, <img src="https://latex.codecogs.com/png.latex?T"> should be interpreted primarily as an integration step. The discrete-time model is exact at the sampling times, and the construction of the random input <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bu%7D_k"> guarantees that the resulting position and velocity sample paths have the correct second-order statistics, regardless of the specific value of <img src="https://latex.codecogs.com/png.latex?T">, within broad limits dictated by the validity of the underlying continuous-time model.</p>
+<p>This is different from what happens in a Kalman filtering or tracking context, where <img src="https://latex.codecogs.com/png.latex?T"> determines how long the system must evolve “open-loop” based on the motion model alone, between successive measurements. Here, no estimation is being performed, and no measurements are involved.</p>
+<p>As a result, <img src="https://latex.codecogs.com/png.latex?T"> does not control prediction horizon or estimator performance, but simply sets the time scale over which the continuous-time stochastic input is integrated. As long as the discrete-time covariance <img src="https://latex.codecogs.com/png.latex?Q_d"> is constructed consistently, changing <img src="https://latex.codecogs.com/png.latex?T"> does not introduce integration errors: it only changes how uncertainty accumulates over time.</p>
+<p>It is also important to stress what this construction does — and does not — provide. Nothing can be said about what happens between sampling times. The continuous-time trajectory is not reconstructed, nor is it assumed to be known in any meaningful sense. What is guaranteed, instead, is that the stochastic process is characterized exactly at the sampling times. Moreover, in the Gaussian case considered here, the statistical behavior of position and velocity at discrete times is fully described by their mean and covariance.</p>
+<p>In this sense, the discrete-time model provides a complete and exact statistical description of the motion at sampling times, even though the underlying continuous-time path remains unknown. Strictly speaking, <img src="https://latex.codecogs.com/png.latex?Q_d"> should not be thought of as a generic hyperparameter to be tuned (e.g., in a Kalman-based tracker), but as a quantity implied by the chosen stochastic model for acceleration — even though, in practice, it is often used as a tool for absorbing the effects of unmodeled dynamics.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Two difference equations, one stochastic model?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A natural question arises at this point; a related discussion can be found in one <a href="https://amsabatini.netlify.app/posts/numerical_simulation/">previous post</a> of mine. If white noise acceleration is written in continuous time as a stochastic differential equation, we have:</p>
+<p><span id="eq-eq20"><img src="https://latex.codecogs.com/png.latex?%0A%5Cleft%5C%7B%0A%5Cbegin%7Balign%7D%0Adx(t)&amp;=v(t)%5C,dt%5C%5C%0Adv(t)&amp;=%5Csqrt%7Bq%7D%5C,dW(t)%0A%5Cend%7Balign%7D%0A%5Cright.%0A%5Ctag%7B20%7D"></span></p>
+<p>then the Euler–Maruyama (EM) scheme on a fine grid with step <img src="https://latex.codecogs.com/png.latex?h"> reads</p>
+<p><span id="eq-eq21"><img src="https://latex.codecogs.com/png.latex?%0A%5Cleft%5C%7B%0A%5Cbegin%7Balign%7D%0Ax_%7Bn+1%7D&amp;=x_n+h%5C,v_n%5C%5C%0Av_%7Bn+1%7D&amp;=v_n+%5Csqrt%7Bq%7D%5C,%5Csqrt%7Bh%7D%5C,%5Cxi_n%5Cqquad%20%5Cxi_n%20%5Csim%20%5Cmathcal%20N(0,1)%0A%5Cend%7Balign%7D%0A%5Cright.%0A%5Ctag%7B21%7D"></span></p>
+<p>At first sight, this update looks structurally different from that in Equation&nbsp;5: the noise appears explicitly only in the velocity equation, while in the exact discrete-time model randomness enters both position and velocity through <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bu%7D_k">.</p>
+<p>The apparent mismatch disappears once one recognizes that the two constructions address different objects.</p>
+<ul>
+<li>EM is a pathwise approximation method: it builds an approximate continuous-time trajectory on a refined grid. Under standard regularity conditions (satisfied here, since the model is linear), EM converges with strong order <img src="https://latex.codecogs.com/png.latex?1/2"> (mean-square or pathwise accuracy) and with weak order <img src="https://latex.codecogs.com/png.latex?1"> (accuracy in the distribution of smooth functionals).</li>
+<li>The exact discrete-time model does not approximate trajectories between samples. It constructs directly the correct joint distribution of <img src="https://latex.codecogs.com/png.latex?(x(t_k),v(t_k))">, by integrating the stochastic input over a finite interval of length <img src="https://latex.codecogs.com/png.latex?T">.</li>
+</ul>
+<p>As a consequence, the two difference equations are not expected to coincide in form. What can be reconciled is their statistical output at fixed times: if EM is run with a sufficiently small step <img src="https://latex.codecogs.com/png.latex?h"> and the resulting trajectory is inspected only at the coarse sampling times <img src="https://latex.codecogs.com/png.latex?t_k=kT"> (with <img src="https://latex.codecogs.com/png.latex?T"> an integer multiple of <img src="https://latex.codecogs.com/png.latex?h">), then the distribution of the EM state <img src="https://latex.codecogs.com/png.latex?(x_k,v_k)"> converges (as <img src="https://latex.codecogs.com/png.latex?h%5Cto0">) to the same distribution implied by the exact discrete-time covariance <img src="https://latex.codecogs.com/png.latex?Q_d">. The covariance <img src="https://latex.codecogs.com/png.latex?P_k"> of the EM state at the sampling times can be calculated by solving:</p>
+<p><span id="eq-eq22"><img src="https://latex.codecogs.com/png.latex?%0AP_%7Bk+1%7D=e%5E%7BAT%7DP_k(e%5E%7BAT%7D)%5E%5Ctop+Q_d%0A%5Ctag%7B22%7D"></span></p>
+<p>In this sense, EM converges to the correct model in distribution, even though its local update equation looks different.</p>
+</div>
+</div>
+</section>
+</section>
+<section id="concluding-remarks" class="level2">
+<h2 class="anchored" data-anchor-id="concluding-remarks">Concluding remarks</h2>
+<p>The goal of this post was not to provide an exhaustive discussion of stochastic acceleration models, nor to explore the interpretation of white noise as the limit of rapidly fluctuating correlated processes.</p>
+<p>Rather, the focus was on understanding how a simple kinematic model, when driven by a stochastic input, can be consistently carried from continuous time to discrete time, and how the statistical properties of that input propagate into the discrete-time state increments.</p>
+<p>Within this framework, white acceleration was introduced as a convenient and widely used specialization that leads to a closed-form expression for the discrete-time covariance <img src="https://latex.codecogs.com/png.latex?Q_d">. It should be regarded as one modeling choice among others, not as a physical description of acceleration itself.</p>
+<p>What matters, ultimately, is not the specific choice of model, but the clarity with which its assumptions are stated and their consequences understood. Even for the simplest possible motion problem, careful modeling at this level can make a substantial difference.</p>
+
+
+</section>
+
+ ]]></description>
+  <category>stochastic modeling</category>
+  <guid>https://amsabatini.netlify.app/posts/stochastic_model/</guid>
+  <pubDate>Sun, 01 Feb 2026 23:00:00 GMT</pubDate>
+  <media:content url="https://amsabatini.netlify.app/posts/stochastic_model/simulation.png" medium="image" type="image/png" height="108" width="144"/>
+</item>
 <item>
   <title>PCA, MANOVA, and the geometry of multivariate comparison</title>
   <dc:creator>Angelo Maria Sabatini</dc:creator>
@@ -15028,106 +15210,6 @@ Figure&nbsp;2: Coverage curves for the binomial distribution with <img src="http
   <guid>https://amsabatini.netlify.app/posts/probability_estimation/</guid>
   <pubDate>Fri, 26 Apr 2024 22:00:00 GMT</pubDate>
   <media:content url="https://amsabatini.netlify.app/posts/probability_estimation/coin-toss.png" medium="image" type="image/png" height="140" width="144"/>
-</item>
-<item>
-  <title>Pills of combinatorics</title>
-  <dc:creator>Angelo Maria Sabatini</dc:creator>
-  <link>https://amsabatini.netlify.app/posts/combinatorics/</link>
-  <description><![CDATA[ 
-
-
-
-
-<p>At least in the elementary case of finite sample spaces (i.e., a finite number of outcomes can be generated by our experiment), we often find useful to consider the intuitive notion that the outcomes are equally likely; this allows to introduce what is known as the classical definition of probability. For any set <img src="https://latex.codecogs.com/png.latex?A"> made of some collection of outcomes from the sample space, we define the probability of <img src="https://latex.codecogs.com/png.latex?A"> as:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Ctext%7BPr%7D(A)=%5Cfrac%7B%5Ctext%7Bnumber%20of%20cases%20in%7D%5C;A%7D%7B%5Ctext%7Bnumber%20of%20cases%20in%20the%20sample%20space%7D%7D%0A"></p>
-<p>After the sample space has been defined and its size determined, we calculate probabilities of sets by counting the number of possible cases.</p>
-<p>The art of counting is a relevant part of a field in mathematics known as combinatorics. In this post, I present the basic principle of counting and apply it to a number of situations that are often encountered in probabilistic models.</p>
-<section id="the-counting-principle" class="level2">
-<h2 class="anchored" data-anchor-id="the-counting-principle">The counting principle</h2>
-<p>Consider an experiment that consists of two consecutive stages. The possible outcomes of the first stage are <img src="https://latex.codecogs.com/png.latex?a_1,%5Ccdots,a_n"> and, for each outcome from the first stage, <img src="https://latex.codecogs.com/png.latex?b_1,%5Ccdots,b_m"> outcomes are possible for the second stage. The outcomes of the two-stage experiment are thus the ordered pairs <img src="https://latex.codecogs.com/png.latex?(a_i,b_j),i=1,...,m;j=1,%5Ccdots,m">, whose number is <img src="https://latex.codecogs.com/png.latex?nm">. An obvious generalization is for an <img src="https://latex.codecogs.com/png.latex?r">-stage experiment, with <img src="https://latex.codecogs.com/png.latex?n_i,i=1,2,%5Ccdots,r"> outcomes each. The total number of outcomes is</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AN=%5Cprod_%7Bi=1%7D%5Ern_i%0A"></p>
-<div id="exm-exm1" class="theorem example">
-<p><span class="theorem-title"><strong>Example 1 (Number of subsets of an <img src="https://latex.codecogs.com/png.latex?n">-element set.)</strong></span> Consider an <img src="https://latex.codecogs.com/png.latex?n">-element set <img src="https://latex.codecogs.com/png.latex?%5C%7Ba_1,a_2,%5Ccdots,a_n%5C%7D">. The construction of a subset can be seen as an <img src="https://latex.codecogs.com/png.latex?n">-stage process, where, at the <img src="https://latex.codecogs.com/png.latex?i">th stage, the <img src="https://latex.codecogs.com/png.latex?i">th element is offered the opportunity to be a member of the subset or not (binary choice). Therefore the number of subsets is <img src="https://latex.codecogs.com/png.latex?N=2%5En">, inclusive of either the empty set (no elements are in one subset) or the sample space (all the elements are in another subset).</p>
-</div>
-<p>Consider now the situation where we have <img src="https://latex.codecogs.com/png.latex?n"> distinct objects in a box and we want to form groups by sequentially selecting <img src="https://latex.codecogs.com/png.latex?k"> objects from it, without repetitions being allowed (<strong>sampling without replacement</strong>) or with repetitions being allowed (<strong>sampling with replacement</strong>). In the former case, of course, we cannot select more objects than they are in the box, namely <img src="https://latex.codecogs.com/png.latex?k%5Cleq%20n">. In the latter case, the restriction <img src="https://latex.codecogs.com/png.latex?k%5Cleq%20n"> does not apply and, although unlikely, a group can even consist of <img src="https://latex.codecogs.com/png.latex?k"> replicas of the same object.</p>
-<p>Moreover, the selection process can differ in regard to wthether we are interested in the order of selection or not. If the <strong>order of selection matters</strong>, two groups that are made by the same objects, each one with its own number of occurrences, are considered distinct, whereas, if the <strong>order of selection does not matter</strong>, they should count as one case only in the probability calculation.</p>
-<p>Based on these properties, four different arrangements of <img src="https://latex.codecogs.com/png.latex?k"> out of a collection of <img src="https://latex.codecogs.com/png.latex?n"> objects have to be considered, namely (without/with) repetition-order of selection (does/does not) matter. Each arrangement has its own name and related formula of counting, as outlined in the following.</p>
-</section>
-<section id="sampling-without-replacement" class="level2">
-<h2 class="anchored" data-anchor-id="sampling-without-replacement">Sampling without replacement</h2>
-<section id="order-of-selection-matters" class="level4">
-<h4 class="anchored" data-anchor-id="order-of-selection-matters">Order of selection matters</h4>
-<p>The number of arrangements, called <strong>permutations</strong>, can be calculated as the result of a <img src="https://latex.codecogs.com/png.latex?k">-stage process. At the first stage, we have <img src="https://latex.codecogs.com/png.latex?n"> possible choices, at the second stage, the choices are reduced by one unit, i.e., <img src="https://latex.codecogs.com/png.latex?n-1">; when we reach the <img src="https://latex.codecogs.com/png.latex?k">-stage, we are left with <img src="https://latex.codecogs.com/png.latex?n-k+1"> choices. Applying the principle of counting, we have:</p>
-<p><span id="eq-eq1"><img src="https://latex.codecogs.com/png.latex?%0AD(n,k)=n(n-1)%5Ccdots%20(n-k+1)=%5Cfrac%7Bn!%7D%7B(n-k)!%7D%0A%5Ctag%7B1%7D"></span></p>
-<p>where the factorial of a non-negative integer <img src="https://latex.codecogs.com/png.latex?n">, denoted by <img src="https://latex.codecogs.com/png.latex?n!">, is the product of all positive integers less than or equal to <img src="https://latex.codecogs.com/png.latex?n">, i.e., <img src="https://latex.codecogs.com/png.latex?n!=1%5Ccdot2%5Ccdots%20n">. Recall that, when <img src="https://latex.codecogs.com/png.latex?k=n">, <img src="https://latex.codecogs.com/png.latex?D(n,n)=n!"> (<img src="https://latex.codecogs.com/png.latex?0!=1!=1">).</p>
-</section>
-<section id="order-of-selection-does-not-matter" class="level4">
-<h4 class="anchored" data-anchor-id="order-of-selection-does-not-matter">Order of selection does not matter</h4>
-<p>The number of arrangements, called <strong>combinations</strong>, can be calculated by noting that there exist <img src="https://latex.codecogs.com/png.latex?P(k,k)=k!"> sequences of length <img src="https://latex.codecogs.com/png.latex?k"> that differ from one another just in terms of the order of the presentation of their elements. They contribute only one arrangement to the total number of them:</p>
-<p><span id="eq-eq2"><img src="https://latex.codecogs.com/png.latex?%0AC(n,k)=%5Cfrac%7BD(n,k)%7D%7BD(k,k)%7D=%5Cfrac%7Bn!%7D%7B(n-k)!k!%7D=%7Bn%5Cchoose%20k%7D%0A%5Ctag%7B2%7D"></span></p>
-<p>where the <strong>binomial coefficient</strong> <img src="https://latex.codecogs.com/png.latex?%7Bn%5Cchoose%20k%7D">, indexed by the pair of integers <img src="https://latex.codecogs.com/png.latex?n%5Cgeq%20k%5Cgeq0">, is considered.</p>
-<div id="exm-exm2" class="theorem example">
-<p><span class="theorem-title"><strong>Example 2 (Newton’s binomial theorem)</strong></span> For any real number <img src="https://latex.codecogs.com/png.latex?n"> that is not a non-negative integer, the theorem states that:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Csum_%7Bk=0%7D%5En%7Bn%5Cchoose%20k%7Da%5Ekb%5E%7Bn-k%7D=(a+b)%5En%0A"></p>
-<p>when <img src="https://latex.codecogs.com/png.latex?a,b%5Cin%5Cmathbb%7BR%7D">.</p>
-<p>Since <img src="https://latex.codecogs.com/png.latex?%7Bn%5Cchoose%20k%7D"> is the number of <img src="https://latex.codecogs.com/png.latex?k">-element sequences of a given <img src="https://latex.codecogs.com/png.latex?n">-element set, the sum over <img src="https://latex.codecogs.com/png.latex?k"> of <img src="https://latex.codecogs.com/png.latex?%7Bn%5Cchoose%20k%7D"> counts the number of subsets of all possible sizes. Using the result of Example&nbsp;1:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Csum_%7Bk=0%7D%5E%7Bn%7D%7Bn%5Cchoose%20k%7D=2%5En%0A"></p>
-<p>This result is also a simple application of the Newton’s binomial theorem for <img src="https://latex.codecogs.com/png.latex?a=b=1">.</p>
-</div>
-<p>Recall that a combination is a choice of <img src="https://latex.codecogs.com/png.latex?k"> elements out of an <img src="https://latex.codecogs.com/png.latex?n">-element set without regard to order. This is the same as partitioning the set in two: one part contains <img src="https://latex.codecogs.com/png.latex?k"> elements and the other contains the remaining <img src="https://latex.codecogs.com/png.latex?n%E2%88%92k">. We can generalize by considering partitions in more than two subsets. We have <img src="https://latex.codecogs.com/png.latex?n"> distinct objects and we are given non-negative integers <img src="https://latex.codecogs.com/png.latex?n_1,n_2,%5Ccdots,n_r">, whose sum is equal to <img src="https://latex.codecogs.com/png.latex?n">. The <img src="https://latex.codecogs.com/png.latex?n"> items are to be divided into <img src="https://latex.codecogs.com/png.latex?r"> disjoint groups, with the <img src="https://latex.codecogs.com/png.latex?i">th group containing exactly <img src="https://latex.codecogs.com/png.latex?n_i"> items. The total number of groups is given by the <strong>multinomial coefficient</strong>:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AN_r=%7Bn%5Cchoose%20n_1n_2%5Ccdots%20n_r%7D=%5Cfrac%7Bn!%7D%7Bn_1!n_2!%5Ccdots%20n_r!%7D%0A"></p>
-</section>
-</section>
-<section id="sampling-with-replacement" class="level2">
-<h2 class="anchored" data-anchor-id="sampling-with-replacement">Sampling with replacement</h2>
-<section id="order-of-selection-matters-1" class="level4">
-<h4 class="anchored" data-anchor-id="order-of-selection-matters-1">Order of selection matters</h4>
-<p>The number of arrangements, called <strong>dispositions</strong> can be calculated as the result of a <img src="https://latex.codecogs.com/png.latex?k">-stage process. At the first stage, we have <img src="https://latex.codecogs.com/png.latex?n"> possible choices, at all the other stages, the choices are still <img src="https://latex.codecogs.com/png.latex?n">. Applying the principle of counting, we have:</p>
-<p><span id="eq-eq3"><img src="https://latex.codecogs.com/png.latex?%0AD%5E*(n,k)=n%5Ek%0A%5Ctag%7B3%7D"></span></p>
-</section>
-<section id="order-of-selection-does-not-matter-1" class="level4">
-<h4 class="anchored" data-anchor-id="order-of-selection-does-not-matter-1">Order of selection does not matter</h4>
-<p>The number of arrangements, called <strong>partitions</strong> is given by:</p>
-<p><span id="eq-eq4"><img src="https://latex.codecogs.com/png.latex?%0AC%5E*(n,k)=%5Cfrac%7B(n+k-1)!%7D%7Bk!(n-1)!%7D=%7Bn+k-1%5Cchoose%20k%7D%0A%5Ctag%7B4%7D"></span></p>
-<p>To understand the formula of Equation&nbsp;4, think of writing <img src="https://latex.codecogs.com/png.latex?C%5E*(n,k)"> when, for instance, <img src="https://latex.codecogs.com/png.latex?n=6,k=4"> as, say, <img src="https://latex.codecogs.com/png.latex?a_1a_2a_3a_2"> or equivalently <img src="https://latex.codecogs.com/png.latex?a_1*a_2**a_3*a_4">, where any element <img src="https://latex.codecogs.com/png.latex?a_i,i=1,2,%5Ccdots,n"> is followed by a number of asterisks equal to the number of its occurrences in the sequence (the total number of asterisks in the equivalent representation needs to be equal to <img src="https://latex.codecogs.com/png.latex?k">). Another example: <img src="https://latex.codecogs.com/png.latex?a_2a_3a_3a_3"> and <img src="https://latex.codecogs.com/png.latex?a_1a_2*a_3***a_4">. It is observed that a one-to-one correspondence exists between the original arrangements and all possible permutations in the alignment of elements and asterisks in the equivalent representation. Since each alignment starts with <img src="https://latex.codecogs.com/png.latex?a_1">, we need to permute <img src="https://latex.codecogs.com/png.latex?n+k-1"> elements, among which <img src="https://latex.codecogs.com/png.latex?k"> (the asterisks) and <img src="https://latex.codecogs.com/png.latex?n-1"> (the elements <img src="https://latex.codecogs.com/png.latex?a_i,i=2,%5Ccdots,n">) are equal.</p>
-</section>
-</section>
-<section id="formulae" class="level2">
-<h2 class="anchored" data-anchor-id="formulae">Formulae</h2>
-<p>In conclusion, the four different arrangements of <img src="https://latex.codecogs.com/png.latex?k"> out of a collection of <img src="https://latex.codecogs.com/png.latex?n"> objects can be computed as follows:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0A&amp;%5Cquad%5Cquad%5Ctextbf%7Bwithout%20replacement%7D&amp;%5Cquad%5Cquad%5Ctextbf%7Bwith%20replacement%7D%5C%5C%0A%5C%5C%0A%5Ctextbf%7Border%20matters%7D&amp;%5Cquad%5Cquad%5Ctext%7Bpermutations%7D&amp;%5Cquad%5Cquad%5Ctext%7Bdispositions%7D%5C%5C%0A&amp;%5Cquad%5Cquad%20D(n,k)=%5Cdfrac%7Bn!%7D%7B(n-k)!%7D&amp;%5Cquad%5Cquad%20D%5E*(n,k)=n%5Ek%5C%5C%0A%5Ctextbf%7Border%20does%20not%20matter%7D&amp;%5Cquad%5Cquad%5Ctext%7Bcombinations%7D&amp;%5Cquad%5Cquad%5Ctext%7Bpartitions%7D%5C%5C%0A&amp;%5Cquad%5Cquad%20C(n,k)=%7Bn%5Cchoose%20k%7D&amp;%5Cquad%5Cquad%20C%5E*(n,k)=%7Bn+k-1%5Cchoose%20k%7D%0A%5Cend%7Bsplit%7D%0A"></p>
-</section>
-<section id="exercises" class="level2">
-<h2 class="anchored" data-anchor-id="exercises">Exercises</h2>
-<div id="exr-exr1" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 1</strong></span> Given a group of <img src="https://latex.codecogs.com/png.latex?n"> individuals, count how many subgroups can be formed having one particular person as the leader, and a number (from 0 to <img src="https://latex.codecogs.com/png.latex?n-1">) of additional members.</p>
-<p><em>Answer</em> The counting principle can be applied as follows. First, we have <img src="https://latex.codecogs.com/png.latex?n"> possible choices for the leader, and once the leader is chosen, <img src="https://latex.codecogs.com/png.latex?2%5E%7Bn-1%7D"> subsets can be considered, which may include from none to all the remaining individuals of the group. We have therefore:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AN=n2%5E%7Bn-1%7D%0A"></p>
-</div>
-<div id="exr-exr2" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 2</strong></span> How many words that consists of four distinct letters can be formed?</p>
-<p><em>Answer</em> The sample space is composed of <img src="https://latex.codecogs.com/png.latex?n=26"> elements. The sequences we are interested are formed by <img src="https://latex.codecogs.com/png.latex?k=4"> elements, repetitions are not allowed. Two words are considered distinct based on the order of appearance of the four letters into them. The number of words is then given by Equation&nbsp;1:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AN=D(n,k)=%5Cfrac%7Bn!%7D%7B(n-k)!%7D=%5Cfrac%7B26!%7D%7B22!%7D=26%5Ccdot25%5Ccdot24%5Ccdot23=358,800%0A"></p>
-</div>
-<div id="exr-exr3" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 3</strong></span> How many combinations exist using two letters out of four letters?</p>
-<p><em>Answer</em> The sample is composed of <img src="https://latex.codecogs.com/png.latex?n=4"> elements. The sequences we are interested are formed by <img src="https://latex.codecogs.com/png.latex?k=2"> distinct elements, repetitions are not allowed. Two sequences are considered the same if they differ just by the order of the elements in them, namely <img src="https://latex.codecogs.com/png.latex?a_1a_2"> is the same as <img src="https://latex.codecogs.com/png.latex?a_2a_1">. The number of combinations is then given by Equation&nbsp;2:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AN=C(n,k)=%7Bn%5Cchoose%20k%7D=%5Cfrac%7B4!%7D%7B2!2!%7D=6%0A"></p>
-</div>
-<div id="exr-exr4" class="theorem exercise">
-<p><span class="theorem-title"><strong>Exercise 4</strong></span> How many distinct combinations can be formed from the letters ATALANTA?</p>
-<p><em>Answer</em> There are <img src="https://latex.codecogs.com/png.latex?n=8"> letters which may be arranged in <img src="https://latex.codecogs.com/png.latex?n!"> ways, but this leads to double counting. If the <img src="https://latex.codecogs.com/png.latex?k_1=4"> “A”s are permuted, then nothing is changed, and similarly for the <img src="https://latex.codecogs.com/png.latex?k_2=2"> “T”s. The total number of distinct combinations is then given by the multinomial coefficient:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AN=%5Cfrac%7Bn!%7D%7Bk_1!k_2!%7D=%5Cfrac%7B8!%7D%7B4!2!%7D=7%5Ccdot6%5Ccdot5%5Ccdot4=840%0A"></p>
-</div>
-
-
-</section>
-
- ]]></description>
-  <category>probability</category>
-  <guid>https://amsabatini.netlify.app/posts/combinatorics/</guid>
-  <pubDate>Tue, 23 Apr 2024 22:00:00 GMT</pubDate>
-  <media:content url="https://amsabatini.netlify.app/posts/combinatorics/combinatorics.jpeg" medium="image" type="image/jpeg"/>
 </item>
 </channel>
 </rss>
