@@ -436,7 +436,7 @@ window.Quarto = {
 </section>
 <section id="implementation" class="level2">
 <h2 class="anchored" data-anchor-id="implementation">Implementation</h2>
-<p>The function <code>CA()</code> from the package FactoMineR is used. It performs the Singular Value Decomposition of the standardized residuals, see my previous post <a href="https://amsabatini.netlify.app/posts/correspondence_analysis_1/">here</a>. The first step of the analysis was done there in order to evaluate whether there was a significant dependency between the rows and columns using the chi-square statistic.</p>
+<p>The function <code>CA()</code> from the package FactoMineR is used. It performs the Singular Value Decomposition of the standardized residuals, see my previous post <a href="https://amsabatini.netlify.app/posts/correspondence_analysis_1">here</a>. The first step of the analysis was done there in order to evaluate whether there was a significant dependency between the rows and columns using the chi-square statistic.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>res.ca <span class="ot">&lt;-</span> <span class="fu">CA</span>(housetasks, <span class="at">graph =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(res.ca)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
