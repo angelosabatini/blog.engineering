@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Angelo Maria Sabatini">
+<meta name="dcterms.date" content="2026-06-03">
+<meta name="description" content="Starting from one of the simplest problems in elementary statistics — estimating a constant from noisy measurements — this post gradually reconstructs the core ideas behind Kalman filtering: recursive estimation, uncertainty propagation, process noise and its covariance Q, and the emergence of a steady-state gain in linear models. Along the way, the sample mean reappears as a special case of a Kalman filter with zero process noise, while the role of Q reveals the trade-off between promptness of response and noise sensitivity.">
+
+<title>Is the sample mean a Kalman filter in disguise? – Angelo Maria Sabatini</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-79108a0fc1995748cbd19a5b0e3e3e7c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-G7T7XXSXKG"></script>
+
+<script type="text/plain" cookie-consent="tracking">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-G7T7XXSXKG', { 'anonymize_ip': true});
+</script>
+
+<script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"implied",
+  "palette":"light",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":""
+  ,
+"language":"en"
+  });
+});
+</script> 
+  
+<link rel="alternate" type="application/rss+xml" title="Angelo Maria Sabatini – Blog RSS" href="../../blog.xml">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Angelo Maria Sabatini</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../blog.html"> 
+<span class="menu-text">Blog</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../archive.html"> 
+<span class="menu-text">Archive</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/angelosabatini"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../blog.xml"> <i class="bi bi-rss" role="img" aria-label="RSS feed">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#about-the-sample-mean" id="toc-about-the-sample-mean" class="nav-link active" data-scroll-target="#about-the-sample-mean">About the sample mean</a></li>
+  <li><a href="#the-kalman-filter-in-a-nutshell" id="toc-the-kalman-filter-in-a-nutshell" class="nav-link" data-scroll-target="#the-kalman-filter-in-a-nutshell">The Kalman filter in a nutshell</a>
+  <ul class="collapse">
+  <li><a href="#estimating-the-value-of-a-constant-measurand" id="toc-estimating-the-value-of-a-constant-measurand" class="nav-link" data-scroll-target="#estimating-the-value-of-a-constant-measurand">Estimating the value of a constant measurand</a></li>
+  </ul></li>
+  <li><a href="#is-a-physical-quantity-ever-really-constant" id="toc-is-a-physical-quantity-ever-really-constant" class="nav-link" data-scroll-target="#is-a-physical-quantity-ever-really-constant">Is a physical quantity ever really constant?</a></li>
+  <li><a href="#simulations" id="toc-simulations" class="nav-link" data-scroll-target="#simulations">Simulations</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Is the sample mean a Kalman filter in disguise?</h1>
+<p class="subtitle lead">Why recursive averaging is deeper than it looks</p>
+  <div class="quarto-categories">
+    <div class="quarto-category">stochastic modeling</div>
+    <div class="quarto-category">signal processing</div>
+    <div class="quarto-category">measurement</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Starting from one of the simplest problems in elementary statistics — estimating a constant from noisy measurements — this post gradually reconstructs the core ideas behind Kalman filtering: recursive estimation, uncertainty propagation, process noise and its covariance <span class="math inline">\(Q\)</span>, and the emergence of a steady-state gain in linear models. Along the way, the sample mean reappears as a special case of a Kalman filter with zero process noise, while the role of <span class="math inline">\(Q\)</span> reveals the trade-off between promptness of response and noise sensitivity.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Angelo Maria Sabatini </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">June 3, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<blockquote class="blockquote">
+<p>💾 <strong>Prefer reading offline?</strong> You can <a href="post_pdf.pdf">download a PDF version of this post</a> for printing or future reference.</p>
+</blockquote>
+<section id="about-the-sample-mean" class="level2">
+<h2 class="anchored" data-anchor-id="about-the-sample-mean">About the sample mean</h2>
+<p>The experimental activity considered in this post consists of acquiring a dataset of <span class="math inline">\(n\)</span> measurements of some quantity at discrete instants of time that, without loss of generality, can be assumed equally spaced by an interval <span class="math inline">\(\Delta T\)</span>.</p>
+<p>The measurand, whose physical nature is immaterial for the present discussion, is taken to be constant and equal to <span class="math inline">\(\mu\)</span>. Observations are affected by additive noise modeled as a random variable <span class="math inline">\(V\)</span> with zero mean and constant variance <span class="math inline">\(\sigma^2\)</span>.</p>
+<p>The resulting sequence can therefore be written as</p>
+<p><span class="math display">\[
+x_k=\mu+v_k,\qquad k=1,\dots,n,
+\]</span></p>
+<p>where the explicit time dependence has been omitted for the sake of clarity.</p>
+<p>If measurement errors are furthermore assumed to be independent, a basic probabilistic model consists of <span class="math inline">\(n\)</span> independent identically distributed (IID) random variables <span class="math inline">\(\{X_k\}_{k=1}^n\)</span>, whose realizations are <span class="math inline">\(\{x_k\}_{k=1}^n\)</span>. No assumption has yet been made about the probability distribution of <span class="math inline">\(V\)</span>.</p>
+<p>A central result of estimation theory is that the unknown quantity <span class="math inline">\(\mu\)</span> can be estimated using the <em>sample mean</em>, defined as</p>
+<p><span class="math display">\[
+\bar X_n=\frac{1}{n}\sum_{k=1}^n X_k.
+\]</span></p>
+<p>Since <span class="math inline">\(\bar X_n\)</span> is itself a random variable, the available dataset yields the numerical estimate</p>
+<p><span id="eq-3"><span class="math display">\[
+\bar x_n=\frac{1}{n}\sum_{k=1}^n x_k.
+\tag{1}\]</span></span></p>
+<p>The expectation of <span class="math inline">\(\bar X_n\)</span> is</p>
+<p><span class="math display">\[
+\mathbb{E}[\bar X_n]=\frac{1}{n}\sum_{k=1}^n\mathbb{E}[X_k]=\mu.
+\]</span></p>
+<p>This holds for every value of <span class="math inline">\(n\)</span>, meaning that the estimator is unbiased.</p>
+<p>The variance of <span class="math inline">\(\bar X_n\)</span> is</p>
+<p><span class="math display">\[
+\mathrm{Var}(\bar X_n)=\frac{1}{n^2}\sum_{k=1}^n\mathrm{Var}(X_k)=\frac{\sigma^2}{n},
+\]</span></p>
+<p>showing the decrease of uncertainty as the number of observations increases. This result ultimately relies on the fact that the variance of a sum is equal to the sum of the variances if the added terms are independent (or at least pairwise uncorrelated).</p>
+<p>Moreover, provided that <span class="math inline">\(\sigma\)</span> is finite, the central limit theorem implies that, for sufficiently large <span class="math inline">\(n\)</span>, the distribution of <span class="math inline">\(\bar X_n\)</span> becomes approximately Gaussian even when the original noise distribution is not.</p>
+<p>All these results are mathematically elegant, but they also hide an important practical issue: in real experimental settings, collecting a “large” number of genuinely independent observations may be much more difficult than it first appears.</p>
+<p>Under the additional assumption of Gaussian noise, the sample mean enjoys several important optimality properties. In particular, it coincides with:</p>
+<ul>
+<li>the least-squares (LS) solution,</li>
+<li>the maximum-likelihood (ML) estimator,</li>
+<li>the minimum mean-square error (MMSE) estimator.</li>
+</ul>
+<p>From an LS perspective, the problem of estimating a constant quantity can also be interpreted as a particularly simple regression model. Since data are acquired sequentially, the acquisition index (or time itself) may be formally regarded as a predictor variable, while the observations play the role of the response.</p>
+<p>In regression terms, computing the sample mean corresponds to fitting an intercept-only model, or equivalently a linear model with zero slope. Importantly, the LS solution does not require Gaussian assumptions. In fact, the regression coefficients are obtained simply by minimizing a quadratic cost function, which leads to a linear system of equations when its gradient is set to zero. This procedure produces a straight line that always passes through the centroid of the observed data. When the slope is explicitly constrained to zero, the LS solution coincides with the sample mean. Probabilistic assumptions on <span class="math inline">\(V\)</span> instead determine the statistical properties and optimality characteristics of the estimator. In particular, under Gaussian assumptions, the sample mean is also the MMSE estimator.</p>
+<p>Before leaving this section, one further observation is worth making: the sample mean admits a recursive formulation. If <span class="math inline">\(\bar x_{k-1}\)</span> denotes the estimate computed from the first <span class="math inline">\(k-1\)</span> observations, then the arrival of a new observation <span class="math inline">\(x_k\)</span> produces the updated estimate</p>
+<p><span id="eq-5"><span class="math display">\[
+\bar x_k=\left(1-\frac{1}{k}\right)\bar x_{k-1}+\frac{1}{k}x_k,\qquad k=1,\dots,n.
+\tag{2}\]</span></span></p>
+<p>This recursive expression is algebraically equivalent to the batch computation of the sample mean in <a href="#eq-3" class="quarto-xref">Equation&nbsp;1</a>, but it highlights a key idea: the estimate can be updated sequentially using the previous estimate and each newly acquired observation. As <span class="math inline">\(k\)</span> increases, the weight assigned to new data points progressively decreases.</p>
+</section>
+<section id="the-kalman-filter-in-a-nutshell" class="level2">
+<h2 class="anchored" data-anchor-id="the-kalman-filter-in-a-nutshell">The Kalman filter in a nutshell</h2>
+<p>When Rudolf E. Kálmán (1930–2016) introduced his recursive filtering framework in the early 1960s, the problem was not merely statistical. Modern dynamical systems — aircraft, missiles, spacecraft — were generating streams of noisy observations that needed to be processed sequentially and in real time. Batch estimation techniques already existed, but recomputing the entire estimate from scratch as new data arrived was computationally unattractive, especially on the constrained onboard computers of that era.</p>
+<p>Kalman’s key insight was that, under linear Gaussian assumptions, the estimate could instead be updated recursively: each newly acquired observation could be combined with the current state estimate and its uncertainty to produce an improved estimate, without storing or reprocessing the entire measurement history. Equally important, if not revolutionary, was the adoption of a state-space approach to estimation, in which both system dynamics and the measurement process could be modeled explicitly and treated within a unified probabilistic framework.</p>
+<p>Over the decades, Kalman’s original linear framework has been extended in many directions, including nonlinear filtering approaches such as the Extended Kalman Filter (EKF), the Unscented Kalman Filter (UKF), and particle filters. Despite their substantial algorithmic differences, all these approaches share the same Bayesian genealogical roots: sequentially updating probabilistic beliefs as new information becomes available.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Linear Kalman filter
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In its simplest linear form, the Kalman filter (KF) can be regarded as a recursive MMSE estimator for dynamical systems observed through noisy measurements.</p>
+<p>The KF alternates between two complementary operations: a prediction step based on the dynamical model, and a correction step driven by incoming measurements, as schematically illustrated in <a href="#fig-kf-diagram" class="quarto-xref">Figure&nbsp;1</a>.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-kf-diagram" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-kf-diagram-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="kf_block_diagram.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-kf-diagram-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Conceptual structure of the Kalman filter recursion. Model-based prediction and measurement-based correction interact continuously to update the state estimate and its uncertainty.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>For a linear discrete-time dynamical system observed through noisy measurements,</p>
+<p><span id="eq-6"><span class="math display">\[
+\begin{cases}
+\mathbf{x}_{k+1}&amp;=A_k\mathbf{x}_k+\mathbf{w}_k\\
+\mathbf{z}_k&amp;=H_k\mathbf{x}_k+\mathbf{v}_k
+\end{cases}
+\tag{3}\]</span></span></p>
+<p>where the state vector is <span class="math inline">\(\mathbf{x}_k\in\mathbb{R}^n\)</span>, the state transition matrix <span class="math inline">\(A_k\)</span> is square <span class="math inline">\(n\times n\)</span>, the measurement vector is <span class="math inline">\(\mathbf{z}_k \in \mathbb{R}^m\)</span>, and <span class="math inline">\(H_k\)</span> is an <span class="math inline">\(m\times n\)</span> measurement matrix.</p>
+<p>The <em>process noise</em> <span class="math inline">\(\mathbf{w}_k\)</span> and the <em>measurement noise</em> <span class="math inline">\(\mathbf{v}_k\)</span> are modeled as zero-mean Gaussian random vectors with covariance matrices</p>
+<p><span class="math display">\[
+\begin{cases}
+\mathbf{w}_k&amp;\sim\mathcal{N}(0,Q_k) \\
+\mathbf{v}_k&amp;\sim\mathcal{N}(0,R_k)
+\end{cases}
+\]</span></p>
+<p>The covariance matrices <span class="math inline">\(Q_k\)</span> and <span class="math inline">\(R_k\)</span> are associated with the assumption that the process and measurement noise components are temporally uncorrelated. Because the noise processes are Gaussian, uncorrelated components are also statistically independent. <span class="math inline">\(Q_k\)</span> and <span class="math inline">\(R_k\)</span> fully characterize the second-order statistical structure of the process and measurement noise.</p>
+<p>In Kalman filtering notation, the symbols <span class="math inline">\(\hat{\mathbf{x}}_k^-\)</span> and <span class="math inline">\(\hat{\mathbf{x}}_k^+\)</span> denote the predicted (a priori) and updated (a posteriori) state estimates at time step <span class="math inline">\(k\)</span>, respectively. The corresponding estimation errors are</p>
+<p><span class="math display">\[
+\begin{cases}
+\mathbf{e}_k^-&amp;=\mathbf{x}_k-\hat{\mathbf{x}}_k^-\\
+\mathbf{e}_k^+&amp;=\mathbf{x}_k-\hat{\mathbf{x}}_k^+,
+\end{cases}
+\]</span></p>
+<p>with covariance matrices</p>
+<p><span class="math display">\[
+\begin{cases}
+P_k^-&amp;=\mathbb{E}\left[\mathbf{e}_k^{-}(\mathbf{e}_k^{-})^\top\right] \\
+P_k^+&amp;=\mathbb{E}\left[\mathbf{e}_k^{+}(\mathbf{e}_k^{+})^\top\right].
+\end{cases}
+\]</span></p>
+</div>
+</div>
+<section id="estimating-the-value-of-a-constant-measurand" class="level3">
+<h3 class="anchored" data-anchor-id="estimating-the-value-of-a-constant-measurand">Estimating the value of a constant measurand</h3>
+<p>Let us now return to the experimental scenario introduced above. The measurand is assumed constant and observations are affected by additive Gaussian noise. In Kalman-filter notation, this corresponds to the scalar model</p>
+<p><span id="eq-7"><span class="math display">\[
+\begin{cases}
+x_{k+1}&amp;=x_k\\
+z_k&amp;=x_k+v_k,
+\end{cases}
+\tag{4}\]</span></span></p>
+<p>where</p>
+<p><span class="math display">\[
+v_k\sim\mathcal{N}(0,R),\qquad R=\sigma^2.
+\]</span></p>
+<p>We also have:</p>
+<p><span class="math display">\[
+A=1,\qquad H=1,\qquad Q=0.
+\]</span></p>
+<p>The condition <span class="math inline">\(Q=0\)</span> is particularly important. The filter is explicitly told that the state is constant: measurements are noisy, but the measurand is assumed not to evolve in time. There is therefore uncertainty in the observations, but no uncertainty in the state dynamics: the filter assumes that the true value remains constant and that any fluctuations arise solely from measurement noise.</p>
+<p>For the scalar model considered here, the KF equations simplify considerably. Since <span class="math inline">\(A=1\)</span> and <span class="math inline">\(Q=0\)</span>, the prediction step leaves both the estimate and its uncertainty unchanged:</p>
+<p><span class="math display">\[
+\hat x_k^-=\hat x_{k-1}^+,\qquad P_k^-=P_{k-1}^+.
+\]</span></p>
+<p>The Kalman gain is therefore</p>
+<p><span class="math display">\[
+K_k=\frac{P_k^-}{P_k^-+R}.
+\]</span></p>
+<p>Suppose the filter is initialized with no prior knowledge about the value of the state. In practice, this means that the initial estimate is regarded as extremely uncertain. This corresponds to assigning a very large initial uncertainty to the estimate, formally <span class="math inline">\(P_1^- \to \infty\)</span>. As a consequence,</p>
+<p><span class="math display">\[
+K_1=\frac{P_1^-}{P_1^-+R}\to 1,
+\]</span></p>
+<p>so the first measurement is trusted completely:</p>
+<p><span class="math display">\[
+\hat x_1^+=z_1.
+\]</span></p>
+<p>The updated covariance is</p>
+<p><span class="math display">\[
+P_1^+=\left(1-\frac{P_1^-}{P_1^-+R}\right)P_1^-=\frac{RP_1^-}{P_1^-+R}\to R.
+\]</span></p>
+<p>Because <span class="math inline">\(Q=0\)</span>, the prediction step does not reinject uncertainty into the model:</p>
+<p><span class="math display">\[
+P_2^-=P_1^+=R.
+\]</span></p>
+<p>At the second iteration,</p>
+<p><span class="math display">\[
+K_2=\frac{R}{R+R}=\frac12.
+\]</span></p>
+<p>The updated estimate is therefore</p>
+<p><span class="math display">\[
+\hat x_2^+=\hat x_1^+ +\frac12(z_2-\hat x_1^+)=\frac{z_1+z_2}{2},
+\]</span></p>
+<p>and the corresponding covariance becomes</p>
+<p><span class="math display">\[
+P_2^+=\frac{R}{2}.
+\]</span></p>
+<p>Continuing the recursion, one obtains</p>
+<p><span class="math display">\[
+\hat x_k^+=\left(1-\frac{1}{k}\right)\hat x_{k-1}^+ +\frac{1}{k}z_k,
+\]</span></p>
+<p>which is exactly the formula for the sample mean introduced in <a href="#eq-5" class="quarto-xref">Equation&nbsp;2</a>. In this special case, the Kalman gain becomes</p>
+<p><span class="math display">\[
+K_k=\frac{1}{k}.
+\]</span></p>
+<p>The KF therefore progressively stops reacting to new measurements: each additional observation receives less weight as confidence in the estimated value gradually increases.</p>
+</section>
+</section>
+<section id="is-a-physical-quantity-ever-really-constant" class="level2">
+<h2 class="anchored" data-anchor-id="is-a-physical-quantity-ever-really-constant">Is a physical quantity ever really constant?</h2>
+<p>In the previous section, the KF state was assumed perfectly constant, corresponding to the choice <span class="math inline">\(Q=0\)</span>. Let us now relax this assumption and consider the more realistic situation in which the state may slowly evolve over time.</p>
+<p>The simplest stochastic model for a slowly varying quantity consists of describing the scalar state as a random walk driven by continuous-time white noise with strength <span class="math inline">\(q\)</span>:</p>
+<p><span class="math display">\[
+\dot x(t) = w(t),
+\]</span></p>
+<p>where</p>
+<p><span class="math display">\[
+\mathbb{E}[w(t)w(t+\tau)] = q\,\delta(\tau).
+\]</span></p>
+<p>If observations are acquired every <span class="math inline">\(\Delta T\)</span> seconds, the corresponding discrete-time model becomes</p>
+<p><span class="math display">\[
+x_{k+1}=x_k+\Delta w_k,
+\]</span></p>
+<p>where <span class="math inline">\(\Delta w_k\)</span> represents the stochastic increment accumulated over the sampling interval <span class="math inline">\(\Delta T\)</span>. The variance of this discrete-time process noise is therefore</p>
+<p><span class="math display">\[
+Q=q\,\Delta T.
+\]</span></p>
+<p>This simple relation already contains an important physical idea: uncertainty accumulates over time. The longer the interval between consecutive observations, the larger the uncertainty injected during the prediction step.</p>
+<p>For the scalar random-walk model,</p>
+<p><span class="math display">\[
+\begin{cases}
+x_{k+1}&amp;=x_k+\Delta w_k \\
+z_k&amp;=x_k+v_k,
+\end{cases}
+\]</span></p>
+<p>the KF prediction step is particularly simple. Since <span class="math inline">\(A=1\)</span> and <span class="math inline">\(H=1\)</span>,</p>
+<p><span class="math display">\[
+P_k^-=P_{k-1}^++Q.
+\]</span></p>
+<p>The Kalman gain is therefore</p>
+<p><span class="math display">\[
+K_k=\frac{P_k^-}{P_k^-+R}=\frac{P_{k-1}^++Q}{P_{k-1}^++Q+R}.
+\]</span></p>
+<p>After the measurement update,</p>
+<p><span class="math display">\[
+P_k^+=(1-K_k)P_k^-.
+\]</span></p>
+<p>Substituting the expression of <span class="math inline">\(K_k\)</span>,</p>
+<p><span class="math display">\[
+P_k^+=\left(1-\frac{P_{k-1}^++Q}{P_{k-1}^++Q+R}\right)(P_{k-1}^++Q),
+\]</span></p>
+<p>and therefore</p>
+<p><span class="math display">\[
+P_k^+=\frac{(P_{k-1}^++Q)R}{P_{k-1}^++Q+R}.
+\]</span></p>
+<p>This recursion is the scalar Riccati equation for the random-walk model.</p>
+<p>The most interesting behavior emerges when the recursion reaches steady state:</p>
+<p><span class="math display">\[
+P_k^+=P_{k-1}^+=P_\infty,
+\]</span></p>
+<p>then</p>
+<p><span class="math display">\[
+P_\infty=\frac{(P_\infty+Q)R}{P_\infty+Q+R}.
+\]</span></p>
+<p>Unlike the previous case with <span class="math inline">\(Q=0\)</span>, the covariance no longer collapses toward zero because uncertainty is continuously reinjected into the dynamics.</p>
+<p>Solving this quadratic equation gives</p>
+<p><span class="math display">\[
+P_\infty=\frac{-Q+\sqrt{Q^2+4QR}}{2}.
+\]</span></p>
+<p>As soon as <span class="math inline">\(Q&gt;0\)</span>, the steady-state covariance remains strictly positive. Consequently, the steady-state Kalman gain is also strictly positive:</p>
+<p><span class="math display">\[
+K_\infty=\frac{P_\infty+Q}{P_\infty+Q+R}.
+\]</span></p>
+<p>The KF therefore never stops listening to new measurements.</p>
+</section>
+<section id="simulations" class="level2">
+<h2 class="anchored" data-anchor-id="simulations">Simulations</h2>
+<p>The following simulation compares two KFs observing the same random-walk process. The first filter uses the correct stochastic model (<span class="math inline">\(Q=q\Delta T\)</span>), so that uncertainty is continuously reinjected during prediction. The second incorrectly assumes a perfectly constant state (<span class="math inline">\(Q=0\)</span>), producing the <em>sleepy</em> behavior discussed below.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>A filter that never forgets — and one that does</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode matlab code-with-copy"><code class="sourceCode matlab"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">% ********************************</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">% Random-walk process simulation</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">% ********************************</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="va">dt</span>    <span class="op">=</span> <span class="fl">1</span><span class="op">;</span>          <span class="co">% sampling interval, s</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="va">T</span>     <span class="op">=</span> <span class="fl">50</span><span class="op">;</span>         <span class="co">% observation time, s</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="va">q</span>     <span class="op">=</span> <span class="fl">1</span><span class="op">;</span>          <span class="co">% continuous-time noise strength, [a.u.]^2/s</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="va">std_q</span> <span class="op">=</span> <span class="va">sqrt</span>(<span class="va">q</span><span class="op">*</span><span class="va">dt</span>)<span class="op">;</span> <span class="co">% discrete-time process noise std, [a.u.]</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="va">std_v</span> <span class="op">=</span> <span class="fl">0.1</span><span class="op">;</span>        <span class="co">% measurement noise standard deviation, [a.u.]</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co">% ***************</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">% Path generation</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co">% ***************</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="va">rng</span>(<span class="fl">1234</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="va">N</span>  <span class="op">=</span> <span class="va">T</span><span class="op">/</span><span class="va">dt</span> <span class="op">+</span> <span class="fl">1</span><span class="op">;</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="va">xi</span> <span class="op">=</span> <span class="va">zeros</span>(<span class="va">N</span><span class="op">,</span><span class="fl">1</span>)<span class="op">;</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="kw">for</span> <span class="va">i</span> <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="va">N</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="va">xi</span>(<span class="va">i</span>) <span class="op">=</span> <span class="va">xi</span>(<span class="va">i</span><span class="op">-</span><span class="fl">1</span>) <span class="op">+</span> <span class="va">sqrt</span>(<span class="va">q</span><span class="op">*</span><span class="va">dt</span>)<span class="op">*</span><span class="va">randn</span><span class="op">;</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="va">x</span> <span class="op">=</span> <span class="va">xi</span><span class="op">;</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="va">z_meas</span> <span class="op">=</span> <span class="va">x</span> <span class="op">+</span> <span class="va">randn</span>(<span class="va">N</span><span class="op">,</span><span class="fl">1</span>)<span class="op">*</span><span class="va">std_v</span><span class="op">;</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="co">% ******</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="co">% Models</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co">% ******</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="va">F</span> <span class="op">=</span> <span class="fl">1</span><span class="op">;</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="va">H</span> <span class="op">=</span> <span class="fl">1</span><span class="op">;</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="va">R</span> <span class="op">=</span> <span class="va">std_v</span><span class="op">^</span><span class="fl">2</span><span class="op">;</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="va">Q_true</span> <span class="op">=</span> <span class="va">std_q</span><span class="op">^</span><span class="fl">2</span><span class="op">;</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="va">Q_sleepy</span> <span class="op">=</span> <span class="fl">0</span><span class="op">;</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="va">P_0</span> <span class="op">=</span> <span class="va">Q_true</span><span class="op">;</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="co">% **************</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="co">% Initialization</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="co">% **************</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="va">x_true</span> <span class="op">=</span> <span class="va">zeros</span>(<span class="va">N</span><span class="op">,</span> <span class="fl">1</span>)<span class="op">;</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="va">P_true</span> <span class="op">=</span> <span class="va">zeros</span>(<span class="va">N</span><span class="op">,</span> <span class="fl">1</span>)<span class="op">;</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a><span class="va">K_true</span> <span class="op">=</span> <span class="va">zeros</span>(<span class="va">N</span><span class="op">,</span> <span class="fl">1</span>)<span class="op">;</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a><span class="va">x_sleepy</span> <span class="op">=</span> <span class="va">zeros</span>(<span class="va">N</span><span class="op">,</span> <span class="fl">1</span>)<span class="op">;</span></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a><span class="va">P_sleepy</span> <span class="op">=</span> <span class="va">zeros</span>(<span class="va">N</span><span class="op">,</span> <span class="fl">1</span>)<span class="op">;</span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a><span class="va">K_sleepy</span> <span class="op">=</span> <span class="va">zeros</span>(<span class="va">N</span><span class="op">,</span> <span class="fl">1</span>)<span class="op">;</span></span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a><span class="va">x_pred_true</span> <span class="op">=</span> <span class="fl">0</span><span class="op">;</span></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a><span class="va">P_pred_true</span> <span class="op">=</span> <span class="va">P_0</span><span class="op">;</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a><span class="va">x_pred_sleepy</span> <span class="op">=</span> <span class="va">randn</span><span class="op">;</span></span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a><span class="va">P_pred_sleepy</span> <span class="op">=</span> <span class="va">P_0</span><span class="op">;</span></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a><span class="kw">for</span> <span class="va">i</span> <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="va">N</span></span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>    <span class="co">% *******************</span></span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a>    <span class="co">% compute Kalman gain</span></span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>    <span class="co">% *******************</span></span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a>    <span class="va">K_true</span>(<span class="va">i</span>)   <span class="op">=</span> <span class="va">P_pred_true</span><span class="op">*</span><span class="va">H</span><span class="op">/</span>(<span class="va">H</span><span class="op">*</span><span class="va">P_pred_true</span><span class="op">*</span><span class="va">H</span> <span class="op">+</span> <span class="va">R</span>)<span class="op">;</span></span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>    <span class="va">K_sleepy</span>(<span class="va">i</span>) <span class="op">=</span> <span class="va">P_pred_sleepy</span><span class="op">*</span><span class="va">H</span><span class="op">/</span>(<span class="va">H</span><span class="op">*</span><span class="va">P_pred_sleepy</span><span class="op">*</span><span class="va">H</span> <span class="op">+</span> <span class="va">R</span>)<span class="op">;</span></span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>    <span class="co">% ******</span></span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>    <span class="co">% update</span></span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>    <span class="co">% ******</span></span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>    <span class="va">x_true</span>(<span class="va">i</span>) <span class="op">=</span> <span class="va">x_pred_true</span> <span class="op">+</span> <span class="op">...</span></span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>                <span class="va">K_true</span>(<span class="va">i</span>)<span class="op">*</span>(<span class="va">z_meas</span>(<span class="va">i</span>) <span class="op">-</span> <span class="va">H</span><span class="op">*</span><span class="va">x_pred_true</span>)<span class="op">;</span></span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>    <span class="va">P_true</span>(<span class="va">i</span>) <span class="op">=</span> (<span class="fl">1</span> <span class="op">-</span> <span class="va">K_true</span>(<span class="va">i</span>)<span class="op">*</span><span class="va">H</span>)<span class="op">*</span><span class="va">P_pred_true</span><span class="op">;</span></span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a>    <span class="va">x_sleepy</span>(<span class="va">i</span>) <span class="op">=</span> <span class="va">x_pred_sleepy</span> <span class="op">+</span> <span class="op">...</span></span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a>                <span class="va">K_sleepy</span>(<span class="va">i</span>)<span class="op">*</span>(<span class="va">z_meas</span>(<span class="va">i</span>) <span class="op">-</span> <span class="va">H</span><span class="op">*</span><span class="va">x_pred_sleepy</span>)<span class="op">;</span></span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>    <span class="va">P_sleepy</span>(<span class="va">i</span>) <span class="op">=</span> (<span class="fl">1</span> <span class="op">-</span> <span class="va">K_sleepy</span>(<span class="va">i</span>)<span class="op">*</span><span class="va">H</span>)<span class="op">*</span><span class="va">P_pred_sleepy</span><span class="op">;</span></span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a>    <span class="co">% *************</span></span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a>    <span class="co">% project-ahead</span></span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a>    <span class="co">% *************</span></span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a>    <span class="va">x_pred_true</span> <span class="op">=</span> <span class="va">F</span><span class="op">*</span><span class="va">x_true</span>(<span class="va">i</span>)<span class="op">;</span></span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a>    <span class="va">P_pred_true</span> <span class="op">=</span> <span class="va">F</span><span class="op">*</span><span class="va">P_true</span>(<span class="va">i</span>)<span class="op">*</span><span class="va">F</span> <span class="op">+</span> <span class="va">Q_true</span><span class="op">;</span></span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a>    <span class="va">x_pred_sleepy</span> <span class="op">=</span> <span class="va">F</span><span class="op">*</span><span class="va">x_sleepy</span>(<span class="va">i</span>)<span class="op">;</span></span>
+<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a>    <span class="va">P_pred_sleepy</span> <span class="op">=</span> <span class="va">F</span><span class="op">*</span><span class="va">P_sleepy</span>(<span class="va">i</span>)<span class="op">*</span><span class="va">F</span> <span class="op">+</span> <span class="va">Q_sleepy</span><span class="op">;</span></span>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a><span class="co">% ************************</span></span>
+<span id="cb1-97"><a href="#cb1-97" aria-hidden="true" tabindex="-1"></a><span class="co">% State estimate evolution</span></span>
+<span id="cb1-98"><a href="#cb1-98" aria-hidden="true" tabindex="-1"></a><span class="co">% ************************</span></span>
+<span id="cb1-99"><a href="#cb1-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-100"><a href="#cb1-100" aria-hidden="true" tabindex="-1"></a><span class="va">plot</span>((<span class="fl">0</span><span class="op">:</span><span class="va">N</span><span class="op">-</span><span class="fl">1</span>)<span class="op">,</span> <span class="va">x</span><span class="op">,</span> <span class="ss">'k'</span><span class="op">,</span> <span class="ss">'LineWidth'</span><span class="op">,</span> <span class="fl">2</span>)</span>
+<span id="cb1-101"><a href="#cb1-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-102"><a href="#cb1-102" aria-hidden="true" tabindex="-1"></a><span class="va">hold</span> <span class="va">on</span></span>
+<span id="cb1-103"><a href="#cb1-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-104"><a href="#cb1-104" aria-hidden="true" tabindex="-1"></a><span class="va">plot</span>((<span class="fl">0</span><span class="op">:</span><span class="va">N</span><span class="op">-</span><span class="fl">1</span>)<span class="op">,</span> <span class="va">x_true</span><span class="op">,</span> <span class="ss">'b.'</span><span class="op">,</span> <span class="op">...</span></span>
+<span id="cb1-105"><a href="#cb1-105" aria-hidden="true" tabindex="-1"></a>     (<span class="fl">0</span><span class="op">:</span><span class="va">N</span><span class="op">-</span><span class="fl">1</span>)<span class="op">,</span> <span class="va">x_sleepy</span><span class="op">,</span> <span class="ss">'r.'</span><span class="op">,</span> <span class="op">...</span></span>
+<span id="cb1-106"><a href="#cb1-106" aria-hidden="true" tabindex="-1"></a>     <span class="ss">'LineWidth'</span><span class="op">,</span> <span class="fl">1</span><span class="op">,</span> <span class="op">...</span></span>
+<span id="cb1-107"><a href="#cb1-107" aria-hidden="true" tabindex="-1"></a>     <span class="ss">'MarkerSize'</span><span class="op">,</span> <span class="fl">18</span>)</span>
+<span id="cb1-108"><a href="#cb1-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-109"><a href="#cb1-109" aria-hidden="true" tabindex="-1"></a><span class="va">legend</span>(<span class="st">"process"</span><span class="op">,</span> <span class="op">...</span></span>
+<span id="cb1-110"><a href="#cb1-110" aria-hidden="true" tabindex="-1"></a>       <span class="st">"matched KF"</span><span class="op">,</span> <span class="op">...</span></span>
+<span id="cb1-111"><a href="#cb1-111" aria-hidden="true" tabindex="-1"></a>       <span class="st">"sleepy KF"</span><span class="op">,</span> <span class="op">...</span></span>
+<span id="cb1-112"><a href="#cb1-112" aria-hidden="true" tabindex="-1"></a>       <span class="st">"Location"</span><span class="op">,</span> <span class="st">"northwest"</span>)</span>
+<span id="cb1-113"><a href="#cb1-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-114"><a href="#cb1-114" aria-hidden="true" tabindex="-1"></a><span class="va">xlabel</span>(<span class="ss">'Steps'</span>)</span>
+<span id="cb1-115"><a href="#cb1-115" aria-hidden="true" tabindex="-1"></a><span class="va">ylabel</span>(<span class="ss">'State [a.u.]'</span>)</span>
+<span id="cb1-116"><a href="#cb1-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-117"><a href="#cb1-117" aria-hidden="true" tabindex="-1"></a><span class="va">set</span>(<span class="va">gca</span><span class="op">,</span> <span class="ss">'FontSize'</span><span class="op">,</span> <span class="fl">14</span><span class="op">,</span> <span class="ss">'LineWidth'</span><span class="op">,</span> <span class="fl">2</span>)</span>
+<span id="cb1-118"><a href="#cb1-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-119"><a href="#cb1-119" aria-hidden="true" tabindex="-1"></a><span class="co">% ***********************</span></span>
+<span id="cb1-120"><a href="#cb1-120" aria-hidden="true" tabindex="-1"></a><span class="co">% Kalman gain evolution</span></span>
+<span id="cb1-121"><a href="#cb1-121" aria-hidden="true" tabindex="-1"></a><span class="co">% ***********************</span></span>
+<span id="cb1-122"><a href="#cb1-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-123"><a href="#cb1-123" aria-hidden="true" tabindex="-1"></a><span class="va">figure</span></span>
+<span id="cb1-124"><a href="#cb1-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-125"><a href="#cb1-125" aria-hidden="true" tabindex="-1"></a><span class="va">plot</span>((<span class="fl">0</span><span class="op">:</span><span class="va">N</span><span class="op">-</span><span class="fl">1</span>)<span class="op">,</span> <span class="va">K_true</span><span class="op">,</span> <span class="ss">'b'</span><span class="op">,</span> <span class="op">...</span></span>
+<span id="cb1-126"><a href="#cb1-126" aria-hidden="true" tabindex="-1"></a>     (<span class="fl">0</span><span class="op">:</span><span class="va">N</span><span class="op">-</span><span class="fl">1</span>)<span class="op">,</span> <span class="va">K_sleepy</span><span class="op">,</span> <span class="ss">'r'</span><span class="op">,</span> <span class="op">...</span></span>
+<span id="cb1-127"><a href="#cb1-127" aria-hidden="true" tabindex="-1"></a>     <span class="ss">'LineWidth'</span><span class="op">,</span> <span class="fl">2</span>)</span>
+<span id="cb1-128"><a href="#cb1-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-129"><a href="#cb1-129" aria-hidden="true" tabindex="-1"></a><span class="va">legend</span>(<span class="st">"matched KF"</span><span class="op">,</span> <span class="op">...</span></span>
+<span id="cb1-130"><a href="#cb1-130" aria-hidden="true" tabindex="-1"></a>       <span class="st">"sleepy KF"</span>)</span>
+<span id="cb1-131"><a href="#cb1-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-132"><a href="#cb1-132" aria-hidden="true" tabindex="-1"></a><span class="va">ylim</span>([<span class="fl">0</span> <span class="fl">1.25</span>])</span>
+<span id="cb1-133"><a href="#cb1-133" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-134"><a href="#cb1-134" aria-hidden="true" tabindex="-1"></a><span class="va">xlabel</span>(<span class="ss">'Steps'</span>)</span>
+<span id="cb1-135"><a href="#cb1-135" aria-hidden="true" tabindex="-1"></a><span class="va">ylabel</span>(<span class="ss">'Kalman gain'</span>)</span>
+<span id="cb1-136"><a href="#cb1-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-137"><a href="#cb1-137" aria-hidden="true" tabindex="-1"></a><span class="va">set</span>(<span class="va">gca</span><span class="op">,</span> <span class="ss">'FontSize'</span><span class="op">,</span> <span class="fl">14</span><span class="op">,</span> <span class="ss">'LineWidth'</span><span class="op">,</span> <span class="fl">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p><a href="#fig-kf-path" class="quarto-xref">Figure&nbsp;2</a> compares the state estimates produced by the two KFs. While the KF using the correct process model continues to track the evolving random walk, the KF with <span class="math inline">\(Q=0\)</span> progressively loses responsiveness.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-kf-path" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-kf-path-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="traj.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-kf-path-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: State estimates produced by the two filters.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The consequences become evident in <a href="#fig-kf-gain" class="quarto-xref">Figure&nbsp;3</a>. When <span class="math inline">\(Q=0\)</span>, the Kalman gain progressively collapses toward zero and the KF gradually stops incorporating new information. By contrast, when <span class="math inline">\(Q=q\Delta T\)</span>, the gain converges to a finite steady-state value, allowing the KF to remain responsive to the evolving dynamics. In other words, the KF never becomes completely certain about the system.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-kf-gain" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-kf-gain-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="gain.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-kf-gain-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Evolution of the Kalman gain.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>To better visualize the effect of the process noise variance <span class="math inline">\(Q\)</span>, a second simulation is performed using three different process models obtained by perturbing a nominal value of Q by one order of magnitude in both directions. More precisely, the three KFs use</p>
+<p><span class="math display">\[Q=[0.1,\ 1,\ 10]\times q\Delta T,\]</span></p>
+<p>with <span class="math inline">\(q=0.1\)</span>, while the measurement noise standard deviation is kept fixed at <span class="math inline">\(\sigma=0.3\)</span>.</p>
+<p>The first KF intentionally underestimates the process uncertainty and behaves as a <em>sleepy</em> filter, characterized by long memory and slow response to incoming measurements. The second KF uses the correct stochastic model and represents a balanced compromise between prediction and measurement update. The third KF largely overestimates the process uncertainty and behaves as an <em>awake</em> filter, rapidly incorporating incoming measurements into the state estimate.</p>
+<p><a href="#fig-kf-path-3q" class="quarto-xref">Figure&nbsp;4</a> compares the resulting state estimates.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-kf-path-3q" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-kf-path-3q-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="traj_3q.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:75.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-kf-path-3q-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: State estimates obtained using different values of the process noise variance.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The effect of the different values of <span class="math inline">\(Q\)</span> becomes even more evident in the corresponding Kalman gains shown in <a href="#fig-kf-gain-3q" class="quarto-xref">Figure&nbsp;5</a>.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div id="fig-kf-gain-3q" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-kf-gain-3q-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="gain_3q.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:75.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-kf-gain-3q-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Kalman gain evolution for the three filters.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The process noise variance <span class="math inline">\(Q\)</span> effectively acts as a tuning knob. Small values of <span class="math inline">\(Q\)</span> produce KFs with slow response, while large values of <span class="math inline">\(Q\)</span> produce highly responsive filters that rapidly follow incoming measurements — sometimes too closely.</p>
+<p>This behavior is simply another manifestation of the classical trade-off between promptness of response and noise sensitivity encountered in virtually every filtering problem. In practice, mildly overestimating <span class="math inline">\(Q\)</span> is often less dangerous than underestimating it: an awake filter may become noisy, but a sleepy filter may eventually stop reacting altogether.</p>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>Throughout this post, we explored how different assumptions about the measurand lead to different KF behaviors: from the recursive averaging of a perfectly static constant (<span class="math inline">\(Q=0\)</span>) to a drifting random walk with independent increments (<span class="math inline">\(Q&gt;0\)</span>). We saw how the process noise covariance <span class="math inline">\(Q\)</span> acts as a tuning knob balancing promptness of response and noise sensitivity.</p>
+<p>Many physical quantities, however, possess a more structured temporal behavior than a simple random walk. In the next post, we will move one step further by modeling the measurand as a first-order Gauss–Markov process: we will see how the KF manages systems with intrinsic temporal memory.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/amsabatini\.netlify\.app");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<script src="https://utteranc.es/client.js" repo="angelosabatini/blog.comments" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+
+<div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
