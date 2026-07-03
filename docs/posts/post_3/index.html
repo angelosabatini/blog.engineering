@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Angelo Maria Sabatini">
+<meta name="dcterms.date" content="2026-07-03">
+<meta name="description" content="Inspired by Jules Verne’s Around the World in Eighty Days, this post uses a fictional hot-air balloon equipped with a noisy barometric altimeter to explore a deceptively simple question: does collecting more measurements always improve an estimate? A Monte Carlo experiment reveals that when disturbances are correlated in time, oversampling offers only limited benefits, while explicitly modeling the disturbance can dramatically improve estimation accuracy.">
+
+<title>When more data is not more information – Angelo Maria Sabatini</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-79108a0fc1995748cbd19a5b0e3e3e7c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-G7T7XXSXKG"></script>
+
+<script type="text/plain" cookie-consent="tracking">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-G7T7XXSXKG', { 'anonymize_ip': true});
+</script>
+
+<script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"implied",
+  "palette":"light",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":""
+  ,
+"language":"en"
+  });
+});
+</script> 
+  
+<script src="../../site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="../../site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+<link rel="alternate" type="application/rss+xml" title="Angelo Maria Sabatini – Blog RSS" href="../../blog.xml">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Angelo Maria Sabatini</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../blog.html"> 
+<span class="menu-text">Blog</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../archive.html"> 
+<span class="menu-text">Archive</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/angelosabatini"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../blog.xml"> <i class="bi bi-rss" role="img" aria-label="RSS feed">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#phileas-foggs-altimeter" id="toc-phileas-foggs-altimeter" class="nav-link active" data-scroll-target="#phileas-foggs-altimeter">Phileas Fogg’s altimeter</a></li>
+  <li><a href="#state-space-models" id="toc-state-space-models" class="nav-link" data-scroll-target="#state-space-models">State-space models</a></li>
+  <li><a href="#adding-vertical-gusts" id="toc-adding-vertical-gusts" class="nav-link" data-scroll-target="#adding-vertical-gusts">Adding vertical gusts</a></li>
+  <li><a href="#simulation-study" id="toc-simulation-study" class="nav-link" data-scroll-target="#simulation-study">Simulation study</a></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a></li>
+  <li><a href="#reproducibility" id="toc-reproducibility" class="nav-link" data-scroll-target="#reproducibility">Reproducibility</a></li>
+  <li><a href="#concluding-remarks" id="toc-concluding-remarks" class="nav-link" data-scroll-target="#concluding-remarks">Concluding remarks</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">When more data is not more information</h1>
+<p class="subtitle lead">Oversampling, sensor memory, and a hot-air balloon estimation problem</p>
+  <div class="quarto-categories">
+    <div class="quarto-category">stochastic modeling</div>
+    <div class="quarto-category">signal processing</div>
+    <div class="quarto-category">measurement</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Inspired by Jules Verne’s <em>Around the World in Eighty Days</em>, this post uses a fictional hot-air balloon equipped with a noisy barometric altimeter to explore a deceptively simple question: does collecting more measurements always improve an estimate? A Monte Carlo experiment reveals that when disturbances are correlated in time, oversampling offers only limited benefits, while explicitly modeling the disturbance can dramatically improve estimation accuracy.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Angelo Maria Sabatini </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">July 3, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<blockquote class="blockquote">
+<p>💾 <strong>Prefer reading offline?</strong> You can <a href="post_pdf.pdf">download a PDF version of this post</a> for printing or future reference.</p>
+</blockquote>
+<section id="phileas-foggs-altimeter" class="level2">
+<h2 class="anchored" data-anchor-id="phileas-foggs-altimeter">Phileas Fogg’s altimeter</h2>
+<p>In <em>Around the World in Eighty Days</em>, Jules Verne imagines his hero, Phileas Fogg, betting 20,000 pounds that he can travel around the world in just eighty days. Fogg never actually travels by hot-air balloon, nor does he carry a barometric altimeter. Nevertheless, the iconic imagery of his journey provides a natural backdrop for the thought experiment explored in this post.</p>
+<p>Imagine a hot-air balloon drifting slowly around the globe. In the novel, Fogg rejects the idea of travelling by balloon as too risky for his wager. Fortunately, our thought experiment is much simpler: the balloon follows a nearly horizontal path, remaining close to its intended cruising altitude. From Fogg’s perspective, estimating altitude should be trivial. A barometric altimeter continuously reports altitude, and modern electronics allow us to acquire measurements as fast as we like.</p>
+<p>Yet a subtle difficulty appears.</p>
+<p>The atmosphere is never perfectly still. Slow pressure fluctuations, thermal gradients, and large-scale weather dynamics continuously perturb barometric readings. These variations evolve over time scales that are much longer than the sensor’s sampling interval. As a consequence, successive measurements are highly correlated.</p>
+<p>A natural reaction would be to sample faster and average more aggressively. If noise is the problem, collecting more data should improve the estimate. But what if the fluctuations themselves possess memory? What if the sensor is repeatedly measuring the same underlying atmospheric disturbance?</p>
+</section>
+<section id="state-space-models" class="level2">
+<h2 class="anchored" data-anchor-id="state-space-models">State-space models</h2>
+<p>Let <span class="math inline">\(h_k\)</span> denote the true altitude of the balloon at the discrete time <span class="math inline">\(k\Delta t\)</span>, where <span class="math inline">\(\Delta t\)</span> is the constant sampling interval at which measurements are received. In this first version of the experiment, the balloon is assumed to travel almost horizontally, remaining close to its intended cruising altitude. Small unmodeled vertical perturbations are represented by the random-walk model</p>
+<p><span class="math display">\[
+h_{k+1}=h_k+w^h_k,
+\]</span></p>
+<p>where <span class="math inline">\(w^h_k\)</span> denotes a small process disturbance.</p>
+<p>The barometric altimeter measurements are affected by two different error sources. The first is ordinary white measurement noise. The second is a slowly varying barometric disturbance, denoted by <span class="math inline">\(b_k\)</span>, which represents atmospheric fluctuations that bias the altitude readings. The measurement model is therefore</p>
+<p><span class="math display">\[
+z_k=h_k+b_k+v_k,
+\]</span></p>
+<p>where <span class="math inline">\(v_k\)</span> is white measurement noise.</p>
+<p>The correlated disturbance is modeled as a first-order Gauss–Markov process, or equivalently as an AR(1) sequence,</p>
+<p><span id="eq-1"><span class="math display">\[
+b_{k+1}=\phi\,b_k+w^b_k,\qquad 0\leq\phi&lt;1,
+\tag{1}\]</span></span></p>
+<p>and <span class="math inline">\(w_k^b\)</span> is a white process noise term that drives the evolution of the disturbance.</p>
+<p>The parameter <span class="math inline">\(\phi\)</span> controls how much memory the disturbance retains from one sample to the next. Values of <span class="math inline">\(\phi\)</span> close to one correspond to slow fluctuations with long correlation times, while smaller values correspond to faster decorrelation, approaching white noise in the limiting case when <span class="math inline">\(\phi=0\)</span>.</p>
+<p>The stochastic assumptions are</p>
+<p><span class="math display">\[
+w^h_k\sim\mathcal N(0,Q_h),
+\qquad
+w^b_k\sim\mathcal N(0,Q_b),
+\qquad
+v_k\sim\mathcal N(0,R),
+\]</span></p>
+<p>where the three noise processes are assumed to be Gaussian and mutually independent in this simplified scenario. At this stage, <span class="math inline">\(Q_h\)</span> is simply a scalar variance associated with the random-walk model. Its role will be generalized later when vertical dynamics are introduced.</p>
+<p>To apply the Kalman filter (KF), the key modeling step is to treat the barometric disturbance as an additional state variable:</p>
+<p><span class="math display">\[
+\mathbf{x}_k=
+\begin{bmatrix}
+h_k\\
+b_k
+\end{bmatrix}.
+\]</span></p>
+<p>The resulting augmented state-space model is</p>
+<p><span class="math display">\[
+\mathbf{x}_{k+1}=
+\underbrace{\begin{bmatrix}
+1 &amp; 0\\
+0 &amp; \phi
+\end{bmatrix}}_A
+\mathbf{x}_k
++
+\begin{bmatrix}
+w^h_k\\
+w^b_k
+\end{bmatrix},
+\]</span></p>
+<p>with measurement equation</p>
+<p><span class="math display">\[
+z_k=
+\underbrace{\begin{bmatrix}
+1 &amp; 1
+\end{bmatrix}}_H\,
+\mathbf{x}_k+v_k.
+\]</span></p>
+<p>This formulation makes explicit what naive averaging ignores: measurement error is not merely random scatter around the true altitude. Part of the error evolves according to its own temporal dynamics and therefore cannot be eliminated simply by averaging successive observations.</p>
+<p>The state-space framework offers a natural way to account for this behavior. By augmenting the state vector with the disturbance term, the KF can estimate both the altitude and the barometric bias simultaneously. In this way, the filter can attempt to separate the quantity of interest, <span class="math inline">\(h_k\)</span>, from the slowly varying disturbance, <span class="math inline">\(b_k\)</span>.</p>
+<p>In this augmented formulation, the process-noise covariance matrix is</p>
+<p><span class="math display">\[
+Q =
+\begin{bmatrix}
+Q_h &amp; 0\\
+0 &amp; Q_b
+\end{bmatrix},
+\]</span></p>
+<p>while the measurement-noise covariance reduces to the scalar variance</p>
+<p><span class="math display">\[
+R=\mathrm{Var}(v_k).
+\]</span></p>
+<p>The off-diagonal terms of <span class="math inline">\(Q\)</span> are set to zero in our toy example, implying that the altitude perturbations and the barometric disturbance are modeled as independent. This assumption is made for simplicity rather than physical realism. In an actual atmospheric environment, the same meteorological processes may influence both the balloon’s vertical motion and the pressure fluctuations sensed by the altimeter. Consequently, nonzero cross-covariance terms between the process disturbances could arise in <span class="math inline">\(Q\)</span>.</p>
+<p>Once <span class="math inline">\(A\)</span>, <span class="math inline">\(H\)</span>, <span class="math inline">\(Q\)</span>, and <span class="math inline">\(R\)</span> have been specified, the KF recursion can be applied as discussed <a href="https://amsabatini.netlify.app/posts/post_1/">here</a>. The prediction step propagates the augmented state estimate and its covariance through the model, while the correction step uses the barometric measurement to update both components of the state.</p>
+<p>The important point is that the filter is no longer estimating altitude alone. It is estimating altitude and barometric disturbance simultaneously. By explicitly modeling the disturbance dynamics, the filter can treat slowly varying pressure fluctuations as a state variable to be estimated rather than as random measurement noise to be averaged away.</p>
+</section>
+<section id="adding-vertical-gusts" class="level2">
+<h2 class="anchored" data-anchor-id="adding-vertical-gusts">Adding vertical gusts</h2>
+<p>To some extent, the model discussed above can be viewed as a continuation of the “teddy bears” example introduced in my previous post <a href="https://amsabatini.netlify.app/posts/post_1/">(here)</a>. The experiment is intentionally favorable to simple averaging. The balloon is assumed to remain at a nearly constant altitude, so the main difficulty arises from the correlated barometric disturbance.</p>
+<p>Vertical perturbations are present in the random-walk model through the process noise term <span class="math inline">\(w_k^h\)</span>. In that formulation, however, altitude changes are represented directly as random increments of altitude.</p>
+<p>In the present scenario, vertical gusts are modeled more explicitly. Rather than acting directly on altitude, gusts are treated as acceleration disturbances that influence the balloon’s vertical motion. This leads naturally to the standard constant-velocity (CV) model, in which altitude and vertical velocity evolve according to a simple kinematic relationship, as discussed <a href="https://amsabatini.netlify.app/posts/stochastic_model/">here</a>.</p>
+<p>The state of the balloon is therefore extended to include vertical velocity:</p>
+<p><span class="math display">\[
+\mathbf{x}^{(h)}_k=
+\begin{bmatrix}
+h_k\\
+\dot{h}_k
+\end{bmatrix}.
+\]</span></p>
+<p>The vertical dynamics are</p>
+<p><span class="math display">\[
+\mathbf{x}^{(h)}_{k+1}
+=
+\begin{bmatrix}
+1 &amp; \Delta t\\
+0 &amp; 1
+\end{bmatrix}
+\mathbf{x}^{(h)}_k
++
+\mathbf{w}^{(h)}_k,
+\]</span></p>
+<p>with</p>
+<p><span class="math display">\[
+\mathbf{w}^{(h)}_k=\begin{bmatrix}w_k^{h}\\w^{\dot{h}}_k\end{bmatrix} \sim \mathcal N(0,Q_h),
+\]</span></p>
+<p>where the process-noise covariance associated with white acceleration noise is</p>
+<p><span class="math display">\[
+Q_h=
+q_h
+\begin{bmatrix}
+\Delta t^3/3 &amp; \Delta t^2/2\\
+\Delta t^2/2 &amp; \Delta t
+\end{bmatrix}.
+\]</span></p>
+<p>As discussed in the referenced post, the covariance structure <span class="math inline">\(Q_h\)</span> arises from a single white acceleration disturbance acting on the continuous-time model.</p>
+<p>The barometric disturbance retains the same AR(1) dynamics introduced earlier (<a href="#eq-1" class="quarto-xref">Equation&nbsp;1</a>).</p>
+<p>The complete augmented state is now</p>
+<p><span class="math display">\[
+\mathbf{x}_k=\begin{bmatrix}\mathbf{x}^{(h)}\\b_k\end{bmatrix}=
+\begin{bmatrix}
+h_k\\
+\dot{h}_k\\
+b_k
+\end{bmatrix},
+\]</span></p>
+<p>with transition model</p>
+<p><span class="math display">\[
+\mathbf{x}_{k+1}
+=
+\underbrace{\begin{bmatrix}
+1 &amp; \Delta t &amp; 0\\
+0 &amp; 1        &amp; 0\\
+0 &amp; 0        &amp; \phi
+\end{bmatrix}}_A
+\mathbf{x}_k
++
+\begin{bmatrix}
+w^h_k\\
+w^\dot{h}_k\\
+w^b_k
+\end{bmatrix}.
+\]</span></p>
+<p>The corresponding process-noise covariance becomes</p>
+<p><span class="math display">\[
+Q=
+\begin{bmatrix}
+q_h\Delta t^3/3 &amp; q_h\Delta t^2/2 &amp; 0\\
+q_h\Delta t^2/2 &amp; q_h\Delta t     &amp; 0\\
+0               &amp; 0               &amp; Q_b
+\end{bmatrix}.
+\]</span></p>
+<p>The relationship between <span class="math inline">\(Q_b\)</span> and the underlying continuous-time Gauss–Markov model and its dependence on <span class="math inline">\(\Delta t\)</span> are discussed <a href="https://amsabatini.netlify.app/posts/post_2/">(here)</a>.</p>
+<p>The measurement equation can be written as follows:</p>
+<p><span class="math display">\[
+z_k=
+\underbrace{\begin{bmatrix}
+1 &amp; 0 &amp; 1
+\end{bmatrix}}_H\,
+\mathbf{x}_k+v_k,
+\qquad
+v_k\sim\mathcal N(0,R).
+\]</span></p>
+<p>This model gives the estimator two distinct mechanisms for explaining variations in the barometric reading: genuine vertical motion of the balloon and slowly varying atmospheric disturbance. The task is no longer simply to smooth noisy measurements, but to infer how much of the observed variation should be attributed to the trajectory and how much to the sensor environment.</p>
+<p>This separation is possible because the two components obey different dynamical models. The balloon altitude follows a constant-velocity kinematic model, whereas the barometric disturbance evolves according to an AR(1) process. In a state-space setting, these distinct temporal signatures provide the information needed to distinguish between the two effects.</p>
+</section>
+<section id="simulation-study" class="level2">
+<h2 class="anchored" data-anchor-id="simulation-study">Simulation study</h2>
+<p>The simulation study considered four estimation strategies.</p>
+<p>The first estimator was a <strong>recursive average</strong>, representing the most naïve accumulation of information. Each new measurement contributes to the estimate with a weight inversely proportional to the number of samples collected so far.</p>
+<p>The second estimator was a <strong>causal moving average</strong> with a fixed time window of 5 s (chosen equal to the GM1 decorrelation time, assumed known for the purpose of the simulation). Unlike the recursive average, its memory remains finite, allowing the estimate to adapt more rapidly to changes in altitude.</p>
+<p>The third estimator was a <strong>standard KF</strong>, based on the balloon dynamical model. This filter assumes that the measurements are affected only by white measurement noise and therefore ignores the existence of the correlated barometric disturbance.</p>
+<p>The fourth estimator was the <strong>augmented KF</strong> introduced in the previous section. In this case, the barometric disturbance is explicitly included in the state vector and estimated together with the balloon states: altitude in the no-gust scenario, and altitude and vertical velocity when vertical gusts are present.</p>
+<p>The two KFs differ only in the way the barometric disturbance is modeled. Their state-space formulations are summarized in <a href="#tbl-kf-structure" class="quarto-xref">Table&nbsp;1</a>.</p>
+<div id="tbl-kf-structure" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-kf-structure-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: State-space formulations of the standard and augmented Kalman filters. Whenever two expressions are shown, the first corresponds to the <em>no-gust</em> scenario and the second to the <em>vertical-gust</em> scenario. The standard KF ignores the correlated barometric disturbance and compensates for model mismatch through an increased measurement-noise covariance <span class="math inline">\(R'\)</span>. The augmented KF explicitly models the disturbance as an additional state variable.
+</figcaption>
+<div aria-describedby="tbl-kf-structure-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Quantity</th>
+<th style="text-align: left;">Standard KF</th>
+<th style="text-align: left;">Augmented KF</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">State vector</td>
+<td style="text-align: left;"><span class="math inline">\(\begin{bmatrix} h_k \end{bmatrix}\)</span> or <span class="math inline">\(\begin{bmatrix} h_k \\ \dot{h}_k \end{bmatrix}\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\begin{bmatrix} h_k \\ b_k \end{bmatrix}\)</span> or <span class="math inline">\(\begin{bmatrix} h_k \\ \dot{h}_k \\ b_k \end{bmatrix}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Transition matrix <span class="math inline">\(A\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\begin{bmatrix} 1 \end{bmatrix}\)</span> or <span class="math inline">\(\begin{bmatrix} 1 &amp; \Delta t \\ 0 &amp; 1 \end{bmatrix}\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\begin{bmatrix} 1 &amp; 0 \\ 0 &amp; \phi \end{bmatrix}\)</span> or <span class="math inline">\(\begin{bmatrix} 1 &amp; \Delta t &amp; 0 \\ 0 &amp; 1 &amp; 0 \\ 0 &amp; 0 &amp; \phi \end{bmatrix}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Measurement matrix <span class="math inline">\(H\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\begin{bmatrix} 1 \end{bmatrix}\)</span> or <span class="math inline">\(\begin{bmatrix} 1 &amp; 0 \end{bmatrix}\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\begin{bmatrix} 1 &amp; 1 \end{bmatrix}\)</span> or <span class="math inline">\(\begin{bmatrix} 1 &amp; 0 &amp; 1 \end{bmatrix}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Process covariance <span class="math inline">\(Q\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(Q_h\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\begin{bmatrix} Q_h &amp; 0 \\ 0 &amp; Q_b \end{bmatrix}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Measurement covariance <span class="math inline">\(R\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(R'\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(R\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Barometric disturbance</td>
+<td style="text-align: left;">Ignored</td>
+<td style="text-align: left;">Explicitly modeled and estimated</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>Four simulation scenarios were investigated. Two sampling intervals were considered, 1 s and 0.1 s, corresponding respectively to nominal sampling and a ten-fold oversampling condition. For each sampling interval, simulations were performed both with and without vertical gusts. The resulting scenarios were therefore:</p>
+<ol type="1">
+<li>no-gust, <span class="math inline">\(\Delta t = 1~\mathrm{s}\)</span>;</li>
+<li>no-gust, <span class="math inline">\(\Delta t = 0.1~\mathrm{s}\)</span>;</li>
+<li>vertical-gust, <span class="math inline">\(\Delta t = 1~\mathrm{s}\)</span>;</li>
+<li>vertical-gust, <span class="math inline">\(\Delta t = 0.1~\mathrm{s}\)</span>.</li>
+</ol>
+<p>Each scenario was repeated over 250 independent Monte Carlo runs. Estimator performance was assessed through trajectory RMSE, while NIS and NEES were used as consistency diagnostics for the Kalman-based estimators.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Consistency checks: NIS and NEES
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>When the true state is known in simulation, KF performance can be assessed not only by looking at the estimation error, but also by checking whether the predicted covariance is statistically consistent with that error.</p>
+<p>Two standard diagnostics are commonly used.</p>
+<p>The normalized innovation squared (NIS) is defined as</p>
+<p><span class="math display">\[
+\epsilon^z_k = \nu_k^\top S_k^{-1}\nu_k,
+\]</span></p>
+<p>where</p>
+<p><span class="math display">\[
+\nu_k=z_k-H\hat x_k^-
+\]</span></p>
+<p>is the innovation and</p>
+<p><span class="math display">\[
+S_k=HP_k^-H^\top+R
+\]</span></p>
+<p>is its predicted covariance <a href="https://amsabatini.netlify.app/posts/post_1/">(here)</a>.</p>
+<p>The normalized estimation error squared (NEES) is defined as</p>
+<p><span class="math display">\[
+\epsilon^x_k = e_k^\top (P_k^+)^{-1}e_k,
+\]</span></p>
+<p>where</p>
+<p><span class="math display">\[
+e_k=x_k-\hat x_k^+
+\]</span></p>
+<p>is the state-estimation error.</p>
+<p>A practical difference between the two metrics is that NIS can be computed using only quantities available to the filter and is therefore applicable both in simulation and in real operation. NEES, by contrast, requires the true state and is generally available only in simulation studies.</p>
+<p>For a consistent KF, NIS and NEES follow chi-square distributions with degrees of freedom equal to the dimensions of the measurement and state vectors, respectively. In a Monte Carlo experiment, their empirical averages can therefore be compared with the corresponding theoretical expectations and confidence intervals.</p>
+</div>
+</div>
+</section>
+<section id="results" class="level2">
+<h2 class="anchored" data-anchor-id="results">Results</h2>
+<p>Final RMSE values are summarized separately for the <em>no-gust</em> and <em>vertical-gust</em> scenarios in <a href="#tbl-no-gusts" class="quarto-xref">Table&nbsp;2</a> and <a href="#tbl-gusts" class="quarto-xref">Table&nbsp;3</a>.</p>
+<div class="cell">
+<div id="tbl-no-gusts" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-no-gusts-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Final altitude RMSE for the four estimators in the absence of vertical gusts. Because the balloon altitude remains essentially constant, recursive averaging performs nearly as well as the Kalman-based estimators.
+</figcaption>
+<div aria-describedby="tbl-no-gusts-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="table do-not-create-environment cell caption-top table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Sampling interval</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Recursive average [m]</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Moving average [m]</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Standard KF [m]</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Augmented KF [m]</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">1.0 s</td>
+<td style="text-align: right;">0.175</td>
+<td style="text-align: right;">0.437</td>
+<td style="text-align: right;">0.182</td>
+<td style="text-align: right;">0.170</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">0.1 s</td>
+<td style="text-align: right;">0.180</td>
+<td style="text-align: right;">0.420</td>
+<td style="text-align: right;">0.242</td>
+<td style="text-align: right;">0.172</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+</figure>
+</div>
+</div>
+<div class="cell">
+<div id="tbl-gusts" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-gusts-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: Final altitude RMSE for the four estimators in the presence of vertical gusts. Once the altitude becomes time-varying, the recursive average is unable to track the trajectory and its error increases dramatically. Reducing the sampling interval from 1.0 s to 0.1 s produces only modest changes compared with the gain obtained by modeling the correlated disturbance.
+</figcaption>
+<div aria-describedby="tbl-gusts-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="table do-not-create-environment cell caption-top table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Sampling interval</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Recursive average [m]</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Moving average [m]</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Standard KF [m]</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Augmented KF [m]</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">1.0 s</td>
+<td style="text-align: right;">2.559</td>
+<td style="text-align: right;">0.452</td>
+<td style="text-align: right;">0.442</td>
+<td style="text-align: right;">0.406</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">0.1 s</td>
+<td style="text-align: right;">2.635</td>
+<td style="text-align: right;">0.474</td>
+<td style="text-align: right;">0.490</td>
+<td style="text-align: right;">0.417</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>The recursive average performs well in the <em>no-gust</em> scenario because the balloon remains close to its cruising altitude and the averaging horizon effectively suppresses part of the measurement noise. This is not entirely unexpected. In the idealized case of a constant signal corrupted only by white noise, the variance reduction achieved by averaging <span class="math inline">\(N\)</span> samples scales as <span class="math inline">\(1/N\)</span>, whereas a moving average with window length <span class="math inline">\(W\)</span> achieves only a <span class="math inline">\(1/W\)</span> reduction. For <span class="math inline">\(N \approx 80\)</span> and <span class="math inline">\(W = 5\)</span>, one would therefore expect the recursive average to outperform the moving average by roughly a factor <span class="math inline">\(\sqrt{W/N} \approx 0.25\)</span> in RMSE. The observed ratio is less favorable because the measurements are affected by a correlated barometric disturbance and the balloon altitude is not perfectly constant. Nevertheless, the result still reflects the advantage of exploiting the entire observation history in this particularly benign scenario.</p>
+<p>As soon as vertical dynamics are introduced, however, recursive averaging becomes unsuitable because its memory is too long to follow the evolving trajectory. For this reason, the remaining results focus on the moving average, the standard KF, and the augmented KF.</p>
+<p>Interestingly, the moving average exhibits nearly identical RMSE values across all scenarios. This robustness should not be interpreted as superior modeling capability. Rather, it reflects the fact that the 5 s averaging window acts primarily as a low-pass filter, smoothing both the correlated barometric disturbance and the relatively weak vertical dynamics. As a result, the estimator remains largely insensitive to the distinction between the no-gust and vertical-gust scenarios.</p>
+<p>A further observation is the limited effect of oversampling. Once the process-noise models are scaled consistently with <span class="math inline">\(\Delta t\)</span>, reducing the sampling interval from <span class="math inline">\(1~\mathrm{s}\)</span> to <span class="math inline">\(0.1~\mathrm{s}\)</span> produces only modest changes in estimation accuracy. In this example, the dominant limitation is not the availability of measurements, but the presence of a slowly varying correlated disturbance affecting the observations.</p>
+<p>The consistency diagnostics reveal a clear difference between the standard and augmented KFs. In all four scenarios, the augmented KF produces NIS values close to the theoretical expectation of one and NEES values close to the corresponding state dimension, indicating statistical consistency between the assumed model and the simulated process.</p>
+<p>By contrast, the standard KF exhibits substantially inflated NEES values, particularly under oversampling, despite the use of an increased measurement-noise covariance to compensate for the unmodeled barometric disturbance. This behavior indicates that the filter is overconfident about the accuracy of its state estimates. The inconsistency becomes especially pronounced for <span class="math inline">\(\Delta t = 0.1~\mathrm{s}\)</span>, where repeated observations of the same slowly varying disturbance further expose the limitations of the simplified model.</p>
+<p>These results suggest that increasing the sampling rate alone cannot compensate for model mismatch. In this example, model fidelity proves more important than measurement frequency.</p>
+<p>A representative realization of the <em>vertical-gust</em> scenario with <span class="math inline">\(\Delta t = 1~\mathrm{s}\)</span> is shown in <a href="#fig-trajectory" class="quarto-xref">Figure&nbsp;1</a>.</p>
+<div id="fig-trajectory" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-trajectory-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="fig_1.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-trajectory-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Representative realization of the <em>vertical-gust</em> scenario (<span class="math inline">\(\Delta t = 1~\mathrm{s}\)</span>).
+</figcaption>
+</figure>
+</div>
+<p>The recursive average rapidly loses the ability to track the true altitude because its effective memory grows continuously with time. The moving average remains considerably more responsive, thanks to its finite memory window. The standard KF reacts more quickly to altitude variations, but part of the slowly varying barometric disturbance is incorrectly interpreted as genuine balloon motion. The augmented KF is the only estimator capable of explicitly separating the environmental disturbance from the vehicle dynamics.</p>
+<p>To quantify these differences, the root-mean-square error was evaluated over the full trajectory and averaged across Monte Carlo runs, as shown in <a href="#fig-rmse" class="quarto-xref">Figure&nbsp;2</a>.</p>
+<div id="fig-rmse" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-rmse-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="fig_2.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rmse-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Monte Carlo estimate of altitude RMSE over time (<em>vertical-gust</em> scenario) (<span class="math inline">\(\Delta T = 1\)</span> s).
+</figcaption>
+</figure>
+</div>
+<p>The RMSE curves reveal an initial transient during which the standard and augmented KFs exhibit very similar performance. During this phase, both filters are adapting from their initial conditions, while the augmented KF has not yet accumulated sufficient information to reliably separate the slowly varying barometric disturbance from the balloon dynamics. As time progresses, the advantage of explicitly modeling the correlated disturbance becomes increasingly evident, leading to a persistent reduction in RMSE for the augmented KF.</p>
+</section>
+<section id="reproducibility" class="level2">
+<h2 class="anchored" data-anchor-id="reproducibility">Reproducibility</h2>
+<p>All MATLAB scripts used to generate the simulations, figures, tables, and Monte Carlo analyses discussed in this post are available in the accompanying <a href="https://angelosabatini.github.io/blog.engineering/posts/post_3/">GitHub repository</a>.</p>
+<p>The repository includes the main simulation driver, the reusable Monte Carlo function implementing the four estimators, and a separate analysis script used to generate the figures, summary tables, consistency diagnostics, and statistical comparisons reported in this post.</p>
+</section>
+<section id="concluding-remarks" class="level2">
+<h2 class="anchored" data-anchor-id="concluding-remarks">Concluding remarks</h2>
+<p>At first sight, the balloon experiment may appear to be a simple estimation problem. A sequence of noisy altitude measurements is available, and the objective is merely to recover the true trajectory.</p>
+<p>The simulations reveal that the situation is more subtle. The barometric signal contains information about two different phenomena at the same time: the actual motion of the balloon and the slowly evolving state of the surrounding atmosphere. Increasing the sampling rate alone cannot separate these contributions. Oversampling simply produces more observations of the same correlated process.</p>
+<p>The key ingredient is not additional data, but an appropriate model.</p>
+<p>By explicitly introducing the atmospheric disturbance as an additional state variable, KF is able to exploit temporal structure rather than merely suppress fluctuations. Uncertainty is reduced by reorganizing information according to a dynamical description of the system.</p>
+<p>This idea extends far beyond balloons and barometers. Many sensing problems involve measurements influenced simultaneously by the quantity of interest and by slowly varying environmental effects. Whenever temporal correlation is present, understanding the dynamics often becomes more valuable than collecting additional samples.</p>
+<p>In the end, the lesson is not that averaging is useless, nor that oversampling is always a mistake.</p>
+<blockquote class="blockquote">
+<div class="line-block">The real challenge is not simply to collect measurements, but to interpret them through an appropriate model of the physical world: the most valuable information is often not contained in a single observation, but in the way successive observations are connected across time.</div>
+</blockquote>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/amsabatini\.netlify\.app");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<script src="https://utteranc.es/client.js" repo="angelosabatini/blog.comments" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+
+<div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

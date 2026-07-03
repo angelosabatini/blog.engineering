@@ -10,7 +10,332 @@
 <atom:link href="https://amsabatini.netlify.app/blog.xml" rel="self" type="application/rss+xml"/>
 <description>The personal blog of Angelo Maria Sabatini</description>
 <generator>quarto-1.6.40</generator>
-<lastBuildDate>Thu, 18 Jun 2026 22:00:00 GMT</lastBuildDate>
+<lastBuildDate>Thu, 02 Jul 2026 22:00:00 GMT</lastBuildDate>
+<item>
+  <title>When more data is not more information</title>
+  <dc:creator>Angelo Maria Sabatini</dc:creator>
+  <link>https://amsabatini.netlify.app/posts/post_3/</link>
+  <description><![CDATA[ 
+
+
+
+
+<blockquote class="blockquote">
+<p>💾 <strong>Prefer reading offline?</strong> You can <a href="post_pdf.pdf">download a PDF version of this post</a> for printing or future reference.</p>
+</blockquote>
+<section id="phileas-foggs-altimeter" class="level2">
+<h2 class="anchored" data-anchor-id="phileas-foggs-altimeter">Phileas Fogg’s altimeter</h2>
+<p>In <em>Around the World in Eighty Days</em>, Jules Verne imagines his hero, Phileas Fogg, betting 20,000 pounds that he can travel around the world in just eighty days. Fogg never actually travels by hot-air balloon, nor does he carry a barometric altimeter. Nevertheless, the iconic imagery of his journey provides a natural backdrop for the thought experiment explored in this post.</p>
+<p>Imagine a hot-air balloon drifting slowly around the globe. In the novel, Fogg rejects the idea of travelling by balloon as too risky for his wager. Fortunately, our thought experiment is much simpler: the balloon follows a nearly horizontal path, remaining close to its intended cruising altitude. From Fogg’s perspective, estimating altitude should be trivial. A barometric altimeter continuously reports altitude, and modern electronics allow us to acquire measurements as fast as we like.</p>
+<p>Yet a subtle difficulty appears.</p>
+<p>The atmosphere is never perfectly still. Slow pressure fluctuations, thermal gradients, and large-scale weather dynamics continuously perturb barometric readings. These variations evolve over time scales that are much longer than the sensor’s sampling interval. As a consequence, successive measurements are highly correlated.</p>
+<p>A natural reaction would be to sample faster and average more aggressively. If noise is the problem, collecting more data should improve the estimate. But what if the fluctuations themselves possess memory? What if the sensor is repeatedly measuring the same underlying atmospheric disturbance?</p>
+</section>
+<section id="state-space-models" class="level2">
+<h2 class="anchored" data-anchor-id="state-space-models">State-space models</h2>
+<p>Let <img src="https://latex.codecogs.com/png.latex?h_k"> denote the true altitude of the balloon at the discrete time <img src="https://latex.codecogs.com/png.latex?k%5CDelta%20t">, where <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t"> is the constant sampling interval at which measurements are received. In this first version of the experiment, the balloon is assumed to travel almost horizontally, remaining close to its intended cruising altitude. Small unmodeled vertical perturbations are represented by the random-walk model</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Ah_%7Bk+1%7D=h_k+w%5Eh_k,%0A"></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?w%5Eh_k"> denotes a small process disturbance.</p>
+<p>The barometric altimeter measurements are affected by two different error sources. The first is ordinary white measurement noise. The second is a slowly varying barometric disturbance, denoted by <img src="https://latex.codecogs.com/png.latex?b_k">, which represents atmospheric fluctuations that bias the altitude readings. The measurement model is therefore</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Az_k=h_k+b_k+v_k,%0A"></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?v_k"> is white measurement noise.</p>
+<p>The correlated disturbance is modeled as a first-order Gauss–Markov process, or equivalently as an AR(1) sequence,</p>
+<p><span id="eq-1"><img src="https://latex.codecogs.com/png.latex?%0Ab_%7Bk+1%7D=%5Cphi%5C,b_k+w%5Eb_k,%5Cqquad%200%5Cleq%5Cphi%3C1,%0A%5Ctag%7B1%7D"></span></p>
+<p>and <img src="https://latex.codecogs.com/png.latex?w_k%5Eb"> is a white process noise term that drives the evolution of the disturbance.</p>
+<p>The parameter <img src="https://latex.codecogs.com/png.latex?%5Cphi"> controls how much memory the disturbance retains from one sample to the next. Values of <img src="https://latex.codecogs.com/png.latex?%5Cphi"> close to one correspond to slow fluctuations with long correlation times, while smaller values correspond to faster decorrelation, approaching white noise in the limiting case when <img src="https://latex.codecogs.com/png.latex?%5Cphi=0">.</p>
+<p>The stochastic assumptions are</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Aw%5Eh_k%5Csim%5Cmathcal%20N(0,Q_h),%0A%5Cqquad%0Aw%5Eb_k%5Csim%5Cmathcal%20N(0,Q_b),%0A%5Cqquad%0Av_k%5Csim%5Cmathcal%20N(0,R),%0A"></p>
+<p>where the three noise processes are assumed to be Gaussian and mutually independent in this simplified scenario. At this stage, <img src="https://latex.codecogs.com/png.latex?Q_h"> is simply a scalar variance associated with the random-walk model. Its role will be generalized later when vertical dynamics are introduced.</p>
+<p>To apply the Kalman filter (KF), the key modeling step is to treat the barometric disturbance as an additional state variable:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7Bx%7D_k=%0A%5Cbegin%7Bbmatrix%7D%0Ah_k%5C%5C%0Ab_k%0A%5Cend%7Bbmatrix%7D.%0A"></p>
+<p>The resulting augmented state-space model is</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7Bx%7D_%7Bk+1%7D=%0A%5Cunderbrace%7B%5Cbegin%7Bbmatrix%7D%0A1%20&amp;%200%5C%5C%0A0%20&amp;%20%5Cphi%0A%5Cend%7Bbmatrix%7D%7D_A%0A%5Cmathbf%7Bx%7D_k%0A+%0A%5Cbegin%7Bbmatrix%7D%0Aw%5Eh_k%5C%5C%0Aw%5Eb_k%0A%5Cend%7Bbmatrix%7D,%0A"></p>
+<p>with measurement equation</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Az_k=%0A%5Cunderbrace%7B%5Cbegin%7Bbmatrix%7D%0A1%20&amp;%201%0A%5Cend%7Bbmatrix%7D%7D_H%5C,%0A%5Cmathbf%7Bx%7D_k+v_k.%0A"></p>
+<p>This formulation makes explicit what naive averaging ignores: measurement error is not merely random scatter around the true altitude. Part of the error evolves according to its own temporal dynamics and therefore cannot be eliminated simply by averaging successive observations.</p>
+<p>The state-space framework offers a natural way to account for this behavior. By augmenting the state vector with the disturbance term, the KF can estimate both the altitude and the barometric bias simultaneously. In this way, the filter can attempt to separate the quantity of interest, <img src="https://latex.codecogs.com/png.latex?h_k">, from the slowly varying disturbance, <img src="https://latex.codecogs.com/png.latex?b_k">.</p>
+<p>In this augmented formulation, the process-noise covariance matrix is</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AQ%20=%0A%5Cbegin%7Bbmatrix%7D%0AQ_h%20&amp;%200%5C%5C%0A0%20&amp;%20Q_b%0A%5Cend%7Bbmatrix%7D,%0A"></p>
+<p>while the measurement-noise covariance reduces to the scalar variance</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AR=%5Cmathrm%7BVar%7D(v_k).%0A"></p>
+<p>The off-diagonal terms of <img src="https://latex.codecogs.com/png.latex?Q"> are set to zero in our toy example, implying that the altitude perturbations and the barometric disturbance are modeled as independent. This assumption is made for simplicity rather than physical realism. In an actual atmospheric environment, the same meteorological processes may influence both the balloon’s vertical motion and the pressure fluctuations sensed by the altimeter. Consequently, nonzero cross-covariance terms between the process disturbances could arise in <img src="https://latex.codecogs.com/png.latex?Q">.</p>
+<p>Once <img src="https://latex.codecogs.com/png.latex?A">, <img src="https://latex.codecogs.com/png.latex?H">, <img src="https://latex.codecogs.com/png.latex?Q">, and <img src="https://latex.codecogs.com/png.latex?R"> have been specified, the KF recursion can be applied as discussed <a href="https://amsabatini.netlify.app/posts/post_1/">here</a>. The prediction step propagates the augmented state estimate and its covariance through the model, while the correction step uses the barometric measurement to update both components of the state.</p>
+<p>The important point is that the filter is no longer estimating altitude alone. It is estimating altitude and barometric disturbance simultaneously. By explicitly modeling the disturbance dynamics, the filter can treat slowly varying pressure fluctuations as a state variable to be estimated rather than as random measurement noise to be averaged away.</p>
+</section>
+<section id="adding-vertical-gusts" class="level2">
+<h2 class="anchored" data-anchor-id="adding-vertical-gusts">Adding vertical gusts</h2>
+<p>To some extent, the model discussed above can be viewed as a continuation of the “teddy bears” example introduced in my previous post <a href="https://amsabatini.netlify.app/posts/post_1/">(here)</a>. The experiment is intentionally favorable to simple averaging. The balloon is assumed to remain at a nearly constant altitude, so the main difficulty arises from the correlated barometric disturbance.</p>
+<p>Vertical perturbations are present in the random-walk model through the process noise term <img src="https://latex.codecogs.com/png.latex?w_k%5Eh">. In that formulation, however, altitude changes are represented directly as random increments of altitude.</p>
+<p>In the present scenario, vertical gusts are modeled more explicitly. Rather than acting directly on altitude, gusts are treated as acceleration disturbances that influence the balloon’s vertical motion. This leads naturally to the standard constant-velocity (CV) model, in which altitude and vertical velocity evolve according to a simple kinematic relationship, as discussed <a href="https://amsabatini.netlify.app/posts/stochastic_model/">here</a>.</p>
+<p>The state of the balloon is therefore extended to include vertical velocity:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7Bx%7D%5E%7B(h)%7D_k=%0A%5Cbegin%7Bbmatrix%7D%0Ah_k%5C%5C%0A%5Cdot%7Bh%7D_k%0A%5Cend%7Bbmatrix%7D.%0A"></p>
+<p>The vertical dynamics are</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7Bx%7D%5E%7B(h)%7D_%7Bk+1%7D%0A=%0A%5Cbegin%7Bbmatrix%7D%0A1%20&amp;%20%5CDelta%20t%5C%5C%0A0%20&amp;%201%0A%5Cend%7Bbmatrix%7D%0A%5Cmathbf%7Bx%7D%5E%7B(h)%7D_k%0A+%0A%5Cmathbf%7Bw%7D%5E%7B(h)%7D_k,%0A"></p>
+<p>with</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7Bw%7D%5E%7B(h)%7D_k=%5Cbegin%7Bbmatrix%7Dw_k%5E%7Bh%7D%5C%5Cw%5E%7B%5Cdot%7Bh%7D%7D_k%5Cend%7Bbmatrix%7D%20%5Csim%20%5Cmathcal%20N(0,Q_h),%0A"></p>
+<p>where the process-noise covariance associated with white acceleration noise is</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AQ_h=%0Aq_h%0A%5Cbegin%7Bbmatrix%7D%0A%5CDelta%20t%5E3/3%20&amp;%20%5CDelta%20t%5E2/2%5C%5C%0A%5CDelta%20t%5E2/2%20&amp;%20%5CDelta%20t%0A%5Cend%7Bbmatrix%7D.%0A"></p>
+<p>As discussed in the referenced post, the covariance structure <img src="https://latex.codecogs.com/png.latex?Q_h"> arises from a single white acceleration disturbance acting on the continuous-time model.</p>
+<p>The barometric disturbance retains the same AR(1) dynamics introduced earlier (Equation&nbsp;1).</p>
+<p>The complete augmented state is now</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7Bx%7D_k=%5Cbegin%7Bbmatrix%7D%5Cmathbf%7Bx%7D%5E%7B(h)%7D%5C%5Cb_k%5Cend%7Bbmatrix%7D=%0A%5Cbegin%7Bbmatrix%7D%0Ah_k%5C%5C%0A%5Cdot%7Bh%7D_k%5C%5C%0Ab_k%0A%5Cend%7Bbmatrix%7D,%0A"></p>
+<p>with transition model</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbf%7Bx%7D_%7Bk+1%7D%0A=%0A%5Cunderbrace%7B%5Cbegin%7Bbmatrix%7D%0A1%20&amp;%20%5CDelta%20t%20&amp;%200%5C%5C%0A0%20&amp;%201%20%20%20%20%20%20%20%20&amp;%200%5C%5C%0A0%20&amp;%200%20%20%20%20%20%20%20%20&amp;%20%5Cphi%0A%5Cend%7Bbmatrix%7D%7D_A%0A%5Cmathbf%7Bx%7D_k%0A+%0A%5Cbegin%7Bbmatrix%7D%0Aw%5Eh_k%5C%5C%0Aw%5E%5Cdot%7Bh%7D_k%5C%5C%0Aw%5Eb_k%0A%5Cend%7Bbmatrix%7D.%0A"></p>
+<p>The corresponding process-noise covariance becomes</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AQ=%0A%5Cbegin%7Bbmatrix%7D%0Aq_h%5CDelta%20t%5E3/3%20&amp;%20q_h%5CDelta%20t%5E2/2%20&amp;%200%5C%5C%0Aq_h%5CDelta%20t%5E2/2%20&amp;%20q_h%5CDelta%20t%20%20%20%20%20&amp;%200%5C%5C%0A0%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20&amp;%200%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20&amp;%20Q_b%0A%5Cend%7Bbmatrix%7D.%0A"></p>
+<p>The relationship between <img src="https://latex.codecogs.com/png.latex?Q_b"> and the underlying continuous-time Gauss–Markov model and its dependence on <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t"> are discussed <a href="https://amsabatini.netlify.app/posts/post_2/">(here)</a>.</p>
+<p>The measurement equation can be written as follows:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Az_k=%0A%5Cunderbrace%7B%5Cbegin%7Bbmatrix%7D%0A1%20&amp;%200%20&amp;%201%0A%5Cend%7Bbmatrix%7D%7D_H%5C,%0A%5Cmathbf%7Bx%7D_k+v_k,%0A%5Cqquad%0Av_k%5Csim%5Cmathcal%20N(0,R).%0A"></p>
+<p>This model gives the estimator two distinct mechanisms for explaining variations in the barometric reading: genuine vertical motion of the balloon and slowly varying atmospheric disturbance. The task is no longer simply to smooth noisy measurements, but to infer how much of the observed variation should be attributed to the trajectory and how much to the sensor environment.</p>
+<p>This separation is possible because the two components obey different dynamical models. The balloon altitude follows a constant-velocity kinematic model, whereas the barometric disturbance evolves according to an AR(1) process. In a state-space setting, these distinct temporal signatures provide the information needed to distinguish between the two effects.</p>
+</section>
+<section id="simulation-study" class="level2">
+<h2 class="anchored" data-anchor-id="simulation-study">Simulation study</h2>
+<p>The simulation study considered four estimation strategies.</p>
+<p>The first estimator was a <strong>recursive average</strong>, representing the most naïve accumulation of information. Each new measurement contributes to the estimate with a weight inversely proportional to the number of samples collected so far.</p>
+<p>The second estimator was a <strong>causal moving average</strong> with a fixed time window of 5 s (chosen equal to the GM1 decorrelation time, assumed known for the purpose of the simulation). Unlike the recursive average, its memory remains finite, allowing the estimate to adapt more rapidly to changes in altitude.</p>
+<p>The third estimator was a <strong>standard KF</strong>, based on the balloon dynamical model. This filter assumes that the measurements are affected only by white measurement noise and therefore ignores the existence of the correlated barometric disturbance.</p>
+<p>The fourth estimator was the <strong>augmented KF</strong> introduced in the previous section. In this case, the barometric disturbance is explicitly included in the state vector and estimated together with the balloon states: altitude in the no-gust scenario, and altitude and vertical velocity when vertical gusts are present.</p>
+<p>The two KFs differ only in the way the barometric disturbance is modeled. Their state-space formulations are summarized in Table&nbsp;1.</p>
+<div id="tbl-kf-structure" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-kf-structure-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: State-space formulations of the standard and augmented Kalman filters. Whenever two expressions are shown, the first corresponds to the <em>no-gust</em> scenario and the second to the <em>vertical-gust</em> scenario. The standard KF ignores the correlated barometric disturbance and compensates for model mismatch through an increased measurement-noise covariance <img src="https://latex.codecogs.com/png.latex?R'">. The augmented KF explicitly models the disturbance as an additional state variable.
+</figcaption>
+<div aria-describedby="tbl-kf-structure-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Quantity</th>
+<th style="text-align: left;">Standard KF</th>
+<th style="text-align: left;">Augmented KF</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">State vector</td>
+<td style="text-align: left;"><img src="https://latex.codecogs.com/png.latex?%5Cbegin%7Bbmatrix%7D%20h_k%20%5Cend%7Bbmatrix%7D"> or <img src="https://latex.codecogs.com/png.latex?%5Cbegin%7Bbmatrix%7D%20h_k%20%5C%5C%20%5Cdot%7Bh%7D_k%20%5Cend%7Bbmatrix%7D"></td>
+<td style="text-align: left;"><img src="https://latex.codecogs.com/png.latex?%5Cbegin%7Bbmatrix%7D%20h_k%20%5C%5C%20b_k%20%5Cend%7Bbmatrix%7D"> or <img src="https://latex.codecogs.com/png.latex?%5Cbegin%7Bbmatrix%7D%20h_k%20%5C%5C%20%5Cdot%7Bh%7D_k%20%5C%5C%20b_k%20%5Cend%7Bbmatrix%7D"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Transition matrix <img src="https://latex.codecogs.com/png.latex?A"></td>
+<td style="text-align: left;"><img src="https://latex.codecogs.com/png.latex?%5Cbegin%7Bbmatrix%7D%201%20%5Cend%7Bbmatrix%7D"> or <img src="https://latex.codecogs.com/png.latex?%5Cbegin%7Bbmatrix%7D%201%20&amp;%20%5CDelta%20t%20%5C%5C%200%20&amp;%201%20%5Cend%7Bbmatrix%7D"></td>
+<td style="text-align: left;"><img src="https://latex.codecogs.com/png.latex?%5Cbegin%7Bbmatrix%7D%201%20&amp;%200%20%5C%5C%200%20&amp;%20%5Cphi%20%5Cend%7Bbmatrix%7D"> or <img src="https://latex.codecogs.com/png.latex?%5Cbegin%7Bbmatrix%7D%201%20&amp;%20%5CDelta%20t%20&amp;%200%20%5C%5C%200%20&amp;%201%20&amp;%200%20%5C%5C%200%20&amp;%200%20&amp;%20%5Cphi%20%5Cend%7Bbmatrix%7D"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Measurement matrix <img src="https://latex.codecogs.com/png.latex?H"></td>
+<td style="text-align: left;"><img src="https://latex.codecogs.com/png.latex?%5Cbegin%7Bbmatrix%7D%201%20%5Cend%7Bbmatrix%7D"> or <img src="https://latex.codecogs.com/png.latex?%5Cbegin%7Bbmatrix%7D%201%20&amp;%200%20%5Cend%7Bbmatrix%7D"></td>
+<td style="text-align: left;"><img src="https://latex.codecogs.com/png.latex?%5Cbegin%7Bbmatrix%7D%201%20&amp;%201%20%5Cend%7Bbmatrix%7D"> or <img src="https://latex.codecogs.com/png.latex?%5Cbegin%7Bbmatrix%7D%201%20&amp;%200%20&amp;%201%20%5Cend%7Bbmatrix%7D"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Process covariance <img src="https://latex.codecogs.com/png.latex?Q"></td>
+<td style="text-align: left;"><img src="https://latex.codecogs.com/png.latex?Q_h"></td>
+<td style="text-align: left;"><img src="https://latex.codecogs.com/png.latex?%5Cbegin%7Bbmatrix%7D%20Q_h%20&amp;%200%20%5C%5C%200%20&amp;%20Q_b%20%5Cend%7Bbmatrix%7D"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Measurement covariance <img src="https://latex.codecogs.com/png.latex?R"></td>
+<td style="text-align: left;"><img src="https://latex.codecogs.com/png.latex?R'"></td>
+<td style="text-align: left;"><img src="https://latex.codecogs.com/png.latex?R"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Barometric disturbance</td>
+<td style="text-align: left;">Ignored</td>
+<td style="text-align: left;">Explicitly modeled and estimated</td>
+</tr>
+</tbody>
+</table>
+</div>
+</figure>
+</div>
+<p>Four simulation scenarios were investigated. Two sampling intervals were considered, 1 s and 0.1 s, corresponding respectively to nominal sampling and a ten-fold oversampling condition. For each sampling interval, simulations were performed both with and without vertical gusts. The resulting scenarios were therefore:</p>
+<ol type="1">
+<li>no-gust, <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t%20=%201~%5Cmathrm%7Bs%7D">;</li>
+<li>no-gust, <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t%20=%200.1~%5Cmathrm%7Bs%7D">;</li>
+<li>vertical-gust, <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t%20=%201~%5Cmathrm%7Bs%7D">;</li>
+<li>vertical-gust, <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t%20=%200.1~%5Cmathrm%7Bs%7D">.</li>
+</ol>
+<p>Each scenario was repeated over 250 independent Monte Carlo runs. Estimator performance was assessed through trajectory RMSE, while NIS and NEES were used as consistency diagnostics for the Kalman-based estimators.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Consistency checks: NIS and NEES
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>When the true state is known in simulation, KF performance can be assessed not only by looking at the estimation error, but also by checking whether the predicted covariance is statistically consistent with that error.</p>
+<p>Two standard diagnostics are commonly used.</p>
+<p>The normalized innovation squared (NIS) is defined as</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cepsilon%5Ez_k%20=%20%5Cnu_k%5E%5Ctop%20S_k%5E%7B-1%7D%5Cnu_k,%0A"></p>
+<p>where</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cnu_k=z_k-H%5Chat%20x_k%5E-%0A"></p>
+<p>is the innovation and</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0AS_k=HP_k%5E-H%5E%5Ctop+R%0A"></p>
+<p>is its predicted covariance <a href="https://amsabatini.netlify.app/posts/post_1/">(here)</a>.</p>
+<p>The normalized estimation error squared (NEES) is defined as</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cepsilon%5Ex_k%20=%20e_k%5E%5Ctop%20(P_k%5E+)%5E%7B-1%7De_k,%0A"></p>
+<p>where</p>
+<p><img src="https://latex.codecogs.com/png.latex?%0Ae_k=x_k-%5Chat%20x_k%5E+%0A"></p>
+<p>is the state-estimation error.</p>
+<p>A practical difference between the two metrics is that NIS can be computed using only quantities available to the filter and is therefore applicable both in simulation and in real operation. NEES, by contrast, requires the true state and is generally available only in simulation studies.</p>
+<p>For a consistent KF, NIS and NEES follow chi-square distributions with degrees of freedom equal to the dimensions of the measurement and state vectors, respectively. In a Monte Carlo experiment, their empirical averages can therefore be compared with the corresponding theoretical expectations and confidence intervals.</p>
+</div>
+</div>
+</section>
+<section id="results" class="level2">
+<h2 class="anchored" data-anchor-id="results">Results</h2>
+<p>Final RMSE values are summarized separately for the <em>no-gust</em> and <em>vertical-gust</em> scenarios in Table&nbsp;2 and Table&nbsp;3.</p>
+<div class="cell">
+<div id="tbl-no-gusts" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-no-gusts-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Final altitude RMSE for the four estimators in the absence of vertical gusts. Because the balloon altitude remains essentially constant, recursive averaging performs nearly as well as the Kalman-based estimators.
+</figcaption>
+<div aria-describedby="tbl-no-gusts-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="table do-not-create-environment cell caption-top table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Sampling interval</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Recursive average [m]</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Moving average [m]</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Standard KF [m]</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Augmented KF [m]</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">1.0 s</td>
+<td style="text-align: right;">0.175</td>
+<td style="text-align: right;">0.437</td>
+<td style="text-align: right;">0.182</td>
+<td style="text-align: right;">0.170</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">0.1 s</td>
+<td style="text-align: right;">0.180</td>
+<td style="text-align: right;">0.420</td>
+<td style="text-align: right;">0.242</td>
+<td style="text-align: right;">0.172</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+</figure>
+</div>
+</div>
+<div class="cell">
+<div id="tbl-gusts" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-gusts-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: Final altitude RMSE for the four estimators in the presence of vertical gusts. Once the altitude becomes time-varying, the recursive average is unable to track the trajectory and its error increases dramatically. Reducing the sampling interval from 1.0 s to 0.1 s produces only modest changes compared with the gain obtained by modeling the correlated disturbance.
+</figcaption>
+<div aria-describedby="tbl-gusts-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="table do-not-create-environment cell caption-top table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Sampling interval</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Recursive average [m]</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Moving average [m]</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Standard KF [m]</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Augmented KF [m]</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">1.0 s</td>
+<td style="text-align: right;">2.559</td>
+<td style="text-align: right;">0.452</td>
+<td style="text-align: right;">0.442</td>
+<td style="text-align: right;">0.406</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">0.1 s</td>
+<td style="text-align: right;">2.635</td>
+<td style="text-align: right;">0.474</td>
+<td style="text-align: right;">0.490</td>
+<td style="text-align: right;">0.417</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>The recursive average performs well in the <em>no-gust</em> scenario because the balloon remains close to its cruising altitude and the averaging horizon effectively suppresses part of the measurement noise. This is not entirely unexpected. In the idealized case of a constant signal corrupted only by white noise, the variance reduction achieved by averaging <img src="https://latex.codecogs.com/png.latex?N"> samples scales as <img src="https://latex.codecogs.com/png.latex?1/N">, whereas a moving average with window length <img src="https://latex.codecogs.com/png.latex?W"> achieves only a <img src="https://latex.codecogs.com/png.latex?1/W"> reduction. For <img src="https://latex.codecogs.com/png.latex?N%20%5Capprox%2080"> and <img src="https://latex.codecogs.com/png.latex?W%20=%205">, one would therefore expect the recursive average to outperform the moving average by roughly a factor <img src="https://latex.codecogs.com/png.latex?%5Csqrt%7BW/N%7D%20%5Capprox%200.25"> in RMSE. The observed ratio is less favorable because the measurements are affected by a correlated barometric disturbance and the balloon altitude is not perfectly constant. Nevertheless, the result still reflects the advantage of exploiting the entire observation history in this particularly benign scenario.</p>
+<p>As soon as vertical dynamics are introduced, however, recursive averaging becomes unsuitable because its memory is too long to follow the evolving trajectory. For this reason, the remaining results focus on the moving average, the standard KF, and the augmented KF.</p>
+<p>Interestingly, the moving average exhibits nearly identical RMSE values across all scenarios. This robustness should not be interpreted as superior modeling capability. Rather, it reflects the fact that the 5 s averaging window acts primarily as a low-pass filter, smoothing both the correlated barometric disturbance and the relatively weak vertical dynamics. As a result, the estimator remains largely insensitive to the distinction between the no-gust and vertical-gust scenarios.</p>
+<p>A further observation is the limited effect of oversampling. Once the process-noise models are scaled consistently with <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t">, reducing the sampling interval from <img src="https://latex.codecogs.com/png.latex?1~%5Cmathrm%7Bs%7D"> to <img src="https://latex.codecogs.com/png.latex?0.1~%5Cmathrm%7Bs%7D"> produces only modest changes in estimation accuracy. In this example, the dominant limitation is not the availability of measurements, but the presence of a slowly varying correlated disturbance affecting the observations.</p>
+<p>The consistency diagnostics reveal a clear difference between the standard and augmented KFs. In all four scenarios, the augmented KF produces NIS values close to the theoretical expectation of one and NEES values close to the corresponding state dimension, indicating statistical consistency between the assumed model and the simulated process.</p>
+<p>By contrast, the standard KF exhibits substantially inflated NEES values, particularly under oversampling, despite the use of an increased measurement-noise covariance to compensate for the unmodeled barometric disturbance. This behavior indicates that the filter is overconfident about the accuracy of its state estimates. The inconsistency becomes especially pronounced for <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t%20=%200.1~%5Cmathrm%7Bs%7D">, where repeated observations of the same slowly varying disturbance further expose the limitations of the simplified model.</p>
+<p>These results suggest that increasing the sampling rate alone cannot compensate for model mismatch. In this example, model fidelity proves more important than measurement frequency.</p>
+<p>A representative realization of the <em>vertical-gust</em> scenario with <img src="https://latex.codecogs.com/png.latex?%5CDelta%20t%20=%201~%5Cmathrm%7Bs%7D"> is shown in Figure&nbsp;1.</p>
+<div id="fig-trajectory" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-trajectory-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/post_3/fig_1.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-trajectory-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Representative realization of the <em>vertical-gust</em> scenario (<img src="https://latex.codecogs.com/png.latex?%5CDelta%20t%20=%201~%5Cmathrm%7Bs%7D">).
+</figcaption>
+</figure>
+</div>
+<p>The recursive average rapidly loses the ability to track the true altitude because its effective memory grows continuously with time. The moving average remains considerably more responsive, thanks to its finite memory window. The standard KF reacts more quickly to altitude variations, but part of the slowly varying barometric disturbance is incorrectly interpreted as genuine balloon motion. The augmented KF is the only estimator capable of explicitly separating the environmental disturbance from the vehicle dynamics.</p>
+<p>To quantify these differences, the root-mean-square error was evaluated over the full trajectory and averaged across Monte Carlo runs, as shown in Figure&nbsp;2.</p>
+<div id="fig-rmse" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-rmse-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/post_3/fig_2.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rmse-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Monte Carlo estimate of altitude RMSE over time (<em>vertical-gust</em> scenario) (<img src="https://latex.codecogs.com/png.latex?%5CDelta%20T%20=%201"> s).
+</figcaption>
+</figure>
+</div>
+<p>The RMSE curves reveal an initial transient during which the standard and augmented KFs exhibit very similar performance. During this phase, both filters are adapting from their initial conditions, while the augmented KF has not yet accumulated sufficient information to reliably separate the slowly varying barometric disturbance from the balloon dynamics. As time progresses, the advantage of explicitly modeling the correlated disturbance becomes increasingly evident, leading to a persistent reduction in RMSE for the augmented KF.</p>
+</section>
+<section id="reproducibility" class="level2">
+<h2 class="anchored" data-anchor-id="reproducibility">Reproducibility</h2>
+<p>All MATLAB scripts used to generate the simulations, figures, tables, and Monte Carlo analyses discussed in this post are available in the accompanying <a href="https://angelosabatini.github.io/blog.engineering/posts/post_3/">GitHub repository</a>.</p>
+<p>The repository includes the main simulation driver, the reusable Monte Carlo function implementing the four estimators, and a separate analysis script used to generate the figures, summary tables, consistency diagnostics, and statistical comparisons reported in this post.</p>
+</section>
+<section id="concluding-remarks" class="level2">
+<h2 class="anchored" data-anchor-id="concluding-remarks">Concluding remarks</h2>
+<p>At first sight, the balloon experiment may appear to be a simple estimation problem. A sequence of noisy altitude measurements is available, and the objective is merely to recover the true trajectory.</p>
+<p>The simulations reveal that the situation is more subtle. The barometric signal contains information about two different phenomena at the same time: the actual motion of the balloon and the slowly evolving state of the surrounding atmosphere. Increasing the sampling rate alone cannot separate these contributions. Oversampling simply produces more observations of the same correlated process.</p>
+<p>The key ingredient is not additional data, but an appropriate model.</p>
+<p>By explicitly introducing the atmospheric disturbance as an additional state variable, KF is able to exploit temporal structure rather than merely suppress fluctuations. Uncertainty is reduced by reorganizing information according to a dynamical description of the system.</p>
+<p>This idea extends far beyond balloons and barometers. Many sensing problems involve measurements influenced simultaneously by the quantity of interest and by slowly varying environmental effects. Whenever temporal correlation is present, understanding the dynamics often becomes more valuable than collecting additional samples.</p>
+<p>In the end, the lesson is not that averaging is useless, nor that oversampling is always a mistake.</p>
+<blockquote class="blockquote">
+<div class="line-block">The real challenge is not simply to collect measurements, but to interpret them through an appropriate model of the physical world: the most valuable information is often not contained in a single observation, but in the way successive observations are connected across time.</div>
+</blockquote>
+
+
+</section>
+
+ ]]></description>
+  <category>stochastic modeling</category>
+  <category>signal processing</category>
+  <category>measurement</category>
+  <guid>https://amsabatini.netlify.app/posts/post_3/</guid>
+  <pubDate>Thu, 02 Jul 2026 22:00:00 GMT</pubDate>
+  <media:content url="https://amsabatini.netlify.app/posts/post_3/picture.png" medium="image" type="image/png" height="216" width="144"/>
+</item>
 <item>
   <title>The hidden cost of correlated noise</title>
   <dc:creator>Angelo Maria Sabatini</dc:creator>
@@ -2839,18 +3164,18 @@ A closer look at Allan averaging
 <p>The experimental activity considered in this post consists of acquiring a dataset of <img src="https://latex.codecogs.com/png.latex?n"> measurements of some quantity at discrete instants of time that, without loss of generality, can be assumed equally spaced by an interval <img src="https://latex.codecogs.com/png.latex?%5CDelta%20T">.</p>
 <p>The measurand, whose physical nature is immaterial for the present discussion, is taken to be constant and equal to <img src="https://latex.codecogs.com/png.latex?%5Cmu">. Observations are affected by additive noise modeled as a random variable <img src="https://latex.codecogs.com/png.latex?V"> with zero mean and constant variance <img src="https://latex.codecogs.com/png.latex?%5Csigma%5E2">.</p>
 <p>The resulting sequence can therefore be written as</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0Ax_k=%5Cmu+v_k,%5Cqquad%20k=1,%5Cdots,n,%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?x_k=%5Cmu+v_k,%5Cqquad%20k=1,%5Cdots,n,"></p>
 <p>where the explicit time dependence has been omitted for the sake of clarity.</p>
 <p>If measurement errors are furthermore assumed to be independent, a basic probabilistic model consists of <img src="https://latex.codecogs.com/png.latex?n"> independent identically distributed (IID) random variables <img src="https://latex.codecogs.com/png.latex?%5C%7BX_k%5C%7D_%7Bk=1%7D%5En">, whose realizations are <img src="https://latex.codecogs.com/png.latex?%5C%7Bx_k%5C%7D_%7Bk=1%7D%5En">. No assumption has yet been made about the probability distribution of <img src="https://latex.codecogs.com/png.latex?V">.</p>
 <p>A central result of estimation theory is that the unknown quantity <img src="https://latex.codecogs.com/png.latex?%5Cmu"> can be estimated using the <em>sample mean</em>, defined as</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbar%20X_n=%5Cfrac%7B1%7D%7Bn%7D%5Csum_%7Bk=1%7D%5En%20X_k.%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cbar%20X_n=%5Cfrac%7B1%7D%7Bn%7D%5Csum_%7Bk=1%7D%5En%20X_k."></p>
 <p>Since <img src="https://latex.codecogs.com/png.latex?%5Cbar%20X_n"> is itself a random variable, the available dataset yields the numerical estimate</p>
-<p><span id="eq-3"><img src="https://latex.codecogs.com/png.latex?%0A%5Cbar%20x_n=%5Cfrac%7B1%7D%7Bn%7D%5Csum_%7Bk=1%7D%5En%20x_k.%0A%5Ctag%7B1%7D"></span></p>
+<p><span id="eq-3"><img src="https://latex.codecogs.com/png.latex?%5Cbar%20x_n=%5Cfrac%7B1%7D%7Bn%7D%5Csum_%7Bk=1%7D%5En%20x_k.%20%5Ctag%7B1%7D"></span></p>
 <p>The expectation of <img src="https://latex.codecogs.com/png.latex?%5Cbar%20X_n"> is</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbb%7BE%7D%5B%5Cbar%20X_n%5D=%5Cfrac%7B1%7D%7Bn%7D%5Csum_%7Bk=1%7D%5En%5Cmathbb%7BE%7D%5BX_k%5D=%5Cmu.%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cmathbb%7BE%7D%5B%5Cbar%20X_n%5D=%5Cfrac%7B1%7D%7Bn%7D%5Csum_%7Bk=1%7D%5En%5Cmathbb%7BE%7D%5BX_k%5D=%5Cmu."></p>
 <p>This holds for every value of <img src="https://latex.codecogs.com/png.latex?n">, meaning that the estimator is unbiased.</p>
 <p>The variance of <img src="https://latex.codecogs.com/png.latex?%5Cbar%20X_n"> is</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathrm%7BVar%7D(%5Cbar%20X_n)=%5Cfrac%7B1%7D%7Bn%5E2%7D%5Csum_%7Bk=1%7D%5En%5Cmathrm%7BVar%7D(X_k)=%5Cfrac%7B%5Csigma%5E2%7D%7Bn%7D,%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cmathrm%7BVar%7D(%5Cbar%20X_n)=%5Cfrac%7B1%7D%7Bn%5E2%7D%5Csum_%7Bk=1%7D%5En%5Cmathrm%7BVar%7D(X_k)=%5Cfrac%7B%5Csigma%5E2%7D%7Bn%7D,"></p>
 <p>showing the decrease of uncertainty as the number of observations increases. This result ultimately relies on the fact that the variance of a sum is equal to the sum of the variances if the added terms are independent (or at least pairwise uncorrelated).</p>
 <p>Moreover, provided that <img src="https://latex.codecogs.com/png.latex?%5Csigma"> is finite, the central limit theorem implies that, for sufficiently large <img src="https://latex.codecogs.com/png.latex?n">, the distribution of <img src="https://latex.codecogs.com/png.latex?%5Cbar%20X_n"> becomes approximately Gaussian even when the original noise distribution is not.</p>
 <p>All these results are mathematically elegant, but they also hide an important practical issue: in real experimental settings, collecting a “large” number of genuinely independent observations may be much more difficult than it first appears.</p>
@@ -2863,7 +3188,7 @@ A closer look at Allan averaging
 <p>From an LS perspective, the problem of estimating a constant quantity can also be interpreted as a particularly simple regression model. Since data are acquired sequentially, the acquisition index (or time itself) may be formally regarded as a predictor variable, while the observations play the role of the response.</p>
 <p>In regression terms, computing the sample mean corresponds to fitting an intercept-only model, or equivalently a linear model with zero slope. Importantly, the LS solution does not require Gaussian assumptions. In fact, the regression coefficients are obtained simply by minimizing a quadratic cost function, which leads to a linear system of equations when its gradient is set to zero. This procedure produces a straight line that always passes through the centroid of the observed data. When the slope is explicitly constrained to zero, the LS solution coincides with the sample mean. Probabilistic assumptions on <img src="https://latex.codecogs.com/png.latex?V"> instead determine the statistical properties and optimality characteristics of the estimator. In particular, under Gaussian assumptions, the sample mean is also the MMSE estimator.</p>
 <p>Before leaving this section, one further observation is worth making: the sample mean admits a recursive formulation. If <img src="https://latex.codecogs.com/png.latex?%5Cbar%20x_%7Bk-1%7D"> denotes the estimate computed from the first <img src="https://latex.codecogs.com/png.latex?k-1"> observations, then the arrival of a new observation <img src="https://latex.codecogs.com/png.latex?x_k"> produces the updated estimate</p>
-<p><span id="eq-5"><img src="https://latex.codecogs.com/png.latex?%0A%5Cbar%20x_k=%5Cleft(1-%5Cfrac%7B1%7D%7Bk%7D%5Cright)%5Cbar%20x_%7Bk-1%7D+%5Cfrac%7B1%7D%7Bk%7Dx_k,%5Cqquad%20k=1,%5Cdots,n.%0A%5Ctag%7B2%7D"></span></p>
+<p><span id="eq-5"><img src="https://latex.codecogs.com/png.latex?%5Cbar%20x_k=%5Cleft(1-%5Cfrac%7B1%7D%7Bk%7D%5Cright)%5Cbar%20x_%7Bk-1%7D+%5Cfrac%7B1%7D%7Bk%7Dx_k,%5Cqquad%20k=1,%5Cdots,n.%20%5Ctag%7B2%7D"></span></p>
 <p>This recursive expression is algebraically equivalent to the batch computation of the sample mean in Equation&nbsp;1, but it highlights a key idea: the estimate can be updated sequentially using the previous estimate and each newly acquired observation. As <img src="https://latex.codecogs.com/png.latex?k"> increases, the weight assigned to new data points progressively decreases.</p>
 </section>
 <section id="the-kalman-filter-in-a-nutshell" class="level2">
@@ -2898,48 +3223,48 @@ Figure&nbsp;1: Conceptual structure of the Kalman filter recursion. Model-based 
 </div>
 </div>
 <p>For a linear discrete-time dynamical system observed through noisy measurements,</p>
-<p><span id="eq-6"><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bcases%7D%0A%5Cmathbf%7Bx%7D_%7Bk+1%7D&amp;=A_k%5Cmathbf%7Bx%7D_k+%5Cmathbf%7Bw%7D_k%5C%5C%0A%5Cmathbf%7Bz%7D_k&amp;=H_k%5Cmathbf%7Bx%7D_k+%5Cmathbf%7Bv%7D_k%0A%5Cend%7Bcases%7D%0A%5Ctag%7B3%7D"></span></p>
+<p><span id="eq-6"><img src="https://latex.codecogs.com/png.latex?%5Cbegin%7Bcases%7D%0A%5Cmathbf%7Bx%7D_%7Bk+1%7D&amp;=A_k%5Cmathbf%7Bx%7D_k+%5Cmathbf%7Bw%7D_k%5C%5C%0A%5Cmathbf%7Bz%7D_k&amp;=H_k%5Cmathbf%7Bx%7D_k+%5Cmathbf%7Bv%7D_k%0A%5Cend%7Bcases%7D%20%5Ctag%7B3%7D"></span></p>
 <p>where the state vector is <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bx%7D_k%5Cin%5Cmathbb%7BR%7D%5En">, the state transition matrix <img src="https://latex.codecogs.com/png.latex?A_k"> is square <img src="https://latex.codecogs.com/png.latex?n%5Ctimes%20n">, the measurement vector is <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bz%7D_k%20%5Cin%20%5Cmathbb%7BR%7D%5Em">, and <img src="https://latex.codecogs.com/png.latex?H_k"> is an <img src="https://latex.codecogs.com/png.latex?m%5Ctimes%20n"> measurement matrix.</p>
 <p>The <em>process noise</em> <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bw%7D_k"> and the <em>measurement noise</em> <img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7Bv%7D_k"> are modeled as zero-mean Gaussian random vectors with covariance matrices</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bcases%7D%0A%5Cmathbf%7Bw%7D_k&amp;%5Csim%5Cmathcal%7BN%7D(0,Q_k)%20%5C%5C%0A%5Cmathbf%7Bv%7D_k&amp;%5Csim%5Cmathcal%7BN%7D(0,R_k)%0A%5Cend%7Bcases%7D%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cbegin%7Bcases%7D%0A%5Cmathbf%7Bw%7D_k&amp;%5Csim%5Cmathcal%7BN%7D(0,Q_k)%20%5C%5C%0A%5Cmathbf%7Bv%7D_k&amp;%5Csim%5Cmathcal%7BN%7D(0,R_k)%0A%5Cend%7Bcases%7D"></p>
 <p>The covariance matrices <img src="https://latex.codecogs.com/png.latex?Q_k"> and <img src="https://latex.codecogs.com/png.latex?R_k"> are associated with the assumption that the process and measurement noise components are temporally uncorrelated. Because the noise processes are Gaussian, uncorrelated components are also statistically independent. <img src="https://latex.codecogs.com/png.latex?Q_k"> and <img src="https://latex.codecogs.com/png.latex?R_k"> fully characterize the second-order statistical structure of the process and measurement noise.</p>
 <p>In Kalman filtering notation, the symbols <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Cmathbf%7Bx%7D%7D_k%5E-"> and <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Cmathbf%7Bx%7D%7D_k%5E+"> denote the predicted (a priori) and updated (a posteriori) state estimates at time step <img src="https://latex.codecogs.com/png.latex?k">, respectively. The corresponding estimation errors are</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bcases%7D%0A%5Cmathbf%7Be%7D_k%5E-&amp;=%5Cmathbf%7Bx%7D_k-%5Chat%7B%5Cmathbf%7Bx%7D%7D_k%5E-%5C%5C%0A%5Cmathbf%7Be%7D_k%5E+&amp;=%5Cmathbf%7Bx%7D_k-%5Chat%7B%5Cmathbf%7Bx%7D%7D_k%5E+,%0A%5Cend%7Bcases%7D%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cbegin%7Bcases%7D%0A%5Cmathbf%7Be%7D_k%5E-&amp;=%5Cmathbf%7Bx%7D_k-%5Chat%7B%5Cmathbf%7Bx%7D%7D_k%5E-%5C%5C%0A%5Cmathbf%7Be%7D_k%5E+&amp;=%5Cmathbf%7Bx%7D_k-%5Chat%7B%5Cmathbf%7Bx%7D%7D_k%5E+,%0A%5Cend%7Bcases%7D"></p>
 <p>with covariance matrices</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bcases%7D%0AP_k%5E-&amp;=%5Cmathbb%7BE%7D%5Cleft%5B%5Cmathbf%7Be%7D_k%5E%7B-%7D(%5Cmathbf%7Be%7D_k%5E%7B-%7D)%5E%5Ctop%5Cright%5D%20%5C%5C%0AP_k%5E+&amp;=%5Cmathbb%7BE%7D%5Cleft%5B%5Cmathbf%7Be%7D_k%5E%7B+%7D(%5Cmathbf%7Be%7D_k%5E%7B+%7D)%5E%5Ctop%5Cright%5D.%0A%5Cend%7Bcases%7D%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cbegin%7Bcases%7D%0AP_k%5E-&amp;=%5Cmathbb%7BE%7D%5Cleft%5B%5Cmathbf%7Be%7D_k%5E%7B-%7D(%5Cmathbf%7Be%7D_k%5E%7B-%7D)%5E%5Ctop%5Cright%5D%20%5C%5C%0AP_k%5E+&amp;=%5Cmathbb%7BE%7D%5Cleft%5B%5Cmathbf%7Be%7D_k%5E%7B+%7D(%5Cmathbf%7Be%7D_k%5E%7B+%7D)%5E%5Ctop%5Cright%5D.%0A%5Cend%7Bcases%7D"></p>
 </div>
 </div>
 <section id="estimating-the-value-of-a-constant-measurand" class="level3">
 <h3 class="anchored" data-anchor-id="estimating-the-value-of-a-constant-measurand">Estimating the value of a constant measurand</h3>
 <p>Let us now return to the experimental scenario introduced above. The measurand is assumed constant and observations are affected by additive Gaussian noise. In Kalman-filter notation, this corresponds to the scalar model</p>
-<p><span id="eq-7"><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bcases%7D%0Ax_%7Bk+1%7D&amp;=x_k%5C%5C%0Az_k&amp;=x_k+v_k,%0A%5Cend%7Bcases%7D%0A%5Ctag%7B4%7D"></span></p>
+<p><span id="eq-7"><img src="https://latex.codecogs.com/png.latex?%5Cbegin%7Bcases%7D%0Ax_%7Bk+1%7D&amp;=x_k%5C%5C%0Az_k&amp;=x_k+v_k,%0A%5Cend%7Bcases%7D%20%5Ctag%7B4%7D"></span></p>
 <p>where</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0Av_k%5Csim%5Cmathcal%7BN%7D(0,R),%5Cqquad%20R=%5Csigma%5E2.%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?v_k%5Csim%5Cmathcal%7BN%7D(0,R),%5Cqquad%20R=%5Csigma%5E2."></p>
 <p>We also have:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AA=1,%5Cqquad%20H=1,%5Cqquad%20Q=0.%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?A=1,%5Cqquad%20H=1,%5Cqquad%20Q=0."></p>
 <p>The condition <img src="https://latex.codecogs.com/png.latex?Q=0"> is particularly important. The filter is explicitly told that the state is constant: measurements are noisy, but the measurand is assumed not to evolve in time. There is therefore uncertainty in the observations, but no uncertainty in the state dynamics: the filter assumes that the true value remains constant and that any fluctuations arise solely from measurement noise.</p>
 <p>For the scalar model considered here, the KF equations simplify considerably. Since <img src="https://latex.codecogs.com/png.latex?A=1"> and <img src="https://latex.codecogs.com/png.latex?Q=0">, the prediction step leaves both the estimate and its uncertainty unchanged:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Chat%20x_k%5E-=%5Chat%20x_%7Bk-1%7D%5E+,%5Cqquad%20P_k%5E-=P_%7Bk-1%7D%5E+.%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Chat%20x_k%5E-=%5Chat%20x_%7Bk-1%7D%5E+,%5Cqquad%20P_k%5E-=P_%7Bk-1%7D%5E+."></p>
 <p>The Kalman gain is therefore</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AK_k=%5Cfrac%7BP_k%5E-%7D%7BP_k%5E-+R%7D.%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?K_k=%5Cfrac%7BP_k%5E-%7D%7BP_k%5E-+R%7D."></p>
 <p>Suppose the filter is initialized with no prior knowledge about the value of the state. In practice, this means that the initial estimate is regarded as extremely uncertain. This corresponds to assigning a very large initial uncertainty to the estimate, formally <img src="https://latex.codecogs.com/png.latex?P_1%5E-%20%5Cto%20%5Cinfty">. As a consequence,</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AK_1=%5Cfrac%7BP_1%5E-%7D%7BP_1%5E-+R%7D%5Cto%201,%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?K_1=%5Cfrac%7BP_1%5E-%7D%7BP_1%5E-+R%7D%5Cto%201,"></p>
 <p>so the first measurement is trusted completely:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Chat%20x_1%5E+=z_1.%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Chat%20x_1%5E+=z_1."></p>
 <p>The updated covariance is</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AP_1%5E+=%5Cleft(1-%5Cfrac%7BP_1%5E-%7D%7BP_1%5E-+R%7D%5Cright)P_1%5E-=%5Cfrac%7BRP_1%5E-%7D%7BP_1%5E-+R%7D%5Cto%20R.%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?P_1%5E+=%5Cleft(1-%5Cfrac%7BP_1%5E-%7D%7BP_1%5E-+R%7D%5Cright)P_1%5E-=%5Cfrac%7BRP_1%5E-%7D%7BP_1%5E-+R%7D%5Cto%20R."></p>
 <p>Because <img src="https://latex.codecogs.com/png.latex?Q=0">, the prediction step does not reinject uncertainty into the model:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AP_2%5E-=P_1%5E+=R.%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?P_2%5E-=P_1%5E+=R."></p>
 <p>At the second iteration,</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AK_2=%5Cfrac%7BR%7D%7BR+R%7D=%5Cfrac12.%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?K_2=%5Cfrac%7BR%7D%7BR+R%7D=%5Cfrac12."></p>
 <p>The updated estimate is therefore</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Chat%20x_2%5E+=%5Chat%20x_1%5E+%20+%5Cfrac12(z_2-%5Chat%20x_1%5E+)=%5Cfrac%7Bz_1+z_2%7D%7B2%7D,%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Chat%20x_2%5E+=%5Chat%20x_1%5E+%20+%5Cfrac12(z_2-%5Chat%20x_1%5E+)=%5Cfrac%7Bz_1+z_2%7D%7B2%7D,"></p>
 <p>and the corresponding covariance becomes</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AP_2%5E+=%5Cfrac%7BR%7D%7B2%7D.%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?P_2%5E+=%5Cfrac%7BR%7D%7B2%7D."></p>
 <p>Continuing the recursion, one obtains</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Chat%20x_k%5E+=%5Cleft(1-%5Cfrac%7B1%7D%7Bk%7D%5Cright)%5Chat%20x_%7Bk-1%7D%5E+%20+%5Cfrac%7B1%7D%7Bk%7Dz_k,%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Chat%20x_k%5E+=%5Cleft(1-%5Cfrac%7B1%7D%7Bk%7D%5Cright)%5Chat%20x_%7Bk-1%7D%5E+%20+%5Cfrac%7B1%7D%7Bk%7Dz_k,"></p>
 <p>which is exactly the formula for the sample mean introduced in Equation&nbsp;2. In this special case, the Kalman gain becomes</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AK_k=%5Cfrac%7B1%7D%7Bk%7D.%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?K_k=%5Cfrac%7B1%7D%7Bk%7D."></p>
 <p>The KF therefore progressively stops reacting to new measurements: each additional observation receives less weight as confidence in the estimated value gradually increases.</p>
 </section>
 </section>
@@ -2947,36 +3272,36 @@ Figure&nbsp;1: Conceptual structure of the Kalman filter recursion. Model-based 
 <h2 class="anchored" data-anchor-id="is-a-physical-quantity-ever-really-constant">Is a physical quantity ever really constant?</h2>
 <p>In the previous section, the KF state was assumed perfectly constant, corresponding to the choice <img src="https://latex.codecogs.com/png.latex?Q=0">. Let us now relax this assumption and consider the more realistic situation in which the state may slowly evolve over time.</p>
 <p>The simplest stochastic model for a slowly varying quantity consists of describing the scalar state as a random walk driven by continuous-time white noise with strength <img src="https://latex.codecogs.com/png.latex?q">:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cdot%20x(t)%20=%20w(t),%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cdot%20x(t)%20=%20w(t),"></p>
 <p>where</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cmathbb%7BE%7D%5Bw(t)w(t+%5Ctau)%5D%20=%20q%5C,%5Cdelta(%5Ctau).%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cmathbb%7BE%7D%5Bw(t)w(t+%5Ctau)%5D%20=%20q%5C,%5Cdelta(%5Ctau)."></p>
 <p>If observations are acquired every <img src="https://latex.codecogs.com/png.latex?%5CDelta%20T"> seconds, the corresponding discrete-time model becomes</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0Ax_%7Bk+1%7D=x_k+%5CDelta%20w_k,%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?x_%7Bk+1%7D=x_k+%5CDelta%20w_k,"></p>
 <p>where <img src="https://latex.codecogs.com/png.latex?%5CDelta%20w_k"> represents the stochastic increment accumulated over the sampling interval <img src="https://latex.codecogs.com/png.latex?%5CDelta%20T">. The variance of this discrete-time process noise is therefore</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AQ=q%5C,%5CDelta%20T.%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?Q=q%5C,%5CDelta%20T."></p>
 <p>This simple relation already contains an important physical idea: uncertainty accumulates over time. The longer the interval between consecutive observations, the larger the uncertainty injected during the prediction step.</p>
 <p>For the scalar random-walk model,</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bcases%7D%0Ax_%7Bk+1%7D&amp;=x_k+%5CDelta%20w_k%20%5C%5C%0Az_k&amp;=x_k+v_k,%0A%5Cend%7Bcases%7D%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cbegin%7Bcases%7D%0Ax_%7Bk+1%7D&amp;=x_k+%5CDelta%20w_k%20%5C%5C%0Az_k&amp;=x_k+v_k,%0A%5Cend%7Bcases%7D"></p>
 <p>the KF prediction step is particularly simple. Since <img src="https://latex.codecogs.com/png.latex?A=1"> and <img src="https://latex.codecogs.com/png.latex?H=1">,</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AP_k%5E-=P_%7Bk-1%7D%5E++Q.%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?P_k%5E-=P_%7Bk-1%7D%5E++Q."></p>
 <p>The Kalman gain is therefore</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AK_k=%5Cfrac%7BP_k%5E-%7D%7BP_k%5E-+R%7D=%5Cfrac%7BP_%7Bk-1%7D%5E++Q%7D%7BP_%7Bk-1%7D%5E++Q+R%7D.%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?K_k=%5Cfrac%7BP_k%5E-%7D%7BP_k%5E-+R%7D=%5Cfrac%7BP_%7Bk-1%7D%5E++Q%7D%7BP_%7Bk-1%7D%5E++Q+R%7D."></p>
 <p>After the measurement update,</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AP_k%5E+=(1-K_k)P_k%5E-.%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?P_k%5E+=(1-K_k)P_k%5E-."></p>
 <p>Substituting the expression of <img src="https://latex.codecogs.com/png.latex?K_k">,</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AP_k%5E+=%5Cleft(1-%5Cfrac%7BP_%7Bk-1%7D%5E++Q%7D%7BP_%7Bk-1%7D%5E++Q+R%7D%5Cright)(P_%7Bk-1%7D%5E++Q),%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?P_k%5E+=%5Cleft(1-%5Cfrac%7BP_%7Bk-1%7D%5E++Q%7D%7BP_%7Bk-1%7D%5E++Q+R%7D%5Cright)(P_%7Bk-1%7D%5E++Q),"></p>
 <p>and therefore</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AP_k%5E+=%5Cfrac%7B(P_%7Bk-1%7D%5E++Q)R%7D%7BP_%7Bk-1%7D%5E++Q+R%7D.%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?P_k%5E+=%5Cfrac%7B(P_%7Bk-1%7D%5E++Q)R%7D%7BP_%7Bk-1%7D%5E++Q+R%7D."></p>
 <p>This recursion is the scalar Riccati equation for the random-walk model.</p>
 <p>The most interesting behavior emerges when the recursion reaches steady state:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AP_k%5E+=P_%7Bk-1%7D%5E+=P_%5Cinfty,%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?P_k%5E+=P_%7Bk-1%7D%5E+=P_%5Cinfty,"></p>
 <p>then</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AP_%5Cinfty=%5Cfrac%7B(P_%5Cinfty+Q)R%7D%7BP_%5Cinfty+Q+R%7D.%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?P_%5Cinfty=%5Cfrac%7B(P_%5Cinfty+Q)R%7D%7BP_%5Cinfty+Q+R%7D."></p>
 <p>Unlike the previous case with <img src="https://latex.codecogs.com/png.latex?Q=0">, the covariance no longer collapses toward zero because uncertainty is continuously reinjected into the dynamics.</p>
 <p>Solving this quadratic equation gives</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AP_%5Cinfty=%5Cfrac%7B-Q+%5Csqrt%7BQ%5E2+4QR%7D%7D%7B2%7D.%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?P_%5Cinfty=%5Cfrac%7B-Q+%5Csqrt%7BQ%5E2+4QR%7D%7D%7B2%7D."></p>
 <p>As soon as <img src="https://latex.codecogs.com/png.latex?Q%3E0">, the steady-state covariance remains strictly positive. Consequently, the steady-state Kalman gain is also strictly positive:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AK_%5Cinfty=%5Cfrac%7BP_%5Cinfty+Q%7D%7BP_%5Cinfty+Q+R%7D.%0A"></p>
+<p><img src="https://latex.codecogs.com/png.latex?K_%5Cinfty=%5Cfrac%7BP_%5Cinfty+Q%7D%7BP_%5Cinfty+Q+R%7D."></p>
 <p>The KF therefore never stops listening to new measurements.</p>
 </section>
 <section id="simulations" class="level2">
@@ -4102,7 +4427,7 @@ Figure&nbsp;5: Kalman gain evolution for the three filters.
   <category>signal processing</category>
   <category>measurement</category>
   <guid>https://amsabatini.netlify.app/posts/post_1/</guid>
-  <pubDate>Sun, 14 Jun 2026 22:00:00 GMT</pubDate>
+  <pubDate>Tue, 02 Jun 2026 22:00:00 GMT</pubDate>
   <media:content url="https://amsabatini.netlify.app/posts/post_1/knob.png" medium="image" type="image/png" height="152" width="144"/>
 </item>
 <item>
@@ -18517,559 +18842,6 @@ Scientific notation
   <guid>https://amsabatini.netlify.app/posts/significant_figures/</guid>
   <pubDate>Mon, 13 May 2024 22:00:00 GMT</pubDate>
   <media:content url="https://amsabatini.netlify.app/posts/significant_figures/significant_figures.png" medium="image" type="image/png" height="150" width="144"/>
-</item>
-<item>
-  <title>Augmented Dickey-Fuller test</title>
-  <dc:creator>Angelo Maria Sabatini</dc:creator>
-  <link>https://amsabatini.netlify.app/posts/dickey_fuller/</link>
-  <description><![CDATA[ 
-
-
-
-
-<section id="stationary-time-series" class="level2">
-<h2 class="anchored" data-anchor-id="stationary-time-series">Stationary time series</h2>
-<p>Roughly, for a time series to be stationary three conditions are needed:</p>
-<ul>
-<li><p>it shows mean reversion, namely it fluctuates around a constant long-term mean</p></li>
-<li><p>it has finite variance that is time-invariant.</p></li>
-<li><p>autocorrelations decay relatively fast as lag lenghts increase.</p></li>
-</ul>
-<p>The identification of stationary series can be done by checking whether the autocorrelation function (ACF) drops to zero relatively quickly; usually, the ACF of non-stationary data decreases slowly, and the first-lag value is often large and positive. However, this method is necessarily imprecise, leading to ambiguous situations that cannot be easily deciphered, especially when the sample size is small.</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Backshift notation
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>The backward shift operator <img src="https://latex.codecogs.com/png.latex?B"> is defined as follows:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0ABY_t=Y_%7Bt-1%7D%0A"></p>
-<p>The operator <img src="https://latex.codecogs.com/png.latex?B"> operates on the <img src="https://latex.codecogs.com/png.latex?t">th sample of a time series, with the effect of shifting the sample back one period (first difference). Recall that two applications of the backward shift operator to <img src="https://latex.codecogs.com/png.latex?Y_t"> shift the sample back two periods (second difference):</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AB(BY_t)=B%5E2Y_t=Y_%7Bt-2%7D%0A"></p>
-<p>For example, in the case of monthly data, if we wish to consider <em>the same month last year</em>, the notation is <img src="https://latex.codecogs.com/png.latex?B%5E%7B12%7DY_t=Y_%7Bt-12%7D">.</p>
-<p>The backward shift operator is useful to describe the operation of <strong>differencing</strong>, the technique of election to stabilize the mean value of nonstationary time series by removing changes in the level of a time series, and therefore eliminating (or reducing) trend and seasonality.</p>
-<p>A first-order difference is defined as follows:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AY%5E%7B%5Cprime%7D_t=Y_t-Y_%7Bt-1%7D=Y_t-BY_t=(1-B)Y_t%0A"></p>
-<p>If a second-order difference is considered, namely the first-order difference of a first-order difference, we can write:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0AY%5E%7B%5Cprime%5Cprime%7D_t&amp;=Y%5E%7B%5Cprime%7D_t-Y%5E%7B%5Cprime%7D_%7Bt-1%7D%5C%5C%0A&amp;=(1-B)%5E2Y_t=Y_t-2BY_t+B%5E2Y_t%5C%5C%0A&amp;=Y_t-2Y_%7Bt-1%7D+Y_%7Bt-2%7D%0A%5Cend%7Bsplit%7D%0A"></p>
-<p>A <img src="https://latex.codecogs.com/png.latex?d">-order difference can be written <img src="https://latex.codecogs.com/png.latex?(1-B)%5Ed">. It is important to note that a second-order difference, denoted by <img src="https://latex.codecogs.com/png.latex?(1-B)%5E2">, is not the same as a second difference, which is denoted by <img src="https://latex.codecogs.com/png.latex?B%5E2">.</p>
-<p>For example, a seasonal difference followed by a first difference can be written:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0AY%5E%7B%5Cprime%7D_t&amp;=(1-B)(1-B%5E%7B12%7D)Y_t%5C%5C%0A&amp;=(1-B-B%5E%7B12%7D-B%5E%7B13%7D)Y_t%5C%5C%0A&amp;=Y_t-Y_%7Bt-1%7D-Y_%7Bt-12%7D-Y_%7Bt-13%7D%0A%5Cend%7Bsplit%7D%0A"></p>
-<p>Sometimes, as I will always do in the following of this post, the notation <img src="https://latex.codecogs.com/png.latex?%5CDelta"> is also used to indicate the first-order difference, i.e., <img src="https://latex.codecogs.com/png.latex?%5CDelta%20Y_t=(1-B)Y_t">.</p>
-</div>
-</div>
-<p>A <strong>unit root process</strong>, also called difference-stationary process (DSP), is a data-generating process whose first difference is stationary.</p>
-<p>There are two basic models for time series with linear growth characteristics:</p>
-<ul>
-<li>Trend stationary process</li>
-</ul>
-<p><img src="https://latex.codecogs.com/png.latex?%0AY_t=c+%5Cdelta%20t+%5Ctext%7Bstationary%20process%7D%0A"></p>
-<ul>
-<li>Unit root process</li>
-</ul>
-<p><img src="https://latex.codecogs.com/png.latex?%0AY_t=Y_%7Bt-1%7D+%5Ctext%7Bstationary%20process%7D%0A"></p>
-<p>The processes are indistinguishable for short data records, in the sense that both a trend stationary process (TSP) and a DSP can fit short data records extremely well. However, the processes can be distinguished when restricted to a particular subclass of data-generating processes, such as AR(<img src="https://latex.codecogs.com/png.latex?p">) processes.</p>
-<p>Consider the case of an AR(1) process:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AY_t=a_1Y_%7Bt-1%7D+%5Cepsilon_t%0A"></p>
-<p>We may be interested in testing the hypothesis <img src="https://latex.codecogs.com/png.latex?a_1=1">. Since under the null hypothesis the sequence <img src="https://latex.codecogs.com/png.latex?%5C%7BY_t%5C%7D"> is generated by a nonstationary process, and the variance becomes infinitely large as <img src="https://latex.codecogs.com/png.latex?t"> increases, classical statistical methods cannot be used.</p>
-<p>Dickey and Fuller devised a procedure to formally test for the presence of a unit root against a number of possible alternatives for explaining the data. It is important to recall that TSP and DSP can produce different forecasts and can give rise to spurious regressions, therefore their detection in time series is a truly important task.</p>
-</section>
-<section id="augmented-dickey-fuller-test" class="level2">
-<h2 class="anchored" data-anchor-id="augmented-dickey-fuller-test">Augmented Dickey-Fuller test</h2>
-<p>A distinction between stationary and nonstationary time series is made by formal statistical procedures such as the ADF (Augmented Dickey-Fuller) test, which is frequently used since it also accounts for serial correlation in the time series.</p>
-<p>Three specifications of the ADF test are based on the following regression equations.</p>
-<section id="type-1-unit-root-with-none" class="level4">
-<h4 class="anchored" data-anchor-id="type-1-unit-root-with-none">Type 1 (unit root with “none”)</h4>
-<p><span id="eq-eq8"><img src="https://latex.codecogs.com/png.latex?%0A%5CDelta%20Y_t=%5Cgamma%20Y_%7Bt-1%7D+%5Cunderbrace%7B%5Csum_%7Bi=2%7D%5Ep%5Cbeta_i%5CDelta%20Y_%7Bt-i+1%7D%7D_%7B%5Ctext%7Bserial%20correlation%7D%7D+%5Cepsilon_t%0A%5Ctag%7B1%7D"></span></p>
-<p>where <img src="https://latex.codecogs.com/png.latex?%5Cepsilon_t"> is white Gaussian noise, stationary with zero mean and constant variance. The statistical hypothesis test is:</p>
-<p><span id="eq-eq9"><img src="https://latex.codecogs.com/png.latex?%0A(%5Ctau_1)%5Crightarrow%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7DH_0:&amp;%5Cquad%5Cgamma=0%5C%5C%0AH_1:&amp;%5Cquad%5Cgamma%5Cneq%200%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A%5Ctag%7B2%7D"></span></p>
-<p>The null hypothesis prescribes the existence of a unit-root in the model. Rejection of the null implies that the original time series <em>does not have a unit root</em>.</p>
-</section>
-<section id="type-2-unit-root-with-drift" class="level4">
-<h4 class="anchored" data-anchor-id="type-2-unit-root-with-drift">Type 2 (unit root with “drift”)</h4>
-<p><span id="eq-eq10"><img src="https://latex.codecogs.com/png.latex?%0A%5CDelta%20Y_t=%5Cgamma%20Y_%7Bt-1%7D+%5Cunderbrace%7Ba_0%7D_%7B%5Ctext%7Bdrift%7D%7D+%5Cunderbrace%7B%5Csum_%7Bi=2%7D%5Ep%5Cbeta_i%5CDelta%20Y_%7Bt-i+1%7D%7D_%7B%5Ctext%7Bserial%20correlation%7D%7D+%5Cepsilon_t%0A%5Ctag%7B3%7D"></span></p>
-<p>The statistical hypothesis tests are:</p>
-<p><span id="eq-eq11"><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0A&amp;(%5Cphi_1)%5Crightarrow%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7DH_0:&amp;%5Cquad%5Cgamma=0%5C;%5Ctext%7Band%7D%5C;a_0=0%5C%5C%0AH_1:&amp;%5Cquad%5Cgamma%5Cneq%200%5C;%5Ctext%7B%20%20or%7D%5C;%5C;%5C,a_0%5Cneq0%0A%5Cend%7Bsplit%7D%0A%5Cright.%5C%5C%0A&amp;%5C%5C%0A&amp;(%5Ctau_2)%5Crightarrow%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7DH_0:&amp;%5Cquad%5Cgamma=0%5C%5C%0AH_1:&amp;%5Cquad%5Cgamma%5Cneq%200%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A%5Cend%7Bsplit%7D%0A%5Ctag%7B4%7D"></span></p>
-</section>
-<section id="type-3-unit-root-with-drift-and-trend" class="level4">
-<h4 class="anchored" data-anchor-id="type-3-unit-root-with-drift-and-trend">Type 3 (unit root with “drift and trend”)</h4>
-<p><span id="eq-eq12"><img src="https://latex.codecogs.com/png.latex?%0A%5CDelta%20Y_t=%5Cgamma%20Y_%7Bt-1%7D+%5Cunderbrace%7Ba_0%7D_%7B%5Ctext%7Bdrift%7D%7D+%5Cunderbrace%7Ba_2t%7D_%7B%5Ctext%7Btrend%7D%7D+%5Cunderbrace%7B%5Csum_%7Bi=2%7D%5Ep%5Cbeta_i%5CDelta%20Y_%7Bt-i+1%7D%7D_%7B%5Ctext%7Bserial%20correlation%7D%7D+%5Cepsilon_t%0A%5Ctag%7B5%7D"></span></p>
-<p>The statistical hypothesis tests are:</p>
-<p><span id="eq-eq13"><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0A&amp;(%5Cphi_2)%5Crightarrow%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7DH_0:&amp;%5Cquad%5Cgamma=0%5C;%5Ctext%7Band%7D%5C;a_0=0%5C;%5Ctext%7Band%7D%5C;a_2=0%5C%5C%0AH_1:&amp;%5Cquad%5Cgamma%5Cneq%200%5C;%5Ctext%7B%20%20or%7D%5C;%5C;%5C,a_0%5Cneq0%5C;%5Ctext%7B%20%20or%7D%5C;%5C;%5C,a_2%5Cneq0%5C%5C%0A%5Cend%7Bsplit%7D%0A%5Cright.%5C%5C%0A&amp;%5C%5C%0A&amp;(%5Cphi_3)%5Crightarrow%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7DH_0:&amp;%5Cquad%5Cgamma=0%5C;%5Ctext%7Band%7D%5C;a_2=0%5C%5C%0AH_1:&amp;%5Cquad%5Cgamma%5Cneq%200%5C;%5Ctext%7B%20%20or%7D%5C;%5C;%5C,a_2%5Cneq0%0A%5Cend%7Bsplit%7D%0A%5Cright.%5C%5C%0A&amp;%5C%5C%0A&amp;(%5Ctau_3)%5Crightarrow%5Cleft%5C%7B%0A%5Cbegin%7Bsplit%7DH_0:&amp;%5Cquad%5Cgamma=0%5C%5C%0AH_1:&amp;%5Cquad%5Cgamma%5Cneq%200%0A%5Cend%7Bsplit%7D%0A%5Cright.%0A%5Cend%7Bsplit%7D%0A%5Ctag%7B6%7D"></span></p>
-<p>Each of the six tests <img src="https://latex.codecogs.com/png.latex?(%5Ctau_1),(%5Ctau_2),(%5Ctau_3),(%5Cphi_1),(%5Cphi_2),(%5Cphi_3)"> in Equation&nbsp;2, Equation&nbsp;4 and Equation&nbsp;6 corresponds to a progressively more complex linear regression. In all of them there is the root, but in the “drift” model there is also a drift term, and in the “drift and trend” model there are also drift and trend terms. All the coefficients in the models have an associated significance level. While the significance of the root coefficient is the most important and the main focus of the ADF test, we might also be interested in knowing whether or not the drift and trend coefficients are statistically significant.</p>
-<div class="callout callout-style-default callout-important callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Summary of the Dickey-Fuller tests
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0A&amp;%5Cbegin%7Bsplit%7D%0A&amp;%5Ctextbf%7BTrend%7D%5Cquad%5Cquad%5CDelta%20Y_t=%5Cgamma%20Y_%7Bt-1%7D+a_0+a_2t+%5Csum_%7Bi=2%7D%5Ep%5Cbeta_i%5CDelta%20Y_%7Bt-i+1%7D+%5Cepsilon_t%5C%5C%0A&amp;%5Cbegin%7Bsplit%7D%0A&amp;%5Ctext%7Bif%7D%5C;(%5Cphi_2)%5C;%5Ctext%7Bis%20rejected,%20unit%20root%20is%20NOT%20present%20OR%20there%20is%20trend%20OR%20there%20is%20drift%7D%5C%5C%0A&amp;%5Ctext%7Bif%7D%5C;(%5Cphi_2)%5C;%5Ctext%7Bfails%20to%20be%20rejected,%20unit%20root%20is%20present%20AND%20there%20is%20NO%20trend%20AND%20there%20is%20NO%20drift%7D%5C%5C%0A&amp;%5Ctext%7Bif%7D%5C;(%5Cphi_3)%5C;%5Ctext%7Bis%20rejected,%20unit%20root%20is%20NOT%20present%20OR%20there%20is%20trend%7D%5C%5C%0A&amp;%5Ctext%7Bif%7D%5C;(%5Cphi_3)%5C;%5Ctext%7Bfails%20to%20be%20rejected,%20unit%20root%20is%20present%20AND%20there%20is%20NO%20trend%7D%5C%5C%0A&amp;%5Ctext%7Bif%7D%5C;(%5Ctau_3)%5C;%5Ctext%7Bis%20rejected,%20unit%20root%20is%20NOT%20present%7D%5C%5C%0A&amp;%5Ctext%7Bif%7D%5C;(%5Ctau_3)%5C;%5Ctext%7Bfails%20to%20be%20rejected,%20unit%20root%20is%20present%7D%5C%5C%0A&amp;%5Cend%7Bsplit%7D%0A&amp;%5Cend%7Bsplit%7D%5C%5C%0A&amp;%5Cbegin%7Bsplit%7D%0A&amp;%5Ctextbf%7BDrift%7D%5Cquad%5Cquad%5CDelta%20Y_t=%5Cgamma%20Y_%7Bt-1%7D+a_0+%5Csum_%7Bi=2%7D%5Ep%5Cbeta_i%5CDelta%20Y_%7Bt-i+1%7D+%5Cepsilon_t%5C%5C%0A&amp;%5Cbegin%7Bsplit%7D%0A&amp;%5Ctext%7Bif%7D%5C;(%5Cphi_1)%5C;%5Ctext%7Bis%20rejected,%20unit%20root%20is%20NOT%20present%20OR%20there%20is%20drift%7D%5C%5C%0A&amp;%5Ctext%7Bif%7D%5C;(%5Cphi_1)%5C;%5Ctext%7Bfails%20to%20be%20rejected,%20unit%20root%20is%20present%20AND%20there%20is%20NO%20drift%7D%5C%5C%0A&amp;%5Ctext%7Bif%7D%5C;(%5Ctau_2)%5C;%5Ctext%7Bis%20rejected,%20unit%20root%20is%20NOT%20present%7D%5C%5C%0A&amp;%5Ctext%7Bif%7D%5C;(%5Ctau_2)%5C;%5Ctext%7Bfails%20to%20be%20rejected,%20unit%20root%20is%20present%7D%5C%5C%0A&amp;%5Cend%7Bsplit%7D%0A&amp;%5Cend%7Bsplit%7D%5C%5C%0A&amp;%5Cbegin%7Bsplit%7D%0A&amp;%5Ctextbf%7BNone%7D%5Cquad%5Cquad%5CDelta%20Y_t=%5Cgamma%20Y_%7Bt-1%7D+%5Csum_%7Bi=2%7D%5Ep%5Cbeta_i%5CDelta%20Y_%7Bt-i+1%7D+%5Cepsilon_t%5C%5C%0A&amp;%5Cbegin%7Bsplit%7D%0A&amp;%5Ctext%7Bif%7D%5C;(%5Ctau_1)%5C;%5Ctext%7Bis%20rejected,%20unit%20root%20is%20NOT%20present%7D%5C%5C%0A&amp;%5Ctext%7Bif%7D%5C;(%5Ctau_1)%5C;%5Ctext%7Bfails%20to%20be%20rejected,%20unit%20root%20is%20present%7D%0A&amp;%5Cend%7Bsplit%7D%0A&amp;%5Cend%7Bsplit%7D%0A%5Cend%7Bsplit%7D%0A"></p>
-</div>
-</div>
-<p>An important extension of the ADF test concerns the case when the noise error term is not white. If the error term is not white and we run the ADF test as it is without accounting for serial correlation, many more rejection of the null tend to be produced than stated at the specified significance level. As the ADF test also deal with the serial correlation by introducing lagged terms, hence we need to select this lag order. This is accomplished by investigating several information criteria, including the autocorrelation function (ACF), but henceforth I limit to use the automatic lag selection functionality provided by the same function of R I will use for running the ADF test. Recall that, in general, the test statistics of the ADF test are very sensitive to changes in the lag structure.</p>
-</section>
-</section>
-<section id="example" class="level2">
-<h2 class="anchored" data-anchor-id="example">Example</h2>
-<p>I use functions and data from the <code>urca</code> package. The data set contains the series that S. Johansen and K. Juselius considered for estimating the money demand function of Denmark <span class="citation" data-cites="johansen1990">(Johansen and Juselius 1990)</span>. A data frame with quarterly data from Denmark starting in 1974:Q1 until 1987:Q3 contains six variables, including the log real income <code>LRY</code>, whose evolution, together with that of its first difference, is shown in Figure&nbsp;1.</p>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">library</span>(tidyverse)</span>
-<span id="cb1-2"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">library</span>(ggpubr)</span>
-<span id="cb1-3"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">library</span>(grid)</span>
-<span id="cb1-4"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">library</span>(urca)</span>
-<span id="cb1-5"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">library</span>(zoo)</span>
-<span id="cb1-6"></span>
-<span id="cb1-7"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">data</span>(denmark)</span>
-<span id="cb1-8"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">attach</span>(denmark)</span>
-<span id="cb1-9">denmark <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">as.data.frame</span>(denmark)</span>
-<span id="cb1-10">a <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">as.character</span>(ENTRY)</span>
-<span id="cb1-11">k <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">length</span>(a)</span>
-<span id="cb1-12"><span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">for</span> (i <span class="cf" style="color: #003B4F;
-background-color: null;
-font-weight: bold;
-font-style: inherit;">in</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:</span>k) <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">substring</span>(a[i], <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">first =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span>, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">last =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">5</span>) <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">=</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"-"</span></span>
-<span id="cb1-13">ENTRY <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">as.yearqtr</span>(<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">as.factor</span>(a))</span>
-<span id="cb1-14"></span>
-<span id="cb1-15">df_ts  <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">data.frame</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">x =</span> ENTRY, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">y =</span> LRY)</span>
-<span id="cb1-16">df_dts <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">data.frame</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">x =</span> ENTRY[<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">:</span>k<span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">-1</span>], <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">y =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">diff</span>(LRY))</span>
-<span id="cb1-17"></span>
-<span id="cb1-18">my_theme <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">theme</span>(</span>
-<span id="cb1-19">  <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">axis.title.x =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">16</span>),</span>
-<span id="cb1-20">  <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">axis.text.x =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">14</span>),</span>
-<span id="cb1-21">  <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">axis.title.y =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">16</span>),</span>
-<span id="cb1-22">  <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">axis.text.y =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">14</span>),</span>
-<span id="cb1-23">  <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">legend.title =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">14</span>),</span>
-<span id="cb1-24">  <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">legend.text =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">element_text</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
-background-color: null;
-font-style: inherit;">14</span>),</span>
-<span id="cb1-25">  <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">panel.border =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">element_blank</span>(),</span>
-<span id="cb1-26">  <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">panel.grid.major =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">element_blank</span>(),</span>
-<span id="cb1-27">  <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">panel.grid.minor =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">element_blank</span>(),</span>
-<span id="cb1-28">  <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">panel.background =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">element_blank</span>(),</span>
-<span id="cb1-29">  <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">axis.line =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">element_line</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">colour =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"black"</span>))</span>
-<span id="cb1-30"></span>
-<span id="cb1-31">p_ts <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">ggplot</span>(df_ts, <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">aes</span>(x, y)) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span></span>
-<span id="cb1-32">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">geom_line</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"blue"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span></span>
-<span id="cb1-33">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">""</span>,</span>
-<span id="cb1-34">       <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"LRY"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span> </span>
-<span id="cb1-35">  my_theme</span>
-<span id="cb1-36"></span>
-<span id="cb1-37">p_dts <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">ggplot</span>(df_dts, <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">aes</span>(x, y)) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span></span>
-<span id="cb1-38">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">geom_line</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">color =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"blue"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span></span>
-<span id="cb1-39">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">""</span>,</span>
-<span id="cb1-40">       <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"first difference, LRY"</span>) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span> </span>
-<span id="cb1-41">  my_theme</span>
-<span id="cb1-42"></span>
-<span id="cb1-43"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">grid.newpage</span>()</span>
-<span id="cb1-44"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">grid.draw</span>(<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">rbind</span>(<span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">ggplotGrob</span>(p_ts), <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">ggplotGrob</span>(p_dts), <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">size =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"last"</span>))</span></code></pre></div>
-</details>
-<div class="cell-output-display">
-<div id="fig-fig1" class="quarto-float quarto-figure quarto-figure-center anchored">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="https://amsabatini.netlify.app/posts/dickey_fuller/index_files/figure-html/fig-fig1-1.png" class="img-fluid figure-img" width="672">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: Time series to be tested for stationarity. On the left, the natural logarithm of real income vs.&nbsp;time; on the right its first difference.
-</figcaption>
-</figure>
-</div>
-</div>
-</div>
-<p>The function <code>ur.df()</code> from the <code>urca</code> package performs the ADF test, with three types of models and related tests, named “none” (i.e., Equation&nbsp;12), “drift” (i.e., Equation&nbsp;34) and “trend” (Equation&nbsp;56). The argument <code>selectlags</code> in <code>ur.df()</code> allows to perform automatic selection of the lag structure according to a predefined criterion, as shown in the following code block.</p>
-<div class="cell">
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">mdl_none_ts   <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">ur.df</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">y =</span> df_ts<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">$</span>y, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">type =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"none"</span>, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">selectlags =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"BIC"</span>))</span>
-<span id="cb2-2">mdl_drift_ts  <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">ur.df</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">y =</span> df_ts<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">$</span>y, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">type =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"drift"</span>, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">selectlags =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"BIC"</span>))</span>
-<span id="cb2-3">mdl_trend_ts  <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">ur.df</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">y =</span> df_ts<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">$</span>y, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">type =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"trend"</span>, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">selectlags =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"BIC"</span>))</span>
-<span id="cb2-4">mdl_none_dts  <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">ur.df</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">y =</span> df_dts<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">$</span>y, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">type =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"none"</span>, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">selectlags =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"BIC"</span>))</span>
-<span id="cb2-5">mdl_drift_dts <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">ur.df</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">y =</span> df_dts<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">$</span>y, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">type =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"drift"</span>, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">selectlags =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"BIC"</span>))</span>
-<span id="cb2-6">mdl_trend_dts <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">ur.df</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">y =</span> df_dts<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">$</span>y, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">type =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"trend"</span>, <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">selectlags =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"BIC"</span>))</span>
-<span id="cb2-7"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">summary</span>(mdl_trend_ts)</span></code></pre></div>
-</details>
-</div>
-<p>The summary produced when the ADF test is applied to the original time series with the type “trend” is shown in Figure&nbsp;2.</p>
-<div id="fig-fig2" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="https://amsabatini.netlify.app/posts/dickey_fuller/summary.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="500">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2: Results of fitting the “trend” regression model in the ADF test when applied to the `LRY`variable from the `denmark` dataset.
-</figcaption>
-</figure>
-</div>
-<p>The part of interest for the analysis is within the rectangle highlighted in orange. The “Value of test-statistic is -2.4216 2.1927 2.9343” for tests <img src="https://latex.codecogs.com/png.latex?(%5Ctau_3),%20(%5Cphi_2)"> and <img src="https://latex.codecogs.com/png.latex?(%5Cphi_3)"> are given and the corresponding “Critical values for test statistics” at significance levels 1%, 5% and 10% are reported below, denoted by <code>tau3</code>, <code>phi2</code> and <code>phi3</code>, respectively. For instance, for the test <img src="https://latex.codecogs.com/png.latex?(%5Ctau_3)">, given that the test statistic -2.4216 is within the three regions -4.04, -3.45, -3.15 (1%, 5%, 10%) where we fail to reject the null, we do not have evidence to reject the presence of a unit root in the regression model: we can say that there is a unit root. From the <img src="https://latex.codecogs.com/png.latex?(%5Cphi_2)">-statistic, the joint null hypothesis is not rejected, therefore there is a unit root AND drift and trend terms are not needed. Similarly, the <img src="https://latex.codecogs.com/png.latex?(%5Cphi_3)">-statistic shows that there is a unit root AND a trend term is not needed and the <img src="https://latex.codecogs.com/png.latex?(%5Ctau_3)">-statistic shows that there is a unit root. A summary of test results for the variable <code>LRY</code> is reported within the rectangle highlighted in blue in Figure&nbsp;3.</p>
-<div id="fig-fig3" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
-<figure class="quarto-float quarto-float-fig figure">
-<div aria-describedby="fig-fig3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="https://amsabatini.netlify.app/posts/dickey_fuller/summary_1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="400">
-</div>
-<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fig3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;3: Results of the three type of ADF tests for the variable `LRY`from the `denmark`dataset.
-</figcaption>
-</figure>
-</div>
-<p>A close examination of Figure&nbsp;3 shows that all the tests applied to data of the variable <code>LRY</code> are consistent with failing to reject the corresponding nulls. From the <img src="https://latex.codecogs.com/png.latex?(%5Cphi_1)">-statistic, the joint null hypothesis is not rejected, therefore there is a unit root AND the drift term is not needed, and the <img src="https://latex.codecogs.com/png.latex?(%5Ctau_2)">-statistic shows that there is a unit root. Finally, the <img src="https://latex.codecogs.com/png.latex?(%5Ctau_1)">-statistic also shows that there is a unit root.</p>
-<p>On the other hand, all the tests applied to the first difference of the variable <code>LRY</code> reject the corresponding nulls, as shown in the same Figure&nbsp;3 (summary within the rectangle highlighted in red): although drift and trend terms might be presumed, this variable does not therefore contain a unit root.</p>
-<blockquote class="blockquote">
-<p>Finally, we can conclude that the logarithm of real income contains a unit root and can be a stationary time series by taking the first difference.</p>
-</blockquote>
-
-
-
-</section>
-
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0">
-<div id="ref-johansen1990" class="csl-entry">
-Johansen, Søren, and Katarina Juselius. 1990. <span>“Maximum Likelihood Estimation and Inference on Cointegration <span></span> with Applications to the Demand for Money.”</span> <em>Oxford Bulletin of Economics and Statistics</em> 52 (2): 169–210. <a href="https://doi.org/10.1111/j.1468-0084.1990.mp52002003.x">https://doi.org/10.1111/j.1468-0084.1990.mp52002003.x</a>.
-</div>
-</div></section></div> ]]></description>
-  <category>time series</category>
-  <guid>https://amsabatini.netlify.app/posts/dickey_fuller/</guid>
-  <pubDate>Sun, 12 May 2024 22:00:00 GMT</pubDate>
 </item>
 </channel>
 </rss>
