@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.6.40">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Angelo Maria Sabatini">
+<meta name="dcterms.date" content="2026-07-27">
+<meta name="description" content="We use coaxial cables every day and rarely give them a second thought. Yet depending on the questions we ask, the same cable can appear as an energy-storage device, a transmission line, a measurement-system component, or an electromagnetic compatibility (EMC) shielding structure. This post follows four encounters with the coaxial cable and shows how a familiar object acquires different physical identities when viewed through different conceptual lenses—including why the shield inductance governing EMC behavior is not the same inductance that appears in the textbook derivation of characteristic impedance.">
+
+<title>Four identities of the coaxial cable: from magnetostatics to EMC – Angelo Maria Sabatini</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-549806ee2085284f45b00abea8c6df48.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-79108a0fc1995748cbd19a5b0e3e3e7c.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-G7T7XXSXKG"></script>
+
+<script type="text/plain" cookie-consent="tracking">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-G7T7XXSXKG', { 'anonymize_ip': true});
+</script>
+
+<script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"implied",
+  "palette":"light",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":""
+  ,
+"language":"en"
+  });
+});
+</script> 
+  
+<link rel="alternate" type="application/rss+xml" title="Angelo Maria Sabatini – Blog RSS" href="../../blog.xml">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Angelo Maria Sabatini</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../blog.html"> 
+<span class="menu-text">Blog</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../archive.html"> 
+<span class="menu-text">Archive</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/angelosabatini"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../blog.xml"> <i class="bi bi-rss" role="img" aria-label="RSS feed">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#first-encounter-magnetostatics" id="toc-first-encounter-magnetostatics" class="nav-link active" data-scroll-target="#first-encounter-magnetostatics">First encounter: Magnetostatics</a></li>
+  <li><a href="#second-encounter-transmission-lines" id="toc-second-encounter-transmission-lines" class="nav-link" data-scroll-target="#second-encounter-transmission-lines">Second Encounter: Transmission Lines</a></li>
+  <li><a href="#third-encounter-instrumentation" id="toc-third-encounter-instrumentation" class="nav-link" data-scroll-target="#third-encounter-instrumentation">Third Encounter: Instrumentation</a></li>
+  <li><a href="#final-encounter-electromagnetic-compatibility-emc" id="toc-final-encounter-electromagnetic-compatibility-emc" class="nav-link" data-scroll-target="#final-encounter-electromagnetic-compatibility-emc">Final Encounter: Electromagnetic Compatibility (EMC)</a>
+  <ul class="collapse">
+  <li><a href="#the-shield-as-an-electrical-circuit" id="toc-the-shield-as-an-electrical-circuit" class="nav-link" data-scroll-target="#the-shield-as-an-electrical-circuit">The shield as an electrical circuit</a></li>
+  <li><a href="#the-shield-cut-off-frequency" id="toc-the-shield-cut-off-frequency" class="nav-link" data-scroll-target="#the-shield-cut-off-frequency">The shield cut-off frequency</a></li>
+  </ul></li>
+  <li><a href="#conclusion-shifting-lenses" id="toc-conclusion-shifting-lenses" class="nav-link" data-scroll-target="#conclusion-shifting-lenses">Conclusion: shifting lenses</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Four identities of the coaxial cable: from magnetostatics to EMC</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">measurement</div>
+    <div class="quarto-category">electromagnetism</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    We use coaxial cables every day and rarely give them a second thought. Yet depending on the questions we ask, the same cable can appear as an energy-storage device, a transmission line, a measurement-system component, or an electromagnetic compatibility (EMC) shielding structure. This post follows four encounters with the coaxial cable and shows how a familiar object acquires different physical identities when viewed through different conceptual lenses—including why the shield inductance governing EMC behavior is not the same inductance that appears in the textbook derivation of characteristic impedance.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Angelo Maria Sabatini </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">July 27, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<blockquote class="blockquote">
+<p>💾 <strong>Prefer reading offline?</strong> You can <a href="post_pdf.pdf">download a PDF version of this post</a> for printing or future reference.</p>
+</blockquote>
+<p>The coaxial cable is one of those devices that seem entirely unremarkable. Most engineers encounter it early in their education and then spend the rest of their careers using it without much hesitation. Yet the same cable can acquire rather different identities when examined through different conceptual lenses.</p>
+<p>When I was an engineering student myself, I encountered the coaxial cable three times. First in disguise, during a sophomore course on electromagnetism. Years later, I learned about its role as an effective transmission line for high-frequency voltage and current waveforms. Finally, it appeared once more in a course on electronic measurement systems, where coaxial cables are routinely used to connect generic signal sources to instruments such as oscilloscopes. Had my path — unlike what actually happened — led me into electromagnetic compatibility, the coaxial cable would probably have surfaced once again, this time as one of the canonical devices for improving electromagnetic integrity. In that context, the relevant buzzword may be shielding.</p>
+<p>A quantity known as inductance — more precisely, inductance per unit length — appears repeatedly throughout this multifaceted journey. Yet, upon closer inspection, even the seemingly simple question “what is the inductance of a coaxial cable?” admits different answers depending on the viewpoint adopted.</p>
+<section id="first-encounter-magnetostatics" class="level2">
+<h2 class="anchored" data-anchor-id="first-encounter-magnetostatics">First encounter: Magnetostatics</h2>
+<p>The geometry of the coaxial cable considered in magnetostatics is shown in <a href="#fig-1" class="quarto-xref">Figure&nbsp;1</a>.</p>
+<div id="fig-1" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="fig-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="250">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Coaxial cable geometrical sketch.
+</figcaption>
+</figure>
+</div>
+<p>An infinitely long cylindrical metallic conductor of radius <span class="math inline">\(r\)</span> (the inner conductor) is surrounded by a hollow cylindrical conductor (the shield) with inner radius <span class="math inline">\(R\)</span> — the outer radius is usually left unspecified. The two conductors share the same axis, while air is typically assumed to fill the region between them.</p>
+<p>A current <span class="math inline">\(I\)</span> is assumed to flow through the structure. In the simplest magnetostatic treatment, the current density is taken to be uniformly distributed across the cross-section of the inner conductor, while the return current is assumed to be concentrated on the inner surface of the shield.</p>
+<p>If the current in the inner conductor points outward from the page, the current flowing on the shield points inward. The inner conductor and the shield are therefore explicitly treated as parts of the same physical circuit. Nonetheless, it will be useful to distinguish explicitly between the current flowing in the inner conductor, <span class="math inline">\(I_i=I\)</span>, and the return current flowing on the shield, <span class="math inline">\(I_s=-I\)</span>.</p>
+<p>To compute the inductance, students are usually reminded that the magnetic flux <span class="math inline">\(\Phi\)</span> linked — or, in older terminology, concatenated — with the current <span class="math inline">\(I\)</span> must first be evaluated:</p>
+<p><span class="math display">\[L=\dfrac{\Phi}{I}.\]</span></p>
+<p>Geometrical symmetry greatly simplifies the visualization of the magnetic induction field <span class="math inline">\(B\)</span>. By combining cylindrical symmetry with Ampère’s law (or equivalently the Biot–Savart law), one finds that in the region between the inner conductor and the shield (<span class="math inline">\(r\leq\rho\leq R\)</span>) the magnetic field is purely azimuthal and depends only on the radial coordinate <span class="math inline">\(\rho\)</span>:</p>
+<p><span id="eq-1"><span class="math display">\[B(\rho,\theta)=\dfrac{\mu_0}{2\pi}\,\dfrac{I}{\rho}, \tag{1}\]</span></span></p>
+<p>where cylindrical coordinates (<span class="math inline">\(\rho,\theta\)</span>) are used and all quantities are expressed per unit length. In <a href="#eq-1" class="quarto-xref">Equation&nbsp;1</a> <span class="math inline">\(\mu_0 = 4\pi\times10^{-7}\,\mathrm{H/m}\)</span> is the permeability of vacuum (in SI units).</p>
+<p>At this point, however, two details deserve attention.</p>
+<p>First, if the current density is assumed to be uniformly distributed across the surface of the inner conductor, the magnetic field also exists inside the conductor itself. Therefore, the flux linkage associated with the region <span class="math inline">\(0\leq\rho&lt;r\)</span> must be treated with some care. This is the familiar contribution known as the internal inductance of the wire.</p>
+<p>Second, the return current on the shield is not usually treated as a separate source of magnetic flux in the derivation. Instead, it enters the argument through a boundary condition: the current is assumed to be concentrated on the inner surface of the shield and to be equal and opposite to the current in the inner conductor. With this assumption, the magnetic field drops to zero for <span class="math inline">\(\rho&gt;R\)</span>.</p>
+<p>Why different assumptions are adopted for the current distribution in the inner conductor and in the shield is usually left unexplained. The resulting model is perfectly adequate for deriving the inductance of the coaxial structure, but it quietly combines idealizations that are seldom discussed explicitly in introductory courses.</p>
+<p>From a teaching perspective, it is far more convenient to impose the boundary condition directly: the return current is simply assumed to flow on the inner surface of the shield. Under this assumption, the magnetic field vanishes abruptly for <span class="math inline">\(\rho &gt; R\)</span>, allowing students to appreciate, at least qualitatively, the field-confining nature of the coaxial geometry without requiring a more elaborate electromagnetic treatment. The price paid for this pedagogical convenience is the implicit assumption that nature makes abrupt jumps (<em>natura facit saltus</em>), which of course it does not.</p>
+<p>More importantly, one may legitimately wonder whether the shield current <span class="math inline">\(I_s\)</span>, regardless of the details of its distribution within the shield, should itself contribute to the magnetic field within the cavity between the two conductors. At first sight, the answer appears ambiguous. After all, the magnetic field inside the cavity is ultimately generated by the entire current distribution, not solely by the current flowing in the inner conductor. Yet, in the standard derivation, the shield current enters only indirectly through the boundary condition imposing field confinement outside the cable. The magnetic field within the cavity is therefore computed as if it were entirely generated by the enclosed current <span class="math inline">\(I_i\)</span>. This is one subtle conceptual point in the study of coaxial structures, often overlooked in introductory treatments, and we’ll return to it in the callout below.</p>
+<p>The magnetic field generated by the current distribution can now be evaluated using Ampère’s law. In integral form, the law states that the circulation of the magnetic induction field along a closed path is proportional to the total current enclosed by that path:</p>
+<p><span class="math display">\[\oint_{\Gamma}\mathbf{B}\cdot d\mathbf{l}=\mu_0 I_{\mathrm{enc}},\]</span></p>
+<p>where <span class="math inline">\(\Gamma\)</span> denotes an arbitrary closed integration path (an <em>Amperian path</em>), <span class="math inline">\(d\mathbf l\)</span> is an infinitesimal oriented line element along that path, and <span class="math inline">\(I_{\mathrm{enc}}\)</span> is the net current enclosed by it. The dot symbol <span class="math inline">\(\cdot\)</span> denotes the scalar product between vectors.</p>
+<p>In the case of the coaxial cable, symmetry suggests choosing circular Amperian paths centered on the cable axis and lying within the cavity. For such paths, the enclosed current is simply <span class="math inline">\(I_{\mathrm{enc}}=I_i=I\)</span>, leading directly to <a href="#eq-1" class="quarto-xref">Equation&nbsp;1</a>.</p>
+<p>Ampère’s law provides information about the circulation of the magnetic field along closed paths. The evaluation of magnetic flux, however, requires the field distribution itself, since flux is defined over surfaces rather than curves:</p>
+<p><span class="math display">\[\Phi=\int_S \mathbf{B}\cdot d\mathbf{S}\]</span></p>
+<p>where <span class="math inline">\(S\)</span> denotes an arbitrary oriented surface and <span class="math inline">\(d\mathbf S\)</span> its infinitesimal oriented surface element.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Internal inductance of the inner conductor
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Consider circular Amperian paths with radius <span class="math inline">\(0&lt;\rho\leq r\)</span>. Under the assumption of uniformly distributed current density, the enclosed current is only a fraction of the total current <span class="math inline">\(I_i=I\)</span>:</p>
+<p><span class="math display">\[I_{\mathrm{enc}}(\rho)=\dfrac{\rho^2}{r^2}I.\]</span></p>
+<p>The magnetic field inside the inner conductor therefore increases linearly with the radial coordinate:</p>
+<p><span id="eq-4"><span class="math display">\[B(\rho)=\dfrac{\mu_0\,I}{2\pi\,r^2}\,\rho. \tag{2}\]</span></span></p>
+<p>As a consequence, magnetic flux is present not only in the cavity between the two conductors, but also inside the inner conductor itself. The corresponding magnetic field stores energy and therefore contributes to the total inductance of the structure: this contribution is known as the internal inductance of the conductor.</p>
+<p>The magnetic energy density is</p>
+<p><span class="math display">\[u_B(\rho)=\dfrac{B^2(\rho)}{2\mu_0}\]</span></p>
+<p>To find the total magnetic energy per unit length (<span class="math inline">\(U_m\)</span>), we integrate this density over the cross-sectional surface area <span class="math inline">\(A\)</span> of the wire:</p>
+<p><span class="math display">\[U_m=\int_A u_B\,dA=\int_0^{r}\dfrac{B^2(\rho)}{2\mu_0}\,2\pi\rho\,d\rho\]</span></p>
+<p>Substituting the expression of <span class="math inline">\(B(\rho)\)</span> from <a href="#eq-4" class="quarto-xref">Equation&nbsp;2</a> into the surface integral yields:</p>
+<p><span class="math display">\[U_m=\int_0^{r}\dfrac{1}{2\mu_0}\left(\dfrac{\mu_0I}{2\pi\,r^2}\rho\right)^22\pi\rho\,d\rho=\dfrac{\mu_0I^2}{4\pi r^4}\int_0^{r}\rho^3d\rho=\dfrac{\mu_0I^2}{16\pi}\]</span></p>
+<p>The total magnetic energy stored per unit length can also be expressed in terms of the internal inductance of the inner conductor per unit length (<span class="math inline">\(L_{\text{int}}\)</span>):</p>
+<p><span class="math display">\[\dfrac{1}{2}L_{\text{int}}I^2=\dfrac{\mu_0I^2}{16\pi} \to L_{\text{int}}=\dfrac{\mu_0}{8\pi}\]</span></p>
+<p>This contribution is independent of the conductor radius and depends only on the assumption of uniformly distributed current density.</p>
+</div>
+</div>
+<p>Now we are in a position to complete the calculation of the inductance. As for the magnetic flux linkage generated by <span class="math inline">\(I_i=I\)</span> within the cavity, one obtains:</p>
+<p><span class="math display">\[\Phi_{\mathrm{cav}}=\dfrac{\mu_0\,I}{2\pi}\int_r^R\dfrac{1}{\rho}\,d\rho=\dfrac{\mu_0\,I}{2\pi}\log\left(\dfrac{R}{r}\right).\]</span></p>
+<p>The total inductance per unit length is therefore obtained by summing the cavity and internal contributions:</p>
+<p><span id="eq-7"><span class="math display">\[\boxed{L=\dfrac{\mu_0}{2\pi}\left[\log\left(\dfrac{R}{r}\right)+\dfrac{1}{4}\right]} \tag{3}\]</span></span></p>
+<p>A parallel journey takes place in electrostatics, where the capacitance per unit length of the coaxial cable is evaluated. This time, the calculation relies on Gauss’s law together with the definition of capacitance:</p>
+<p><span id="eq-8"><span class="math display">\[\boxed{C=\dfrac{2\pi\epsilon_0\,\epsilon_r}{\log\left(\dfrac{R}{r}\right)}} \tag{4}\]</span></span></p>
+<p>where <span class="math inline">\(\epsilon_0=8.854\cdot 10^{-12}\,\mathrm{F/m}\)</span> denotes the permittivity of vacuum (in SI units), while <span class="math inline">\(\epsilon_r\)</span> is the relative permittivity of the dielectric medium filling the cavity between the two conductors (for air, <span class="math inline">\(\epsilon_r\approx1\)</span>).</p>
+<p>Whether one follows the magnetostatic or the electrostatic route, frequency and wavelength have not yet entered the picture. Our first encounter with the coaxial cable ends here.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Zero circulation does not necessarily imply a zero magnetic field
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Consider the closed path shown in <a href="#fig-2" class="quarto-xref">Figure&nbsp;2</a>.</p>
+<div id="fig-2" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="fig-2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="250">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Amperian path with external current.
+</figcaption>
+</figure>
+</div>
+<p>A steady current along a straight wire emerges from the page. The generated magnetic field is tangential to circles centered on the wire axis and can therefore be written in cylindrical coordinates as:</p>
+<p><span class="math display">\[\mathbf{B}(\rho)=\dfrac{\mu_0 I}{2\pi\rho}\,\hat{\boldsymbol{\varphi}},\]</span></p>
+<p>where <span class="math inline">\(\hat{\boldsymbol{\varphi}}\)</span> denotes the azimuthal unit vector, i.e., the local tangential direction along the circular arcs of the closed path.</p>
+<p>The contributions to the circulation along the two circular arcs are:</p>
+<p><span class="math display">\[\frac{\mu_0 I}{2\pi}\int_0^\theta\dfrac{1}{r}r\,d\theta=\frac{\mu_0 I}{2\pi}\theta
+\qquad\text{and}\qquad
+-\frac{\mu_0 I}{2\pi}\theta\]</span></p>
+<p>respectively (this is because <span class="math inline">\(d\mathbf{l}\parallel\hat{\boldsymbol{\varphi}}\)</span>), while the contribution along the radial segments vanishes (this is because <span class="math inline">\(d\mathbf{l}\perp\hat{\boldsymbol{\varphi}}\)</span>).</p>
+<p>Summing the contributions from the two circular arcs and the two radial segments, the total circulation becomes:</p>
+<p><span class="math display">\[\oint \mathbf{B}\cdot d\mathbf{l}=\frac{\mu_0 I}{2\pi}\theta-\frac{\mu_0 I}{2\pi}\theta+0=0.\]</span></p>
+<p>The minus sign arises from the opposite traversal direction along the inner circular arc. The vanishing circulation therefore results from the cancellation of nonzero contributions, not from the absence of magnetic field along the path. The result remains unchanged even when the angle is extended to <span class="math inline">\(\theta=2\pi\)</span>.</p>
+<blockquote class="blockquote">
+<div class="line-block">A vanishing circulation therefore does not, in general, imply a vanishing magnetic field.</div>
+</blockquote>
+<p>In the coaxial cable, the conclusion that the shield current does not contribute directly to the magnetic field within the cavity—and therefore to the associated flux and flux linkage—follows only because cylindrical symmetry constrains the field to remain purely azimuthal and uniform along circular Amperian paths. The conclusion therefore relies not only on Ampère’s law, but also on the strong symmetry constraints imposed by the coaxial geometry.</p>
+</div>
+</div>
+</section>
+<section id="second-encounter-transmission-lines" class="level2">
+<h2 class="anchored" data-anchor-id="second-encounter-transmission-lines">Second Encounter: Transmission Lines</h2>
+<p>Our first encounter with the coaxial cable took place entirely within the world of electrostatics and magnetostatics. Electric and magnetic fields could be treated separately, frequency never entered the discussion, and the physical length of the cable played essentially no role. The cable appeared mainly as a geometrical structure capable of storing magnetic (or electric) energy.</p>
+<p>The situation changes once propagation effects can no longer be neglected, that is, when the cable length becomes a non-negligible fraction of the signal wavelength.</p>
+<p>At this point, the traditional lumped-parameter description begins to fail. Voltage and current can no longer be regarded as quantities depending only on time; they must instead be treated as functions of both time and position along the cable. The coaxial cable is no longer simply a pair of conductors separated by a dielectric medium: it becomes a transmission line.</p>
+<p>A conceptual shift follows naturally. Resistance, inductance, conductance, and capacitance are no longer treated as global quantities associated with an entire circuit element, but rather as distributed parameters defined per unit length (<a href="#fig-3" class="quarto-xref">Figure&nbsp;3</a>).</p>
+<div id="fig-3" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="fig-3.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="400">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Distributed-parameter equivalent circuit of an infinitesimal coaxial cable section of length <span class="math inline">\(dl\)</span>.
+</figcaption>
+</figure>
+</div>
+<p>Interestingly, two of them — the inductance and capacitance per unit length — have already emerged implicitly in the previous magnetostatic and electrostatic analyses.</p>
+<p>Under these conditions, the electrical behavior of the cable is described through the distributed-parameter model of transmission-line theory. One of its central quantities is the characteristic impedance, which in its most general form is</p>
+<p><span class="math display">\[Z=\sqrt{\dfrac{R+j\omega L}{G+j\omega C}},\]</span></p>
+<p>where <span class="math inline">\(R\)</span> (resistance), <span class="math inline">\(L\)</span>, <span class="math inline">\(G\)</span> (conductance), and <span class="math inline">\(C\)</span> are all understood per unit length. For low-loss transmission lines, where</p>
+<p><span class="math display">\[R \ll \omega L,
+\qquad
+G \ll \omega C,\]</span></p>
+<p>the impedance approaches the familiar expression:</p>
+<p><span class="math display">\[Z_0\approx\sqrt{\dfrac{L\mathstrut}{C}}.\]</span></p>
+<p>The propagation viewpoint introduces another important quantity: the wave propagation velocity along the cable. In the ideal low-loss approximation, it is given by</p>
+<p><span class="math display">\[v=\frac{1}{\sqrt{LC}}.\]</span></p>
+<p>Neglecting the internal inductance of the inner conductor, this expression becomes</p>
+<p><span class="math display">\[v=\frac{c}{\sqrt{\epsilon_r}},\]</span></p>
+<p>revealing that electromagnetic propagation in an ideal coaxial cable occurs at a fraction <span class="math inline">\(1/\sqrt{\epsilon_r}\)</span> of the speed of light in vacuum, where</p>
+<p><span class="math display">\[c=\frac{1}{\sqrt{\epsilon_0\mu_0}}.\]</span></p>
+<p>For the coaxial geometry considered previously, substitution of the electrostatic and magnetostatic expressions for <span class="math inline">\(L\)</span> and <span class="math inline">\(C\)</span> (<a href="#eq-7" class="quarto-xref">Equation&nbsp;3</a> – <a href="#eq-8" class="quarto-xref">Equation&nbsp;4</a>) recovers the familiar transmission-line formulas widely encountered in engineering handbooks, RF practice, and EMC-oriented design literature.</p>
+<p>The characteristic impedance plays a central role in signal transmission problems. Whenever the load impedance matches the characteristic impedance, reflections are ideally suppressed and the cable behaves, from the viewpoint of the source, as if it were infinitely long. Conversely, if the terminal load differs from <span class="math inline">\(Z_0\)</span>, part of the propagating waveform is reflected back toward the source.</p>
+<p>At sufficiently high frequency another phenomenon progressively enters the picture: skin effect. The current distribution inside the conductors is no longer approximately uniform, but becomes increasingly confined near the conductor surfaces. As a consequence, the effective ohmic resistance per unit length becomes frequency dependent and generally increases with frequency. At the same time, the contribution associated with the internal inductance of the inner conductor — already comparatively small in the low-frequency treatment — becomes progressively less relevant, since the magnetic field is expelled from the conductor bulk together with the current itself.</p>
+<p>Interestingly, the simplifying assumption introduced almost implicitly in the magnetostatic discussion — namely, that the return current flows on the inner surface of the shield — now acquires a concrete physical justification: at sufficiently high frequency, the electromagnetic field supported by the coaxial geometry confines the return current to the inner surface of the shield, precisely where the tangential magnetic field is present. What appeared as a mathematically convenient magnetostatic assumption in the first encounter emerges as a natural consequence of the propagation regime in the second.</p>
+</section>
+<section id="third-encounter-instrumentation" class="level2">
+<h2 class="anchored" data-anchor-id="third-encounter-instrumentation">Third Encounter: Instrumentation</h2>
+<p>The third encounter with the coaxial cable takes place far from the idealized world of infinitely long structures and perfectly matched transmission lines. The cable now appears on a laboratory bench, connecting signal generators, oscilloscopes, sensors, and measurement instruments.</p>
+<p>At first sight, this may seem like a return to the familiar world of lumped circuits. In many practical measurement setups, the cable length is indeed much smaller than the wavelength associated with the dominant spectral components of the signal. Yet the transmission-line viewpoint has not become irrelevant. The distributed nature of the coaxial cable remains present, although it manifests itself in a rather different way.</p>
+<p>One of the most immediate consequences is cable capacitance. Since capacitance is specified per unit length, longer cable sections introduce progressively larger capacitive loading effects. From the viewpoint of the measured circuit, the coaxial cable itself becomes part of the measurement system. Its capacitance acts as a load, forming a distributed or lumped RC low-pass structure together with the source resistance and thereby modifying rise times and attenuating fast waveform transitions.</p>
+<p>This phenomenon becomes especially evident in oscilloscope measurements. A passive oscilloscope probe connected through a coaxial cable may significantly distort fast voltage transients unless appropriate compensation techniques are adopted. Probe compensation introduces a carefully adjusted capacitive network intended to counteract the loading effects of the cable and preserve waveform shape over a wider frequency range.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Probes for oscilloscopes
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The coaxial cable and the oscilloscope input introduce capacitive loading effects that may distort fast waveform transitions. A passive probe therefore combines resistive attenuation with a carefully adjusted compensation capacitor <span class="math inline">\(C_v\)</span> (<a href="#fig-4" class="quarto-xref">Figure&nbsp;4</a>).</p>
+<div id="fig-4" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="fig-4.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="750">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Simplified model of a compensated oscilloscope probe.
+</figcaption>
+</figure>
+</div>
+<p>Proper compensation is achieved when the corresponding RC time constants satisfy</p>
+<p><span class="math display">\[R_1C_v = R_{in}(C_{in}+C_c)\]</span></p>
+<p>Under this condition, the transfer function becomes approximately independent of frequency over a wider operating range, preserving the waveform shape during fast rising and falling transitions.</p>
+<p>Typical undercompensated and overcompensated responses are shown in <a href="#fig-5" class="quarto-xref">Figure&nbsp;5</a>.</p>
+<div id="fig-5" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="fig-5.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="500">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Typical responses of a compensated oscilloscope probe. From left to right: overcompensated, properly compensated, and undercompensated behavior. Proper compensation is achieved when the RC time constants of the probe and the combined oscilloscope-input/cable capacitance are balanced.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="final-encounter-electromagnetic-compatibility-emc" class="level2">
+<h2 class="anchored" data-anchor-id="final-encounter-electromagnetic-compatibility-emc">Final Encounter: Electromagnetic Compatibility (EMC)</h2>
+<p>Our discussion has so far treated the coaxial cable as a largely self-contained structure. In real systems, however, the shield rarely behaves as a perfectly isolated return path. Multiple interconnected conductors, grounds, and return paths coexist, and currents do not always remain confined to the ideal coaxial geometry. Interactions with the surrounding electromagnetic environment are therefore inevitable.</p>
+<p>My fourth — and, at least for the moment, last — encounter with coaxial cables was mediated by Henry Ott. His classic textbook on electromagnetic compatibility is rich with practical insights on grounding, cabling, shielding, and noise reduction (H.W. Ott, “Noise reduction techniques in electronic systems”, 2nd ed., John Wiley &amp; Sons, 1988). A recurring theme throughout Ott’s work is deceptively simple: every circuit requires a reference. Voltages do not exist in isolation; they acquire meaning only when measured with respect to some reference point.</p>
+<p>Difficulties arise when multiple circuits and signal paths attempt to coexist within the same physical environment. Currents that once appeared to be harmless return currents may begin to share conductors, ground systems, metallic structures, and even cable shields. Signals that were intended to remain independent start interacting with one another.</p>
+<p>The situation resembles a crowded cocktail party: many conversations take place simultaneously, and each participant struggles to distinguish the message of interest from the surrounding background. Coaxial cables are widely used precisely because they help separate these competing conversations.</p>
+<p>Yet, when viewed through the lens of electromagnetic compatibility, the illusion of a self-contained device quickly disappears. In real-world multi-chassis systems, the shield is often connected to the local reference structure at both ends. Under these conditions, it ceases to be merely one of the conductors forming a transmission line and becomes an independent current path whose behavior is determined by the surrounding grounding topology.</p>
+<p>The inner conductor, the shield, and the external return structure now participate in a set of coupled current loops rather than a single self-contained circuit. For clarity henceforth, the common ground plane is assumed to be equipotential. It provides the return path for all currents but is not treated as a fourth circuit in the analysis.</p>
+<section id="the-shield-as-an-electrical-circuit" class="level3">
+<h3 class="anchored" data-anchor-id="the-shield-as-an-electrical-circuit">The shield as an electrical circuit</h3>
+<p>Before proceeding, it is worth pausing briefly on one detail. In Ott’s treatment, the shield is viewed as a thin metallic partition capable of influencing the spatial distribution of electromagnetic fields. Although the analysis does not require a cylindrical geometry, Ott adopts one because it leads to a particularly simple and insightful model.</p>
+<p>The resulting configuration bears a striking resemblance to a coaxial cable. The resemblance is not accidental: much of the discussion that follows relies on electromagnetic properties already seen during our previous encounters. Unlike the transmission-line configurations discussed previously, however, the inner conductor and the shield no longer belong to the same circuit. Instead, they are elements of distinct circuits that share a common return structure, represented here by an equipotential ground plane.</p>
+<p>A surprising observation follows immediately. Because electrostatic shields are often grounded at only one end, it is tempting to assume that a metallic shield surrounding a conductor should provide protection against magnetic coupling in the same configuration. Unfortunately, this is not the case.</p>
+<p>To fix ideas, consider the configuration shown in <a href="#fig-6" class="quarto-xref">Figure&nbsp;6</a>, consisting of three coupled circuits:</p>
+<ul>
+<li>Circuit 1: the disturbance source,</li>
+<li>Circuit S: the shield circuit,</li>
+<li>Circuit 2: the receptor (or victim) circuit.</li>
+</ul>
+<p>The underlying mechanism of magnetic shielding is simply Faraday’s law of electromagnetic induction. The time-varying magnetic flux generated by Circuit 1 induces a voltage in both Circuit S and Circuit 2. The configuration shown in <a href="#fig-6" class="quarto-xref">Figure&nbsp;6</a> represents the case in which Circuit S is closed and supports an induced current <span class="math inline">\(I_S\)</span>. It is useful, however, to first imagine opening Circuit S. In that case, the induced voltage cannot drive a current through the shield. Without a shield current, no opposing magnetic field can be generated and therefore no magnetic cancellation can take place in Circuit 2.</p>
+<div id="fig-6" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="fig-6.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="500">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Three-circuit representation of Ott’s magnetic shielding model. Circuit 1 acts as the disturbance source, Circuit 2 as the receptor, and Circuit S represents the shield itself. The common ground plane is assumed equipotential and is not shown explicitly.
+</figcaption>
+</figure>
+</div>
+<p>Ott’s analysis highlights a remarkable property of a cylindrical shield surrounding a conductor. The magnetic flux generated by a current flowing in the shield links the inner conductor. As a consequence, the mutual inductance between shield and inner conductor is equal to the self-inductance of the shield <span class="math inline">\(L_S\)</span>:</p>
+<p><span id="eq-9"><span class="math display">\[\boxed{M_{S2}=L_S} \tag{5}\]</span></span></p>
+<p>The reason is purely geometrical. For a cylindrical shield carrying a uniformly distributed axial current, the magnetic field vanishes everywhere inside the cavity enclosed by the shield, as discussed during our first encounter. All magnetic flux generated by the shield current therefore remains external to the shield itself. Consequently, every flux linkage contributing to the shield self-inductance also links the inner conductor, leading directly to <a href="#eq-9" class="quarto-xref">Equation&nbsp;5</a>.</p>
+</section>
+<section id="the-shield-cut-off-frequency" class="level3">
+<h3 class="anchored" data-anchor-id="the-shield-cut-off-frequency">The shield cut-off frequency</h3>
+<p>In phasor notation, the net voltage developed in Circuit 2 is</p>
+<p><span class="math display">\[V_N=V_2-V_C=j\omega M_{12}I_1-j\omega M_{S2}I_S\]</span></p>
+<p>where the first term represents the direct magnetic coupling from Circuit 1 to Circuit 2, while the second accounts for the opposing contribution generated by the shield current.</p>
+<p>The current flowing in the shield circuit is</p>
+<p><span class="math display">\[I_S=\dfrac{V_S}{R_S+j\omega L_S}=\dfrac{j\omega M_{1S}I_1}{R_S+j\omega L_S}\]</span></p>
+<p>where <span class="math inline">\(R_S\)</span> denotes the shield resistance.</p>
+<p>Two observations allow the model to be simplified further.</p>
+<p>First, from the viewpoint of Circuit 1, both the shield and the receptor circuit occupy nearly the same spatial position. Consequently,</p>
+<p><span class="math display">\[M_{1S}\approx M_{12}.\]</span></p>
+<p>An additional simplifying assumption is implicit in the model. The shield and receptor circuits are assumed not to load Circuit 1 significantly. The source current <span class="math inline">\(I_1\)</span> can therefore be treated as prescribed, and the coupling regarded as predominantly one-way.</p>
+<p>Using <span class="math inline">\(M_{S2}=L_S\)</span>, the net voltage becomes</p>
+<p><span class="math display">\[V_N=j\omega M_{12}I_1-j\omega L_S\left(\dfrac{j\omega M_{1S}I_1}{R_S+j\omega L_S}\right).\]</span></p>
+<p>Using <span class="math inline">\(M_{1S}\approx M_{12}\)</span>, this can be written as</p>
+<p><span class="math display">\[V_N=j\omega M_{12}I_1\left[1-\dfrac{j\omega L_S}{R_S+j\omega L_S}\right].\]</span></p>
+<p>Therefore,</p>
+<p><span class="math display">\[V_N=j\omega M_{12}I_1\dfrac{R_S}{R_S+j\omega L_S}.\]</span></p>
+<p>The result reveals the existence of the shield cut-off frequency</p>
+<p><span id="eq-10"><span class="math display">\[f_c=\dfrac{R_S}{2\pi L_S}, \tag{6}\]</span></span></p>
+<p>which governs the transition between two distinct operating regimes.</p>
+<p>At frequencies well below <span class="math inline">\(f_c\)</span>, the shield behaves predominantly as a resistive element and provides little magnetic shielding. At frequencies well above <span class="math inline">\(f_c\)</span>, inductive effects dominate, substantial shield currents can circulate, and magnetic cancellation becomes increasingly effective.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+A note on shield inductance
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>At this stage it is worth emphasizing that two fundamentally different inductances have appeared in our encounters.</p>
+<p>The inductance derived in <a href="#eq-7" class="quarto-xref">Equation&nbsp;3</a> belongs to the coaxial transmission line itself. It is associated with the current flowing in the inner conductor and returning through the shield, and is determined entirely by the internal geometry of the cable. This is the inductance governing energy storage, wave propagation, and characteristic impedance.</p>
+<p>The quantity <span class="math inline">\(L_S\)</span> introduced in the EMC analysis refers to a different physical circuit. Here the relevant current no longer returns through the inner conductor. Instead, it circulates through the shield and the common ground structure shared by the surrounding system.</p>
+<p>Consequently, <span class="math inline">\(L_S\)</span> is the inductance of the external loop formed by the shield and the ground plane acting as the common return path. Once the circuit is specified, <span class="math inline">\(L_S\)</span> can in principle be calculated analytically, although pursuing that calculation would take us well beyond the scope of this post.</p>
+<p>To bridge the theoretical definition of <span class="math inline">\(L_S\)</span> with engineering practice, it is useful to consider how this inductance is determined in standardized measurement configurations. In experimental and regulatory frameworks, standards committees resolve the ambiguity of the external environment by defining a rigorous reference setup, typically fixing the cable height above a standardized ground plane. Under these controlled conditions, <span class="math inline">\(L_S\)</span> is calculated by applying the method of images–effectively treating the system as an equivalent two-wire transmission line:</p>
+<p><span class="math display">\[L_S \approx \dfrac{\mu_0}{2\pi}\log\left(\dfrac{2h}{r_S}\right)\]</span> where <span class="math inline">\(h\)</span> is the cable height above the reference ground plane and <span class="math inline">\(r_S\)</span> is the effective shield radius.</p>
+<p>This formulation reveals that <span class="math inline">\(L_S\)</span> depends on the physical spacing <span class="math inline">\(h\)</span> through a natural logarithm. Because the logarithmic function strongly attenuates large variations in its argument, the resulting inductance is relatively insensitive to moderate changes in geometry; shifting the cable slightly closer to or farther from a metallic enclosure will not drastically alter the value of <span class="math inline">\(L_S\)</span>.</p>
+<p>Crucially, however, the shield cut-off frequency is not dictated by geometry alone. It also depends strongly on the shield resistance <span class="math inline">\(R_S\)</span>, which in turn reflects the electrical properties and construction of the shield itself. As a result, two cables having similar geometries may exhibit noticeably different shielding behavior at low frequencies.</p>
+<hr>
+<p>One distinction is subtle but essential. The inductance of <a href="#eq-7" class="quarto-xref">Equation&nbsp;3</a> is associated with the conductor pair</p>
+<p><span class="math display">\[\text{inner conductor} \leftrightarrow \text{shield},\]</span></p>
+<p>whereas <span class="math inline">\(L_S\)</span> is associated with the conductor pair</p>
+<p><span class="math display">\[\text{shield} \leftrightarrow \text{ground plane}.\]</span></p>
+<p>Because the cylindrical shield completely encloses the protected conductor, all magnetic flux generated by a shield current links that conductor, leading to the remarkable EMC identity of <a href="#eq-9" class="quarto-xref">Equation&nbsp;5</a>.</p>
+<p>This relation explains why shield currents can effectively cancel magnetic coupling. It also highlights the role of the external return path in determining the shield inductance and, together with the shield resistance, the resulting cut-off frequency. As a result, shielding effectiveness is determined not only by the cable itself but also by the electromagnetic environment in which the cable is installed.</p>
+<blockquote class="blockquote">
+<div class="line-block">In short, the inductance <span class="math inline">\(L\)</span> of <a href="#eq-7" class="quarto-xref">Equation&nbsp;3</a> and the shield inductance <span class="math inline">\(L_S\)</span> belong to two different electromagnetic stories, even though they may involve the same physical cable.</div>
+</blockquote>
+</div>
+</div>
+<p>The previous discussion suggests that effective magnetic shielding requires current to circulate in the shield. In practice, this generally favors connecting the shield at both ends, allowing the compensating current to develop and the mechanism described above to operate. For electric fields, however, the situation is different. Even a shield connected at only one end may still behave as a Faraday cage and provide substantial electrostatic shielding.</p>
+<p>This apparent contradiction is one of the recurring lessons of electromagnetic compatibility: there is rarely a universally correct grounding strategy. The optimal solution depends on both the frequency range of interest and the physical mechanism responsible for the disturbance. Moreover, although both <span class="math inline">\(R_S\)</span> and <span class="math inline">\(L_S\)</span> are distributed quantities, their ratio often corresponds to frequencies far below the radio-frequency regime normally associated with EMC.</p>
+<p>The apparently simple coaxial cable has therefore revealed one final identity. Beyond storing energy, guiding waves, and connecting instruments, it becomes a device for controlling where currents are allowed to flow — and, equally importantly, where they are not.</p>
+</section>
+</section>
+<section id="conclusion-shifting-lenses" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion-shifting-lenses">Conclusion: shifting lenses</h2>
+<p>Our four encounters with the coaxial cable reveal a broader methodological lesson. The apparent contradictions encountered along the way are neither mistakes nor failures of rigor. Academic abstractions and engineering simplifications are deliberate tools designed to isolate the dominant physical phenomenon within a particular operating regime.</p>
+<p>In the first encounter, the coaxial cable appeared as a geometrical structure capable of storing electric and magnetic energy. In the second, it became the transmission line for which it is best known, supporting propagating waves. In the third, it became a component of a measurement system whose own capacitance could alter the observed signal. In the fourth, viewed through the lens of electromagnetic compatibility, it finally emerged as a device for controlling where currents are allowed to flow.</p>
+<p>None of these descriptions is wrong, of course. Each is simply incomplete outside the context for which it was developed.</p>
+<p>The familiar logarithmic inductance formula derived in introductory electromagnetics remains an extraordinarily powerful result when the relevant currents are confined within the cable geometry. Yet the moment return currents begin interacting with external grounding structures, new inductances emerge, new current paths become possible, and the original model ceases to capture the entire physical picture.</p>
+<p>Perhaps this observation is less surprising than it first appears. Even in introductory electromagnetics, inductance is never associated with an isolated conductor, but with a current loop. A useful thought experiment is to ask how one would calculate the inductance of a single straight wire whose return path is assumed to lie “at infinity”. The question immediately becomes ambiguous, because the answer depends entirely on how the current ultimately returns.</p>
+<p>The EMC shield inductance encountered in our final discussion is not an exotic new concept. It is simply a reminder of a lesson already present in sophomore courses: before speaking about inductance, one must first identify the complete current path.</p>
+<p>The most valuable lesson, however, is not the formula itself, but the habit of asking which assumptions made the formula possible. As engineers and physicists, we repeatedly revisit familiar objects through different conceptual lenses. The coaxial cable merely provides a particularly elegant example of this process: a device so common that it is easy to overlook how many different physical identities it can acquire depending on the questions we choose to ask.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/amsabatini\.netlify\.app");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<script src="https://utteranc.es/client.js" repo="angelosabatini/blog.comments" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+
+<div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

@@ -2,6 +2,7 @@
   {
     "listing": "/blog.html",
     "items": [
+      "/posts/coaxial_cable/index.html",
       "/posts/post_3/index.html",
       "/posts/post_2/index.html",
       "/posts/post_1/index.html",
@@ -34,6 +35,7 @@
   {
     "listing": "/archive.html",
     "items": [
+      "/posts/coaxial_cable/index.html",
       "/posts/post_3/index.html",
       "/posts/post_2/index.html",
       "/posts/post_1/index.html",

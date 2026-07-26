@@ -10,7 +10,316 @@
 <atom:link href="https://amsabatini.netlify.app/blog.xml" rel="self" type="application/rss+xml"/>
 <description>The personal blog of Angelo Maria Sabatini</description>
 <generator>quarto-1.6.40</generator>
-<lastBuildDate>Thu, 02 Jul 2026 22:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sun, 26 Jul 2026 22:00:00 GMT</lastBuildDate>
+<item>
+  <title>Four identities of the coaxial cable: from magnetostatics to EMC</title>
+  <dc:creator>Angelo Maria Sabatini</dc:creator>
+  <link>https://amsabatini.netlify.app/posts/coaxial_cable/</link>
+  <description><![CDATA[ 
+
+
+
+
+<blockquote class="blockquote">
+<p>💾 <strong>Prefer reading offline?</strong> You can <a href="post_pdf.pdf">download a PDF version of this post</a> for printing or future reference.</p>
+</blockquote>
+<p>The coaxial cable is one of those devices that seem entirely unremarkable. Most engineers encounter it early in their education and then spend the rest of their careers using it without much hesitation. Yet the same cable can acquire rather different identities when examined through different conceptual lenses.</p>
+<p>When I was an engineering student myself, I encountered the coaxial cable three times. First in disguise, during a sophomore course on electromagnetism. Years later, I learned about its role as an effective transmission line for high-frequency voltage and current waveforms. Finally, it appeared once more in a course on electronic measurement systems, where coaxial cables are routinely used to connect generic signal sources to instruments such as oscilloscopes. Had my path — unlike what actually happened — led me into electromagnetic compatibility, the coaxial cable would probably have surfaced once again, this time as one of the canonical devices for improving electromagnetic integrity. In that context, the relevant buzzword may be shielding.</p>
+<p>A quantity known as inductance — more precisely, inductance per unit length — appears repeatedly throughout this multifaceted journey. Yet, upon closer inspection, even the seemingly simple question “what is the inductance of a coaxial cable?” admits different answers depending on the viewpoint adopted.</p>
+<section id="first-encounter-magnetostatics" class="level2">
+<h2 class="anchored" data-anchor-id="first-encounter-magnetostatics">First encounter: Magnetostatics</h2>
+<p>The geometry of the coaxial cable considered in magnetostatics is shown in Figure&nbsp;1.</p>
+<div id="fig-1" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/coaxial_cable/fig-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="250">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Coaxial cable geometrical sketch.
+</figcaption>
+</figure>
+</div>
+<p>An infinitely long cylindrical metallic conductor of radius <img src="https://latex.codecogs.com/png.latex?r"> (the inner conductor) is surrounded by a hollow cylindrical conductor (the shield) with inner radius <img src="https://latex.codecogs.com/png.latex?R"> — the outer radius is usually left unspecified. The two conductors share the same axis, while air is typically assumed to fill the region between them.</p>
+<p>A current <img src="https://latex.codecogs.com/png.latex?I"> is assumed to flow through the structure. In the simplest magnetostatic treatment, the current density is taken to be uniformly distributed across the cross-section of the inner conductor, while the return current is assumed to be concentrated on the inner surface of the shield.</p>
+<p>If the current in the inner conductor points outward from the page, the current flowing on the shield points inward. The inner conductor and the shield are therefore explicitly treated as parts of the same physical circuit. Nonetheless, it will be useful to distinguish explicitly between the current flowing in the inner conductor, <img src="https://latex.codecogs.com/png.latex?I_i=I">, and the return current flowing on the shield, <img src="https://latex.codecogs.com/png.latex?I_s=-I">.</p>
+<p>To compute the inductance, students are usually reminded that the magnetic flux <img src="https://latex.codecogs.com/png.latex?%5CPhi"> linked — or, in older terminology, concatenated — with the current <img src="https://latex.codecogs.com/png.latex?I"> must first be evaluated:</p>
+<p><img src="https://latex.codecogs.com/png.latex?L=%5Cdfrac%7B%5CPhi%7D%7BI%7D."></p>
+<p>Geometrical symmetry greatly simplifies the visualization of the magnetic induction field <img src="https://latex.codecogs.com/png.latex?B">. By combining cylindrical symmetry with Ampère’s law (or equivalently the Biot–Savart law), one finds that in the region between the inner conductor and the shield (<img src="https://latex.codecogs.com/png.latex?r%5Cleq%5Crho%5Cleq%20R">) the magnetic field is purely azimuthal and depends only on the radial coordinate <img src="https://latex.codecogs.com/png.latex?%5Crho">:</p>
+<p><span id="eq-1"><img src="https://latex.codecogs.com/png.latex?B(%5Crho,%5Ctheta)=%5Cdfrac%7B%5Cmu_0%7D%7B2%5Cpi%7D%5C,%5Cdfrac%7BI%7D%7B%5Crho%7D,%20%5Ctag%7B1%7D"></span></p>
+<p>where cylindrical coordinates (<img src="https://latex.codecogs.com/png.latex?%5Crho,%5Ctheta">) are used and all quantities are expressed per unit length. In Equation&nbsp;1 <img src="https://latex.codecogs.com/png.latex?%5Cmu_0%20=%204%5Cpi%5Ctimes10%5E%7B-7%7D%5C,%5Cmathrm%7BH/m%7D"> is the permeability of vacuum (in SI units).</p>
+<p>At this point, however, two details deserve attention.</p>
+<p>First, if the current density is assumed to be uniformly distributed across the surface of the inner conductor, the magnetic field also exists inside the conductor itself. Therefore, the flux linkage associated with the region <img src="https://latex.codecogs.com/png.latex?0%5Cleq%5Crho%3Cr"> must be treated with some care. This is the familiar contribution known as the internal inductance of the wire.</p>
+<p>Second, the return current on the shield is not usually treated as a separate source of magnetic flux in the derivation. Instead, it enters the argument through a boundary condition: the current is assumed to be concentrated on the inner surface of the shield and to be equal and opposite to the current in the inner conductor. With this assumption, the magnetic field drops to zero for <img src="https://latex.codecogs.com/png.latex?%5Crho%3ER">.</p>
+<p>Why different assumptions are adopted for the current distribution in the inner conductor and in the shield is usually left unexplained. The resulting model is perfectly adequate for deriving the inductance of the coaxial structure, but it quietly combines idealizations that are seldom discussed explicitly in introductory courses.</p>
+<p>From a teaching perspective, it is far more convenient to impose the boundary condition directly: the return current is simply assumed to flow on the inner surface of the shield. Under this assumption, the magnetic field vanishes abruptly for <img src="https://latex.codecogs.com/png.latex?%5Crho%20%3E%20R">, allowing students to appreciate, at least qualitatively, the field-confining nature of the coaxial geometry without requiring a more elaborate electromagnetic treatment. The price paid for this pedagogical convenience is the implicit assumption that nature makes abrupt jumps (<em>natura facit saltus</em>), which of course it does not.</p>
+<p>More importantly, one may legitimately wonder whether the shield current <img src="https://latex.codecogs.com/png.latex?I_s">, regardless of the details of its distribution within the shield, should itself contribute to the magnetic field within the cavity between the two conductors. At first sight, the answer appears ambiguous. After all, the magnetic field inside the cavity is ultimately generated by the entire current distribution, not solely by the current flowing in the inner conductor. Yet, in the standard derivation, the shield current enters only indirectly through the boundary condition imposing field confinement outside the cable. The magnetic field within the cavity is therefore computed as if it were entirely generated by the enclosed current <img src="https://latex.codecogs.com/png.latex?I_i">. This is one subtle conceptual point in the study of coaxial structures, often overlooked in introductory treatments, and we’ll return to it in the callout below.</p>
+<p>The magnetic field generated by the current distribution can now be evaluated using Ampère’s law. In integral form, the law states that the circulation of the magnetic induction field along a closed path is proportional to the total current enclosed by that path:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Coint_%7B%5CGamma%7D%5Cmathbf%7BB%7D%5Ccdot%20d%5Cmathbf%7Bl%7D=%5Cmu_0%20I_%7B%5Cmathrm%7Benc%7D%7D,"></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?%5CGamma"> denotes an arbitrary closed integration path (an <em>Amperian path</em>), <img src="https://latex.codecogs.com/png.latex?d%5Cmathbf%20l"> is an infinitesimal oriented line element along that path, and <img src="https://latex.codecogs.com/png.latex?I_%7B%5Cmathrm%7Benc%7D%7D"> is the net current enclosed by it. The dot symbol <img src="https://latex.codecogs.com/png.latex?%5Ccdot"> denotes the scalar product between vectors.</p>
+<p>In the case of the coaxial cable, symmetry suggests choosing circular Amperian paths centered on the cable axis and lying within the cavity. For such paths, the enclosed current is simply <img src="https://latex.codecogs.com/png.latex?I_%7B%5Cmathrm%7Benc%7D%7D=I_i=I">, leading directly to Equation&nbsp;1.</p>
+<p>Ampère’s law provides information about the circulation of the magnetic field along closed paths. The evaluation of magnetic flux, however, requires the field distribution itself, since flux is defined over surfaces rather than curves:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5CPhi=%5Cint_S%20%5Cmathbf%7BB%7D%5Ccdot%20d%5Cmathbf%7BS%7D"></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?S"> denotes an arbitrary oriented surface and <img src="https://latex.codecogs.com/png.latex?d%5Cmathbf%20S"> its infinitesimal oriented surface element.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Internal inductance of the inner conductor
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Consider circular Amperian paths with radius <img src="https://latex.codecogs.com/png.latex?0%3C%5Crho%5Cleq%20r">. Under the assumption of uniformly distributed current density, the enclosed current is only a fraction of the total current <img src="https://latex.codecogs.com/png.latex?I_i=I">:</p>
+<p><img src="https://latex.codecogs.com/png.latex?I_%7B%5Cmathrm%7Benc%7D%7D(%5Crho)=%5Cdfrac%7B%5Crho%5E2%7D%7Br%5E2%7DI."></p>
+<p>The magnetic field inside the inner conductor therefore increases linearly with the radial coordinate:</p>
+<p><span id="eq-4"><img src="https://latex.codecogs.com/png.latex?B(%5Crho)=%5Cdfrac%7B%5Cmu_0%5C,I%7D%7B2%5Cpi%5C,r%5E2%7D%5C,%5Crho.%20%5Ctag%7B2%7D"></span></p>
+<p>As a consequence, magnetic flux is present not only in the cavity between the two conductors, but also inside the inner conductor itself. The corresponding magnetic field stores energy and therefore contributes to the total inductance of the structure: this contribution is known as the internal inductance of the conductor.</p>
+<p>The magnetic energy density is</p>
+<p><img src="https://latex.codecogs.com/png.latex?u_B(%5Crho)=%5Cdfrac%7BB%5E2(%5Crho)%7D%7B2%5Cmu_0%7D"></p>
+<p>To find the total magnetic energy per unit length (<img src="https://latex.codecogs.com/png.latex?U_m">), we integrate this density over the cross-sectional surface area <img src="https://latex.codecogs.com/png.latex?A"> of the wire:</p>
+<p><img src="https://latex.codecogs.com/png.latex?U_m=%5Cint_A%20u_B%5C,dA=%5Cint_0%5E%7Br%7D%5Cdfrac%7BB%5E2(%5Crho)%7D%7B2%5Cmu_0%7D%5C,2%5Cpi%5Crho%5C,d%5Crho"></p>
+<p>Substituting the expression of <img src="https://latex.codecogs.com/png.latex?B(%5Crho)"> from Equation&nbsp;2 into the surface integral yields:</p>
+<p><img src="https://latex.codecogs.com/png.latex?U_m=%5Cint_0%5E%7Br%7D%5Cdfrac%7B1%7D%7B2%5Cmu_0%7D%5Cleft(%5Cdfrac%7B%5Cmu_0I%7D%7B2%5Cpi%5C,r%5E2%7D%5Crho%5Cright)%5E22%5Cpi%5Crho%5C,d%5Crho=%5Cdfrac%7B%5Cmu_0I%5E2%7D%7B4%5Cpi%20r%5E4%7D%5Cint_0%5E%7Br%7D%5Crho%5E3d%5Crho=%5Cdfrac%7B%5Cmu_0I%5E2%7D%7B16%5Cpi%7D"></p>
+<p>The total magnetic energy stored per unit length can also be expressed in terms of the internal inductance of the inner conductor per unit length (<img src="https://latex.codecogs.com/png.latex?L_%7B%5Ctext%7Bint%7D%7D">):</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cdfrac%7B1%7D%7B2%7DL_%7B%5Ctext%7Bint%7D%7DI%5E2=%5Cdfrac%7B%5Cmu_0I%5E2%7D%7B16%5Cpi%7D%20%5Cto%20L_%7B%5Ctext%7Bint%7D%7D=%5Cdfrac%7B%5Cmu_0%7D%7B8%5Cpi%7D"></p>
+<p>This contribution is independent of the conductor radius and depends only on the assumption of uniformly distributed current density.</p>
+</div>
+</div>
+<p>Now we are in a position to complete the calculation of the inductance. As for the magnetic flux linkage generated by <img src="https://latex.codecogs.com/png.latex?I_i=I"> within the cavity, one obtains:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5CPhi_%7B%5Cmathrm%7Bcav%7D%7D=%5Cdfrac%7B%5Cmu_0%5C,I%7D%7B2%5Cpi%7D%5Cint_r%5ER%5Cdfrac%7B1%7D%7B%5Crho%7D%5C,d%5Crho=%5Cdfrac%7B%5Cmu_0%5C,I%7D%7B2%5Cpi%7D%5Clog%5Cleft(%5Cdfrac%7BR%7D%7Br%7D%5Cright)."></p>
+<p>The total inductance per unit length is therefore obtained by summing the cavity and internal contributions:</p>
+<p><span id="eq-7"><img src="https://latex.codecogs.com/png.latex?%5Cboxed%7BL=%5Cdfrac%7B%5Cmu_0%7D%7B2%5Cpi%7D%5Cleft%5B%5Clog%5Cleft(%5Cdfrac%7BR%7D%7Br%7D%5Cright)+%5Cdfrac%7B1%7D%7B4%7D%5Cright%5D%7D%20%5Ctag%7B3%7D"></span></p>
+<p>A parallel journey takes place in electrostatics, where the capacitance per unit length of the coaxial cable is evaluated. This time, the calculation relies on Gauss’s law together with the definition of capacitance:</p>
+<p><span id="eq-8"><img src="https://latex.codecogs.com/png.latex?%5Cboxed%7BC=%5Cdfrac%7B2%5Cpi%5Cepsilon_0%5C,%5Cepsilon_r%7D%7B%5Clog%5Cleft(%5Cdfrac%7BR%7D%7Br%7D%5Cright)%7D%7D%20%5Ctag%7B4%7D"></span></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?%5Cepsilon_0=8.854%5Ccdot%2010%5E%7B-12%7D%5C,%5Cmathrm%7BF/m%7D"> denotes the permittivity of vacuum (in SI units), while <img src="https://latex.codecogs.com/png.latex?%5Cepsilon_r"> is the relative permittivity of the dielectric medium filling the cavity between the two conductors (for air, <img src="https://latex.codecogs.com/png.latex?%5Cepsilon_r%5Capprox1">).</p>
+<p>Whether one follows the magnetostatic or the electrostatic route, frequency and wavelength have not yet entered the picture. Our first encounter with the coaxial cable ends here.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Zero circulation does not necessarily imply a zero magnetic field
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Consider the closed path shown in Figure&nbsp;2.</p>
+<div id="fig-2" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/coaxial_cable/fig-2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="250">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Amperian path with external current.
+</figcaption>
+</figure>
+</div>
+<p>A steady current along a straight wire emerges from the page. The generated magnetic field is tangential to circles centered on the wire axis and can therefore be written in cylindrical coordinates as:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cmathbf%7BB%7D(%5Crho)=%5Cdfrac%7B%5Cmu_0%20I%7D%7B2%5Cpi%5Crho%7D%5C,%5Chat%7B%5Cboldsymbol%7B%5Cvarphi%7D%7D,"></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?%5Chat%7B%5Cboldsymbol%7B%5Cvarphi%7D%7D"> denotes the azimuthal unit vector, i.e., the local tangential direction along the circular arcs of the closed path.</p>
+<p>The contributions to the circulation along the two circular arcs are:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Cfrac%7B%5Cmu_0%20I%7D%7B2%5Cpi%7D%5Cint_0%5E%5Ctheta%5Cdfrac%7B1%7D%7Br%7Dr%5C,d%5Ctheta=%5Cfrac%7B%5Cmu_0%20I%7D%7B2%5Cpi%7D%5Ctheta%0A%5Cqquad%5Ctext%7Band%7D%5Cqquad%0A-%5Cfrac%7B%5Cmu_0%20I%7D%7B2%5Cpi%7D%5Ctheta"></p>
+<p>respectively (this is because <img src="https://latex.codecogs.com/png.latex?d%5Cmathbf%7Bl%7D%5Cparallel%5Chat%7B%5Cboldsymbol%7B%5Cvarphi%7D%7D">), while the contribution along the radial segments vanishes (this is because <img src="https://latex.codecogs.com/png.latex?d%5Cmathbf%7Bl%7D%5Cperp%5Chat%7B%5Cboldsymbol%7B%5Cvarphi%7D%7D">).</p>
+<p>Summing the contributions from the two circular arcs and the two radial segments, the total circulation becomes:</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Coint%20%5Cmathbf%7BB%7D%5Ccdot%20d%5Cmathbf%7Bl%7D=%5Cfrac%7B%5Cmu_0%20I%7D%7B2%5Cpi%7D%5Ctheta-%5Cfrac%7B%5Cmu_0%20I%7D%7B2%5Cpi%7D%5Ctheta+0=0."></p>
+<p>The minus sign arises from the opposite traversal direction along the inner circular arc. The vanishing circulation therefore results from the cancellation of nonzero contributions, not from the absence of magnetic field along the path. The result remains unchanged even when the angle is extended to <img src="https://latex.codecogs.com/png.latex?%5Ctheta=2%5Cpi">.</p>
+<blockquote class="blockquote">
+<div class="line-block">A vanishing circulation therefore does not, in general, imply a vanishing magnetic field.</div>
+</blockquote>
+<p>In the coaxial cable, the conclusion that the shield current does not contribute directly to the magnetic field within the cavity—and therefore to the associated flux and flux linkage—follows only because cylindrical symmetry constrains the field to remain purely azimuthal and uniform along circular Amperian paths. The conclusion therefore relies not only on Ampère’s law, but also on the strong symmetry constraints imposed by the coaxial geometry.</p>
+</div>
+</div>
+</section>
+<section id="second-encounter-transmission-lines" class="level2">
+<h2 class="anchored" data-anchor-id="second-encounter-transmission-lines">Second Encounter: Transmission Lines</h2>
+<p>Our first encounter with the coaxial cable took place entirely within the world of electrostatics and magnetostatics. Electric and magnetic fields could be treated separately, frequency never entered the discussion, and the physical length of the cable played essentially no role. The cable appeared mainly as a geometrical structure capable of storing magnetic (or electric) energy.</p>
+<p>The situation changes once propagation effects can no longer be neglected, that is, when the cable length becomes a non-negligible fraction of the signal wavelength.</p>
+<p>At this point, the traditional lumped-parameter description begins to fail. Voltage and current can no longer be regarded as quantities depending only on time; they must instead be treated as functions of both time and position along the cable. The coaxial cable is no longer simply a pair of conductors separated by a dielectric medium: it becomes a transmission line.</p>
+<p>A conceptual shift follows naturally. Resistance, inductance, conductance, and capacitance are no longer treated as global quantities associated with an entire circuit element, but rather as distributed parameters defined per unit length (Figure&nbsp;3).</p>
+<div id="fig-3" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/coaxial_cable/fig-3.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="400">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Distributed-parameter equivalent circuit of an infinitesimal coaxial cable section of length <img src="https://latex.codecogs.com/png.latex?dl">.
+</figcaption>
+</figure>
+</div>
+<p>Interestingly, two of them — the inductance and capacitance per unit length — have already emerged implicitly in the previous magnetostatic and electrostatic analyses.</p>
+<p>Under these conditions, the electrical behavior of the cable is described through the distributed-parameter model of transmission-line theory. One of its central quantities is the characteristic impedance, which in its most general form is</p>
+<p><img src="https://latex.codecogs.com/png.latex?Z=%5Csqrt%7B%5Cdfrac%7BR+j%5Comega%20L%7D%7BG+j%5Comega%20C%7D%7D,"></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?R"> (resistance), <img src="https://latex.codecogs.com/png.latex?L">, <img src="https://latex.codecogs.com/png.latex?G"> (conductance), and <img src="https://latex.codecogs.com/png.latex?C"> are all understood per unit length. For low-loss transmission lines, where</p>
+<p><img src="https://latex.codecogs.com/png.latex?R%20%5Cll%20%5Comega%20L,%0A%5Cqquad%0AG%20%5Cll%20%5Comega%20C,"></p>
+<p>the impedance approaches the familiar expression:</p>
+<p><img src="https://latex.codecogs.com/png.latex?Z_0%5Capprox%5Csqrt%7B%5Cdfrac%7BL%5Cmathstrut%7D%7BC%7D%7D."></p>
+<p>The propagation viewpoint introduces another important quantity: the wave propagation velocity along the cable. In the ideal low-loss approximation, it is given by</p>
+<p><img src="https://latex.codecogs.com/png.latex?v=%5Cfrac%7B1%7D%7B%5Csqrt%7BLC%7D%7D."></p>
+<p>Neglecting the internal inductance of the inner conductor, this expression becomes</p>
+<p><img src="https://latex.codecogs.com/png.latex?v=%5Cfrac%7Bc%7D%7B%5Csqrt%7B%5Cepsilon_r%7D%7D,"></p>
+<p>revealing that electromagnetic propagation in an ideal coaxial cable occurs at a fraction <img src="https://latex.codecogs.com/png.latex?1/%5Csqrt%7B%5Cepsilon_r%7D"> of the speed of light in vacuum, where</p>
+<p><img src="https://latex.codecogs.com/png.latex?c=%5Cfrac%7B1%7D%7B%5Csqrt%7B%5Cepsilon_0%5Cmu_0%7D%7D."></p>
+<p>For the coaxial geometry considered previously, substitution of the electrostatic and magnetostatic expressions for <img src="https://latex.codecogs.com/png.latex?L"> and <img src="https://latex.codecogs.com/png.latex?C"> (Equation&nbsp;3 – Equation&nbsp;4) recovers the familiar transmission-line formulas widely encountered in engineering handbooks, RF practice, and EMC-oriented design literature.</p>
+<p>The characteristic impedance plays a central role in signal transmission problems. Whenever the load impedance matches the characteristic impedance, reflections are ideally suppressed and the cable behaves, from the viewpoint of the source, as if it were infinitely long. Conversely, if the terminal load differs from <img src="https://latex.codecogs.com/png.latex?Z_0">, part of the propagating waveform is reflected back toward the source.</p>
+<p>At sufficiently high frequency another phenomenon progressively enters the picture: skin effect. The current distribution inside the conductors is no longer approximately uniform, but becomes increasingly confined near the conductor surfaces. As a consequence, the effective ohmic resistance per unit length becomes frequency dependent and generally increases with frequency. At the same time, the contribution associated with the internal inductance of the inner conductor — already comparatively small in the low-frequency treatment — becomes progressively less relevant, since the magnetic field is expelled from the conductor bulk together with the current itself.</p>
+<p>Interestingly, the simplifying assumption introduced almost implicitly in the magnetostatic discussion — namely, that the return current flows on the inner surface of the shield — now acquires a concrete physical justification: at sufficiently high frequency, the electromagnetic field supported by the coaxial geometry confines the return current to the inner surface of the shield, precisely where the tangential magnetic field is present. What appeared as a mathematically convenient magnetostatic assumption in the first encounter emerges as a natural consequence of the propagation regime in the second.</p>
+</section>
+<section id="third-encounter-instrumentation" class="level2">
+<h2 class="anchored" data-anchor-id="third-encounter-instrumentation">Third Encounter: Instrumentation</h2>
+<p>The third encounter with the coaxial cable takes place far from the idealized world of infinitely long structures and perfectly matched transmission lines. The cable now appears on a laboratory bench, connecting signal generators, oscilloscopes, sensors, and measurement instruments.</p>
+<p>At first sight, this may seem like a return to the familiar world of lumped circuits. In many practical measurement setups, the cable length is indeed much smaller than the wavelength associated with the dominant spectral components of the signal. Yet the transmission-line viewpoint has not become irrelevant. The distributed nature of the coaxial cable remains present, although it manifests itself in a rather different way.</p>
+<p>One of the most immediate consequences is cable capacitance. Since capacitance is specified per unit length, longer cable sections introduce progressively larger capacitive loading effects. From the viewpoint of the measured circuit, the coaxial cable itself becomes part of the measurement system. Its capacitance acts as a load, forming a distributed or lumped RC low-pass structure together with the source resistance and thereby modifying rise times and attenuating fast waveform transitions.</p>
+<p>This phenomenon becomes especially evident in oscilloscope measurements. A passive oscilloscope probe connected through a coaxial cable may significantly distort fast voltage transients unless appropriate compensation techniques are adopted. Probe compensation introduces a carefully adjusted capacitive network intended to counteract the loading effects of the cable and preserve waveform shape over a wider frequency range.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Probes for oscilloscopes
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The coaxial cable and the oscilloscope input introduce capacitive loading effects that may distort fast waveform transitions. A passive probe therefore combines resistive attenuation with a carefully adjusted compensation capacitor <img src="https://latex.codecogs.com/png.latex?C_v"> (Figure&nbsp;4).</p>
+<div id="fig-4" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/coaxial_cable/fig-4.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="750">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Simplified model of a compensated oscilloscope probe.
+</figcaption>
+</figure>
+</div>
+<p>Proper compensation is achieved when the corresponding RC time constants satisfy</p>
+<p><img src="https://latex.codecogs.com/png.latex?R_1C_v%20=%20R_%7Bin%7D(C_%7Bin%7D+C_c)"></p>
+<p>Under this condition, the transfer function becomes approximately independent of frequency over a wider operating range, preserving the waveform shape during fast rising and falling transitions.</p>
+<p>Typical undercompensated and overcompensated responses are shown in Figure&nbsp;5.</p>
+<div id="fig-5" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/coaxial_cable/fig-5.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="500">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Typical responses of a compensated oscilloscope probe. From left to right: overcompensated, properly compensated, and undercompensated behavior. Proper compensation is achieved when the RC time constants of the probe and the combined oscilloscope-input/cable capacitance are balanced.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="final-encounter-electromagnetic-compatibility-emc" class="level2">
+<h2 class="anchored" data-anchor-id="final-encounter-electromagnetic-compatibility-emc">Final Encounter: Electromagnetic Compatibility (EMC)</h2>
+<p>Our discussion has so far treated the coaxial cable as a largely self-contained structure. In real systems, however, the shield rarely behaves as a perfectly isolated return path. Multiple interconnected conductors, grounds, and return paths coexist, and currents do not always remain confined to the ideal coaxial geometry. Interactions with the surrounding electromagnetic environment are therefore inevitable.</p>
+<p>My fourth — and, at least for the moment, last — encounter with coaxial cables was mediated by Henry Ott. His classic textbook on electromagnetic compatibility is rich with practical insights on grounding, cabling, shielding, and noise reduction (H.W. Ott, “Noise reduction techniques in electronic systems”, 2nd ed., John Wiley &amp; Sons, 1988). A recurring theme throughout Ott’s work is deceptively simple: every circuit requires a reference. Voltages do not exist in isolation; they acquire meaning only when measured with respect to some reference point.</p>
+<p>Difficulties arise when multiple circuits and signal paths attempt to coexist within the same physical environment. Currents that once appeared to be harmless return currents may begin to share conductors, ground systems, metallic structures, and even cable shields. Signals that were intended to remain independent start interacting with one another.</p>
+<p>The situation resembles a crowded cocktail party: many conversations take place simultaneously, and each participant struggles to distinguish the message of interest from the surrounding background. Coaxial cables are widely used precisely because they help separate these competing conversations.</p>
+<p>Yet, when viewed through the lens of electromagnetic compatibility, the illusion of a self-contained device quickly disappears. In real-world multi-chassis systems, the shield is often connected to the local reference structure at both ends. Under these conditions, it ceases to be merely one of the conductors forming a transmission line and becomes an independent current path whose behavior is determined by the surrounding grounding topology.</p>
+<p>The inner conductor, the shield, and the external return structure now participate in a set of coupled current loops rather than a single self-contained circuit. For clarity henceforth, the common ground plane is assumed to be equipotential. It provides the return path for all currents but is not treated as a fourth circuit in the analysis.</p>
+<section id="the-shield-as-an-electrical-circuit" class="level3">
+<h3 class="anchored" data-anchor-id="the-shield-as-an-electrical-circuit">The shield as an electrical circuit</h3>
+<p>Before proceeding, it is worth pausing briefly on one detail. In Ott’s treatment, the shield is viewed as a thin metallic partition capable of influencing the spatial distribution of electromagnetic fields. Although the analysis does not require a cylindrical geometry, Ott adopts one because it leads to a particularly simple and insightful model.</p>
+<p>The resulting configuration bears a striking resemblance to a coaxial cable. The resemblance is not accidental: much of the discussion that follows relies on electromagnetic properties already seen during our previous encounters. Unlike the transmission-line configurations discussed previously, however, the inner conductor and the shield no longer belong to the same circuit. Instead, they are elements of distinct circuits that share a common return structure, represented here by an equipotential ground plane.</p>
+<p>A surprising observation follows immediately. Because electrostatic shields are often grounded at only one end, it is tempting to assume that a metallic shield surrounding a conductor should provide protection against magnetic coupling in the same configuration. Unfortunately, this is not the case.</p>
+<p>To fix ideas, consider the configuration shown in Figure&nbsp;6, consisting of three coupled circuits:</p>
+<ul>
+<li>Circuit 1: the disturbance source,</li>
+<li>Circuit S: the shield circuit,</li>
+<li>Circuit 2: the receptor (or victim) circuit.</li>
+</ul>
+<p>The underlying mechanism of magnetic shielding is simply Faraday’s law of electromagnetic induction. The time-varying magnetic flux generated by Circuit 1 induces a voltage in both Circuit S and Circuit 2. The configuration shown in Figure&nbsp;6 represents the case in which Circuit S is closed and supports an induced current <img src="https://latex.codecogs.com/png.latex?I_S">. It is useful, however, to first imagine opening Circuit S. In that case, the induced voltage cannot drive a current through the shield. Without a shield current, no opposing magnetic field can be generated and therefore no magnetic cancellation can take place in Circuit 2.</p>
+<div id="fig-6" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="https://amsabatini.netlify.app/posts/coaxial_cable/fig-6.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="500">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Three-circuit representation of Ott’s magnetic shielding model. Circuit 1 acts as the disturbance source, Circuit 2 as the receptor, and Circuit S represents the shield itself. The common ground plane is assumed equipotential and is not shown explicitly.
+</figcaption>
+</figure>
+</div>
+<p>Ott’s analysis highlights a remarkable property of a cylindrical shield surrounding a conductor. The magnetic flux generated by a current flowing in the shield links the inner conductor. As a consequence, the mutual inductance between shield and inner conductor is equal to the self-inductance of the shield <img src="https://latex.codecogs.com/png.latex?L_S">:</p>
+<p><span id="eq-9"><img src="https://latex.codecogs.com/png.latex?%5Cboxed%7BM_%7BS2%7D=L_S%7D%20%5Ctag%7B5%7D"></span></p>
+<p>The reason is purely geometrical. For a cylindrical shield carrying a uniformly distributed axial current, the magnetic field vanishes everywhere inside the cavity enclosed by the shield, as discussed during our first encounter. All magnetic flux generated by the shield current therefore remains external to the shield itself. Consequently, every flux linkage contributing to the shield self-inductance also links the inner conductor, leading directly to Equation&nbsp;5.</p>
+</section>
+<section id="the-shield-cut-off-frequency" class="level3">
+<h3 class="anchored" data-anchor-id="the-shield-cut-off-frequency">The shield cut-off frequency</h3>
+<p>In phasor notation, the net voltage developed in Circuit 2 is</p>
+<p><img src="https://latex.codecogs.com/png.latex?V_N=V_2-V_C=j%5Comega%20M_%7B12%7DI_1-j%5Comega%20M_%7BS2%7DI_S"></p>
+<p>where the first term represents the direct magnetic coupling from Circuit 1 to Circuit 2, while the second accounts for the opposing contribution generated by the shield current.</p>
+<p>The current flowing in the shield circuit is</p>
+<p><img src="https://latex.codecogs.com/png.latex?I_S=%5Cdfrac%7BV_S%7D%7BR_S+j%5Comega%20L_S%7D=%5Cdfrac%7Bj%5Comega%20M_%7B1S%7DI_1%7D%7BR_S+j%5Comega%20L_S%7D"></p>
+<p>where <img src="https://latex.codecogs.com/png.latex?R_S"> denotes the shield resistance.</p>
+<p>Two observations allow the model to be simplified further.</p>
+<p>First, from the viewpoint of Circuit 1, both the shield and the receptor circuit occupy nearly the same spatial position. Consequently,</p>
+<p><img src="https://latex.codecogs.com/png.latex?M_%7B1S%7D%5Capprox%20M_%7B12%7D."></p>
+<p>An additional simplifying assumption is implicit in the model. The shield and receptor circuits are assumed not to load Circuit 1 significantly. The source current <img src="https://latex.codecogs.com/png.latex?I_1"> can therefore be treated as prescribed, and the coupling regarded as predominantly one-way.</p>
+<p>Using <img src="https://latex.codecogs.com/png.latex?M_%7BS2%7D=L_S">, the net voltage becomes</p>
+<p><img src="https://latex.codecogs.com/png.latex?V_N=j%5Comega%20M_%7B12%7DI_1-j%5Comega%20L_S%5Cleft(%5Cdfrac%7Bj%5Comega%20M_%7B1S%7DI_1%7D%7BR_S+j%5Comega%20L_S%7D%5Cright)."></p>
+<p>Using <img src="https://latex.codecogs.com/png.latex?M_%7B1S%7D%5Capprox%20M_%7B12%7D">, this can be written as</p>
+<p><img src="https://latex.codecogs.com/png.latex?V_N=j%5Comega%20M_%7B12%7DI_1%5Cleft%5B1-%5Cdfrac%7Bj%5Comega%20L_S%7D%7BR_S+j%5Comega%20L_S%7D%5Cright%5D."></p>
+<p>Therefore,</p>
+<p><img src="https://latex.codecogs.com/png.latex?V_N=j%5Comega%20M_%7B12%7DI_1%5Cdfrac%7BR_S%7D%7BR_S+j%5Comega%20L_S%7D."></p>
+<p>The result reveals the existence of the shield cut-off frequency</p>
+<p><span id="eq-10"><img src="https://latex.codecogs.com/png.latex?f_c=%5Cdfrac%7BR_S%7D%7B2%5Cpi%20L_S%7D,%20%5Ctag%7B6%7D"></span></p>
+<p>which governs the transition between two distinct operating regimes.</p>
+<p>At frequencies well below <img src="https://latex.codecogs.com/png.latex?f_c">, the shield behaves predominantly as a resistive element and provides little magnetic shielding. At frequencies well above <img src="https://latex.codecogs.com/png.latex?f_c">, inductive effects dominate, substantial shield currents can circulate, and magnetic cancellation becomes increasingly effective.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+A note on shield inductance
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>At this stage it is worth emphasizing that two fundamentally different inductances have appeared in our encounters.</p>
+<p>The inductance derived in Equation&nbsp;3 belongs to the coaxial transmission line itself. It is associated with the current flowing in the inner conductor and returning through the shield, and is determined entirely by the internal geometry of the cable. This is the inductance governing energy storage, wave propagation, and characteristic impedance.</p>
+<p>The quantity <img src="https://latex.codecogs.com/png.latex?L_S"> introduced in the EMC analysis refers to a different physical circuit. Here the relevant current no longer returns through the inner conductor. Instead, it circulates through the shield and the common ground structure shared by the surrounding system.</p>
+<p>Consequently, <img src="https://latex.codecogs.com/png.latex?L_S"> is the inductance of the external loop formed by the shield and the ground plane acting as the common return path. Once the circuit is specified, <img src="https://latex.codecogs.com/png.latex?L_S"> can in principle be calculated analytically, although pursuing that calculation would take us well beyond the scope of this post.</p>
+<p>To bridge the theoretical definition of <img src="https://latex.codecogs.com/png.latex?L_S"> with engineering practice, it is useful to consider how this inductance is determined in standardized measurement configurations. In experimental and regulatory frameworks, standards committees resolve the ambiguity of the external environment by defining a rigorous reference setup, typically fixing the cable height above a standardized ground plane. Under these controlled conditions, <img src="https://latex.codecogs.com/png.latex?L_S"> is calculated by applying the method of images–effectively treating the system as an equivalent two-wire transmission line:</p>
+<p><img src="https://latex.codecogs.com/png.latex?L_S%20%5Capprox%20%5Cdfrac%7B%5Cmu_0%7D%7B2%5Cpi%7D%5Clog%5Cleft(%5Cdfrac%7B2h%7D%7Br_S%7D%5Cright)"> where <img src="https://latex.codecogs.com/png.latex?h"> is the cable height above the reference ground plane and <img src="https://latex.codecogs.com/png.latex?r_S"> is the effective shield radius.</p>
+<p>This formulation reveals that <img src="https://latex.codecogs.com/png.latex?L_S"> depends on the physical spacing <img src="https://latex.codecogs.com/png.latex?h"> through a natural logarithm. Because the logarithmic function strongly attenuates large variations in its argument, the resulting inductance is relatively insensitive to moderate changes in geometry; shifting the cable slightly closer to or farther from a metallic enclosure will not drastically alter the value of <img src="https://latex.codecogs.com/png.latex?L_S">.</p>
+<p>Crucially, however, the shield cut-off frequency is not dictated by geometry alone. It also depends strongly on the shield resistance <img src="https://latex.codecogs.com/png.latex?R_S">, which in turn reflects the electrical properties and construction of the shield itself. As a result, two cables having similar geometries may exhibit noticeably different shielding behavior at low frequencies.</p>
+<hr>
+<p>One distinction is subtle but essential. The inductance of Equation&nbsp;3 is associated with the conductor pair</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7Binner%20conductor%7D%20%5Cleftrightarrow%20%5Ctext%7Bshield%7D,"></p>
+<p>whereas <img src="https://latex.codecogs.com/png.latex?L_S"> is associated with the conductor pair</p>
+<p><img src="https://latex.codecogs.com/png.latex?%5Ctext%7Bshield%7D%20%5Cleftrightarrow%20%5Ctext%7Bground%20plane%7D."></p>
+<p>Because the cylindrical shield completely encloses the protected conductor, all magnetic flux generated by a shield current links that conductor, leading to the remarkable EMC identity of Equation&nbsp;5.</p>
+<p>This relation explains why shield currents can effectively cancel magnetic coupling. It also highlights the role of the external return path in determining the shield inductance and, together with the shield resistance, the resulting cut-off frequency. As a result, shielding effectiveness is determined not only by the cable itself but also by the electromagnetic environment in which the cable is installed.</p>
+<blockquote class="blockquote">
+<div class="line-block">In short, the inductance <img src="https://latex.codecogs.com/png.latex?L"> of Equation&nbsp;3 and the shield inductance <img src="https://latex.codecogs.com/png.latex?L_S"> belong to two different electromagnetic stories, even though they may involve the same physical cable.</div>
+</blockquote>
+</div>
+</div>
+<p>The previous discussion suggests that effective magnetic shielding requires current to circulate in the shield. In practice, this generally favors connecting the shield at both ends, allowing the compensating current to develop and the mechanism described above to operate. For electric fields, however, the situation is different. Even a shield connected at only one end may still behave as a Faraday cage and provide substantial electrostatic shielding.</p>
+<p>This apparent contradiction is one of the recurring lessons of electromagnetic compatibility: there is rarely a universally correct grounding strategy. The optimal solution depends on both the frequency range of interest and the physical mechanism responsible for the disturbance. Moreover, although both <img src="https://latex.codecogs.com/png.latex?R_S"> and <img src="https://latex.codecogs.com/png.latex?L_S"> are distributed quantities, their ratio often corresponds to frequencies far below the radio-frequency regime normally associated with EMC.</p>
+<p>The apparently simple coaxial cable has therefore revealed one final identity. Beyond storing energy, guiding waves, and connecting instruments, it becomes a device for controlling where currents are allowed to flow — and, equally importantly, where they are not.</p>
+</section>
+</section>
+<section id="conclusion-shifting-lenses" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion-shifting-lenses">Conclusion: shifting lenses</h2>
+<p>Our four encounters with the coaxial cable reveal a broader methodological lesson. The apparent contradictions encountered along the way are neither mistakes nor failures of rigor. Academic abstractions and engineering simplifications are deliberate tools designed to isolate the dominant physical phenomenon within a particular operating regime.</p>
+<p>In the first encounter, the coaxial cable appeared as a geometrical structure capable of storing electric and magnetic energy. In the second, it became the transmission line for which it is best known, supporting propagating waves. In the third, it became a component of a measurement system whose own capacitance could alter the observed signal. In the fourth, viewed through the lens of electromagnetic compatibility, it finally emerged as a device for controlling where currents are allowed to flow.</p>
+<p>None of these descriptions is wrong, of course. Each is simply incomplete outside the context for which it was developed.</p>
+<p>The familiar logarithmic inductance formula derived in introductory electromagnetics remains an extraordinarily powerful result when the relevant currents are confined within the cable geometry. Yet the moment return currents begin interacting with external grounding structures, new inductances emerge, new current paths become possible, and the original model ceases to capture the entire physical picture.</p>
+<p>Perhaps this observation is less surprising than it first appears. Even in introductory electromagnetics, inductance is never associated with an isolated conductor, but with a current loop. A useful thought experiment is to ask how one would calculate the inductance of a single straight wire whose return path is assumed to lie “at infinity”. The question immediately becomes ambiguous, because the answer depends entirely on how the current ultimately returns.</p>
+<p>The EMC shield inductance encountered in our final discussion is not an exotic new concept. It is simply a reminder of a lesson already present in sophomore courses: before speaking about inductance, one must first identify the complete current path.</p>
+<p>The most valuable lesson, however, is not the formula itself, but the habit of asking which assumptions made the formula possible. As engineers and physicists, we repeatedly revisit familiar objects through different conceptual lenses. The coaxial cable merely provides a particularly elegant example of this process: a device so common that it is easy to overlook how many different physical identities it can acquire depending on the questions we choose to ask.</p>
+
+
+</section>
+
+ ]]></description>
+  <category>measurement</category>
+  <category>electromagnetism</category>
+  <guid>https://amsabatini.netlify.app/posts/coaxial_cable/</guid>
+  <pubDate>Sun, 26 Jul 2026 22:00:00 GMT</pubDate>
+  <media:content url="https://amsabatini.netlify.app/posts/coaxial_cable/image.png" medium="image" type="image/png" height="216" width="144"/>
+</item>
 <item>
   <title>When more data is not more information</title>
   <dc:creator>Angelo Maria Sabatini</dc:creator>
@@ -8265,7 +8574,7 @@ Figure&nbsp;2: Confusion matrix for the sPLS-DA classifier (ncomp = 3), evaluate
 </div>
 <p>The tuning procedure selected <code>keepX = c(200, 200, 500)</code> as the optimal number of features to retain on each of the three components. This means that the first two components focus on relatively sparse subsets of the vocabulary (200 terms each), while the third component includes the entire trimmed vocabulary of 500 terms. This adaptive behavior reflects the role of each component in capturing residual discriminative structure: early components rely on compact feature sets, while later ones may require broader lexical support to separate harder-to-distinguish classes.</p>
 <p>Since the method assumes that classes can be linearly separated in the latent space, it becomes relatively straightforward to assign an importance score to each feature, reflecting its contribution to the separation along each component. This enables direct interpretability of the model in terms of the most discriminative words associated with each class. The function <code>plotLoadings()</code> from the <code>mixOmics</code> package conveniently extracts and visualizes these features. As shown in Figure&nbsp;3, the method assigns a class-specific contribution to each selected term, allowing us to interpret each component in terms of discriminative words. It is important to note that terms are not necessarily exclusive to a single novel — many occur in multiple chapters across books. The color in the barplots reflects the class (i.e., book) for which the term contributes most strongly to class separation along that component, not exclusivity of occurrence. Component 1 highlights features specific to <em>Great Expectations</em> (e.g., “pip”, “havisham’s”). Component 2 reflects opposing contributions from <em>Pride and Prejudice</em> and <em>Twenty Thousand Leagues Under the Sea</em> — with “jane”, “elizabeth”, and “darcy” linked to the former, and “captain”, “nemo”, and “nautilus” to the latter. Component 3 is almost entirely dominated by lexical signals from <em>The War of the Worlds</em> (e.g., “martians”, “martian”, “people”).</p>
-<div id="fig-3" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-pos="H" data-fig-align="center">
+<div id="fig-3" class="quarto-float quarto-figure quarto-figure-center anchored" data-fig-align="center" data-fig-pos="H">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="https://amsabatini.netlify.app/posts/pca_pls_da/Fig3.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%" data-fig-pos="H">
@@ -18651,197 +18960,6 @@ Iacus, Stefano M. 2008. <em>Simulation and Inference for Stochastic Differential
   <category>stochastic calculus</category>
   <guid>https://amsabatini.netlify.app/posts/numerical_simulation/</guid>
   <pubDate>Wed, 05 Jun 2024 22:00:00 GMT</pubDate>
-</item>
-<item>
-  <title>Significant figures</title>
-  <dc:creator>Angelo Maria Sabatini</dc:creator>
-  <link>https://amsabatini.netlify.app/posts/significant_figures/</link>
-  <description><![CDATA[ 
-
-
-
-
-<section id="significant-figures" class="level2">
-<h2 class="anchored" data-anchor-id="significant-figures">Significant figures</h2>
-<p>It happens frequently that the number of digits that are available to report measurement results is high. Usually, measurement results are produced by carrying arithmetic operations with computers or calculators, whose level of numerical precision, albeit finite, is too high given the true information gathered by the measurements. In other words, the precision can be excessive, and too many digits can simply swamp the observer, making the message in the measurements more obscure. <strong>Significant figures</strong>, also referred to as significant digits, are specific digits within a number written in positional notation that carry both reliability and necessity in reporting a measurement result. Proper use of significant figures is thus an essential element in the presentation of both experimental and calculated results together with their associated uncertainty.</p>
-<section id="rules-for-significant-figures" class="level3">
-<h3 class="anchored" data-anchor-id="rules-for-significant-figures">Rules for significant figures</h3>
-<p>A number of rules exist for determining how many significant figures are in a number:</p>
-<ol type="1">
-<li>non-zero digits are always significant</li>
-</ol>
-<ul>
-<li>4.6 has two significant figures</li>
-</ul>
-<ol start="2" type="1">
-<li>leading zeros placed before the first non-zero digit are not significant (they are called <em>placeholders</em>)</li>
-</ol>
-<ul>
-<li>0.046 has two significant figures</li>
-</ul>
-<ol start="3" type="1">
-<li>trailing zeros placed after all other digits but behind a decimal point are significant</li>
-</ol>
-<ul>
-<li>4.60 has three significant figures</li>
-</ul>
-<p>The leftmost digit which is not a zero is referred to as the <em>most significant digit</em> (MSD); the rightmost digit of a decimal number is the <em>least significant digit</em> (LSD), regardless it is a zero or not: 4 and 0 are thus, respectively, the MSD and the LSD of 4.60; 4 and 1 are, respectively, the MSD and the LSD of 4.61. Every digit between the LSD and the MSD, including zeros, should be counted as significant figures, hence 4.60 and 40.60 have, respectively, three and four significant figures.</p>
-<p>Ambiguous situations arise when zeros are at the end of the number and not behind a decimal point as, for example, in the number 4600. Confusion can be avoided if the number is expressed in <em>scientific notation</em>.</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Scientific notation
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Scientific notation is a way of expressing numbers that are much too large or much too small to be conveniently written in decimal form (i.e., their representation would involve a long string of digits). In scientific notation, nonzero numbers are written in the form:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0Am%5Ctimes10%5En%0A"></p>
-<p>where <img src="https://latex.codecogs.com/png.latex?n"> is an integer, and the coefficient <img src="https://latex.codecogs.com/png.latex?m"> is a nonzero real number (usually <img src="https://latex.codecogs.com/png.latex?1%5Cleq%5Cvert%5C,m%5C,%5Cvert%3C10">). The integer <img src="https://latex.codecogs.com/png.latex?n"> is called the <em>exponent</em> and the real number <img src="https://latex.codecogs.com/png.latex?m"> is called the <em>mantissa</em>. If the number is negative, then a minus sign precedes <img src="https://latex.codecogs.com/png.latex?m">, as in ordinary decimal notation.</p>
-</div>
-</div>
-<p>In scientific notation, the number 4600 can be written using a different number of significant figures, based on rule 3. above:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0A4.600%5Ctimes%2010%5E3&amp;%5Cquad%5Ctext%7Bfour%20significant%20figures%7D%5C%5C%0A4.60%5Ctimes%2010%5E3&amp;%5Cquad%5Ctext%7Bthree%20significant%20figures%7D%5C%5C%0A4.6%5Ctimes%2010%5E3&amp;%5Cquad%5Ctext%7Btwo%20significant%20figures%7D%0A%5Cend%7Bsplit%7D%0A"></p>
-</section>
-<section id="rounding" class="level3">
-<h3 class="anchored" data-anchor-id="rounding">Rounding</h3>
-<p>A number can be <em>rounded</em> so as to drop digits until a prescribed number of significant figures is retained in the final representation. Recall that all the digits after the decimal point to the right of the desired LSD are to be dropped and not replaced with zeros, which otherwise should add to the number of significant figures (rule 3 above). The rules of rounding are the following:</p>
-<ol type="1">
-<li>if the digit to the right of the desired LSD is greater than 5, add 1 to the LSD, otherwise do nothing</li>
-</ol>
-<ul>
-<li>Example - round at the fourth significant figure</li>
-</ul>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0A53.8%5Cunderline%7B7%7D4&amp;%5Crightarrow53.87%5C%5C%0A53.8%5Cunderline%7B7%7D9&amp;%5Crightarrow53.88%0A%5Cend%7Bsplit%7D%0A"></p>
-<ol start="2" type="1">
-<li>if the digit to the right of the LSD is 5, apply a tie-breaking rule, also called the <em>five rule</em>. When the first digit to be dropped is 5, the leading digit next to it is examined. If this digit is even, including zero, it is left unaltered; otherwise, one unit is added. This helps avoiding the accumulation of errors that would be otherwise determined by rounding systematically up or down. Using the five rule, five out of ten cases consist of rounding up and five out of ten cases consist of rounding down.</li>
-</ol>
-<ul>
-<li>Example - round at the fifth significant figure</li>
-</ul>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0A726.8%5Cunderline%7B0%7D51%5Crightarrow%20726.80%5C%5C%0A726.8%5Cunderline%7B3%7D51%5Crightarrow%20726.84%5C%5C%0A726.8%5Cunderline%7B6%7D51%5Crightarrow%20726.86%5C%5C%0A726.8%5Cunderline%7B9%7D51%5Crightarrow%20726.90%0A%5Cend%7Bsplit%7D%0A"></p>
-</section>
-</section>
-<section id="finite-precision-arithmetic" class="level2">
-<h2 class="anchored" data-anchor-id="finite-precision-arithmetic">Finite precision arithmetic</h2>
-<p>In mathematical operations involving significant figures, the result cannot be more precise than the least precise number. Calculations in finite precision arithmetic can be done following a few simple rules. One rule applies to multiplication and division, and another rule applies to addition and subtraction. Recall that values that are considered exact numbers, e.g., known conversion factors or physical constants, are not to be included in the determination of the number of significant figures.</p>
-<section id="multiplication-and-division" class="level3">
-<h3 class="anchored" data-anchor-id="multiplication-and-division">Multiplication and division</h3>
-<blockquote class="blockquote">
-<p>When we multiply/divide two numbers, we should add their relative uncertainties. The uncertainty of the result is given roughly by the number of the digits, regardless of their placement.</p>
-</blockquote>
-<p>In a calculation involving multiplication/division the number of significant figures in the result should equal the least number of significant figures in any one of the numbers being multiplied or divided.</p>
-<p>In the following example, the number 1.6 is reported with two significant figures; the number 2, seen as a known constant, can be considered having an infinite number of significant figures, whereas the number 2.0 has two significant figures. The result should be reported with two significant figures in both cases:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0A&amp;1.6%5Ctimes2=3.2&amp;%5C%5C%0A&amp;1.61%5Ctimes2.0=3.2&amp;%5Cquad%5Ctext%7Bnot%7D%5C;3.22%0A%5Cend%7Bsplit%7D%0A"></p>
-</section>
-<section id="addition-and-subtraction" class="level3">
-<h3 class="anchored" data-anchor-id="addition-and-subtraction">Addition and subtraction</h3>
-<blockquote class="blockquote">
-<p>When we add/subtract two numbers, we should add their uncertainties. The uncertainty of the result is given roughly by the placement of the digits, not by the number of digits.</p>
-</blockquote>
-<p>In a calculation involving addition/subtraction, the number of decimal places in the result should equal the least number of decimal places in any one of the numbers being added or subtracted.</p>
-<p>In the following example, the number 132.03 is reported with five significant figures, and the number 3.210 is reported with four significant figures. However, when the two numbers are added, what matters really is the number of decimal places, i.e., two for the number 132.03 and three for the number 3.210. The result should be reported with two decimal digits and not reported using four significant figures.</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0A&amp;132.03+3.210=135.24&amp;%5C;%5Ctext%7Band%20not%7D%5C;135.2%5C%5C%0A&amp;132.03+3=135&amp;%5C;%5Ctext%7Band%20not%7D%5C;135.03%5C%5C%0A&amp;132.03+3.00=135.03&amp;%5C;%5Ctext%7Band%20not%7D%5C;135%5C%5C%0A%5Cend%7Bsplit%7D%0A"></p>
-<p>The prescription about the minimum number of decimal places of any of the numbers involved in the calculation can be explained by considering that, implicitly, the precision of any measurement is dictated by the decimal place. For a measurement of length expressed in meters, for example, the second decimal digit implies a measurement precise to the hundredths (centimeter-level), the third decimal digit to the thousandth (millimeter-level). So by keeping the result with the minimum number of decimal places we basically state that we do not want to imply to get a result more precise than the least precise measurement that was needed to produce the result itself.</p>
-</section>
-<section id="multiple-arithmetic-operations" class="level3">
-<h3 class="anchored" data-anchor-id="multiple-arithmetic-operations">Multiple arithmetic operations</h3>
-<blockquote class="blockquote">
-<p>In a calculation involving multiple arithmetic operations, the rules are applied without rounding results after each intermediate step. Instead keep track of the rightmost digit that would be retained. The operations would be performed in the following order:</p>
-</blockquote>
-<ul>
-<li><p>operations in parentheses ( )</p></li>
-<li><p>multiplication</p></li>
-<li><p>division</p></li>
-<li><p>addition</p></li>
-<li><p>subtraction</p></li>
-</ul>
-<p>It is important to always perform intermediate calculations without rounding the numbers that are involved in the operations. If numbers are rounded every time during many sequential calculations, the results are skewed and some systematic error is surely introduced. Only after that all calculations are carried out with all digits retained at each step, the final result has to be rounded to the desired number of significant figures.</p>
-<p>As an example, two numbers reported with five significant figures each are added, and the final result is rounded to three significant figures. If the addends are first rounded to three significant figures and then added, the result we produce is wrong:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5Cbegin%7Bsplit%7D%0A&amp;1.4248+1.2732=2.6980%5Crightarrow%202.70&amp;%5Cquad%5Ctext%7Bcorrect%7D%5C%5C%0A&amp;1.42+1.27=2.69%5Crightarrow%202.70&amp;%5Cquad%5Ctext%7Bwrong%7D%0A%5Cend%7Bsplit%7D%0A"></p>
-<div id="exm-exm1" class="theorem example">
-<p><span class="theorem-title"><strong>Example 1 (Sequential calculation)</strong></span> Suppose that we want to perform the following operation:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0A(2.5%5Ctimes3.42)+13.681-0.1%0A"></p>
-<ol type="1">
-<li>perform first the product between parentheses - we keep track of the first decimal place, which would be retained based on rule B above.</li>
-</ol>
-<p><img src="https://latex.codecogs.com/png.latex?%0A2.5%5Ctimes3.42=8.%5Cunderline%7B5%7D500%0A"></p>
-<ol start="2" type="1">
-<li>perform addition - although, based on rule A above, the result would be expressed using five significant figures, only the first decimal place is kept tracked:</li>
-</ol>
-<p><img src="https://latex.codecogs.com/png.latex?%0A8.5500+13.681=22.%5Cunderline%7B2%7D310%0A"></p>
-<ol start="3" type="1">
-<li>perform subtraction:</li>
-</ol>
-<p><img src="https://latex.codecogs.com/png.latex?%0A22.2310-0.1=22.%5Cunderline%7B1%7D31%0A"></p>
-<ol start="4" type="1">
-<li>rounding to three significant figures:</li>
-</ol>
-<p><img src="https://latex.codecogs.com/png.latex?%0A(2.5%5Ctimes3.42)+13.681-0.1%5Crightarrow22.1%0A"></p>
-</div>
-<p>When doing multi-step calculations, we need:</p>
-<ul>
-<li><p>to keep at least one more significant figure in intermediate results than needed in the final answer. Furthermore, never round intermediate answers: rounding, say, to two significant figures in an intermediate answer, and then writing three significant figures in the final answer is wrong.</p></li>
-<li><p>not to write more significant figures in the final result (of a measurement process) than justified (by the measurement uncertainty).</p></li>
-</ul>
-</section>
-</section>
-<section id="significant-figures-and-measurement-uncertainty" class="level2">
-<h2 class="anchored" data-anchor-id="significant-figures-and-measurement-uncertainty">Significant figures and measurement uncertainty</h2>
-<p>The value of one measurand must be delivered by rounding the digit loaded by the measurement uncertainty <img src="https://latex.codecogs.com/png.latex?U">, where <img src="https://latex.codecogs.com/png.latex?U"> is represented by a number with, usually, no more than one or two significant figures (rounded up, possibly). The additional uncertainty due to rounding must be checked for being negligible compared to <img src="https://latex.codecogs.com/png.latex?U">. Essentially, <img src="https://latex.codecogs.com/png.latex?U"> gives an estimate of the errors incurred in the measurement.</p>
-<p>For example, if we have a length <img src="https://latex.codecogs.com/png.latex?L=(12.37%5Cpm0.10)%5C;%5Ctext%7Bcm%7D">, we can report the length as <img src="https://latex.codecogs.com/png.latex?L=12.4%5C;%5Ctext%7Bcm%7D">. When we express a number with three significant figures, what we are saying is that the first two digits are essentially exactly correct, and the last one is uncertain by a small amount (generally it is only uncertain by about <img src="https://latex.codecogs.com/png.latex?%5Cpm1">). In the example above, we rounded our answer to <img src="https://latex.codecogs.com/png.latex?12.4%5C;%5Ctext%7Bcm%7D"> because our answer is uncertain to <img src="https://latex.codecogs.com/png.latex?%5Cpm0.1%5C;%5Ctext%7Bcm%7D">, namely our answer is uncertain in the last digit by about 1.</p>
-<div id="exm-exm2" class="theorem example">
-<p><span class="theorem-title"><strong>Example 2 (Rounding)</strong></span> Round the measurement <img src="https://latex.codecogs.com/png.latex?z=12.0349%5C;%5Ctext%7Bcm%7D">, whose uncertainty is stated being <img src="https://latex.codecogs.com/png.latex?%5CDelta%20z=0.153%5C;%5Ctext%7Bcm%7D">.</p>
-<ol type="1">
-<li>round the uncertainty to two significant figures:</li>
-</ol>
-<p><img src="https://latex.codecogs.com/png.latex?%0A%5CDelta%20z=0.15%5C,%5Ctext%7Bcm%7D%0A"></p>
-<ol start="2" type="1">
-<li>round <img src="https://latex.codecogs.com/png.latex?z"> using the same number of decimal places as <img src="https://latex.codecogs.com/png.latex?%5CDelta%20z">:</li>
-</ol>
-<p><img src="https://latex.codecogs.com/png.latex?%0Az=12.03%5C,%5Ctext%7Bcm%7D%0A"></p>
-<ol start="3" type="1">
-<li>provide the measurement report:</li>
-</ol>
-<p><img src="https://latex.codecogs.com/png.latex?%0Az%5Cpm%5CDelta%20z=(12.03%5Cpm0.15)%5C,%5Ctext%7Bcm%7D%0A"></p>
-</div>
-<div id="exm-exm3" class="theorem example">
-<p><span class="theorem-title"><strong>Example 3 (Use of the scientific notation)</strong></span> When the answer is given in scientific notation, the uncertainty should be given in scientific notation with the same power of ten as the answer. Suppose that <img src="https://latex.codecogs.com/png.latex?z=1.43%5Ctimes10%5E6%5C;%5Ctext%7Bs%7D"> and <img src="https://latex.codecogs.com/png.latex?%5CDelta%20z=2%5Ctimes10%5E4%5C;%5Ctext%7Bs%7D">:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0Az%5Cpm%5CDelta%20z=(1.43%5Cpm0.02)%5C,10%5E6%5C;%5Ctext%7Bs%7D%0A"></p>
-</div>
-<div id="exm-exm4" class="theorem example">
-<p><span class="theorem-title"><strong>Example 4 (Addition/subtraction of uncertain numbers)</strong></span> The length of two blocks is measured, and the measurements are <img src="https://latex.codecogs.com/png.latex?l_1=1.13%5C;%5Ctext%7Bm%7D"> (considered precise to the level of centimeters) and <img src="https://latex.codecogs.com/png.latex?l_2=0.551%5C;%5Ctext%7Bm%7D"> (considered precise to the level of millimeters). We need to compute the length <img src="https://latex.codecogs.com/png.latex?l"> of the block resulting from stacking the two blocks together:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0Al=l_1+l_2=1.681%5C;%5Ctext%7Bm%7D%5Crightarrow%20l=1.68%5C;%5Ctext%7Bm%7D%0A"></p>
-<p>It does not make any physical sense to consider the length of the overall block precise to the level of the millimeters, given that one of the two blocks is measured less precisely. The result should be at least as precise as the least precise term involved in the addition, as stated by the rule for addition/subtraction of uncertain numbers.</p>
-</div>
-<div id="exm-exm5" class="theorem example">
-<p><span class="theorem-title"><strong>Example 5 (Multiplication/division of uncertain numbers)</strong></span> A rectangular floor needs to be covered by a number of squared tiles. According to the measurements that are available, the rectangular floor has width <img src="https://latex.codecogs.com/png.latex?w=1.91%5C;%5Ctext%7Bm%7D"> and length <img src="https://latex.codecogs.com/png.latex?l=1.57%5C;%5Ctext%7Bm%7D"> and each squared tile has size <img src="https://latex.codecogs.com/png.latex?a=0.15%5C;%5Ctext%7Bm%7D">. All measurements are considered precise to the level of centimeters, and three significant figures should then be considered for their numerical representation. The number of tiles can be easily calculated:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AN%5Capprox%5Cdfrac%7Bw%5C,l%7D%7Ba%5E2%7D=133.2756%5C;%5Ctext%7Bm%7D%5E2%5C,%5Ctext%7Bm%7D%5E%7B-2%7D%0A"></p>
-<p>To comply with the rule for multiplication/division between uncertain numbers, <img src="https://latex.codecogs.com/png.latex?133.2756"> has to be rounded using three significant figures, yielding the integer <img src="https://latex.codecogs.com/png.latex?N=133">, which is then the number of tiles expected to cover the floor.</p>
-</div>
-<div id="exm-exm6" class="theorem example">
-<p><span class="theorem-title"><strong>Example 6 (Conversion of scale)</strong></span> A measurement of temperature is performed, leading to the following report:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AT_c=(54.0%5Cpm0.5)%5C;%5E%7B%5Ccirc%7D%5Ctext%7BC%7D%0A"></p>
-<p>We want to convert this expression in units of kelvin:</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AT_K=T_C+273.15=(327.15%5Cpm0.5)%5C;%5Ctext%7BK%7D%0A"></p>
-<p>The uncertainty expressed in degree Celsius (<img src="https://latex.codecogs.com/png.latex?%5Cpm0.5%5C;%5E%7B%5Ccirc%7D%5Ctext%7BC%7D">) translates directly in the uncertainty expressed in kelvin (<img src="https://latex.codecogs.com/png.latex?%5Cpm%200.5%5C;%5Ctext%7BK%7D">). This is because transforming a measurement expressed in degree Celsius into a measurement expressed in kelvin implies a change of offset, but not a change of scale. Since the uncertainty loads the first decimal digit of the numerical representation of the measured temperature, we should report <img src="https://latex.codecogs.com/png.latex?T_K"> with one decimal digit, which requires rounding (based on the five rule):</p>
-<p><img src="https://latex.codecogs.com/png.latex?%0AT_k=(327.2%5Cpm0.5)%5C;%5Ctext%7BK%7D%0A"></p>
-<p>The prescription of the minimum number of significant figures (rule for the addition/subtraction of uncertain numbers) would yield <img src="https://latex.codecogs.com/png.latex?T_k=327%5C;%5Ctext%7BK%7D">. This is because <img src="https://latex.codecogs.com/png.latex?54.0"> has three significant figures, and <img src="https://latex.codecogs.com/png.latex?273.15"> can be considered to have an infinite number of significant figures, since it is a known constant; hence <img src="https://latex.codecogs.com/png.latex?T_K"> should be reported with three significant figures according to the rule for addition/subtraction of uncertain numbers. However, this rule is superseded by considering the prescription concerning how to express the measurement uncertainty.</p>
-</div>
-<blockquote class="blockquote">
-<p>The concept of significant figures and their relation with measurement uncertainty has been briefly reviewed. This topic is important because many measured quantities are often reported with more significant figures than necessary, in the face of the loaded uncertainty. Reporting too many digits is confusing for the reader and of no relevance as for the information content associated to the measurements.</p>
-</blockquote>
-
-
-</section>
-
- ]]></description>
-  <category>measurement</category>
-  <guid>https://amsabatini.netlify.app/posts/significant_figures/</guid>
-  <pubDate>Mon, 13 May 2024 22:00:00 GMT</pubDate>
-  <media:content url="https://amsabatini.netlify.app/posts/significant_figures/significant_figures.png" medium="image" type="image/png" height="150" width="144"/>
 </item>
 </channel>
 </rss>
