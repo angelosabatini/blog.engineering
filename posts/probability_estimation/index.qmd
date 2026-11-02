@@ -1,0 +1,265 @@
+---
+title: "Confidence intervals for proportions"
+description: "Usually confidence intervals for the estimation of proportions are based on methods that exploit the normal approximation to the binomial distribution. By simulation, two of these methods (Wilson and Wald) are tested for their ability to provide the stated coverage for small-to-large samples."
+author: "Angelo Maria Sabatini"
+date: "2024-04-27"
+categories: "statistics"
+image: "coin-toss.png"
+---
+
+Consider a Bernoulli test with $n$ independent trials and $x$ successes that are recorded in the test. The proportion $f=x/n$ is assumed to be the estimate of the true probability $p$; we want to determine the values $p_1$ and $p_2$ of the confidence interval (CI) with the required confidence level associated to $f$, namely $CL=100(1-\alpha)\%$.
+
+The **Clopper-Pearson equations** can be used to calculate the CI:
+
+$$
+\left\{
+\begin{split}
+\sum_{k=x}^{\infty}{n\choose k}p_1^k(1-p_1)^{n-k}&=c_1\\
+\sum_{k=0}^x{n\choose k}p_2^k(1-p_2)^{n-k}&=c_2
+\end{split}
+\right.
+$$ {#eq-eq1}
+
+where $CL=1-c_1-c_2$. One common choice for $c_1$ and $c_2$ is the symmetric interval, $c_1=c_2=(1-CL)/2$. For instance, when $CL=95\%$, $\alpha=0.05$ and $c_1=c_2=2.5\%$. The Clopper-Pearson interval is also called the exact interval, since the solution of @eq-eq1 with respect to $p_1$ and $p_2$ gives the correct probability estimate, even for small samples.
+
+It is noted that the binomial model has been used in @eq-eq1 to capture events of the type "number of successes out of a given number of independent trials", namely:
+
+$$
+\text{Pr}(k\;\text{successes out of}\;n\;\text{trials})={n\choose k}p^k(1-p)^{n-k}
+$$
+
+where $0\leq k\leq n$ and ${n\choose k}$ is the number of combinations of $k$-length sequences from an $n$-length sequence (I discussed combinations and other elements of combinatorics in a previous post of mine).
+
+We recall that a binomial random variable $X$ with parameters $n$ (the number of independent trials) and $p$ (the probability of success) has mean value and standard deviation:
+
+$$
+\left\{
+\begin{split}
+\mu_X&=np\\
+\sigma_X&=\sqrt{np(1-p)}
+\end{split}
+\right.
+$$
+
+Therefore the random variable $F=X/n$ has mean value and standard deviation:
+
+$$
+\left\{
+\begin{split}
+\mu_F&=p\\
+\sigma_F&=\frac{\sigma_X}{\sqrt{n}}=\sqrt{\frac{p(1-p)}{n}}
+\end{split}
+\right.
+$$
+
+The normal approximation to the binomial distribution, as prescribed by the De Moivre-Laplace theorem, is considered as an alternative to @eq-eq1 for CI construction. The De Moivre-Laplace theorem states that the random variable
+
+$$
+T=\frac{F-p}{\sigma_F}
+$$
+
+is *approximately* normally distributed - in practice, good approximations are achieved for $np,n(1-p)\gg1$.
+
+Given a variate $t$ of $T$, the CI can be written as follows:
+
+$$
+\frac{\vert\,f-p\,\vert}{\sqrt{\dfrac{p(1-p)}{n}}}\leq t_{1-\alpha/2} 
+$$ {#eq-eq2}
+
+where $t_{1-\alpha/2}$ is the quantile of the normal distribution at specified probability $1-\alpha/2$: for $\alpha=0.05$, $t_{1-\alpha/2}=1.96$.
+
+Squaring @eq-eq2 we get:
+
+$$
+n(f-p)^2\leq t_{1-\alpha/2}^2\,p(1-p)
+$$
+
+We can solve the resulting second-order equation *with respect to the unknown* $p$, yielding the **Wilson interval**:
+
+$$
+p\in\dfrac{f+\dfrac{t^2_{1-\alpha/2}}{2n}}{\dfrac{t^2_{1-\alpha/2}}{n}+1}\pm\dfrac{t_{1-\alpha/2}\sqrt{\dfrac{t^2_{1-\alpha/2}}{4n^2}+\dfrac{f(1-f)}{n}}}{\dfrac{t^2_{1-\alpha/2}}{n}+1}
+$$ {#eq-eq3}
+
+It is noted that the Wilson interval is not centered on the measured proportion $f$ but on the value $(f+t_{1-\alpha/2}^2/2n)/(t_{1-\alpha/2}^2/n+1)$, which is a function of $f$ and the number of trials $n$. This is due to the asymmetry of the binomial distribution for small $n$.
+
+::: callout-caution
+## Continuity correction
+
+The accuracy of @eq-eq3 can be improved by applying the **continuity correction** to the proportion $f=x/n$. This correction improves the accuracy of CI construction for discrete variables when they can be approximated by normal variables:
+
+$$
+f_{\pm}=\frac{x\pm0.5}{n}\rightarrow\left\{\begin{split}f_{+}&=\min\left(1,\dfrac{x+0.5}{n}\right)\\f_{-}&=\max\left(0,\dfrac{x-0.5}{n}\right)\end{split}\right.
+$$
+
+The interval is estimated as follows:
+
+$$
+p\in[\max(0,p_{-}),\min(1,p_{+})]
+$$
+
+where:
+
+$$
+p_{\pm}\in\dfrac{f_{\pm}+\dfrac{t^2_{1-\alpha/2}}{2n}}{\dfrac{t^2_{1-\alpha/2}}{n}+1}\pm\dfrac{t_{1-\alpha/2}\sqrt{\dfrac{t^2_{1-\alpha/2}}{4n^2}+\dfrac{f_{\pm}(1-f_{\pm})}{n}}}{\dfrac{t^2_{1-\alpha/2}}{n}+1}
+$$
+:::
+
+The Wilson interval (with continuity correction) is generally considered valid for $n>10$. For $n\gg1$ (namely, $n>30$), a very popular approximate formulation of the CI is the **Wald interval**:
+
+$$
+p\in f\pm t_{1-\alpha/2}\sqrt{\dfrac{f(1-f)}{n}}
+$$ {#eq-eq4}
+
+The Wald interval, which does not require any continuity correction, is symmetric around the estimated proportion. For $n\gg1$ it is noted indeed that the Wilson interval tends to become symmetric and identical to the Wald interval.
+
+The question is when $n$ is large enough for these methods to produce accurate inference. The R code below is a fully reproducible code to generate coverage plots for the Wilson interval (with continuity correction) and the Wald interval.
+
+```{r}
+#| code-fold: true
+
+set.seed(1789)
+n  <- 30                          # number of Bernoulli trials
+L  <- 1000                        # number of simulated sequences 
+a  <- 95                          # confidence level
+t  <- qnorm((1+a/100)/2)          # quantile of the normal distribution
+p  <- seq(0.05, 0.95, by = 0.01)  # tested values of probability
+np <- length(p)                   # number of tested values of probability
+c_wald   <- numeric(np)           # Wald approach
+c_wilson <- numeric(np)           # Wilson approach
+
+for(i in 1:np) {
+  for(j in 1:L) {
+    x <- rbinom(1, size = n, prob = p[i])  # number of successes
+    f <- x/n                               # proportion of successes
+    fl <- max(0, (x-0.5)/n) # continuity correction
+    fu <- min(1, (x+0.5)/n) 
+    CIl <- (fl+t^2/(2*n))/(1+t^2/n) - t*sqrt(fl*(1-fl)/n + t^2/(4*n^2))/(1+t^2/n)
+    CIu <- (fu+t^2/(2*n))/(1+t^2/n) + t*sqrt(fu*(1-fu)/n + t^2/(4*n^2))/(1+t^2/n)
+    CI_lower_wilson <- max(0.0, CIl) # Wilson interval
+    CI_upper_wilson <- min(1.0, CIu)
+    CI_lower_wald <- f - t*sqrt(f*(1-f)/n) # Wald interval
+    CI_upper_wald <- f + t*sqrt(f*(1-f)/n)
+    if(CI_lower_wilson <= p[i] && CI_upper_wilson >= p[i]) c_wilson[i] = c_wilson[i] + 1
+    if(CI_lower_wald <= p[i] && CI_upper_wald >= p[i]) c_wald[i] = c_wald[i] + 1
+  }
+}
+c_wilson <- 100*c_wilson/L # estimated coverage
+c_wald   <- 100*c_wald/L   
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: fig-fig1
+#| fig-cap: "Coverage curves for the binomial distribution with $n=30$."
+
+library(tidyverse)
+p     <- rep(p, 2)
+group <- rep(c("Wald", "Wilson"), each = np)
+cov   <- c(c_wald, c_wilson)
+df    <- data.frame(method = group, prob = p, coverage = cov)
+
+my_theme = theme(
+    axis.title.x = element_text(size = 16),
+    axis.text.x = element_text(size = 14),
+    axis.title.y = element_text(size = 16),
+    axis.text.y = element_text(size = 14),
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 14),
+    # hide panel borders and remove grid lines
+    panel.border = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    # remove grey background
+    panel.background = element_blank(),
+    # change axis line
+    axis.line = element_line(colour = "black"))
+
+ggplot(data = df, mapping = aes(x = prob, y = coverage, color = method)) + 
+  geom_line() + 
+  labs(x = "probability", 
+       y = "coverage") +
+  scale_color_manual(values = c("red", "blue")) +
+  scale_x_continuous(limits = c(0, 1)) +
+  scale_y_continuous(limits = c(75, 100)) +
+  my_theme
+```
+
+The simulation results of @fig-fig1 ($n=30$) show that, whereas the Wilson method tends just to provide some limited over-coverage for all values of $p$ (this is simply due to $x$ being present in both the sums of @eq-eq1), the Wald interval performs poorly, with severe under-coverage, especially for low and high values of $p$. These results seem to raise objections against the use of the Wald interval, even in situations when $n\gg1$: @fig-fig2 shows the coverage plots in the case of $n=100$.
+
+```{r}
+#| echo: false
+
+set.seed(1789)
+n  <- 100                         # number of Bernoulli trials
+L  <- 5000                        # number of simulated sequences 
+a  <- 95                          # confidence level
+t  <- qnorm((1+a/100)/2)          # quantile of the normal distribution
+p  <- seq(0.05, 0.95, by = 0.01)  # tested values of probability
+np <- length(p)                   # number of tested values of probability
+c_wald   <- numeric(np)           # Wald approach
+c_wilson <- numeric(np)           # Wilson approach
+
+for(i in 1:np) {
+  for(j in 1:L) {
+    x <- rbinom(1, size = n, prob = p[i])  # number of successes
+    f <- x/n                               # proportion of success
+    fl <- max(0, (x-0.5)/n) # continuity correction
+    fu <- min(1, (x+0.5)/n) 
+    CIl <- (fl+t^2/(2*n))/(1+t^2/n) - t*sqrt(fl*(1-fl)/n + t^2/(4*n^2))/(1+t^2/n)
+    CIu <- (fu+t^2/(2*n))/(1+t^2/n) + t*sqrt(fu*(1-fu)/n + t^2/(4*n^2))/(1+t^2/n)
+    CI_lower_wilson <- max(0.0, CIl) # CI interval - Wilson interval
+    CI_upper_wilson <- min(1.0, CIu)
+    CI_lower_wald <- f - t*sqrt(f*(1-f)/n) # Wald interval
+    CI_upper_wald <- f + t*sqrt(f*(1-f)/n)
+    if(CI_lower_wilson <= p[i] && CI_upper_wilson >= p[i]) c_wilson[i] = c_wilson[i] + 1
+    if(CI_lower_wald <= p[i] && CI_upper_wald >= p[i]) c_wald[i] = c_wald[i] + 1
+  }
+}
+c_wilson <- 100*c_wilson/L # estimated coverage
+c_wald   <- 100*c_wald/L   
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: fig-fig2
+#| fig-cap: "Coverage curves for the binomial distribution with $n=100$."
+
+library(tidyverse)
+p     <- rep(p, 2)
+group <- rep(c("Wald", "Wilson"), each = np)
+cov   <- c(c_wald, c_wilson)
+df    <- data.frame(method = group, prob = p, coverage = cov)
+
+my_theme = theme(
+    axis.title.x = element_text(size = 16),
+    axis.text.x = element_text(size = 14),
+    axis.title.y = element_text(size = 16),
+    axis.text.y = element_text(size = 14),
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 14),
+    # hide panel borders and remove grid lines
+    panel.border = element_blank(),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    # remove grey background
+    panel.background = element_blank(),
+    # change axis line
+    axis.line = element_line(colour = "black"))
+
+ggplot(data = df, mapping = aes(x = prob, y = coverage, color = method)) + 
+  geom_line() + 
+  labs(x = "probability", 
+       y = "coverage") +
+  scale_color_manual(values = c("red", "blue")) +
+  scale_x_continuous(limits = c(0, 1)) +
+  scale_y_continuous(limits = c(75, 100)) +
+  my_theme
+```
+
+Although the performance of the Wald method has slightly improved, the Wilson method still outperforms it, especially for small and high values of $p$.
+
+> To conclude, when estimating the confidence interval associated to the estimate of proportions, the Wald interval - the most basic confidence interval usually considered by experimentalists - appears to be seriously flawed, also for values of the number of trials that are considered *large* in most statistical textbooks. The Wilson interval with continuity correction tends to perform much better and its use should be encouraged.

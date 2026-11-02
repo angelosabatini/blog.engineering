@@ -1,0 +1,36 @@
+---
+title: "Two perspectives on a moving-coil movement"
+description: "A moving-coil movement may look like old-fashioned instrumentation, but it opens the door to a surprisingly rich world of physics and mathematics. From electromagnetic feedback and energy conversion to thermal fluctuations, stochastic dynamics, and electronic noise, two pedagogically oriented studies show how a familiar device can bring together seemingly distant disciplines."
+author: "Angelo Maria Sabatini"
+date: "2026-11-02"
+categories: ["electromagnetism", "measurement", "analog electronics", "stochastic modeling"]
+image: "moving-coil.png"
+---
+
+At first glance, a moving-coil movement seems to offer little mystery. A current flows through a coil, a magnetic torque produces a deflection, and a pointer indicates the measured quantity. A familiar story, often encountered in introductory physics and instrumentation courses.
+
+But what happens when we look more closely? The moving coil is not merely a mechanical system driven by an electrical current. Its motion also affects the electrical circuit, energy flows between domains, and even at thermal equilibrium the system is never truly at rest.
+
+Understanding these interactions requires more than adding details to a simple model. It calls for different physical and mathematical perspectives, each contributing to a more complete understanding of the system.
+
+This is precisely what makes the moving-coil movement such an instructive physical toy. Two recent studies use it to explore how complementary modeling approaches can reveal different aspects of the same system.
+
+## Electromechanical coupling and damping
+
+*Damping by design in a bilateral electromechanical transducer*
+
+Starting from a magnetic pendulum, the first study develops a multidomain model of the moving-coil movement, bringing together electrical and mechanical dynamics through their common electromagnetic coupling. The bidirectional interaction between current, torque, motion, and induced EMF provides a unified description of energy conversion and transfer between the two domains.
+
+Within this framework, electrical loading becomes a means of controlling mechanical damping through electromagnetic feedback. The analysis illustrates how a familiar measuring instrument can serve as a concrete example of energy-based modeling and coupled dynamical systems.
+
+**Preprint:** [arXiv:2610.06314](https://doi.org/10.48550/arXiv.2610.06314)
+
+## Thermal fluctuations and measurement noise
+
+*Thermal fluctuations and electronic readout using a moving-coil movement*
+
+The second study extends the electromechanical description to the stochastic domain, introducing mechanical and electrical thermal fluctuations through the fluctuation-dissipation theorem. A stochastic state-space formulation connects the underlying Langevin dynamics to the equilibrium covariance, obtained by solving the associated Lyapunov equation.
+
+The same equilibrium results are independently recovered through spectral integration, providing a connection between time-domain covariance analysis and the Wiener-Khintchine theorem. The framework is then extended to an active electronic readout circuit, illustrating how electronic noise contributes to measurement uncertainty.
+
+**Preprint:** [arXiv:2610.08721](https://doi.org/10.48550/arXiv.2610.08721)

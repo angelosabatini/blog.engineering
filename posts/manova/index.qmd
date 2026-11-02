@@ -1,0 +1,472 @@
+---
+title: "PCA, MANOVA, and the geometry of multivariate comparison"
+subtitle: "Understanding variability beyond univariate thinking"
+description: "Multivariate analysis is often introduced as a technical upgrade to univariate testing: more variables, more sophisticated statistics, more powerful conclusions. In practice, however, its real value lies elsewhere. Multivariate methods force us to think geometrically, shifting attention from individual variables to configurations, from isolated effects to structured variability. In this post, Principal Component Analysis (PCA) and Multivariate Analysis of Variance (MANOVA) are discussed in their concerted action on the popular iris dataset."
+author: "Angelo Maria Sabatini"
+date: "2025-12-23"
+categories: "multivariate statistics"
+image: "iris.png"
+---
+
+> 💾 **Prefer reading offline?** You can [download a PDF version of this post](manova.pdf) for printing or future reference.
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+#| code-label: libraries
+#| code-fold: true
+#| code-summary: "libraries"
+
+library(tidyverse)
+library(kableExtra)
+library(rstatix)
+
+# Enforce the setting of full_width in calling kable_styling()
+options(knitr.table.html.attr = "quarto-disable-processing = true")
+options(knitr.kable.NA = '')
+
+# Customize the text tables for consistency using HTML formatting
+my_kable_styling <- function(dat, caption, digits = 3, font_size = 14, format = "html") {
+  kable(dat, format, escape = FALSE, caption = caption, digits = digits) %>%
+    kable_styling(
+      bootstrap_options = c("condensed", "bordered"),
+      font_size = font_size,
+      position = "center",
+      full_width = FALSE
+    )
+}
+```
+
+## Why multivariate thinking is important
+
+In many experimental settings, statistical analysis still proceeds one response variable (outcome) at a time. Group differences are assessed through a sequence of tests applied to single outcomes, implicitly assuming that each carries independent and self-contained information. This approach is widely regarded as inadequate when variables are numerous and correlated, as is often the case in empirical data drawn from natural, social, or cultural processes.
+
+Multivariate statistics addresses this limitation by shifting the focus from individual outcomes to configurations of outcomes. Rather than asking whether a single response differs across groups, the central question becomes whether groups occupy distinct regions of a multidimensional space, and how such separation relates to the variability observed within each group.
+
+From this perspective, multivariate methods are less about hypothesis testing in the narrow sense, and more about geometry. Concepts such as centroids, dispersion, and variance–covariance structure characterize the data before any formal test is performed. Understanding what a given method assesses therefore requires understanding the space in which the data are represented.
+
+This post focuses on one widely used approach to multivariate group comparison: Multivariate Analysis of Variance (MANOVA). The aim here is to clarify what the method actually measures, under which conditions it is informative, and how it can be used responsibly in exploratory analyses, either directly or after Principal Component Analysis (PCA).
+
+## A pedagogical example for multivariate reasoning
+
+To ground the discussion, it is useful to start from a simple and well-understood example. The iris dataset is a canonical choice in this respect, not because it is representative of real-world complexity, but because it allows key geometric ideas to be illustrated without unnecessary distractions.
+
+The dataset consists of 150 observations from three biological species (*Iris setosa*, *Iris versicolor*, *Iris virginica*). Each observation is described by four continuous measurements: sepal length, sepal width, petal length, and petal width.
+
+While iris is often used to demonstrate classification performance, it serves a different purpose here: providing a controlled environment in which the relationship between data representation, group separation, and variability can be examined explicitly.
+
+## Principal component analysis as a geometric transformation
+
+Principal component analysis (PCA) is often introduced as a dimensionality reduction technique. While this description is not incorrect, it can be misleading if taken at face value. Conceptually, PCA is best understood as a change of coordinates: the original variables are replaced by a new set of orthogonal axes that capture maximal variance.
+
+In the context of multivariate group comparison, PCA can play a crucial preparatory role. By projecting the data into a lower-dimensional space that preserves most of the variance, it becomes easier to visualize group structure and to reason about distances and dispersion.
+
+Importantly, PCA does not create separation between groups. Any apparent separation observed in principal component space reflects structure already present in the data. PCA merely provides a coordinate system in which that structure can be more easily inspected.
+
+### What PCA actually does
+
+In R, principal component analysis is commonly performed using the function `prcomp()` from the `stats` package. While its usage is straightforward, it is worth recalling what this function implicitly assumes about the data and how its output should be interpreted.
+
+First, `prcomp()` operates on a numeric matrix and expects variables to be measured on a comparable scale. When variables differ substantially in variance or units, centering and scaling are usually required. In the examples discussed here, variables are centered and scaled prior to PCA in order to prevent components from being dominated by features with larger numerical ranges.
+
+Second, `prcomp()` performs a singular value decomposition of the centered (and optionally scaled) data matrix. No distributional assumptions are made at this stage: PCA is a purely geometric transformation. Normality, when invoked later, concerns the distribution of component scores rather than the original variables.
+
+The output of `prcomp()` consists of two complementary objects: scores and loadings. These play distinct roles and are often conflated in applied work.
+
+::: callout-note
+### Scores and loadings: two sides of the same transformation
+
+Principal component scores represent the projection of observations onto the new coordinate system defined by the principal components. They locate each observation in principal component space and are the quantities used for visualization, clustering, and group comparison.
+
+Principal component loadings, by contrast, describe how the original variables contribute to each component. They define the orientation of the new axes with respect to the original feature space.
+
+In multivariate group comparisons, scores are the primary objects of interest, as they encode the relative positions of observations. Loadings become relevant at a later stage, when the goal is to interpret the components in terms of the original variables.
+:::
+
+Throughout this post, scatterplots of principal components refer to plots of component scores. Such plots visualize the relative positions of observations in reduced-dimensional space and should not be interpreted as representations of variable contributions, which are instead encoded in the loadings.
+
+### A first look at principal component space
+
+As shown in @fig-iris-pca-scores, the three species occupy partially overlapping yet distinct regions of principal component space.
+
+```{r, echo = FALSE}
+#| code-label: pca-iris
+#| code-fold: true
+#| code-summary: "PCA computation and score plot (iris dataset)"
+#| label: fig-iris-pca-scores
+#| fig-cap: "Iris dataset projected onto the first two principal components."
+#| fig-width: 6
+#| fig-height: 4
+
+iris_pca <- prcomp(iris[, 1:4], center = TRUE, scale. = TRUE)
+
+scores <- as_tibble(iris_pca$x[, 1:2]) %>%
+  mutate(Species = iris$Species)
+
+ggplot(scores, aes(PC1, PC2, color = Species)) +
+  geom_point(size = 2, alpha = 0.8) +
+  theme_minimal() +
+  labs(x = "PC1", y = "PC2")
+```
+
+### Explained variance and dimensionality
+
+Principal components are ordered by decreasing variance. Reporting the proportion of variance explained is useful to justify why a low-dimensional projection (typically the first two components) is an informative geometric summary.
+
+In this example, the first two components capture a substantial fraction of total variability, supporting their use for visualization and for subsequent multivariate comparisons in component space.
+
+@tbl-iris-pca-var reports the proportion of variance explained by each component.
+
+```{r, echo = FALSE}
+#| code-label: iris-pca-var
+#| code-fold: true
+#| code-summary: "Explained variance (iris PCA)"
+#| label: tbl-iris-pca-var
+
+var_explained <- iris_pca$sdev^2 / sum(iris_pca$sdev^2)
+
+var_tbl <- tibble(
+Component = paste0("PC", seq_along(var_explained)),
+`Proportion of variance explained` = var_explained,
+Cumulative = cumsum(var_explained)
+)
+
+my_kable_styling(var_tbl, "Explained variance and cumulative variance for the iris PCA.")
+```
+
+The scree plot in @fig-iris-pca-scree provides an alternative view of the information reported in @tbl-iris-pca-var.
+
+```{r, echo = FALSE}
+#| code-label: iris-pca-scree
+#| code-fold: true
+#| code-summary: "Scree plot (iris PCA)"
+#| label: fig-iris-pca-scree
+#| fig-cap: "Scree plot showing the proportion of variance explained by each principal component."
+#| fig-width: 6
+#| fig-height: 4
+
+tibble(Component = seq_along(var_explained),
+       Variance_explained = var_explained) %>%
+ggplot(aes(Component, Variance_explained)) +
+geom_line() +
+geom_point() +
+theme_minimal() +
+scale_x_continuous(breaks = seq_along(var_explained)) +
+labs(x = "Principal component",
+     y = "Proportion of variance explained")
+```
+
+### From PCA to multivariate group comparison
+
+Once the data have been projected into a low-dimensional principal component space, the next step is to assess whether groups differ in a multivariate sense. At this stage, the relevant question is no longer whether individual components differ across groups, but whether group centroids are separated relative to the variability observed within each group. This is where the MANOVA framework naturally fits in.
+
+However, before considering MANOVA in principal component space, it is useful to recall the conventional formulation of the method, as it is typically introduced in applied tutorials.
+
+## MANOVA: assumptions, scope, and interpretation
+
+Multivariate Analysis of Variance (MANOVA) extends the logic of univariate ANOVA to situations in which each observational unit is described by multiple response variables. Rather than testing group differences on individual outcomes one at a time, MANOVA evaluates whether groups differ in their multivariate location, taking into account the joint distribution of the responses.
+
+### What MANOVA actually tests
+
+At its core, MANOVA addresses a geometric question. Groups are represented by centroids in a multidimensional response space, and the method assesses whether these centroids are separated relative to the variability observed within groups.
+
+A common point of confusion arises when deciding whether a full multivariate procedure is necessary. One might reasonably ask why MANOVA should be preferred to a sequence of univariate ANOVAs, or to a single ANOVA applied to a composite or summary measure. The key distinction is that MANOVA explicitly incorporates the covariance structure among response variables. By doing so, it tests for patterns of group separation that may only emerge when variables are considered jointly, and that cannot be recovered from marginal analyses alone.
+
+### MANOVA versus univariate ANOVA
+
+The distinction between MANOVA and univariate ANOVA is not merely technical, but conceptual. Univariate ANOVA evaluates group differences along a single response dimension at a time. Even when applied repeatedly to multiple outcomes, each test remains blind to the relationships among variables.
+
+From a geometric standpoint, univariate ANOVA assesses separation along one predefined direction in response space. Each outcome defines its own axis, and group differences are evaluated independently along those axes. This approach implicitly assumes that relevant group structure can be detected through marginal comparisons, and that correlations among responses are either negligible or irrelevant.
+
+MANOVA, by contrast, retains a genuinely multivariate perspective. Rather than focusing on individual response dimensions, it evaluates separation in the subspace jointly defined by the responses. Group differences are therefore allowed to emerge along arbitrary linear combinations of variables, not restricted to the original coordinate axes.
+
+This distinction becomes especially important when group separation is not aligned with any single response variable. In such cases, marginal tests may fail to detect meaningful structure, even when groups are clearly separated in multivariate space. MANOVA is specifically designed to capture these patterns, as it evaluates differences in location relative to the joint covariance structure of the responses.
+
+### Assumptions and their practical role
+
+Like all parametric methods, MANOVA relies on a set of assumptions concerning the distributional and structural properties of the data. These include multivariate normality of the response variables within groups, homogeneity of covariance matrices across groups, and independence of observations.
+
+In practice, these assumptions are rarely met exactly. Their relevance therefore depends on the role assigned to the analysis. When MANOVA is used as a formal inferential procedure, substantial violations may compromise the validity of $p$-values and associated significance tests. In applied and exploratory settings, however, MANOVA is often employed as a descriptive and comparative tool, aimed at quantifying multivariate separation rather than at establishing strict inferential claims.
+
+From this perspective, assumptions function less as rigid prerequisites and more as diagnostics guiding interpretation. Departures from multivariate normality or covariance homogeneity do not automatically invalidate the analysis, but they do affect how results should be read and reported. Emphasis shifts from binary decisions based on $p$-values to the magnitude and structure of multivariate separation.
+
+### Choice of test statistics
+
+Several test statistics are available within the MANOVA framework, including Wilks’ lambda, Pillai’s trace, the Hotelling–Lawley trace, and Roy’s largest root. Although these statistics are asymptotically equivalent under ideal conditions, they differ in their sensitivity to assumption violations and to specific patterns of group separation.
+
+Wilks’ lambda is perhaps the most widely reported statistic, but it is also among the most sensitive to departures from multivariate normality and to heterogeneity of covariance matrices. Roy’s largest root, by contrast, focuses exclusively on the strongest direction of separation and may overemphasize a single dominant effect.
+
+Pillai’s trace is often recommended in applied and exploratory settings because of its relative robustness to violations of assumptions, particularly when group sizes are unequal or covariance matrices differ across groups. Rather than concentrating on a single dimension of separation, Pillai’s trace aggregates evidence across all response dimensions, providing a more stable summary of multivariate effects.
+
+For this reason, when MANOVA is used primarily as a descriptive tool for assessing multivariate separation, emphasis should be placed on the overall pattern of results rather than on any single test statistic taken in isolation. Reporting Pillai’s trace alongside a clear description of the analytical context helps balance robustness and interpretability.
+
+### Post hoc analyses and interpretation
+
+When a MANOVA indicates evidence of multivariate group separation, post hoc analyses are often performed to aid interpretation. These analyses typically involve examining group differences on individual response variables or on selected dimensions derived from the multivariate space.
+
+It is important to emphasize that post hoc tests following MANOVA do not constitute independent confirmations of group differences. Rather, they serve an explanatory role, helping to identify which dimensions of the response space contribute most strongly to the observed multivariate separation.
+
+In this sense, post hoc analyses should be interpreted descriptively rather than inferentially. Their purpose is not to re-test hypotheses already addressed by the multivariate procedure, but to provide insight into the structure of the effect detected at the multivariate level.
+
+When MANOVA is applied in exploratory settings, post hoc results are therefore best viewed as complementary summaries that facilitate interpretation, visualization, and substantive discussion. Used in this way, they enrich the multivariate analysis without overstating the evidential weight of individual comparisons.
+
+::: callout-tip
+### A conventional MANOVA workflow
+
+Applied tutorials often present MANOVA through a standard sequence of steps:\
+(i) fit an omnibus MANOVA model on the original variables (without PCA),\
+(ii) inspect assumptions diagnostically,\
+(iii) report a multivariate test statistic (often including Pillai’s trace), and\
+(iv) use follow-up analyses primarily for interpretation.
+
+A well-known reference implementation of this workflow, based on the iris dataset and using the package `rstatix`, is provided by [Datanovia](https://www.datanovia.com/en/lessons/one-way-manova-in-r/#google_vignette). The goal here is not to reproduce that tutorial, but to summarize the logic of the pipeline in a compact and reusable form.
+
+@tbl-manova-assumptions summarizes the assumptions typically discussed in rstatix-style MANOVA workflows, together with their practical role in applied analyses. Here, *n* denotes the number of observations per group, and *p* the number of response variables.
+
+| Aspect assessed | Typical diagnostic | Common tool | Practical interpretation |
+|------------------|------------------|------------------|-------------------|
+| Sample size | Check that *n* \> *p* per group | — | Small samples limit stability |
+| Independence | Study design | — | Violations invalidate inference |
+| Outliers | Distance-based inspection | `identify_outliers()` (rstatix) | Inspect, do not auto-remove |
+| Normality | Marginal / multivariate tests | `shapiro_test()`, `mshapiro_test()` (rstatix) | Moderate deviations often tolerable |
+| Multicollinearity | Correlation inspection | `cor_test()` (rstatix) | Very high correlations problematic |
+| Linearity | Pairwise scatterplots | `GGally::ggpairs()` | Strong nonlinearities affect geometry |
+| Covariance homogeneity | Box’s M test | `box_m()` (rstatix) | Highly sensitive; interpret cautiously |
+
+: Diagnostic checks commonly discussed in rstatix-style MANOVA workflows and their practical interpretation. {#tbl-manova-assumptions}
+:::
+
+In line with the Datanovia example, the iris dataset shows no major pathologies with respect to most diagnostic checks. In particular, sample size, independence, normality, and linearity assumptions are reasonably satisfied. As is often the case in practice, the only notable deviation concerns homogeneity of variance–covariance matrices, a common situation in applied settings and one that reinforces the use of robust multivariate statistics such as Pillai’s trace.
+
+### Back to principal component space
+
+The discussion above treated MANOVA in its conventional formulation, applied directly to the original response variables. This clarifies what MANOVA tests and how multivariate separation is quantified.
+
+In many applied settings, however, the original variables are numerous, correlated, or difficult to interpret individually. In such cases, it is often advantageous to work in a reduced-dimensional representation that preserves the main geometric structure of the data while simplifying interpretation. Principal component analysis re-enters here as a representational step.
+
+A natural question arises at this point: should MANOVA-style diagnostics have been assessed already when PCA was performed?
+
+The answer is largely negative. PCA, as implemented by `prcomp()`, is a purely geometric transformation based on a singular value decomposition of the data matrix. It does not rely on distributional assumptions, nor does it require normality, homogeneity of variances, or independence across groups.
+
+For these reasons, diagnostic checks discussed in MANOVA workflows are appropriately revisited after projection into principal component space, when the scores are treated as inputs to a multivariate comparison. By reducing *p* (the number of response variables) to a small set of informative principal components, this choice ensures a more favorable *n/p* ratio, thereby enhancing stability and interpretability.
+
+## MANOVA in principal component space
+
+With the conceptual and methodological groundwork in place, the combination of PCA and MANOVA can now be operationalized. In this setting, PCA defines a low-dimensional space that captures the dominant structure of the data. MANOVA is then applied to the corresponding component scores to quantify group separation within that space.
+
+Operationally, this amounts to replacing the original response variables with a selected subset of principal component scores. These scores serve as multivariate responses in the MANOVA model, while group membership remains unchanged. The logic of the test is identical to that of a conventional MANOVA; what changes is the space in which multivariate separation is assessed.
+
+This approach offers several practical advantages. By working with a reduced number of orthogonal components, the dimensionality of the response space is controlled explicitly, multicollinearity is eliminated by construction, and the ratio between the number of observations and response variables is improved. At the same time, because principal components are ordered by explained variance, the analysis can be restricted to those dimensions that capture the most informative aspects of the data.
+
+In what follows, this procedure is illustrated on the iris dataset by applying MANOVA to the first two principal component scores. This example is not intended to optimize classification or prediction, but to demonstrate how multivariate separation can be measured and interpreted once the data have been embedded in principal component space.
+
+### Choosing the number of principal components
+
+Applying MANOVA in principal component space requires an explicit decision about how many components to retain. This choice is not dictated by the MANOVA framework itself, but by considerations of representation and interpretability.
+
+In practice, the goal is not to preserve all variability in the data, but to retain those dimensions that capture the dominant structure relevant for group comparison. Components explaining only a negligible fraction of total variance are unlikely to contribute meaningfully to multivariate separation, while still increasing the dimensionality of the response space.
+
+A common and pragmatic strategy is therefore to restrict the analysis to the first few principal components, guided by explained variance and by visual inspection. In the iris dataset, the first two components account for the vast majority of total variability and already provide a clear geometric representation of group structure.
+
+For this reason, the analysis below focuses on the first two principal component scores. This keeps the response space low-dimensional, improves the *n/p* ratio, and allows multivariate separation to be interpreted directly in relation to the score plot.
+
+### Model fitting to the iris dataset
+
+In the iris example, the first two principal components already account for the vast majority of total variance and therefore provide a compact yet informative representation of the data geometry.
+
+```{r, echo = FALSE}
+#| code-label: pca-manova-iris
+#| code-fold: true
+#| code-summary: "PCA scores (PC1–PC2) + MANOVA in PC space (iris)"
+
+# PCA on raw iris measurements (centered and scaled)
+iris_pca <- prcomp(iris[, 1:4], center = TRUE, scale. = TRUE)
+
+# Extract PC scores (first two components) and bind group labels
+pc_scores <- as_tibble(iris_pca$x[, 1:2]) %>%
+mutate(Species = iris$Species)
+
+# One-way MANOVA on PC scores (response = PC1, PC2; group = Species)
+fit_pc_manova <- manova(cbind(PC1, PC2) ~ Species, data = pc_scores)
+
+# Omnibus MANOVA result (Pillai's trace)
+# summary(fit_pc_manova, test = "Pillai")
+```
+
+The MANOVA fitted above tests whether species centroids differ in the two-dimensional space defined by PC1 and PC2, relative to the dispersion observed within each species. The result, reported in @tbl-pca-manova-pillai, shows a highly significant multivariate effect according to Pillai’s trace.
+
+```{r}
+#| echo: false
+#| label: tbl-pca-manova-pillai
+#| tbl-cap: "Omnibus PCA-MANOVA result (Pillai's trace)."
+
+pillai_tbl <- summary(fit_pc_manova, test = "Pillai")$stats %>%
+as.data.frame() %>%
+rownames_to_column("Effect") %>%
+as_tibble()
+
+my_kable_styling(pillai_tbl, "")
+```
+
+```{r, echo = FALSE}
+#| code-fold: true
+#| code-summary: "MANOVA applied to the raw measurements (iris)"
+#| code-label: pca-manova-iris-conventional
+
+fit_manova_conventional <- manova(cbind(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width) ~ Species, 
+                        data = iris)
+#summary(fit_manova_conventional, test = "Pillai"))
+```
+
+```{r}
+#| echo: false
+#| label: tbl-pca-manova-classical-pillai
+#| tbl-cap: "Omnibus conventional MANOVA result (Pillai's trace)."
+
+pillai_conventional_tbl <- summary(fit_manova_conventional, test = "Pillai")$stats %>%
+as.data.frame() %>%
+rownames_to_column("Effect") %>%
+as_tibble()
+
+my_kable_styling(pillai_conventional_tbl, "")
+```
+
+It is instructive to compare the PCA-based MANOVA result with the conventional MANOVA fitted directly on the original iris measurements (@tbl-pca-manova-classical-pillai).
+
+Importantly, both analyses rely on the same underlying statistical machinery: in both cases, the model is fitted using the function `manova()`. What differs is not the test itself, but the geometry of the response space on which the test is applied.
+
+In the conventional formulation, separation is assessed in the original four-dimensional measurement space. In the PCA-based formulation, the same separation is evaluated in a two-dimensional space that preserves the dominant structure of the data. The fact that both approaches yield a strong and consistent multivariate effect supports the interpretation of PCA-based MANOVA as a faithful low-dimensional representation of multivariate group separation.
+
+### Interpreting multivariate separation in principal component space
+
+The omnibus MANOVA result establishes that the three species occupy distinct regions of the two-dimensional principal component space. To interpret this separation, it is useful to examine how individual components and groups contribute to the observed multivariate effect.
+
+#### Contribution of individual principal components
+
+Although MANOVA evaluates separation jointly across all response dimensions, separation in principal component space may be driven unevenly by different components. To make this explicit, univariate ANOVAs can be applied to the individual component scores (@tbl-pc-anova-components-1 and @tbl-pc-anova-components-2). These analyses are not used as independent hypothesis tests, but as descriptive tools that help locate multivariate separation within the score space.
+
+```{r, echo = FALSE}
+#| code-label: pc-anova-components
+#| code-fold: true
+#| code-summary: "Univariate ANOVAs on PC1 and PC2"
+
+# model objects
+lm_pc1 <- lm(PC1 ~ Species, data = pc_scores)
+lm_pc2 <- lm(PC2 ~ Species, data = pc_scores)
+
+# ANOVA tables (display)
+anova_pc1 <- anova(lm_pc1)
+anova_pc2 <- anova(lm_pc2)
+```
+
+```{r}
+#| echo: false
+#| label: tbl-pc-anova-components-1
+#| tbl-cap: "Univariate ANOVA on PC1."
+
+my_kable_styling(anova_pc1, "", digits = 3)
+```
+
+```{r}
+#| echo: false
+#| label: tbl-pc-anova-components-2
+#| tbl-cap: "Univariate ANOVA on PC2."
+
+my_kable_styling(anova_pc2, "", digits = 3)
+```
+
+As expected from the geometry of the score plot in @fig-iris-pca-scores, separation along the first principal component accounts for a substantial portion of the group differences. The second component, while explaining a smaller fraction of total variance, contributes to separating *versicolor* and *virginica*, illustrating that dimensions with lower variance can still play a meaningful role in discrimination.
+
+#### Which groups drive multivariate separation?
+
+Further insight can be gained by examining the relative positions of group centroids in principal component space (@tbl-centroids).
+
+```{r, echo = FALSE}
+#| code-label: pc-centroids
+#| code-fold: true
+#| code-summary: "Centroids in PC space"
+
+centroids <- pc_scores %>%
+group_by(Species) %>%
+summarise(PC1 = mean(PC1),
+          PC2 = mean(PC2),
+          .groups = "drop")
+```
+
+```{r}
+#| echo: false
+#| label: tbl-centroids
+#| tbl-cap: "Centroids in PC space."
+
+my_kable_styling(centroids, "", digits = 3)
+```
+
+#### Loadings versus discrimination
+
+A natural question at this stage is whether principal component loadings could be used to assess “what matters” for group separation. Loadings, however, describe how the original variables contribute to defining each principal axis. They do not quantify how strongly groups differ along that axis.
+
+In other words, loadings quantify variance, not discrimination. To measure how important a given component is for group separation, one must examine the distribution of scores across groups.
+
+To illustrate this point in the simplest possible setting, consider PC1 alone. Once attention is restricted to a single component, the multivariate problem reduces to a univariate one, where effect sizes such as $\eta^2$, summarize how much variance in PC1 is explained by group membership.
+
+```{r, echo = FALSE}
+#| code-label: pc1-separation-effect-size
+#| code-fold: true
+#| code-summary: "ANOVA on PC1 + eta-squared as a measure of contribution"
+
+eta <- eta_squared(lm_pc1)  # returns a tibble with columns incl. eta2
+```
+
+Finally, univariate $\eta^2$ values quantify how strongly each raw variable is associated with group membership when considered in isolation (@tbl-eta-squared). These values are not additive and should not be normalized into a decomposition of multivariate separation, but they provide a useful descriptive ranking of marginal discriminatory strength.
+
+```{r, echo = FALSE}
+#| code-label: eta-squared-univariate
+#| code-fold: true
+#| code-summary: "Univariate eta-squared"
+
+vars <- c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width")
+
+ranking_tbl <- map_dfr(vars, function(v) {
+    fit <- lm(reformulate("Species", response = v), data = iris)
+    
+    es <- effectsize::eta_squared(fit, partial = FALSE)   
+    eta_val <- es$Eta2
+
+    tibble::tibble(
+        variable = v,
+        eta2 = eta_val[1]
+    )
+}) %>%
+    arrange(desc(eta2)) 
+
+ranking_tbl <- ranking_tbl %>%
+  mutate(
+    variable = dplyr::recode(
+      variable,
+      "Petal.Length" = "Petal length",
+      "Petal.Width"  = "Petal width",
+      "Sepal.Length" = "Sepal length",
+      "Sepal.Width"  = "Sepal width"
+    )
+  ) %>%
+  rename(`η²` = eta2) %>%
+  arrange(desc(`η²`))
+```
+
+```{r}
+#| echo: false
+#| label: tbl-eta-squared
+#| tbl-cap: "Univariate eta-squared (η²) for the association between Species and each raw iris measurement. Values are reported per variable (not additive) and are used here as a descriptive ranking of marginal discriminatory strength."
+
+my_kable_styling(ranking_tbl, caption = "", digits = 2)
+```
+
+## Conclusions
+
+This post argued that PCA and MANOVA address complementary stages of the same analytical problem. PCA defines a low-dimensional geometric representation in which multivariate structure becomes visible, while MANOVA quantifies group separation by comparing between-group and within-group variability within that space.
+
+Using the iris dataset as a pedagogical example, the analysis showed that applying MANOVA in principal component space does not alter the underlying statistical machinery—the model is still fitted via `manova()`—but changes the geometry on which separation is assessed. In this sense, PCA-based MANOVA should not be viewed as a different test, but as the same test applied to a different, and often more interpretable, representation of the data. Seen in this light, PCA and MANOVA are best understood not as a sequence of techniques, but as complementary tools for reasoning geometrically about multivariate structure.
+
+A central conceptual distinction was emphasized throughout: *principal component loadings explain variance*, whereas *group discrimination must be assessed on the distribution of scores across groups*. Confusing these two roles leads to common misinterpretations, particularly when PCA is used as a preparatory step for group comparison.
+
+More broadly, the discussion highlighted the value of multivariate methods as tools for geometric reasoning rather than as mere extensions of univariate testing. By shifting attention from individual variables to configurations, centroids, and dispersion, PCA and MANOVA encourage a more structural understanding of group differences.
+
+A natural next step is to revisit the same geometric questions using distance-based approaches, leading to Permutational MANOVA (PERMANOVA). This extension replaces model-based assumptions with permutation-based inference, offering a complementary perspective on multivariate separation that can be explored in a follow-up post.

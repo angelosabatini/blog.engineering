@@ -1,0 +1,232 @@
+---
+title: "Significant figures"
+description: "The use of calculators and computers leads to lab reports with far too many digits in every number produced. Assessing the correct number of significant figures is essential in reporting either experimental or computed results together with their stated uncertainties."
+author: "Angelo Maria Sabatini"
+date: "2024-05-14"
+categories: "measurement"
+image: "significant_figures.png"
+---
+
+## Significant figures
+
+It happens frequently that the number of digits that are available to report measurement results is high. Usually, measurement results are produced by carrying arithmetic operations with computers or calculators, whose level of numerical precision, albeit finite, is too high given the true information gathered by the measurements. In other words, the precision can be excessive, and too many digits can simply swamp the observer, making the message in the measurements more obscure. **Significant figures**, also referred to as significant digits, are specific digits within a number written in positional notation that carry both reliability and necessity in reporting a measurement result. Proper use of significant figures is thus an essential element in the presentation of both experimental and calculated results together with their associated uncertainty.
+
+### Rules for significant figures
+
+A number of rules exist for determining how many significant figures are in a number:
+
+1.  non-zero digits are always significant
+
+- 4.6 has two significant figures
+
+2.  leading zeros placed before the first non-zero digit are not significant (they are called *placeholders*)
+
+- 0.046 has two significant figures
+
+3.  trailing zeros placed after all other digits but behind a decimal point are significant
+
+- 4.60 has three significant figures
+
+The leftmost digit which is not a zero is referred to as the *most significant digit* (MSD); the rightmost digit of a decimal number is the *least significant digit* (LSD), regardless it is a zero or not: 4 and 0 are thus, respectively, the MSD and the LSD of 4.60; 4 and 1 are, respectively, the MSD and the LSD of 4.61. Every digit between the LSD and the MSD, including zeros, should be counted as significant figures, hence 4.60 and 40.60 have, respectively, three and four significant figures.
+
+Ambiguous situations arise when zeros are at the end of the number and not behind a decimal point as, for example, in the number 4600. Confusion can be avoided if the number is expressed in *scientific notation*.
+
+::: callout-note
+## Scientific notation
+
+Scientific notation is a way of expressing numbers that are much too large or much too small to be conveniently written in decimal form (i.e., their representation would involve a long string of digits). In scientific notation, nonzero numbers are written in the form:
+
+$$m\times10^n$$
+
+where $n$ is an integer, and the coefficient $m$ is a nonzero real number (usually $1\leq\vert\,m\,\vert<10$). The integer $n$ is called the *exponent* and the real number $m$ is called the *mantissa*. If the number is negative, then a minus sign precedes $m$, as in ordinary decimal notation.
+:::
+
+In scientific notation, the number 4600 can be written using a different number of significant figures, based on rule 3. above:
+
+$$\begin{split}
+4.600\times 10^3&\quad\text{four significant figures}\\
+4.60\times 10^3&\quad\text{three significant figures}\\
+4.6\times 10^3&\quad\text{two significant figures}
+\end{split}$$
+
+### Rounding
+
+A number can be *rounded* so as to drop digits until a prescribed number of significant figures is retained in the final representation. Recall that all the digits after the decimal point to the right of the desired LSD are to be dropped and not replaced with zeros, which otherwise should add to the number of significant figures (rule 3 above). The rules of rounding are the following:
+
+1.  if the digit to the right of the desired LSD is greater than 5, add 1 to the LSD, otherwise do nothing
+
+- Example - round at the fourth significant figure
+
+$$\begin{split}
+53.8\underline{7}4&\rightarrow53.87\\
+53.8\underline{7}9&\rightarrow53.88
+\end{split}$$
+
+2.  if the digit to the right of the LSD is 5, apply a tie-breaking rule, also called the *five rule*. When the first digit to be dropped is 5, the leading digit next to it is examined. If this digit is even, including zero, it is left unaltered; otherwise, one unit is added. This helps avoiding the accumulation of errors that would be otherwise determined by rounding systematically up or down. Using the five rule, five out of ten cases consist of rounding up and five out of ten cases consist of rounding down.
+
+- Example - round at the fifth significant figure
+
+$$\begin{split}
+726.8\underline{0}51\rightarrow 726.80\\
+726.8\underline{3}51\rightarrow 726.84\\
+726.8\underline{6}51\rightarrow 726.86\\
+726.8\underline{9}51\rightarrow 726.90
+\end{split}$$
+
+## Finite precision arithmetic
+
+In mathematical operations involving significant figures, the result cannot be more precise than the least precise number. Calculations in finite precision arithmetic can be done following a few simple rules. One rule applies to multiplication and division, and another rule applies to addition and subtraction. Recall that values that are considered exact numbers, e.g., known conversion factors or physical constants, are not to be included in the determination of the number of significant figures.
+
+### Multiplication and division
+
+> When we multiply/divide two numbers, we should add their relative uncertainties. The uncertainty of the result is given roughly by the number of the digits, regardless of their placement.
+
+In a calculation involving multiplication/division the number of significant figures in the result should equal the least number of significant figures in any one of the numbers being multiplied or divided.
+
+In the following example, the number 1.6 is reported with two significant figures; the number 2, seen as a known constant, can be considered having an infinite number of significant figures, whereas the number 2.0 has two significant figures. The result should be reported with two significant figures in both cases:
+
+$$\begin{split}
+&1.6\times2=3.2&\\
+&1.61\times2.0=3.2&\quad\text{not}\;3.22
+\end{split}$$
+
+### Addition and subtraction
+
+> When we add/subtract two numbers, we should add their uncertainties. The uncertainty of the result is given roughly by the placement of the digits, not by the number of digits.
+
+In a calculation involving addition/subtraction, the number of decimal places in the result should equal the least number of decimal places in any one of the numbers being added or subtracted.
+
+In the following example, the number 132.03 is reported with five significant figures, and the number 3.210 is reported with four significant figures. However, when the two numbers are added, what matters really is the number of decimal places, i.e., two for the number 132.03 and three for the number 3.210. The result should be reported with two decimal digits and not reported using four significant figures.
+
+$$\begin{split}
+&132.03+3.210=135.24&\;\text{and not}\;135.2\\
+&132.03+3=135&\;\text{and not}\;135.03\\
+&132.03+3.00=135.03&\;\text{and not}\;135\\
+\end{split}$$
+
+The prescription about the minimum number of decimal places of any of the numbers involved in the calculation can be explained by considering that, implicitly, the precision of any measurement is dictated by the decimal place. For a measurement of length expressed in meters, for example, the second decimal digit implies a measurement precise to the hundredths (centimeter-level), the third decimal digit to the thousandth (millimeter-level). So by keeping the result with the minimum number of decimal places we basically state that we do not want to imply to get a result more precise than the least precise measurement that was needed to produce the result itself.
+
+### Multiple arithmetic operations
+
+> In a calculation involving multiple arithmetic operations, the rules are applied without rounding results after each intermediate step. Instead keep track of the rightmost digit that would be retained. The operations would be performed in the following order:
+
+- operations in parentheses ( )
+
+- multiplication
+
+- division
+
+- addition
+
+- subtraction
+
+It is important to always perform intermediate calculations without rounding the numbers that are involved in the operations. If numbers are rounded every time during many sequential calculations, the results are skewed and some systematic error is surely introduced. Only after that all calculations are carried out with all digits retained at each step, the final result has to be rounded to the desired number of significant figures.
+
+As an example, two numbers reported with five significant figures each are added, and the final result is rounded to three significant figures. If the addends are first rounded to three significant figures and then added, the result we produce is wrong:
+
+$$\begin{split}
+&1.4248+1.2732=2.6980\rightarrow 2.70&\quad\text{correct}\\
+&1.42+1.27=2.69\rightarrow 2.70&\quad\text{wrong}
+\end{split}$$
+
+::: {#exm-exm1}
+## Sequential calculation
+
+Suppose that we want to perform the following operation:
+
+$$(2.5\times3.42)+13.681-0.1$$
+
+1.  perform first the product between parentheses - we keep track of the first decimal place, which would be retained based on rule B above.
+
+$$2.5\times3.42=8.\underline{5}500$$
+
+2.  perform addition - although, based on rule A above, the result would be expressed using five significant figures, only the first decimal place is kept tracked:
+
+$$8.5500+13.681=22.\underline{2}310$$
+
+3.  perform subtraction:
+
+$$22.2310-0.1=22.\underline{1}31$$
+
+4.  rounding to three significant figures:
+
+$$(2.5\times3.42)+13.681-0.1\rightarrow22.1$$
+:::
+
+When doing multi-step calculations, we need:
+
+- to keep at least one more significant figure in intermediate results than needed in the final answer. Furthermore, never round intermediate answers: rounding, say, to two significant figures in an intermediate answer, and then writing three significant figures in the final answer is wrong.
+
+- not to write more significant figures in the final result (of a measurement process) than justified (by the measurement uncertainty).
+
+## Significant figures and measurement uncertainty
+
+The value of one measurand must be delivered by rounding the digit loaded by the measurement uncertainty $U$, where $U$ is represented by a number with, usually, no more than one or two significant figures (rounded up, possibly). The additional uncertainty due to rounding must be checked for being negligible compared to $U$. Essentially, $U$ gives an estimate of the errors incurred in the measurement.
+
+For example, if we have a length $L=(12.37\pm0.10)\;\text{cm}$, we can report the length as $L=12.4\;\text{cm}$. When we express a number with three significant figures, what we are saying is that the first two digits are essentially exactly correct, and the last one is uncertain by a small amount (generally it is only uncertain by about $\pm1$). In the example above, we rounded our answer to $12.4\;\text{cm}$ because our answer is uncertain to $\pm0.1\;\text{cm}$, namely our answer is uncertain in the last digit by about 1.
+
+::: {#exm-exm2}
+## Rounding
+
+Round the measurement $z=12.0349\;\text{cm}$, whose uncertainty is stated being $\Delta z=0.153\;\text{cm}$.
+
+1.  round the uncertainty to two significant figures:
+
+$$\Delta z=0.15\,\text{cm}$$
+
+2.  round $z$ using the same number of decimal places as $\Delta z$:
+
+$$z=12.03\,\text{cm}$$
+
+3.  provide the measurement report:
+
+$$z\pm\Delta z=(12.03\pm0.15)\,\text{cm}$$
+:::
+
+::: {#exm-exm3}
+## Use of the scientific notation
+
+When the answer is given in scientific notation, the uncertainty should be given in scientific notation with the same power of ten as the answer. Suppose that $z=1.43\times10^6\;\text{s}$ and $\Delta z=2\times10^4\;\text{s}$:
+
+$$z\pm\Delta z=(1.43\pm0.02)\,10^6\;\text{s}$$
+:::
+
+::: {#exm-exm4}
+## Addition/subtraction of uncertain numbers
+
+The length of two blocks is measured, and the measurements are $l_1=1.13\;\text{m}$ (considered precise to the level of centimeters) and $l_2=0.551\;\text{m}$ (considered precise to the level of millimeters). We need to compute the length $l$ of the block resulting from stacking the two blocks together:
+
+$$l=l_1+l_2=1.681\;\text{m}\rightarrow l=1.68\;\text{m}$$
+
+It does not make any physical sense to consider the length of the overall block precise to the level of the millimeters, given that one of the two blocks is measured less precisely. The result should be at least as precise as the least precise term involved in the addition, as stated by the rule for addition/subtraction of uncertain numbers.
+:::
+
+::: {#exm-exm5}
+## Multiplication/division of uncertain numbers
+
+A rectangular floor needs to be covered by a number of squared tiles. According to the measurements that are available, the rectangular floor has width $w=1.91\;\text{m}$ and length $l=1.57\;\text{m}$ and each squared tile has size $a=0.15\;\text{m}$. All measurements are considered precise to the level of centimeters, and three significant figures should then be considered for their numerical representation. The number of tiles can be easily calculated:
+
+$$N\approx\dfrac{w\,l}{a^2}=133.2756\;\text{m}^2\,\text{m}^{-2}$$
+
+To comply with the rule for multiplication/division between uncertain numbers, $133.2756$ has to be rounded using three significant figures, yielding the integer $N=133$, which is then the number of tiles expected to cover the floor.
+:::
+
+::: {#exm-exm6}
+## Conversion of scale
+
+A measurement of temperature is performed, leading to the following report:
+
+$$T_c=(54.0\pm0.5)\;^{\circ}\text{C}$$
+
+We want to convert this expression in units of kelvin:
+
+$$T_K=T_C+273.15=(327.15\pm0.5)\;\text{K}$$
+
+The uncertainty expressed in degree Celsius ($\pm0.5\;^{\circ}\text{C}$) translates directly in the uncertainty expressed in kelvin ($\pm 0.5\;\text{K}$). This is because transforming a measurement expressed in degree Celsius into a measurement expressed in kelvin implies a change of offset, but not a change of scale. Since the uncertainty loads the first decimal digit of the numerical representation of the measured temperature, we should report $T_K$ with one decimal digit, which requires rounding (based on the five rule):
+
+$$T_k=(327.2\pm0.5)\;\text{K}$$
+
+The prescription of the minimum number of significant figures (rule for the addition/subtraction of uncertain numbers) would yield $T_k=327\;\text{K}$. This is because $54.0$ has three significant figures, and $273.15$ can be considered to have an infinite number of significant figures, since it is a known constant; hence $T_K$ should be reported with three significant figures according to the rule for addition/subtraction of uncertain numbers. However, this rule is superseded by considering the prescription concerning how to express the measurement uncertainty.
+:::
+
+> The concept of significant figures and their relation with measurement uncertainty has been briefly reviewed. This topic is important because many measured quantities are often reported with more significant figures than necessary, in the face of the loaded uncertainty. Reporting too many digits is confusing for the reader and of no relevance as for the information content associated to the measurements.

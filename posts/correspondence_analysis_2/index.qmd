@@ -1,0 +1,327 @@
+---
+title: "Correspondence analysis: Part II"
+description: "Correspondence Analysis (CA) is a type of multidimensional scaling, one of several methods that are available for developing spatial models that reveal associations between two or more categorical variables. Conceptually, CA is similar to principal component analysis, but applies to categorical rather than continuous data. In this post, I will briefly illustrate how simple CA (the method used when data of only two categorical variables are analyzed) can be computed using the R programming software (a brief overview of the underlying theory has been sketched in a previous post.)"
+author: "Angelo Maria Sabatini"
+date: "2024-12-10"
+categories: "multivariate statistics"
+image: "cover.png"
+---
+
+## Introduction
+
+In this post, we will briefly discuss an example of how Simple Correspondence Analysis (SCA) can be performed using the R programming language. Several functions from different packages are available in the R software for computing SCA. No matter what package we decide to use for the analysis (in this post, we will use the package FactoMineR), the package factoextra is great for producing ggplot2-based elegant visualizations of analysis results. A couple of other packages, namely gplots and corrplot, will also be used.
+
+```{r}
+#| code-fold: true
+#| eval: true
+#| warning: false
+#| message: false
+
+# Libraries 
+
+library(tidyverse)
+library(gplots)
+library(corrplot)
+library(FactoMineR)
+library(factoextra)
+library(kableExtra)
+```
+
+## Exemplary dataset
+
+`housetasks`, available in the package factoextra, is a data frame that contains the frequency of execution of 13 house tasks performed by the couple in four different ways: a) the wife only; b) alternatively; c) the husband only; d) jointly.
+
+```{r}
+#| code-fold: true
+#| warning: false
+#| message: false
+
+data(housetasks)
+housetasks %>%
+  kable(
+    align = "rrrr",
+    col.names = c("Wife", "Alternating", "Husband", "Jointly"),
+    caption = "House tasks contingency table",
+  ) %>%
+  kable_classic()
+
+# Convert the data frame to a table
+dt <- as.table(as.matrix(housetasks))
+# Graph
+balloonplot(t(dt), main ="House tasks contingency table", xlab = "", ylab = "",
+            label = FALSE, show.margins = FALSE)
+```
+
+## Implementation
+
+The function `CA()` from the package FactoMineR is used. It performs the Singular Value Decomposition of the standardized residuals, see my previous post [here](https://amsabatini.netlify.app/posts/correspondence_analysis_1). The first step of the analysis was done there in order to evaluate whether there was a significant dependency between the rows and columns using the chi-square statistic.
+
+```{r}
+#| echo: true
+#| eval: true
+
+res.ca <- CA(housetasks, graph = FALSE)
+print(res.ca)
+```
+
+## Visualization and interpretation
+
+The following functions available the factoextra package can be used to help in the SCA interpretation and visualization:
+
+```{r}
+#| echo: false
+#| eval: true
+
+df <- tribble(
+~name,              ~purpose,
+"get_eigenvalue()", "Extract the eigenvalues/variances retained by each dimension (axis)",
+"fviz_eig()",       "Visualize the eigenvalues",
+"fviz_screeplot()", "Scree plot",
+"get_ca_row()",     "Extract the results for rows", 
+"get_ca_col()",     "Extract the results for columns",
+"fviz_ca_row()",    "Visualize the results for rows",
+"fviz_ca_col()",    "Visualize the results for columns",
+"fviz_ca_cos2()",   "Cos2 of rows on selected axes",
+"fviz_ca_biplot()", "Make a biplot of rows and columns")
+
+df %>%
+  kable(
+    align = "ll",
+    col.names = c("Function name", "Purpose"),
+    caption = "Functions from FactoMineR package for SCA",
+  ) %>%
+  kable_classic()
+```
+
+### Eigenvalues/variance
+
+Eigenvalues correspond to the amount of information retained by each axis. Dimensions are ordered from largest to smallest and reported with the amount of variance each of them *explains* in the solution. Dimension 1 (Dim.1) explains the most variance in the solution, followed by dimension 2 (Dim.2) and so on. The cumulative percentage explained is obtained by adding the successive proportions of variance explained. For instance, 48.69% plus 39.91% equals 88.6%, and so forth. Therefore, about 88.6% of the variance is explained by the first two dimensions.
+
+Eigenvalues can be used to determine the number of axes to retain. There is no “rule of thumb” to choose the number of dimensions to keep for the data interpretation. It depends on the research question and the need of the researcher. For example, if 80% of the total variation explained is believed satisfactory for the purpose of the analysis, then the number of dimensions necessary to achieve that goal will be considered. Generally, a good dimension reduction is achieved with the first few dimensions accounting for a large proportion of the variation. In the example in this post, the first two axes explain 88.6% of the variation.
+
+An alternative method to determine the number of dimensions is to look at a Scree Plot, which is the plot of eigenvalues/variances ordered from largest to smallest. The number of components is determined at the point, beyond which the remaining eigenvalues are all relatively small and of comparable size.
+
+In the example in this post, the house tasks contingency table contains 13 rows and 4 columns. If the data were random, the expected value of the eigenvalue for each axis would be 1/(nrow(housetasks)-1) (rows), and 1/(ncol(housetasks)-1) (columns). Any axis contributing more than the maximum of these two percentages, namely $33.33\%$ in the example here, should be considered as important and included in the final solution.
+
+```{r}
+#| code-fold: true
+#| eval: true
+
+eig.val <- get_eigenvalue(res.ca)
+round(eig.val, 2)
+
+v <- max(c(1/(nrow(housetasks)-1), 1/(ncol(housetasks)-1)))*100
+
+fviz_screeplot(res.ca, addlabels = TRUE, ylim = c(0, 50)) + 
+  geom_hline(yintercept = v, linetype = 2, color = "red")
+```
+
+According to the graph above, only Dim.1 and Dim.2 should be used in the solution. Dim.3 explains only 11.4% of the total variation, which is well below the stated threshold at 33.33%, hence it can be discarded. Dim.1 and Dim.2 explain approximately 48.7% and 39.9% of the total variation, respectively. This corresponds to a cumulative total of 88.6% of total variation retained by them.
+
+### Biplot
+
+```{r}
+#| code-fold: true
+#| eval: true
+
+# repel = TRUE to avoid text overlapping
+fviz_ca_biplot(res.ca, repel = TRUE)
+```
+
+The graph above is called symmetric plot, or biplot. The biplot is helpful to show global patterns existing within the data. Rows are represented by blue points and columns by red triangles. The distance between any pair of row points, or any pair of column points, gives a measure of their similarity (or dissimilarity). Row (column) points with similar profile are close in the biplot.
+
+The biplot represents the row and column profiles simultaneously in a common space. It is worth stress that:
+
+-   *the distance between any row and column items is not meaningful*
+-   *only the distance between row points or the distance between column points can be interpreted*.
+
+In order to interpret the distance between column *and* row points, the column (row) profiles must be presented in row (column) space. The resulting type of map is called asymmetric biplot; it is not discussed in this post.
+
+### Graph of row variables
+
+The function `get_ca_row()` is used to extract the results for row points. This function returns a list containing the coordinates, the squared cosine (cos2), the contribution and the inertia of row points:
+
+```{r}
+#| code-fold: true
+#| eval: true
+
+row <- get_ca_row(res.ca)
+row
+```
+
+The components of the get_ca_row() function can be used in the plot of rows as follows:
+
+-   `row$coord`: coordinates of each row point in each dimension (1, 2 and 3).
+-   `row$cos2`: quality of representation of rows.
+-   `var$contrib`: contribution of rows (in %) to the definition of the dimensions.
+
+**Coordinates of row points**
+
+```{r}
+#| code-fold: true
+#| eval: true
+
+fviz_ca_row(res.ca, col.row = "blue", shape.row = 16, repel = TRUE)
+```
+
+The plot above shows the relationships between row points:
+
+-   Rows with a similar profile are grouped together.
+-   Negatively correlated rows are positioned on opposite sides of the plot origin.
+-   The distance between row points and the origin measures the quality of the row points on the scatter plot. The higher the distance, the better the quality.
+
+**Quality of representation of rows**
+
+I recall that the quality of representation of the rows on the biplot is called the squared cosine (cos2) or the squared correlation. The cos2 measures the degree of association between rows and a particular axis. The values of the cos2 range in the interval between 0 and 1. The sum of the cos2 for rows on all the CA dimensions is equal to one. The quality of representation of a row in $n$ dimensions is simply the sum of the squared cosine of that row over the $n$ dimensions. If a row item is well represented by two dimensions, the sum of the cos2 should be close to one. For some of the row items, more than 2 dimensions may be required to perfectly represent the data.
+
+It is possible to color row points by their cos2 values using the argument `col.row = "cos2"` in `fviz_ca_row()`. This produces a color gradient, which can be customized using the argument gradient.cols. For instance, `gradient.cols = c("white", "blue", "red")` means that:
+
+-   variables with low cos2 values will be colored in "white"
+-   variables with mid cos2 values will be colored in "blue"
+-   variables with high cos2 values will be colored in "red"
+
+The row variables with the larger value of cos2, contribute the most to the definition of the dimensions. Rows that contribute the most to the retained dimensions, i.e., Dim.1 and Dim.2, are the most important in the process of variance explanation. Rows that do not contribute much to the retained dimensions or that contribute to the last dimensions, i.e., Dim.3, are less important.
+
+```{r}
+#| code-fold: true
+#| eval: true
+
+# Color by cos2 values
+fviz_ca_row(res.ca, col.row = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE)
+
+# Cos2 of rows on Dim.1 and Dim.2
+fviz_cos2(res.ca, choice = "row", axes = 1:2)
+```
+
+The function `fviz_contrib()` can be used to draw a bar plot of row contributions. The red dashed line on the graph below indicates the expected average value, if the contributions were uniform.
+
+```{r}
+#| code-fold: true
+#| eval: true
+
+# Contributions of rows to dimension 1
+fviz_contrib(res.ca, choice = "row", axes = 1, top = 10)
+
+# Contributions of rows to dimension 2
+fviz_contrib(res.ca, choice = "row", axes = 2, top = 10)
+
+# Total contribution to dimension 1 and 2
+fviz_contrib(res.ca, choice = "row", axes = 1:2, top = 10)
+```
+
+It can be seen that:
+
+-   The row items "Repairs", "Laundry", "Main_meal" and "Driving" are the most important in the definition of the first dimension.
+-   The row items "Holidays" and "Repairs" contribute the most to the dimension 2.
+-   The most important row points can be highlighted on the biplot, as explained above.
+
+```{r}
+#| code-fold: true
+#| eval: true
+
+fviz_ca_row(res.ca, col.row = "contrib",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE)
+```
+
+The scatter plot gives an idea of what pole of the retained dimensions the row categories are contributing to. The row categories "Repair" and "Driving" have an important contribution to the positive pole of the first dimension, while the categories "Laundry" and "Main_meal" have an important contribution to the negative pole of the first dimension, and so forth. In other words, Dim.1 is mainly defined by the opposition of "Repair" and "Driving" (positive pole), and "Laundry" and "Main_meal" (negative pole).
+
+### Graph of column variables
+
+The function `get_ca_col()` is used to extract the results for column variables. This function returns a list containing the coordinates, the squared cosine (cos2), the contribution and the inertia of column variables:
+
+```{r}
+#| code-fold: true
+#| eval: true
+
+col <- get_ca_col(res.ca)
+col
+```
+
+The components of the `get_ca_col()` function can be used in the plot of columns as follows:
+
+-   `col$coord`: coordinates of each column point in each dimension (1, 2 and 3).
+-   `col$cos2`: quality of representation of columns
+-   `var$contrib`: contribution of columns (in %) to the definition of the dimensions.
+
+**Coordinates of column points**
+
+```{r}
+#| code-fold: true
+#| eval: true
+
+fviz_ca_col(res.ca, col.col = "red", shape.col = 17, repel = TRUE)
+```
+
+The plot above shows the relationships between column points:
+
+-   Columns with a similar profile are grouped together.
+-   Negatively correlated columns are positioned on opposite sides of the plot origin.
+-   The distance between column points and the origin measures the quality of the column points on the scatter polot. The higher the distance, the better the quality.
+
+**Quality of representation of columns**
+
+I recall that the quality of representation of the columns on the biplot is called the squared cosine (cos2) or the squared correlation. The cos2 measures the degree of association between columns and a particular axis. The values of the cos2 range in the interval between 0 and 1. The sum of the cos2 for columns on all the CA dimensions is equal to one. The quality of representation of a column in $n$ dimensions is simply the sum of the squared cosine of that column over the $n$ dimensions. If a column item is well represented by two dimensions, the sum of the cos2 should be close to one. For some of the column items, more than 2 dimensions may be required to perfectly represent the data.
+
+It is possible to color column points by their cos2 values using the argument `col.col = "cos2"` in `fviz_ca_col()`. This produces a color gradient, which can be customized using the argument gradient.cols. For instance, `gradient.cols = c("white", "blue", "red")` means that:
+
+-   variables with low cos2 values will be colored in "white"
+-   variables with mid cos2 values will be colored in "blue"
+-   variables with high cos2 values will be colored in "red"
+
+The column variables with the larger value of cos2, contribute the most to the definition of the dimensions. Columns that contribute the most to the retained dimensions, i.e., Dim.1 and Dim.2, are the most important in the process of variance explanation. Columns that do not contribute much to the retained dimensions or that contribute to the last dimensions, i.e., Dim.3, are less important.
+
+```{r}
+#| code-fold: true
+#| eval: true
+
+# Color by cos2 values
+fviz_ca_col(res.ca, col.col = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE)
+
+# Cos2 of rows on Dim.1 and Dim.2
+fviz_cos2(res.ca, choice = "col", axes = 1:2)
+```
+
+The function `fviz_contrib()` can be used to draw a bar plot of column contributions. The red dashed line on the graph below indicates the expected average value, if the contributions were uniform.
+
+```{r}
+#| code-fold: true
+#| eval: true
+
+# Contributions of columns to dimension 1
+fviz_contrib(res.ca, choice = "col", axes = 1, top = 10)
+
+# Contributions of colums to dimension 2
+fviz_contrib(res.ca, choice = "col", axes = 2, top = 10)
+
+# Total contribution to dimension 1 and 2
+fviz_contrib(res.ca, choice = "col", axes = 1:2, top = 10)
+```
+
+It can be seen that only the column item "Alternating" is not very well displayed on the first two dimensions. The position of this item must be interpreted with caution in the space formed by Dim.1 and Dim.2.
+
+```{r}
+#| code-fold: true
+#| eval: true
+
+fviz_ca_col(res.ca, col.col = "contrib",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE)
+```
+
+### Symmetric biplot
+
+As mentioned above, the standard plot of SCAs is a symmetric biplot, in which both rows (blue points) and columns (red triangles) are represented in the same space using the principal coordinates. These coordinates represent the row and column profiles. In this case, only the distance between row points or the distance between column points can be interpreted.
+
+```{r}
+#| code-fold: true
+#| eval: true
+
+fviz_ca_biplot(res.ca, repel = TRUE)
+```
+
+> The series of two posts I have compiled so far concerning SCA just scratched the surface of their fascinating, and challenging, world. A lot more should be said to achieve a serious and meaningful interpretation of the results they can offer to the analyst. Maybe, in the future, I will continue the series with additional contributions. Up to now, that's it.

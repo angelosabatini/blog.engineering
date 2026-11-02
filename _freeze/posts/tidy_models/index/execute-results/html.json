@@ -1,0 +1,15 @@
+{
+  "hash": "db88eb4f3056a4735070c6e2a52a9055",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"Using tiydmodels\"\ndescription: \"\"\nauthor: \"Angelo Maria Sabatini\"\ndate: \"2025-01-30\"\ncategories: \"machine leaarning\"\nimage: \"\"\n---\n\n::: {.cell}\n\n:::\n\n\n\n## Random forest\n\n\n\n::: {.cell}\n\n```{.r .cell-code}\nrand_forest_ranger_spec <-\n    rand_forest(mtry = tune(), min_n = tune()) %>%\n    set_engine('ranger') %>%\n    set_mode('classification')\n```\n:::\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

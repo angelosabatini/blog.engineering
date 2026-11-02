@@ -2,19 +2,59 @@ project:
   type: website
   output-dir: docs
 
+freeze: auto
+
 website:
-  title: "blog"
+  title: "Angelo Maria Sabatini"
+  site-url: https://amsabatini.netlify.app
+  description: "The personal blog of Angelo Maria Sabatini"
   navbar:
     right:
-      - about.qmd
+      - text: Blog
+        href: blog.qmd
+      - text: Archive
+        href: archive.qmd
       - icon: github
-        href: https://github.com/
-#      - icon: twitter
-#        href: https://twitter.com
+        href: https://github.com/angelosabatini
+      - icon: rss
+        href: /blog.xml
+        aria-label: RSS feed
+  google-analytics: G-G7T7XXSXKG
+  cookie-consent: true
+
+# website:
+#   title: "Angelo Maria Sabatini"
+#   site-url: https://amsabatini.netlify.app
+#   description: "This the personal blog of Angelo Maria Sabatini"
+#   navbar:
+#     right:
+#       - text: Blog
+#         href: blog.qmd
+#       - text: Archive
+#         href: archive.qmd
+#       - icon: github
+#         href: https://github.com/angelosabatini
+# #      - icon: twitter
+# #        href: https://twitter.com
+#       - icon: rss
+#         href: blog.xml
+#   google-analytics: G-G7T7XXSXKG
+#   cookie-consent: true
+
 format:
   html:
-    theme: cosmo
+    theme: default
     css: styles.css
+    include-in-header:
+      text: |
+        <link rel="alternate"
+              type="application/rss+xml"
+              title="Angelo Maria Sabatini – Blog RSS"
+              href="/blog.xml" />
+
+# format:
+#   html:
+#     theme: default
+#     css: styles.css
 
 editor: visual
-

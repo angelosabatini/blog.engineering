@@ -1,0 +1,316 @@
+---
+title: "Discretizing motion under stochastic acceleration"
+description: "Using a minimal kinematic model, this post examines how assumptions on stochastic acceleration propagate from continuous time to an exact discrete-time model of position and velocity. The focus is on modeling choices, discretization, and their often overlooked consequences for uncertainty representation."
+author: "Angelo Maria Sabatini"
+date: "2026-02-02"
+categories: "stochastic modeling"
+image: "simulation.png"
+---
+
+> 💾 **Prefer reading offline?** You can [download a PDF version of this post](stochastic_model.pdf) for printing or future reference.
+
+## Problem statement
+
+Consider the simplest possible problem in Newtonian kinematics: the motion of a point along a straight line. Its position, velocity and acceleration are denoted by $x(t), v(t)$ and $a(t)$, respectively. The equations of motion are elementary:
+
+$$
+\left\{
+\begin{align}
+\dot{x}(t)&=v(t)\\
+\ddot{x}(t)&=\dot{v}(t)=a(t)
+\end{align}
+\right.
+$$ {#eq-eq1}
+
+Here and throughout the post, the dot notation denotes differentiation with respect to time.
+
+If the acceleration is known as a deterministic function of time, the solution is trivial: integrate once to obtain the velocity, and integrate again to obtain the position, starting from known initial conditions.
+
+In many practical problems, however, acceleration is unknown. Examples abound:
+
+-   a vehicle subject to unpredictable maneuvers,
+-   a moving object affected by small, unmodeled disturbances,
+-   a target whose motion can only be described approximately.
+
+In all these cases, acceleration must be modeled, rather than specified explicitly. This raises the apparently simple question of how the acceleration should be represented.
+
+At first sight, the answer seems obvious: treat acceleration as a stochastic process, that is, specify the statistical rules governing its time evolution. More precisely, acceleration can often be described as the superposition of deterministic and stochastic components. For instance, a known nominal motion—such as constant velocity or constant acceleration—may be affected by unpredictable perturbations. In this post, the focus is on the stochastic component alone, in order to isolate and understand its effect on the statistical properties of position (and velocity).
+
+Even when the equations of motion are trivial, the modeling choices for the input $a(t)$ have profound consequences — especially when we recall that, while the motion of the point naturally occurs in continuous time, in practice we study it in discrete-time:
+
+-   measurement data are sampled,
+-   tracking algorithms operate on sequences rather than continuous trajectories,
+-   computer simulations are run with a fixed time step.
+
+When the input to the system is deterministic, this passage is straightforward. However, when the input is stochastic, the transition from continuous time to discrete time can become surprisingly subtle.
+
+This post is about understanding what it really means to discretize @eq-eq1 when $a(t)$ is modeled as a stochastic process. The goal of this post is to show that, while the physical problem is simple, the associated modeling choices are not trivial.
+
+## The motion model
+
+Before introducing any stochastic description, it is useful to clarify what is given and what is unknown in the motion model itself.
+
+The kinematic structure of the problem is completely known. The relationships between position, velocity, and acceleration are fixed by Newtonian kinematics, as shown in @eq-eq1. From a systems point of view, $a(t)$ is not treated as a state variable, but as an external input to an otherwise deterministic system.
+
+Because velocity and position are obtained by integrating acceleration, any assumption made on the acceleration propagates through the system. Small differences in how acceleration is modeled can result in large differences in the statistical properties of position and velocity, once the model is discretized.
+
+The state of the system described by @eq-eq1 is defined as:
+
+$$
+\mathbf{x}(t) \triangleq \begin{bmatrix} x(t) \\ v(t) \end{bmatrix}
+$$ {#eq-eq2}
+
+The continuous-time kinematic model is:
+
+$$
+\dot{\mathbf{x}}(t) = A\,\mathbf{x}(t) + B\,a(t)
+$$ {#eq-eq3}
+
+with:
+
+$$
+A=\begin{bmatrix}0&1\\0&0\end{bmatrix},\;
+B=\begin{bmatrix}0\\1\end{bmatrix}
+$$ {#eq-eq4}
+
+Consider sampling the motion at times $t_k = kT$, with sampling interval $T$. For any input $a(t)$ (deterministic or stochastic), the exact solution at the sampling instants $t_k=kT$ is:
+
+$$
+\mathbf{x}_{k+1} = e^{AT}\,\mathbf{x}_k + \mathbf{u}_k,
+$$ {#eq-eq5}
+
+where the state transition matrix is
+
+$$
+e^{AT} = \begin{bmatrix}
+1 & T\\
+0 & 1
+\end{bmatrix}
+$$ {#eq-eq6}
+
+and the input vector $\mathbf{u}_k$ can be written:
+
+$$
+\mathbf{u}_k = \int_{0}^{T} e^{A(T-\tau)}\,B\,a(t_k+\tau)\,d\tau
+$$ {#eq-eq7}
+
+This is a standard result in systems theory: discretization affects the deterministic state transition through the matrix exponential $e^{AT}$, while the input contributes through an integral that “accumulates” its effect over the sampling interval.
+
+It is worth noting that the discrete-time representation in @eq-eq5, with $e^{AT}$ as in @eq-eq6 and $\mathbf{u}_k$ as in @eq-eq7, is exact at the sampling times $kT$ and holds regardless of how acceleration is modeled. What is still unspecified is the statistical characterization of $\mathbf{u}_k$, which depends entirely on the modeling assumptions made for $a(t)$.
+
+Different assumptions on the time evolution of acceleration (for instance, whether it is memoryless or correlated) lead to different statistical properties of $\mathbf{u}_k$, and therefore to different statistical properties of the state $\mathbf{x}_k$ at the sampling times. In particular, the position component $x_k$ is obtained by integrating acceleration twice (via velocity). As a result, the statistical behavior of position is highly sensitive to how acceleration is modeled. In many applications, position is the central quantity of interest: we care about predicting where the point will be, often more than how fast it will be moving.
+
+::: callout-note
+## A note on the input integral and its interpretation
+
+The term $\mathbf{u}_k$ collects the effect of acceleration over the sampling interval. The integral in @eq-eq7 can be understood in the most basic sense: as a Riemann integral of a time-varying input. To give this integral a concrete meaning, it is sufficient to assume that the acceleration process is locally piecewise constant. More precisely, we assume that $a(t)$ is constant over each subinterval of an arbitrary partition of the integration interval $(0,T)$. This assumption is made with respect to the integration variable and does not impose any restriction tied to the sampling interval $T$.
+
+At this level, $T$ plays no special role beyond defining the limits of integration. There is no implicit connection with sampling theory in the sense of Shannon, nor with any bandwidth limitation on $a(t)$. The piecewise-constant assumption should therefore be interpreted as a minimal modeling device that allows the effect of acceleration over a finite time interval to be accumulated through integration.
+:::
+
+## The discrete-time input covariance $Q_d$
+
+A specific stochastic model is now introduced: acceleration $a(t)$ is regarded as a wide-sense stationary stochastic process with zero mean, $\mathbb{E}[a(t)]=0$, and autocorrelation function:
+
+$$
+R_a(\tau) \;\triangleq\; \mathbb{E}\!\left[a(t)\,a(t+\tau)\right]
+$$ {#eq-eq8}
+
+In the constant-velocity kinematic model, a zero-mean acceleration describes random deviations around a nominal constant velocity, with no preferred direction of motion.
+
+The covariance matrix of $\mathbf{u}_k$ is defined as
+
+$$
+Q_d\;\triangleq\;\mathrm{Cov}(\mathbf{u}_k)
+           \;=\;\mathbb{E}\!\left[\mathbf{u}_k\,\mathbf{u}_k^\top\right]
+$$ {#eq-eq9}
+
+where the last equality requires that $\mathbb{E}[\mathbf{u}_k]=\mathbf{0}$ (this follows from the linearity of both the expectation operator and the integral).
+
+Substituting the expression for $\mathbf{u}_k$ in @eq-eq7 into @eq-eq9 yields:
+
+$$
+Q_d = \int_0^T \!\!\int_0^T
+e^{A(T-\tau)}\,B\;
+\mathbb{E}\!\left[a(t_k+\tau)\,a(t_k+s)\right]\;
+B^\top e^{A^\top(T-s)}\, d\tau\,ds.
+$$ {#eq-eq10}
+
+Under the stationarity assumption, the expectation depends only on $\tau-s$, and we obtain:
+
+$$
+Q_d = \int_0^T \!\!\int_0^T
+e^{A(T-\tau)}\,B\;
+R_a(\tau-s)\;
+B^\top e^{A^\top(T-s)}\, d\tau\,ds.
+$$ {#eq-eq11}
+
+This expression makes the central point explicit: the discrete-time covariance $Q_d$ is determined by the autocorrelation structure of acceleration over the sampling interval.
+
+For the one-dimensional constant-velocity kinematic model, with $B$ and $e^{AT}$ as in @eq-eq4 and @eq-eq6 respectively, we can write:
+
+$$
+e^{A(T-\tau)}\,B = \begin{bmatrix} T-\tau\\ 1 \end{bmatrix}
+$$ {#eq-eq12}
+
+As a result, the discrete-time covariance matrix can be written explicitly as
+
+$$
+Q_d = \int_0^T\!\!\int_0^T \begin{bmatrix} T-\tau\\ 1 \end{bmatrix}
+R_a(\tau-s)
+\begin{bmatrix} T-s & 1 \end{bmatrix} \,d\tau\,ds
+$$ {#eq-eq13}
+
+Written component-wise, this expression highlights how each entry of $Q_d$ is obtained by weighting the autocorrelation function of acceleration with deterministic kernels:
+
+$$
+Q_d =
+\begin{bmatrix}
+\displaystyle \int_0^T\!\!\int_0^T (T-\tau)(T-s)\,R_a(\tau-s)\,d\tau\,ds
+&
+\displaystyle \int_0^T\!\!\int_0^T (T-\tau)\,R_a(\tau-s)\,d\tau\,ds
+\\[0.6em]
+\displaystyle \int_0^T\!\!\int_0^T (T-s)\,R_a(\tau-s)\,d\tau\,ds
+&
+\displaystyle \int_0^T\!\!\int_0^T R_a(\tau-s)\,d\tau\,ds
+\end{bmatrix}
+$$ {#eq-eq14}
+
+At this point, no assumption has yet been made on the specific form of $R_a(\cdot)$. The structure of $Q_d$ is entirely determined by the kinematics; the autocorrelation function of acceleration determines its numerical values.
+
+## White noise acceleration as a limiting model
+
+We now consider a specific, and widely used, stochastic model for acceleration: *white noise acceleration*. Formally, acceleration is modeled as a zero-mean stochastic process with autocorrelation
+
+$$
+R_a(\tau) = q\,\delta(\tau)
+$$ {#eq-eq15}
+
+where $\delta(\cdot)$ denotes the Dirac delta and the noise strength $q$ is a constant. This expression should not be interpreted literally as a function: white noise does not exist as a time function in the usual sense. Rather, it is a mathematical idealization that captures the idea of rapidly varying, uncorrelated fluctuations. What matters for our purposes is that the autocorrelation is impulsive, and that all second-order properties of the process are encoded in the single parameter $q$.
+
+The parameter $q$ has a clear physical dimension. Acceleration has units of length over time squared, $[a] = \mathrm{L}/\mathrm{T}^2$, the Dirac delta has units of inverse time, and the autocorrelation has units $\mathrm{L}^2/\mathrm{T}^4$. It follows that $[q] = \mathrm{L}^2/\mathrm{T}^3.$ This dimensional analysis makes explicit that $q$ is the (constant) power spectral density (PSD) of the white noise acceleration.
+
+Substituting @eq-eq15 into @eq-eq14, each double integral defining $Q_d$ collapses to a single integral:
+
+$$
+Q_d
+=
+q \int_0^T
+\begin{bmatrix}
+(T-\tau)^2 & T-\tau\\
+T-\tau & 1
+\end{bmatrix}
+\,d\tau.
+$$ {#eq-eq16}
+
+Evaluating the integral yields the well-known result:
+
+$$
+Q_d =
+q\begin{bmatrix}
+T^3/3 & T^2/2 \\
+T^2/2 & T
+\end{bmatrix}.
+$$ {#eq-eq17}
+
+This matrix summarizes, in discrete time, the cumulative effect of continuous-time white acceleration over one sampling interval.
+
+It is worth stressing that the discrete-time covariance $Q_d$ depends not only on the noise PSD, but also explicitly on the sampling interval $T$. Changing $T$ without recomputing $Q_d$ therefore amounts to changing the underlying model, not merely its numerical implementation.
+
+### On simulation and sample paths
+
+Although white noise acceleration is a convenient analytical model, it cannot be simulated directly as a time function. To generate consistent sample paths, one must work with a time-integrated process. In practice, this amounts to simulating independent increments whose variance scales with the time step, in the same spirit as the construction of the Wiener process. These increments are assumed to be Gaussian, and position and velocity trajectories are obtained by integrating them, rather than by sampling acceleration itself. Strictly speaking, the Gaussian assumption is not essential, but it provides a convenient and widely used framework; more generally, a normal joint distribution for position and velocity may arise as a limiting approximation via the central limit theorem.
+
+::: callout-note
+## Generating correlated increments via a linear transformation
+
+In the discrete-time model @eq-eq5, the random vector $\mathbf{u}_k$ represents the integrated effect of acceleration over one sampling interval. It is a two-dimensional Gaussian vector, with zero mean and covariance $Q_d$.
+
+A convenient way to generate $\mathbf{u}_k$ is to start from a vector of independent standard Gaussian variables, $\mathbf{z}_k \sim \mathcal{N}(\mathbf{0}, I)$, and apply the linear transformation
+
+$$
+\mathbf{u}_k = L\,\mathbf{z}_k,
+\qquad
+Q_d = L\,L^\top.
+$$ {#eq-eq18}
+
+This construction makes the role of the transformation explicit: the matrix $L$ introduces both the correct scaling and the correlation structure between the components of $\mathbf{u}_k$. In practice, $L$ can be obtained via a Cholesky factorization of $Q_d$, but the key idea is the linear mapping from independent to correlated random variables. In the example discussed in this post, the matrix $L$ can be written as follows: $$
+L = \sqrt{q\,T}
+\begin{bmatrix} \dfrac{T}{2\sqrt{3}} & \dfrac{T}{2} \\ 0 & 1 \end{bmatrix}
+$$ {#eq-eq19}
+:::
+
+### A conceptual remark on dimensions and modeling
+
+It is worth pausing for a moment to reflect on what has just happened.
+
+We started in continuous time with a system driven by an acceleration input, whose physical dimension is $[\mathrm{L}\,\mathrm{T}^{-2}]$. After discretization, we end up with a two-dimensional input ($\mathbf{u}\_k$) whose components have dimensions $[\mathrm{L}]$ and $[\mathrm{L}\,\mathrm{T}^{-1}]$, corresponding to increments of position and velocity.
+
+This is not a contradiction, but a direct consequence of integration over time. In the discrete-time model, the input no longer represents an instantaneous physical quantity, but the cumulative effect of acceleration over a finite interval.
+
+What is particularly noteworthy is that these two components are correlated. They are statistically “glued together” through the covariance matrix $Q_d$, which encodes how uncertainty injected through acceleration propagates jointly into position and velocity during a single time step.
+
+In this sense, discretization transforms a scalar continuous-time acceleration input into a vector-valued discrete-time input with coupled components and nontrivial physical units. Understanding this transformation is essential to avoid misinterpreting the role of process noise in discrete-time motion models.
+
+### A final remark on the role of the sampling interval
+
+A final comment concerns the role of the sampling interval $T$. In the present context, $T$ should be interpreted primarily as an integration step. The discrete-time model is exact at the sampling times, and the construction of the random input $\mathbf{u}_k$ guarantees that the resulting position and velocity sample paths have the correct second-order statistics, regardless of the specific value of $T$, within broad limits dictated by the validity of the underlying continuous-time model.
+
+This is different from what happens in a Kalman filtering or tracking context, where $T$ determines how long the system must evolve “open-loop” based on the motion model alone, between successive measurements. Here, no estimation is being performed, and no measurements are involved.
+
+As a result, $T$ does not control prediction horizon or estimator performance, but simply sets the time scale over which the continuous-time stochastic input is integrated. As long as the discrete-time covariance $Q_d$ is constructed consistently, changing $T$ does not introduce integration errors: it only changes how uncertainty accumulates over time.
+
+It is also important to stress what this construction does — and does not — provide. Nothing can be said about what happens between sampling times. The continuous-time trajectory is not reconstructed, nor is it assumed to be known in any meaningful sense. What is guaranteed, instead, is that the stochastic process is characterized exactly at the sampling times. Moreover, in the Gaussian case considered here, the statistical behavior of position and velocity at discrete times is fully described by their mean and covariance.
+
+In this sense, the discrete-time model provides a complete and exact statistical description of the motion at sampling times, even though the underlying continuous-time path remains unknown. Strictly speaking, $Q_d$ should not be thought of as a generic hyperparameter to be tuned (e.g., in a Kalman-based tracker), but as a quantity implied by the chosen stochastic model for acceleration — even though, in practice, it is often used as a tool for absorbing the effects of unmodeled dynamics.
+
+::: callout-note
+## Two difference equations, one stochastic model?
+
+A natural question arises at this point; a related discussion can be found in one [previous post](https://amsabatini.netlify.app/posts/numerical_simulation/) of mine. If white noise acceleration is written in continuous time as a stochastic differential equation, we have:
+
+$$
+\left\{
+\begin{align}
+dx(t)&=v(t)\,dt\\
+dv(t)&=\sqrt{q}\,dW(t)
+\end{align}
+\right.
+$$ {#eq-eq20}
+
+then the Euler--Maruyama (EM) scheme on a fine grid with step $h$ reads
+
+$$
+\left\{
+\begin{align}
+x_{n+1}&=x_n+h\,v_n\\
+v_{n+1}&=v_n+\sqrt{q}\,\sqrt{h}\,\xi_n\qquad \xi_n \sim \mathcal N(0,1)
+\end{align}
+\right.
+$$ {#eq-eq21}
+
+At first sight, this update looks structurally different from that in @eq-eq5: the noise appears explicitly only in the velocity equation, while in the exact discrete-time model randomness enters both position and velocity through $\mathbf{u}_k$.
+
+The apparent mismatch disappears once one recognizes that the two constructions address different objects.
+
+-   EM is a pathwise approximation method: it builds an approximate continuous-time trajectory on a refined grid. Under standard regularity conditions (satisfied here, since the model is linear), EM converges with strong order $1/2$ (mean-square or pathwise accuracy) and with weak order $1$ (accuracy in the distribution of smooth functionals).
+-   The exact discrete-time model does not approximate trajectories between samples. It constructs directly the correct joint distribution of $(x(t_k),v(t_k))$, by integrating the stochastic input over a finite interval of length $T$.
+
+As a consequence, the two difference equations are not expected to coincide in form. What can be reconciled is their statistical output at fixed times: if EM is run with a sufficiently small step $h$ and the resulting trajectory is inspected only at the coarse sampling times $t_k=kT$ (with $T$ an integer multiple of $h$), then the distribution of the EM state $(x_k,v_k)$ converges (as $h\to0$) to the same distribution implied by the exact discrete-time covariance $Q_d$. The covariance $P_k$ of the EM state at the sampling times can be calculated by solving:
+
+$$
+P_{k+1}=e^{AT}P_k(e^{AT})^\top+Q_d
+$$ {#eq-eq22}
+
+In this sense, EM converges to the correct model in distribution, even though its local update equation looks different.
+:::
+
+## Concluding remarks
+
+The goal of this post was not to provide an exhaustive discussion of stochastic acceleration models, nor to explore the interpretation of white noise as the limit of rapidly fluctuating correlated processes.
+
+Rather, the focus was on understanding how a simple kinematic model, when driven by a stochastic input, can be consistently carried from continuous time to discrete time, and how the statistical properties of that input propagate into the discrete-time state increments.
+
+Within this framework, white acceleration was introduced as a convenient and widely used specialization that leads to a closed-form expression for the discrete-time covariance $Q_d$. It should be regarded as one modeling choice among others, not as a physical description of acceleration itself.
+
+What matters, ultimately, is not the specific choice of model, but the clarity with which its assumptions are stated and their consequences understood. Even for the simplest possible motion problem, careful modeling at this level can make a substantial difference.

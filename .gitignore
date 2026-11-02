@@ -1,2 +1,13 @@
+# Quarto
 /.quarto/
-.Rproj.user
+/_site/
+# RStudio
+.Rproj.user/
+# R session files
+.Rhistory
+.RData
+.RDataTmp
+# macOS
+.DS_Store
+# Quarto-generated resources within posts
+**/index_files/
