@@ -278,20 +278,16 @@ Scientific notation
 </div>
 <div class="callout-body-container callout-body">
 <p>Scientific notation is a way of expressing numbers that are much too large or much too small to be conveniently written in decimal form (i.e., their representation would involve a long string of digits). In scientific notation, nonzero numbers are written in the form:</p>
-<p><span class="math display">\[
-m\times10^n
-\]</span></p>
+<p><span class="math display">\[m\times10^n\]</span></p>
 <p>where <span class="math inline">\(n\)</span> is an integer, and the coefficient <span class="math inline">\(m\)</span> is a nonzero real number (usually <span class="math inline">\(1\leq\vert\,m\,\vert&lt;10\)</span>). The integer <span class="math inline">\(n\)</span> is called the <em>exponent</em> and the real number <span class="math inline">\(m\)</span> is called the <em>mantissa</em>. If the number is negative, then a minus sign precedes <span class="math inline">\(m\)</span>, as in ordinary decimal notation.</p>
 </div>
 </div>
 <p>In scientific notation, the number 4600 can be written using a different number of significant figures, based on rule 3. above:</p>
-<p><span class="math display">\[
-\begin{split}
+<p><span class="math display">\[\begin{split}
 4.600\times 10^3&amp;\quad\text{four significant figures}\\
 4.60\times 10^3&amp;\quad\text{three significant figures}\\
 4.6\times 10^3&amp;\quad\text{two significant figures}
-\end{split}
-\]</span></p>
+\end{split}\]</span></p>
 </section>
 <section id="rounding" class="level3">
 <h3 class="anchored" data-anchor-id="rounding">Rounding</h3>
@@ -302,26 +298,22 @@ m\times10^n
 <ul>
 <li>Example - round at the fourth significant figure</li>
 </ul>
-<p><span class="math display">\[
-\begin{split}
+<p><span class="math display">\[\begin{split}
 53.8\underline{7}4&amp;\rightarrow53.87\\
 53.8\underline{7}9&amp;\rightarrow53.88
-\end{split}
-\]</span></p>
+\end{split}\]</span></p>
 <ol start="2" type="1">
 <li>if the digit to the right of the LSD is 5, apply a tie-breaking rule, also called the <em>five rule</em>. When the first digit to be dropped is 5, the leading digit next to it is examined. If this digit is even, including zero, it is left unaltered; otherwise, one unit is added. This helps avoiding the accumulation of errors that would be otherwise determined by rounding systematically up or down. Using the five rule, five out of ten cases consist of rounding up and five out of ten cases consist of rounding down.</li>
 </ol>
 <ul>
 <li>Example - round at the fifth significant figure</li>
 </ul>
-<p><span class="math display">\[
-\begin{split}
+<p><span class="math display">\[\begin{split}
 726.8\underline{0}51\rightarrow 726.80\\
 726.8\underline{3}51\rightarrow 726.84\\
 726.8\underline{6}51\rightarrow 726.86\\
 726.8\underline{9}51\rightarrow 726.90
-\end{split}
-\]</span></p>
+\end{split}\]</span></p>
 </section>
 </section>
 <section id="finite-precision-arithmetic" class="level2">
@@ -334,12 +326,10 @@ m\times10^n
 </blockquote>
 <p>In a calculation involving multiplication/division the number of significant figures in the result should equal the least number of significant figures in any one of the numbers being multiplied or divided.</p>
 <p>In the following example, the number 1.6 is reported with two significant figures; the number 2, seen as a known constant, can be considered having an infinite number of significant figures, whereas the number 2.0 has two significant figures. The result should be reported with two significant figures in both cases:</p>
-<p><span class="math display">\[
-\begin{split}
+<p><span class="math display">\[\begin{split}
 &amp;1.6\times2=3.2&amp;\\
 &amp;1.61\times2.0=3.2&amp;\quad\text{not}\;3.22
-\end{split}
-\]</span></p>
+\end{split}\]</span></p>
 </section>
 <section id="addition-and-subtraction" class="level3">
 <h3 class="anchored" data-anchor-id="addition-and-subtraction">Addition and subtraction</h3>
@@ -348,13 +338,11 @@ m\times10^n
 </blockquote>
 <p>In a calculation involving addition/subtraction, the number of decimal places in the result should equal the least number of decimal places in any one of the numbers being added or subtracted.</p>
 <p>In the following example, the number 132.03 is reported with five significant figures, and the number 3.210 is reported with four significant figures. However, when the two numbers are added, what matters really is the number of decimal places, i.e., two for the number 132.03 and three for the number 3.210. The result should be reported with two decimal digits and not reported using four significant figures.</p>
-<p><span class="math display">\[
-\begin{split}
+<p><span class="math display">\[\begin{split}
 &amp;132.03+3.210=135.24&amp;\;\text{and not}\;135.2\\
 &amp;132.03+3=135&amp;\;\text{and not}\;135.03\\
 &amp;132.03+3.00=135.03&amp;\;\text{and not}\;135\\
-\end{split}
-\]</span></p>
+\end{split}\]</span></p>
 <p>The prescription about the minimum number of decimal places of any of the numbers involved in the calculation can be explained by considering that, implicitly, the precision of any measurement is dictated by the decimal place. For a measurement of length expressed in meters, for example, the second decimal digit implies a measurement precise to the hundredths (centimeter-level), the third decimal digit to the thousandth (millimeter-level). So by keeping the result with the minimum number of decimal places we basically state that we do not want to imply to get a result more precise than the least precise measurement that was needed to produce the result itself.</p>
 </section>
 <section id="multiple-arithmetic-operations" class="level3">
@@ -371,41 +359,29 @@ m\times10^n
 </ul>
 <p>It is important to always perform intermediate calculations without rounding the numbers that are involved in the operations. If numbers are rounded every time during many sequential calculations, the results are skewed and some systematic error is surely introduced. Only after that all calculations are carried out with all digits retained at each step, the final result has to be rounded to the desired number of significant figures.</p>
 <p>As an example, two numbers reported with five significant figures each are added, and the final result is rounded to three significant figures. If the addends are first rounded to three significant figures and then added, the result we produce is wrong:</p>
-<p><span class="math display">\[
-\begin{split}
+<p><span class="math display">\[\begin{split}
 &amp;1.4248+1.2732=2.6980\rightarrow 2.70&amp;\quad\text{correct}\\
 &amp;1.42+1.27=2.69\rightarrow 2.70&amp;\quad\text{wrong}
-\end{split}
-\]</span></p>
+\end{split}\]</span></p>
 <div id="exm-exm1" class="theorem example">
 <p><span class="theorem-title"><strong>Example 1 (Sequential calculation)</strong></span> Suppose that we want to perform the following operation:</p>
-<p><span class="math display">\[
-(2.5\times3.42)+13.681-0.1
-\]</span></p>
+<p><span class="math display">\[(2.5\times3.42)+13.681-0.1\]</span></p>
 <ol type="1">
 <li>perform first the product between parentheses - we keep track of the first decimal place, which would be retained based on rule B above.</li>
 </ol>
-<p><span class="math display">\[
-2.5\times3.42=8.\underline{5}500
-\]</span></p>
+<p><span class="math display">\[2.5\times3.42=8.\underline{5}500\]</span></p>
 <ol start="2" type="1">
 <li>perform addition - although, based on rule A above, the result would be expressed using five significant figures, only the first decimal place is kept tracked:</li>
 </ol>
-<p><span class="math display">\[
-8.5500+13.681=22.\underline{2}310
-\]</span></p>
+<p><span class="math display">\[8.5500+13.681=22.\underline{2}310\]</span></p>
 <ol start="3" type="1">
 <li>perform subtraction:</li>
 </ol>
-<p><span class="math display">\[
-22.2310-0.1=22.\underline{1}31
-\]</span></p>
+<p><span class="math display">\[22.2310-0.1=22.\underline{1}31\]</span></p>
 <ol start="4" type="1">
 <li>rounding to three significant figures:</li>
 </ol>
-<p><span class="math display">\[
-(2.5\times3.42)+13.681-0.1\rightarrow22.1
-\]</span></p>
+<p><span class="math display">\[(2.5\times3.42)+13.681-0.1\rightarrow22.1\]</span></p>
 </div>
 <p>When doing multi-step calculations, we need:</p>
 <ul>
@@ -423,55 +399,37 @@ m\times10^n
 <ol type="1">
 <li>round the uncertainty to two significant figures:</li>
 </ol>
-<p><span class="math display">\[
-\Delta z=0.15\,\text{cm}
-\]</span></p>
+<p><span class="math display">\[\Delta z=0.15\,\text{cm}\]</span></p>
 <ol start="2" type="1">
 <li>round <span class="math inline">\(z\)</span> using the same number of decimal places as <span class="math inline">\(\Delta z\)</span>:</li>
 </ol>
-<p><span class="math display">\[
-z=12.03\,\text{cm}
-\]</span></p>
+<p><span class="math display">\[z=12.03\,\text{cm}\]</span></p>
 <ol start="3" type="1">
 <li>provide the measurement report:</li>
 </ol>
-<p><span class="math display">\[
-z\pm\Delta z=(12.03\pm0.15)\,\text{cm}
-\]</span></p>
+<p><span class="math display">\[z\pm\Delta z=(12.03\pm0.15)\,\text{cm}\]</span></p>
 </div>
 <div id="exm-exm3" class="theorem example">
 <p><span class="theorem-title"><strong>Example 3 (Use of the scientific notation)</strong></span> When the answer is given in scientific notation, the uncertainty should be given in scientific notation with the same power of ten as the answer. Suppose that <span class="math inline">\(z=1.43\times10^6\;\text{s}\)</span> and <span class="math inline">\(\Delta z=2\times10^4\;\text{s}\)</span>:</p>
-<p><span class="math display">\[
-z\pm\Delta z=(1.43\pm0.02)\,10^6\;\text{s}
-\]</span></p>
+<p><span class="math display">\[z\pm\Delta z=(1.43\pm0.02)\,10^6\;\text{s}\]</span></p>
 </div>
 <div id="exm-exm4" class="theorem example">
 <p><span class="theorem-title"><strong>Example 4 (Addition/subtraction of uncertain numbers)</strong></span> The length of two blocks is measured, and the measurements are <span class="math inline">\(l_1=1.13\;\text{m}\)</span> (considered precise to the level of centimeters) and <span class="math inline">\(l_2=0.551\;\text{m}\)</span> (considered precise to the level of millimeters). We need to compute the length <span class="math inline">\(l\)</span> of the block resulting from stacking the two blocks together:</p>
-<p><span class="math display">\[
-l=l_1+l_2=1.681\;\text{m}\rightarrow l=1.68\;\text{m}
-\]</span></p>
+<p><span class="math display">\[l=l_1+l_2=1.681\;\text{m}\rightarrow l=1.68\;\text{m}\]</span></p>
 <p>It does not make any physical sense to consider the length of the overall block precise to the level of the millimeters, given that one of the two blocks is measured less precisely. The result should be at least as precise as the least precise term involved in the addition, as stated by the rule for addition/subtraction of uncertain numbers.</p>
 </div>
 <div id="exm-exm5" class="theorem example">
 <p><span class="theorem-title"><strong>Example 5 (Multiplication/division of uncertain numbers)</strong></span> A rectangular floor needs to be covered by a number of squared tiles. According to the measurements that are available, the rectangular floor has width <span class="math inline">\(w=1.91\;\text{m}\)</span> and length <span class="math inline">\(l=1.57\;\text{m}\)</span> and each squared tile has size <span class="math inline">\(a=0.15\;\text{m}\)</span>. All measurements are considered precise to the level of centimeters, and three significant figures should then be considered for their numerical representation. The number of tiles can be easily calculated:</p>
-<p><span class="math display">\[
-N\approx\dfrac{w\,l}{a^2}=133.2756\;\text{m}^2\,\text{m}^{-2}
-\]</span></p>
+<p><span class="math display">\[N\approx\dfrac{w\,l}{a^2}=133.2756\;\text{m}^2\,\text{m}^{-2}\]</span></p>
 <p>To comply with the rule for multiplication/division between uncertain numbers, <span class="math inline">\(133.2756\)</span> has to be rounded using three significant figures, yielding the integer <span class="math inline">\(N=133\)</span>, which is then the number of tiles expected to cover the floor.</p>
 </div>
 <div id="exm-exm6" class="theorem example">
 <p><span class="theorem-title"><strong>Example 6 (Conversion of scale)</strong></span> A measurement of temperature is performed, leading to the following report:</p>
-<p><span class="math display">\[
-T_c=(54.0\pm0.5)\;^{\circ}\text{C}
-\]</span></p>
+<p><span class="math display">\[T_c=(54.0\pm0.5)\;^{\circ}\text{C}\]</span></p>
 <p>We want to convert this expression in units of kelvin:</p>
-<p><span class="math display">\[
-T_K=T_C+273.15=(327.15\pm0.5)\;\text{K}
-\]</span></p>
+<p><span class="math display">\[T_K=T_C+273.15=(327.15\pm0.5)\;\text{K}\]</span></p>
 <p>The uncertainty expressed in degree Celsius (<span class="math inline">\(\pm0.5\;^{\circ}\text{C}\)</span>) translates directly in the uncertainty expressed in kelvin (<span class="math inline">\(\pm 0.5\;\text{K}\)</span>). This is because transforming a measurement expressed in degree Celsius into a measurement expressed in kelvin implies a change of offset, but not a change of scale. Since the uncertainty loads the first decimal digit of the numerical representation of the measured temperature, we should report <span class="math inline">\(T_K\)</span> with one decimal digit, which requires rounding (based on the five rule):</p>
-<p><span class="math display">\[
-T_k=(327.2\pm0.5)\;\text{K}
-\]</span></p>
+<p><span class="math display">\[T_k=(327.2\pm0.5)\;\text{K}\]</span></p>
 <p>The prescription of the minimum number of significant figures (rule for the addition/subtraction of uncertain numbers) would yield <span class="math inline">\(T_k=327\;\text{K}\)</span>. This is because <span class="math inline">\(54.0\)</span> has three significant figures, and <span class="math inline">\(273.15\)</span> can be considered to have an infinite number of significant figures, since it is a known constant; hence <span class="math inline">\(T_K\)</span> should be reported with three significant figures according to the rule for addition/subtraction of uncertain numbers. However, this rule is superseded by considering the prescription concerning how to express the measurement uncertainty.</p>
 </div>
 <blockquote class="blockquote">
